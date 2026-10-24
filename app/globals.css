@@ -3,29 +3,36 @@
 @tailwind utilities;
 
 :root {
-  /* RevenueCat System Colors */
-  --color-periwinkle-signal: #576cdb;
-  --color-deep-indigo: #1f1f47;
-  --color-storm-violet: #3d3d5c;
-  --color-slate: #575775;
-  --color-fog: #6c7693;
-  --color-ash: #84849a;
-  --color-midnight-ink: #171a1c;
-  --color-cloud: #f9f9fb;
-  --color-paper: #ffffff;
-  --color-mist: #eaedf6;
-  --color-haze: #d1d6e1;
-  --color-bone: #e3e6e8;
-  --color-lilac-wash: #d6dbf5;
-  --color-periwinkle-mist: #c1c9f6;
-  --color-sky-tint: #abb6ed;
-  --color-coral-ember: #f25a5a;
-  --color-coral-blush: #f7d4d4;
-  --color-mint-whisper: #a6f2d2;
-  --color-mint-veil: #c1f6e0;
+  /* Brand Palette: Deep Olive, Soft Olive, Linen, Honey, Ink */
+  --color-deep-olive: #48563A;
+  --color-soft-olive: #A9B392;
+  --color-linen: #F7F4EA;
+  --color-honey: #D6B46D;
+  --color-ink: #2D3327;
 
-  --background: #f9f9fb;
-  --foreground: #171a1c;
+  /* System Mappings */
+  --color-periwinkle-signal: #48563A;
+  --color-deep-indigo: #2D3327;
+  --color-storm-violet: #454f41;
+  --color-slate: #596455;
+  --color-fog: #798375;
+  --color-ash: #8c9781;
+  --color-midnight-ink: #2D3327;
+  --color-cloud: #F7F4EA;
+  --color-paper: #ffffff;
+  --color-mist: #dedbc9;
+  --color-haze: #A9B392;
+  --color-bone: #e5e1d3;
+  --color-lilac-wash: #edf1e8;
+  --color-periwinkle-mist: #dbe3d3;
+  --color-sky-tint: #A9B392;
+  --color-coral-ember: #c85246;
+  --color-coral-blush: #fae3e1;
+  --color-mint-whisper: #A9B392;
+  --color-mint-veil: #dbe3d3;
+
+  --background: #F7F4EA;
+  --foreground: #2D3327;
 }
 
 body {

@@ -147,7 +147,7 @@ export const SalesView: React.FC<SalesViewProps> = ({
               {payments.length} receipt records
             </p>
           </div>
-          <div className="p-3 bg-emerald-50 text-emerald-600 rounded-2xl">
+          <div className="p-3 bg-[#A9B392]/20 text-[#48563A] rounded-2xl">
             <DollarSign className="w-7 h-7" />
           </div>
         </div>

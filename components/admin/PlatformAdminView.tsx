@@ -190,30 +190,30 @@ export const PlatformAdminView: React.FC<PlatformAdminViewProps> = ({
   );
 
   return (
-    <div className="min-h-screen bg-slate-900 text-slate-100 flex flex-col font-sans">
+    <div className="min-h-screen bg-[#20251c] text-slate-100 flex flex-col font-sans">
       {/* Top Admin Navigation Header */}
-      <header className="bg-slate-950 border-b border-slate-800 px-4 sm:px-8 py-3.5 flex items-center justify-between sticky top-0 z-30">
+      <header className="bg-[#191d15] border-b border-[#363f33] px-4 sm:px-8 py-3.5 flex items-center justify-between sticky top-0 z-30">
         <div className="flex items-center space-x-3">
-          <div className="w-9 h-9 rounded-xl bg-dairy-600 flex items-center justify-center text-white font-black text-lg shadow-sm">
+          <div className="w-9 h-9 rounded-xl bg-[#48563A] flex items-center justify-center text-white font-black text-lg shadow-sm">
             M
           </div>
           <div>
             <div className="flex items-center gap-2">
               <span className="font-extrabold text-base tracking-tight text-white">Mylkio Super Admin</span>
-              <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-dairy-900 text-dairy-300 border border-dairy-700">
+              <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-[#48563A]/40 text-[#A9B392] border border-[#A9B392]/30">
                 Versaly Labs
               </span>
             </div>
-            <p className="text-[11px] text-slate-400">Master Platform Operations & Tenant Hub</p>
+            <p className="text-[11px] text-[#A9B392]/80">Master Platform Operations & Tenant Hub</p>
           </div>
         </div>
 
         <div className="flex items-center space-x-2.5">
           <button
             onClick={() => onImpersonateFarm('farm-green-hills')}
-            className="flex items-center space-x-1.5 px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-semibold border border-slate-700 transition-colors"
+            className="flex items-center space-x-1.5 px-3 py-1.5 rounded-xl bg-[#2D3327] hover:bg-[#363f33] text-slate-200 text-xs font-semibold border border-[#3f4a36] transition-colors"
           >
-            <Building2 className="w-3.5 h-3.5 text-dairy-400" />
+            <Building2 className="w-3.5 h-3.5 text-[#D6B46D]" />
             <span className="hidden sm:inline">Inspect Green Hills Demo</span>
           </button>
 
@@ -231,7 +231,7 @@ export const PlatformAdminView: React.FC<PlatformAdminViewProps> = ({
       <div className="flex-1 max-w-7xl w-full mx-auto p-4 sm:p-6 lg:p-8 space-y-6">
 
         {/* Tab Switcher */}
-        <div className="flex flex-wrap gap-2 border-b border-slate-800 pb-3">
+        <div className="flex flex-wrap gap-2 border-b border-[#363f33] pb-3">
           <button
             onClick={() => setActiveTab('overview')}
             className={`px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2 ${
@@ -303,49 +303,49 @@ export const PlatformAdminView: React.FC<PlatformAdminViewProps> = ({
           <div className="space-y-6">
             {/* KPI Cards */}
             <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-              <div className="bg-slate-800/80 border border-slate-700/80 rounded-2xl p-5 shadow-sm">
-                <div className="flex items-center justify-between text-slate-400 mb-2">
+              <div className="bg-[#2D3327] border border-[#3f4a36] rounded-2xl p-5 shadow-sm">
+                <div className="flex items-center justify-between text-[#A9B392] mb-2">
                   <span className="text-xs font-semibold uppercase tracking-wider">Monthly Run-Rate (MRR)</span>
-                  <DollarSign className="w-4 h-4 text-emerald-400" />
+                  <DollarSign className="w-4 h-4 text-[#D6B46D]" />
                 </div>
-                <div className="text-2xl font-black text-white">
+                <div className="text-2xl font-black text-[#D6B46D]">
                   KSh {totalMrr.toLocaleString()}
                 </div>
-                <p className="text-[11px] text-slate-400 mt-1">
+                <p className="text-[11px] text-[#A9B392]/80 mt-1">
                   From {activeSubscriptions.length} active paying farms
                 </p>
               </div>
 
-              <div className="bg-slate-800/80 border border-slate-700/80 rounded-2xl p-5 shadow-sm">
-                <div className="flex items-center justify-between text-slate-400 mb-2">
+              <div className="bg-[#2D3327] border border-[#3f4a36] rounded-2xl p-5 shadow-sm">
+                <div className="flex items-center justify-between text-[#A9B392] mb-2">
                   <span className="text-xs font-semibold uppercase tracking-wider">Active Paid Subs</span>
-                  <CreditCard className="w-4 h-4 text-dairy-400" />
+                  <CreditCard className="w-4 h-4 text-[#A9B392]" />
                 </div>
                 <div className="text-2xl font-black text-white">
                   {activeSubscriptions.length}
                 </div>
-                <p className="text-[11px] text-slate-400 mt-1">
+                <p className="text-[11px] text-[#A9B392]/80 mt-1">
                   {pastDueSubscriptions.length} account(s) past due
                 </p>
               </div>
 
-              <div className="bg-slate-800/80 border border-slate-700/80 rounded-2xl p-5 shadow-sm">
-                <div className="flex items-center justify-between text-slate-400 mb-2">
+              <div className="bg-[#2D3327] border border-[#3f4a36] rounded-2xl p-5 shadow-sm">
+                <div className="flex items-center justify-between text-[#A9B392] mb-2">
                   <span className="text-xs font-semibold uppercase tracking-wider">14-Day Free Trials</span>
-                  <Calendar className="w-4 h-4 text-amber-400" />
+                  <Calendar className="w-4 h-4 text-[#D6B46D]" />
                 </div>
                 <div className="text-2xl font-black text-white">
                   {trialSubscriptions.length}
                 </div>
-                <p className="text-[11px] text-slate-400 mt-1">
+                <p className="text-[11px] text-[#A9B392]/80 mt-1">
                   Converting within next 2 weeks
                 </p>
               </div>
 
-              <div className="bg-slate-800/80 border border-slate-700/80 rounded-2xl p-5 shadow-sm">
-                <div className="flex items-center justify-between text-slate-400 mb-2">
+              <div className="bg-[#2D3327] border border-[#3f4a36] rounded-2xl p-5 shadow-sm">
+                <div className="flex items-center justify-between text-[#A9B392] mb-2">
                   <span className="text-xs font-semibold uppercase tracking-wider">Total Farms</span>
-                  <Users className="w-4 h-4 text-blue-400" />
+                  <Users className="w-4 h-4 text-[#A9B392]" />
                 </div>
                 <div className="text-2xl font-black text-white">
                   {farmerAccounts.length}

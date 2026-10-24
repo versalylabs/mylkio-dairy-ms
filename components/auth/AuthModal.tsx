@@ -256,8 +256,8 @@ export const AuthModal: React.FC<AuthModalProps> = ({
             </form>
           ) : (
             <form onSubmit={handleSignup} className="space-y-3.5">
-              <div className="p-3 bg-emerald-50 border border-emerald-200 rounded-xl flex items-center gap-2 text-xs text-emerald-800 font-medium">
-                <Sparkles className="w-4 h-4 text-emerald-600 shrink-0" />
+              <div className="p-3 bg-[#F7F4EA] border border-[#A9B392]/50 rounded-xl flex items-center gap-2 text-xs text-[#2D3327] font-medium">
+                <Sparkles className="w-4 h-4 text-[#D6B46D] shrink-0" />
                 <span>Includes 14-Day Full Free Trial. Starts clean with no demo data.</span>
               </div>
 
@@ -401,7 +401,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                         : 'border-slate-200 text-slate-600 hover:bg-slate-50'
                     }`}
                   >
-                    <span className="absolute -top-2 left-1/2 -translate-x-1/2 bg-dairy-700 text-white text-[8px] uppercase tracking-wider font-black px-1.5 py-0.2 rounded-full">
+                    <span className="absolute -top-2 left-1/2 -translate-x-1/2 bg-[#D6B46D] text-[#2D3327] text-[8px] uppercase tracking-wider font-black px-1.5 py-0.5 rounded-full shadow-2xs">
                       Popular
                     </span>
                     <div className="text-[11px]">Farmer</div>

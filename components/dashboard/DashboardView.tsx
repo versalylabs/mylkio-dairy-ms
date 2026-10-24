@@ -91,16 +91,16 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
   return (
     <div className="space-y-6 pb-20 md:pb-8">
       {/* Welcome Banner */}
-      <div className="bg-gradient-to-r from-dairy-800 via-dairy-700 to-dairy-900 rounded-3xl p-6 text-white shadow-lg relative overflow-hidden">
+      <div className="bg-gradient-to-r from-[#48563A] via-[#3a462e] to-[#2D3327] rounded-3xl p-6 text-white shadow-lg relative overflow-hidden">
         <div className="relative z-10 max-w-xl">
-          <div className="inline-flex items-center space-x-1.5 px-3 py-1 bg-white/15 backdrop-blur-md rounded-full text-xs font-semibold text-dairy-100 mb-3 border border-white/20">
-            <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+          <div className="inline-flex items-center space-x-1.5 px-3 py-1 bg-white/15 backdrop-blur-md rounded-full text-xs font-semibold text-[#F7F4EA] mb-3 border border-white/20">
+            <span className="w-2 h-2 rounded-full bg-[#D6B46D] animate-pulse"></span>
             <span>{farmLocation}</span>
           </div>
           <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight">
             {lang === 'sw' ? `Habari, ${displayName}!` : `Welcome Back, ${displayName}!`}
           </h1>
-          <p className="text-sm text-dairy-100 mt-2 font-normal leading-relaxed">
+          <p className="text-sm text-[#dbe3d3] mt-2 font-normal leading-relaxed">
             {lang === 'sw'
               ? 'Simamia maziwa, ng\'ombe wako, na malipo ya ushirika kwa urahisi.'
               : 'Know your cows, your milk production, and who owes you without complicated software.'}
@@ -109,14 +109,14 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
           <div className="mt-5 flex items-center gap-3">
             <button
               onClick={onOpenRecordMilk}
-              className="px-4 py-2.5 bg-white text-dairy-900 hover:bg-dairy-50 rounded-xl font-bold text-xs shadow-sm transition-all flex items-center space-x-2"
+              className="px-4 py-2.5 bg-[#F7F4EA] text-[#2D3327] hover:bg-white rounded-xl font-bold text-xs shadow-sm transition-all flex items-center space-x-2"
             >
-              <Milk className="w-4 h-4 text-dairy-600" />
+              <Milk className="w-4 h-4 text-[#48563A]" />
               <span>{t.quickActions.recordMilk}</span>
             </button>
             <button
               onClick={() => onNavigate('sales')}
-              className="px-4 py-2.5 bg-dairy-700/60 hover:bg-dairy-700 text-white border border-dairy-500/40 rounded-xl font-semibold text-xs transition-all flex items-center space-x-1.5"
+              className="px-4 py-2.5 bg-[#48563A]/80 hover:bg-[#48563A] text-white border border-[#A9B392]/30 rounded-xl font-semibold text-xs transition-all flex items-center space-x-1.5"
             >
               <Truck className="w-3.5 h-3.5" />
               <span>{lang === 'sw' ? 'Rekodi Mauzo' : 'Log Delivery'}</span>
@@ -150,7 +150,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
             <span className="text-xs font-semibold text-gray-500 uppercase tracking-wider">
               {t.dashboard.todayMilk}
             </span>
-            <div className="p-2 bg-emerald-50 rounded-xl text-emerald-600">
+            <div className="p-2 bg-[#A9B392]/20 rounded-xl text-[#48563A]">
               <Milk className="w-4 h-4" />
             </div>
           </div>
@@ -158,7 +158,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
             <div className="text-2xl font-black text-gray-900 tracking-tight">
               {todayLitres.toFixed(1)} <span className="text-sm font-normal text-gray-500">{t.common.lShort}</span>
             </div>
-            <div className="text-[11px] font-medium text-emerald-600 flex items-center gap-1 mt-0.5">
+            <div className="text-[11px] font-medium text-[#48563A] flex items-center gap-1 mt-0.5">
               <TrendingUp className="w-3 h-3" />
               <span>{todayMilkEntries.length} session(s) today</span>
             </div>
@@ -211,12 +211,12 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
             <span className="text-xs font-semibold text-gray-500 uppercase tracking-wider">
               {t.dashboard.outstandingBalances}
             </span>
-            <div className="p-2 bg-amber-50 rounded-xl text-amber-600">
+            <div className="p-2 bg-[#D6B46D]/20 rounded-xl text-[#9f7737]">
               <Clock className="w-4 h-4" />
             </div>
           </div>
           <div className="mt-2">
-            <div className="text-2xl font-black text-amber-600 tracking-tight">
+            <div className="text-2xl font-black text-[#9f7737] tracking-tight">
               KSh {totalOwed.toLocaleString()}
             </div>
             <div className="text-[11px] font-medium text-gray-500 mt-0.5">
@@ -264,7 +264,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                   onClick={() => onToggleReminder(rem.id)}
                   className={`mt-0.5 w-5 h-5 rounded-lg border flex items-center justify-center transition-colors ${
                     rem.completed
-                      ? 'bg-emerald-600 border-emerald-600 text-white'
+                      ? 'bg-[#48563A] border-[#48563A] text-white'
                       : 'border-gray-300 bg-white hover:border-dairy-500'
                   }`}
                 >
@@ -296,17 +296,17 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
       </div>
 
       {/* Financial Health Snapshot */}
-      <div className="bg-slate-900 text-white rounded-3xl p-5 shadow-sm space-y-3">
+      <div className="bg-[#2D3327] text-white rounded-3xl p-5 shadow-sm space-y-3 border border-[#48563A]/40">
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-2">
-            <Receipt className="w-4 h-4 text-dairy-400" />
+            <Receipt className="w-4 h-4 text-[#A9B392]" />
             <h2 className="text-sm font-bold">
               {lang === 'sw' ? 'Hali ya Kifedha ya Shamba' : 'Operating Profit & Expense Snapshot'}
             </h2>
           </div>
           <button
             onClick={() => onNavigate('finance')}
-            className="text-xs font-semibold text-dairy-400 hover:text-dairy-300 flex items-center gap-1"
+            className="text-xs font-semibold text-[#D6B46D] hover:text-[#e3c68a] flex items-center gap-1"
           >
             <span>{lang === 'sw' ? 'Tazama Leja ya Fedha' : 'Open Finance Ledger'}</span>
             <ArrowRight className="w-3.5 h-3.5" />
@@ -315,16 +315,16 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
 
         <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 pt-1">
           <div className="p-3 bg-white/10 rounded-2xl">
-            <span className="text-[11px] text-slate-300 block">Total Expenses</span>
+            <span className="text-[11px] text-[#dbe3d3] block">Total Expenses</span>
             <span className="text-lg font-black text-rose-300">KSh {totalExpenses.toLocaleString()}</span>
           </div>
           <div className="p-3 bg-white/10 rounded-2xl">
-            <span className="text-[11px] text-slate-300 block">Estimated Revenue</span>
-            <span className="text-lg font-black text-dairy-300">KSh 45,000+</span>
+            <span className="text-[11px] text-[#dbe3d3] block">Estimated Revenue</span>
+            <span className="text-lg font-black text-[#D6B46D]">KSh 45,000+</span>
           </div>
           <div className="p-3 bg-white/10 rounded-2xl col-span-2 sm:col-span-1">
-            <span className="text-[11px] text-slate-300 block">Net Surplus / Margin</span>
-            <span className="text-lg font-black text-emerald-400">+KSh {(45000 - totalExpenses > 0 ? 45000 - totalExpenses : 0).toLocaleString()}</span>
+            <span className="text-[11px] text-[#dbe3d3] block">Net Surplus / Margin</span>
+            <span className="text-lg font-black text-[#A9B392]">+KSh {(45000 - totalExpenses > 0 ? 45000 - totalExpenses : 0).toLocaleString()}</span>
           </div>
         </div>
       </div>
