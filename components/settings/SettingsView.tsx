@@ -122,7 +122,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
       {user && (
         <div className="bg-white rounded-2xl border border-gray-200/90 p-5 shadow-sm space-y-4">
           <div className="flex items-center space-x-3">
-            <div className="p-2.5 bg-[#A9B392]/20 text-[#48563A] rounded-xl">
+            <div className="p-2.5 bg-[#A8BFA5]/20 text-[#345C4A] rounded-xl">
               <CreditCard className="w-5 h-5" />
             </div>
             <div>
@@ -135,16 +135,16 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
             </div>
           </div>
 
-          <div className="p-4 bg-[#F7F4EA]/60 border border-[#e5e1d3] rounded-xl flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          <div className="p-4 bg-[#FAF9F5]/70 border border-[#E8E4D8] rounded-xl flex flex-col sm:flex-row sm:items-center justify-between gap-3">
             <div>
               <div className="flex items-center gap-2">
-                <span className="font-extrabold text-sm text-[#2D3327] uppercase">
+                <span className="font-extrabold text-sm text-[#26332D] uppercase">
                   {user.subscription.plan.replace('_', ' ')} Plan
                 </span>
                 <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${
                   user.subscription.status === 'active'
-                    ? 'bg-[#A9B392]/25 text-[#2D3327] border border-[#A9B392]/40'
-                    : 'bg-[#D6B46D]/25 text-[#6e531c] border border-[#D6B46D]/40'
+                    ? 'bg-[#A8BFA5]/25 text-[#26332D] border border-[#A8BFA5]/40'
+                    : 'bg-[#FAF5EB] text-[#8e7238] border border-[#E5D5B5]'
                 }`}>
                   {user.subscription.status === 'trial' ? '14-Day Free Trial' : user.subscription.status.toUpperCase()}
                 </span>
@@ -155,7 +155,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
             </div>
 
             <div className="text-right">
-              <div className="text-lg font-black text-[#48563A]">
+              <div className="text-lg font-black text-[#345C4A]">
                 KSh {user.subscription.monthlyPriceKsh?.toLocaleString()}/mo
               </div>
               <span className="text-[10px] text-slate-400 font-semibold">Billed monthly via M-Pesa</span>

@@ -115,15 +115,15 @@ export const FinanceView: React.FC<FinanceViewProps> = ({
             <span className="text-xs font-semibold text-gray-500 uppercase tracking-wider">
               {lang === 'sw' ? 'Pesa Zilizopokelewa' : 'Cash Collected'}
             </span>
-            <div className="p-2 bg-[#A9B392]/20 text-[#48563A] rounded-xl">
+            <div className="p-2 bg-[#A8BFA5]/20 text-[#345C4A] rounded-xl">
               <Banknote className="w-4 h-4" />
             </div>
           </div>
           <div className="mt-2">
-            <div className="text-2xl font-black text-[#48563A]">
+            <div className="text-2xl font-black text-[#345C4A]">
               KSh {totalPaid.toLocaleString()}
             </div>
-            <div className="text-[11px] text-[#5a6d49] mt-0.5">
+            <div className="text-[11px] text-[#5D7368] mt-0.5">
               Settlements & cash
             </div>
           </div>

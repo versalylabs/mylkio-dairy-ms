@@ -3,36 +3,60 @@
 @tailwind utilities;
 
 :root {
-  /* Brand Palette: Deep Olive, Soft Olive, Linen, Honey, Ink */
-  --color-deep-olive: #48563A;
-  --color-soft-olive: #A9B392;
-  --color-linen: #F7F4EA;
-  --color-honey: #D6B46D;
-  --color-ink: #2D3327;
+  /* Centralized Core Design Tokens: Sage & Ivory */
+  --deep-sage: #345C4A;
+  --deep-sage-hover: #274537;
+  --soft-sage: #A8BFA5;
+  --soft-sage-light: #e4ede7;
+  --soft-sage-subtle: #f3f7f4;
+  
+  --warm-ivory: #FAF9F5;
+  --warm-ivory-surface: #FFFFFF;
+  --warm-ivory-border: #E8E4D8;
+  --warm-ivory-muted: #F2EFE7;
+  
+  --muted-gold: #C6A76A;
+  --muted-gold-hover: #b39252;
+  --muted-gold-subtle: #FAF5EB;
+  --muted-gold-border: #E5D5B5;
+  
+  --charcoal: #26332D;
+  --charcoal-light: #3D4F46;
+  --charcoal-muted: #5D7368;
+  --charcoal-subtle: #879C91;
 
-  /* System Mappings */
-  --color-periwinkle-signal: #48563A;
-  --color-deep-indigo: #2D3327;
-  --color-storm-violet: #454f41;
-  --color-slate: #596455;
-  --color-fog: #798375;
-  --color-ash: #8c9781;
-  --color-midnight-ink: #2D3327;
-  --color-cloud: #F7F4EA;
+  /* Semantic State Colors */
+  --color-success: #345C4A;
+  --color-success-bg: #EAF2ED;
+  --color-warning: #C6A76A;
+  --color-warning-bg: #FAF5EB;
+  --color-error: #B94A48;
+  --color-error-bg: #FDF2F2;
+
+  /* Legacy & Utility Aliases */
+  --color-periwinkle-signal: var(--deep-sage);
+  --color-deep-indigo: var(--charcoal);
+  --color-storm-violet: var(--charcoal-light);
+  --color-slate: var(--charcoal-muted);
+  --color-fog: var(--charcoal-muted);
+  --color-ash: var(--charcoal-subtle);
+  --color-midnight-ink: var(--charcoal);
+  --color-cloud: var(--warm-ivory);
   --color-paper: #ffffff;
-  --color-mist: #dedbc9;
-  --color-haze: #A9B392;
-  --color-bone: #e5e1d3;
-  --color-lilac-wash: #edf1e8;
-  --color-periwinkle-mist: #dbe3d3;
-  --color-sky-tint: #A9B392;
-  --color-coral-ember: #c85246;
-  --color-coral-blush: #fae3e1;
-  --color-mint-whisper: #A9B392;
-  --color-mint-veil: #dbe3d3;
+  --color-mist: var(--warm-ivory-border);
+  --color-haze: var(--soft-sage);
+  --color-bone: #E8E4D8;
+  --color-lilac-wash: var(--soft-sage-light);
+  --color-periwinkle-mist: #cbdbcf;
+  --color-sky-tint: var(--soft-sage);
+  --color-coral-ember: var(--color-error);
+  --color-coral-blush: var(--color-error-bg);
+  --color-mint-whisper: var(--soft-sage);
+  --color-mint-veil: #cbdbcf;
 
-  --background: #F7F4EA;
-  --foreground: #2D3327;
+  /* Application Canvas & Foreground */
+  --background: #FAF9F5;
+  --foreground: #26332D;
 }
 
 body {

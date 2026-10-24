@@ -121,7 +121,7 @@ export const MilkView: React.FC<MilkViewProps> = ({
               <span className="text-xs font-semibold uppercase tracking-wider text-gray-500">
                 {lang === 'sw' ? 'Wastani wa Siku 7' : '7-Day Daily Average'}
               </span>
-              <div className="p-2 bg-[#A9B392]/20 rounded-xl text-[#48563A]">
+              <div className="p-2 bg-[#A8BFA5]/20 rounded-xl text-[#345C4A]">
                 <TrendingUp className="w-5 h-5" />
               </div>
             </div>

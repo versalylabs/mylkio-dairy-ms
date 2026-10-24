@@ -87,8 +87,8 @@ export const SyncStatusBar: React.FC<SyncStatusBarProps> = ({
           <RefreshCw className={`w-3 h-3 ml-1 text-blue-500 ${isSyncing ? 'animate-spin' : ''}`} />
         </button>
       ) : (
-        <div className="inline-flex items-center space-x-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-[#A9B392]/20 text-[#2D3327] border border-[#A9B392]/40">
-          <CheckCircle2 className="w-3.5 h-3.5 text-[#48563A]" />
+        <div className="inline-flex items-center space-x-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-[#A8BFA5]/20 text-[#26332D] border border-[#A8BFA5]/40">
+          <CheckCircle2 className="w-3.5 h-3.5 text-[#345C4A]" />
           <span>
             {lang === 'sw' ? 'Imehifadhiwa na Kusawazishwa' : 'Synced on device'}
             {lastSyncTime ? ` (${lastSyncTime})` : ''}

@@ -11,97 +11,110 @@ const config: Config = {
       colors: {
         background: "var(--background)",
         foreground: "var(--foreground)",
-        // Primary Brand Palette: Olive & Linen & Honey & Ink
-        olive: {
-          deep: "#48563A",
-          soft: "#A9B392",
-          dark: "#3a462e",
-          50: "#f7f8f4",
-          100: "#edf1e8",
-          200: "#dbe3d3",
-          300: "#c2d0b7",
-          400: "#A9B392", // Soft Olive
-          500: "#6e825a",
-          600: "#48563A", // Deep Olive
-          700: "#3a462e",
-          800: "#2e3825",
-          900: "#2D3327", // Ink
+        // Sage & Ivory Design System Tokens
+        sage: {
+          DEFAULT: "#345C4A",
+          deep: "#345C4A",
+          soft: "#A8BFA5",
+          hover: "#274537",
+          50: "#f3f7f4",
+          100: "#e4ede7",
+          200: "#cbdbcf",
+          300: "#A8BFA5", // Soft Sage
+          400: "#789c83",
+          500: "#4f7863",
+          600: "#345C4A", // Deep Sage
+          700: "#274537",
+          800: "#1d3329",
+          900: "#15241d",
+          950: "#0e1813",
         },
-        linen: {
-          DEFAULT: "#F7F4EA",
-          50: "#fcfbf8",
-          100: "#FAF8F2",
-          200: "#F7F4EA", // Linen canvas
-          300: "#ede7d6",
-          400: "#ded7c0",
-          500: "#c8be9f",
+        ivory: {
+          DEFAULT: "#FAF9F5", // Warm Ivory
+          surface: "#FFFFFF",
+          muted: "#F2EFE7",
+          border: "#E8E4D8",
+          50: "#fdfdfb",
+          100: "#FAF9F5",
+          200: "#F2EFE7",
+          300: "#E8E4D8",
+          400: "#d9d2c2",
+          500: "#c4bba7",
         },
-        honey: {
-          DEFAULT: "#D6B46D",
-          50: "#fbf8f0",
-          100: "#f6eed9",
-          200: "#eedbb2",
-          300: "#e3c68a",
-          400: "#D6B46D", // Honey Accent
-          500: "#be974f",
-          600: "#9e7737",
+        gold: {
+          DEFAULT: "#C6A76A", // Muted Gold
+          hover: "#b39252",
+          subtle: "#FAF5EB",
+          border: "#E5D5B5",
+          50: "#fbf9f4",
+          100: "#FAF5EB",
+          200: "#ebd8b0",
+          300: "#d8be85",
+          400: "#C6A76A",
+          500: "#b39252",
+          600: "#8e7238",
         },
-        ink: {
-          DEFAULT: "#2D3327",
-          50: "#f5f6f4",
-          100: "#e6e8e4",
-          200: "#c8ccc4",
-          300: "#a3aaa0",
-          400: "#798375",
-          500: "#596455",
-          600: "#454f41",
-          700: "#363f33",
-          800: "#2D3327", // Ink
-          900: "#20251c",
+        charcoal: {
+          DEFAULT: "#26332D", // Charcoal
+          light: "#3D4F46",
+          muted: "#5D7368",
+          subtle: "#879C91",
+          50: "#f4f6f5",
+          100: "#e5eae7",
+          200: "#c7d2cd",
+          300: "#9fb1a9",
+          400: "#6f877d",
+          500: "#4b6158",
+          600: "#3D4F46",
+          700: "#2d3b35",
+          800: "#26332D",
+          900: "#1b2520",
+          950: "#121915",
         },
-        // Dairy Scale aliased to Deep & Soft Olive
+        // Dairy Scale aliased to Sage & Ivory
         dairy: {
-          50: "#f7f8f4",
-          100: "#edf1e8",
-          200: "#dbe3d3",
-          300: "#A9B392", // Soft Olive
-          400: "#7b8f68",
-          500: "#5a6d49",
-          600: "#48563A", // Deep Olive
-          700: "#3a462e",
-          800: "#2e3825",
-          900: "#2D3327", // Ink
+          50: "#f3f7f4",
+          100: "#e4ede7",
+          200: "#cbdbcf",
+          300: "#A8BFA5", // Soft Sage
+          400: "#789c83",
+          500: "#4f7863",
+          600: "#345C4A", // Deep Sage
+          700: "#274537",
+          800: "#1d3329",
+          900: "#26332D", // Charcoal
+          950: "#121915",
         },
         rc: {
-          periwinkle: "#48563A", // Deep Olive as primary action
-          "deep-indigo": "#2D3327", // Ink as primary text
-          "storm-violet": "#454f41",
-          slate: "#596455",
-          fog: "#798375",
-          ash: "#8c9781",
-          "midnight-ink": "#2D3327",
-          cloud: "#F7F4EA", // Linen canvas
+          periwinkle: "#345C4A", // Deep Sage
+          "deep-indigo": "#26332D", // Charcoal
+          "storm-violet": "#3D4F46",
+          slate: "#4b6158",
+          fog: "#5D7368",
+          ash: "#879C91",
+          "midnight-ink": "#26332D",
+          cloud: "#FAF9F5", // Warm Ivory
           paper: "#ffffff",
-          mist: "#dedbc9", // Linen border
-          haze: "#A9B392", // Soft Olive
-          bone: "#e5e1d3",
-          "lilac-wash": "#edf1e8",
-          "periwinkle-mist": "#dbe3d3",
-          "sky-tint": "#A9B392",
-          "coral-ember": "#c85246",
-          "coral-blush": "#fae3e1",
-          "mint-whisper": "#A9B392",
-          "mint-veil": "#dbe3d3",
+          mist: "#E8E4D8", // Warm Ivory border
+          haze: "#A8BFA5", // Soft Sage
+          bone: "#e4ede7",
+          "lilac-wash": "#e4ede7",
+          "periwinkle-mist": "#cbdbcf",
+          "sky-tint": "#A8BFA5",
+          "coral-ember": "#B94A48",
+          "coral-blush": "#FDF2F2",
+          "mint-whisper": "#A8BFA5",
+          "mint-veil": "#cbdbcf",
         },
         kenya: {
-          green: "#48563A",
+          green: "#345C4A",
           red: "#990000",
-          black: "#2D3327",
+          black: "#26332D",
         }
       },
       boxShadow: {
-        "rc-md": "rgba(45, 51, 39, 0.08) 0px 4px 16px 0px",
-        "rc-lg": "rgba(45, 51, 39, 0.12) 0px 6px 24px 0px, rgba(72, 86, 58, 0.08) 0px 30px 60px 0px",
+        "rc-md": "rgba(38, 51, 45, 0.06) 0px 4px 18px 0px",
+        "rc-lg": "rgba(38, 51, 45, 0.08) 0px 8px 30px 0px, rgba(52, 92, 74, 0.05) 0px 20px 40px 0px",
       },
       letterSpacing: {
         "tightest-rc": "-0.07em",

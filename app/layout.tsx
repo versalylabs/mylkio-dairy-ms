@@ -25,7 +25,7 @@ export const viewport: Viewport = {
   initialScale: 1,
   maximumScale: 1,
   userScalable: false,
-  themeColor: "#48563A",
+  themeColor: "#345C4A",
 };
 
 export default function RootLayout({
@@ -35,7 +35,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className={inter.variable}>
-      <body className="antialiased bg-[#F7F4EA] text-[#2D3327] selection:bg-[#dbe3d3] selection:text-[#2D3327]">
+      <body className="antialiased bg-[#FAF9F5] text-[#26332D] selection:bg-[#A8BFA5]/30 selection:text-[#26332D]">
         {children}
       </body>
     </html>
