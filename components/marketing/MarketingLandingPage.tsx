@@ -28,7 +28,10 @@ import {
   X,
   TrendingUp,
   Receipt,
-  ChevronRight
+  ChevronRight,
+  Phone,
+  Mail,
+  MessageSquare
 } from 'lucide-react';
 
 interface MarketingLandingPageProps {
@@ -56,10 +59,40 @@ export const MarketingLandingPage: React.FC<MarketingLandingPageProps> = ({
   const [leadCows, setLeadCows] = useState<string>('5');
   const [leadSubmitted, setLeadSubmitted] = useState(false);
 
+  // Dedicated Contact section form
+  const [contactName, setContactName] = useState('');
+  const [contactPhone, setContactPhone] = useState('');
+  const [contactCounty, setContactCounty] = useState('');
+  const [contactCows, setContactCows] = useState('6-15');
+  const [contactMessage, setContactMessage] = useState('');
+  const [contactSubmitted, setContactSubmitted] = useState(false);
+
   const approvedTestimonials = testimonials.filter((t) => t.isApproved);
 
-  const cleanPhone = settings.supportWhatsApp.replace(/[^0-9]/g, '');
-  const whatsappUrl = `https://wa.me/${cleanPhone}?text=Hello%20Versaly,%20I'm%20interested%20in%20Mylkio%20Dairy%20Management%20System%20for%20my%20farm.`;
+  const cleanPhone = (settings.supportWhatsApp || '+254184129145').replace(/[^0-9]/g, '');
+  const whatsappUrl = `https://wa.me/254184129145?text=Hello%20Versaly,%20I'm%20interested%20in%20Mylkio%20Dairy%20Management%20System%20for%20my%20farm.`;
+
+  const handleContactSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!contactName.trim() || !contactPhone.trim()) return;
+
+    AppStorage.addLead({
+      name: contactName.trim(),
+      phone: contactPhone.trim(),
+      county: contactCounty.trim() || undefined,
+      cowsCount: contactCows === 'cooperative' ? 100 : Number(contactCows.split('-')[0]) || 10,
+      preferredContact: 'call',
+      message: contactMessage.trim() || 'Inquiry from Website Contact Form',
+      source: 'Website Contact Section',
+      status: 'new',
+    });
+
+    setContactSubmitted(true);
+    setContactName('');
+    setContactPhone('');
+    setContactCounty('');
+    setContactMessage('');
+  };
 
   const handleLeadSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -101,7 +134,8 @@ MONTHLY RECONCILIATION:
 [ ] 10. AI pregnancy check due dates verified (60-90 days post-insemination)
 
 Get full digital automation with Mylkio: https://mylkio.co.ke
-Support WhatsApp: ${settings.supportWhatsApp}`;
+Support Phone & WhatsApp: +254 184 129145
+Support Email: versalylabs@gmail.com`;
 
     const blob = new Blob([content], { type: 'text/plain;charset=utf-8' });
     const url = URL.createObjectURL(blob);
@@ -175,6 +209,7 @@ Support WhatsApp: ${settings.supportWhatsApp}`;
             <a href="#how-it-works" className="hover:text-[#345C4A] transition-colors">How It Works</a>
             <a href="#payments" className="hover:text-[#345C4A] transition-colors">Milk Sales</a>
             <a href="#pricing" className="hover:text-[#345C4A] transition-colors">Pricing</a>
+            <a href="#contact" className="hover:text-[#345C4A] transition-colors">Contact</a>
             <a href="#faqs" className="hover:text-[#345C4A] transition-colors">FAQs</a>
           </nav>
 
@@ -255,6 +290,13 @@ Support WhatsApp: ${settings.supportWhatsApp}`;
               Pricing
             </a>
             <a 
+              href="#contact" 
+              onClick={() => setMobileMenuOpen(false)}
+              className="block text-sm font-medium text-[#26332D] py-1"
+            >
+              Contact
+            </a>
+            <a 
               href="#faqs" 
               onClick={() => setMobileMenuOpen(false)}
               className="block text-sm font-medium text-[#26332D] py-1"
@@ -290,143 +332,64 @@ Support WhatsApp: ${settings.supportWhatsApp}`;
       </header>
 
       {/* ======================================================== */}
-      {/* 2. HERO SECTION (WHISPER HEADLINE ON CLOUD CANVAS) */}
+      {/* 2. HERO SECTION (CENTERED WITH SUBTLE DAIRY FARM BACKDROP) */}
       {/* ======================================================== */}
-      <section className="relative pt-16 pb-20 sm:pt-24 sm:pb-32 overflow-hidden bg-[#FAF9F5]">
-        <div className="max-w-[1200px] mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-14 items-center">
-            
-            {/* Left Copy */}
-            <div className="lg:col-span-7 space-y-6 text-center lg:text-left">
-              <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white border border-[#E8E4D8] text-[#345C4A] text-xs font-medium shadow-sm">
-                <Sparkles className="w-3.5 h-3.5 text-[#C6A76A]" />
-                <span>Made for Kenyan Dairy Farmers</span>
-              </div>
+      <section className="relative py-14 sm:py-20 overflow-hidden bg-[#FAF9F5]">
+        {/* Subtle Dairy Farm Background Image with Low Opacity Overlay */}
+        <div 
+          className="absolute inset-0 bg-cover bg-center pointer-events-none opacity-[0.08] mix-blend-multiply"
+          style={{ backgroundImage: "url('https://images.unsplash.com/photo-1500595046743-cd271d694d30?auto=format&fit=crop&w=1920&q=80')" }}
+        />
+        <div className="absolute inset-0 bg-gradient-to-b from-[#FAF9F5]/60 via-[#FAF9F5]/90 to-[#FAF9F5] pointer-events-none" />
 
-              {/* Signature Whisper-of-Authority Voice: weight 300 with negative tracking */}
-              <h1 className="font-light text-4xl sm:text-6xl lg:text-[70px] text-[#26332D] tracking-[-0.04em] leading-[1.06]">
-                Your Dairy Farm. <br />
-                <span className="font-normal text-[#345C4A]">Under Control.</span>
-              </h1>
+        <div className="relative max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center space-y-6">
+          {/* Signature Whisper-of-Authority Voice: weight 300 with negative tracking */}
+          <h1 className="font-light text-4xl sm:text-6xl lg:text-[72px] text-[#26332D] tracking-[-0.04em] leading-[1.08] max-w-3xl mx-auto">
+            Your Dairy Farm. <br />
+            <span className="font-normal text-[#345C4A]">Under Control.</span>
+          </h1>
 
-              <p className="text-base sm:text-lg text-[#3D4F46] font-light max-w-xl mx-auto lg:mx-0 leading-relaxed">
-                Track every litre of milk, manage your cows, and know where your farm income goes — all from your phone.
-              </p>
+          <p className="text-base sm:text-xl text-[#3D4F46] font-light max-w-2xl mx-auto leading-relaxed">
+            Track every litre of milk, manage your cows, and know where your farm income goes — all from your phone.
+          </p>
 
-              <p className="text-sm text-[#5D7368] font-normal max-w-lg mx-auto lg:mx-0 leading-relaxed">
-                Mylkio brings your milk records, cow health, breeding activities, sales, and farm expenses into one simple system built for everyday dairy farming. No complicated paperwork. No scattered records. Just a clearer picture of your farm.
-              </p>
+          <p className="text-sm sm:text-base text-[#5D7368] font-normal max-w-xl mx-auto leading-relaxed">
+            Mylkio brings your milk records, cow health, breeding activities, sales, and farm expenses into one simple system built for everyday dairy farming. No complicated paperwork. No scattered records. Just a clearer picture of your farm.
+          </p>
 
-              {/* CTAs */}
-              <div className="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-3.5 pt-2">
-                <button
-                  onClick={() => onOpenAuth('signup')}
-                  className="w-full sm:w-auto px-7 py-3.5 rounded-full bg-[#345C4A] hover:bg-[#274537] text-white font-medium text-sm shadow-[0_3px_16px_rgba(45,51,39,0.08)] transition-all flex items-center justify-center gap-2 active:scale-95"
-                >
-                  <span>Start Managing Your Farm</span>
-                  <ArrowRight className="w-4 h-4" />
-                </button>
+          {/* Centered Action Buttons */}
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-3.5 pt-2">
+            <button
+              onClick={() => onOpenAuth('signup')}
+              className="w-full sm:w-auto px-8 py-3.5 rounded-full bg-[#345C4A] hover:bg-[#274537] text-white font-medium text-sm shadow-[0_3px_16px_rgba(45,51,39,0.08)] transition-all flex items-center justify-center gap-2 active:scale-95"
+            >
+              <span>Start Managing Your Farm</span>
+              <ArrowRight className="w-4 h-4" />
+            </button>
 
-                <button
-                  onClick={onExploreDemo}
-                  className="w-full sm:w-auto px-6 py-3.5 rounded-full bg-white hover:bg-slate-50 border border-[#E8E4D8] text-[#26332D] font-medium text-sm shadow-sm transition-all flex items-center justify-center gap-2"
-                >
-                  <Tractor className="w-4 h-4 text-[#345C4A]" />
-                  <span>See How Mylkio Works</span>
-                </button>
-              </div>
+            <button
+              onClick={onExploreDemo}
+              className="w-full sm:w-auto px-7 py-3.5 rounded-full bg-white hover:bg-slate-50 border border-[#E8E4D8] text-[#26332D] font-medium text-sm shadow-sm transition-all flex items-center justify-center gap-2"
+            >
+              <Tractor className="w-4 h-4 text-[#345C4A]" />
+              <span>See How Mylkio Works</span>
+            </button>
+          </div>
 
-              {/* Trust Subtext */}
-              <div className="flex flex-wrap items-center justify-center lg:justify-start gap-5 text-xs text-[#5D7368] pt-4">
-                <span className="flex items-center gap-1.5">
-                  <CheckCircle2 className="w-4 h-4 text-[#345C4A]" />
-                  14-Day Full Free Trial
-                </span>
-                <span className="flex items-center gap-1.5">
-                  <CheckCircle2 className="w-4 h-4 text-[#345C4A]" />
-                  100% Offline Capability
-                </span>
-                <span className="flex items-center gap-1.5">
-                  <CheckCircle2 className="w-4 h-4 text-[#345C4A]" />
-                  English & Kiswahili
-                </span>
-              </div>
-            </div>
-
-            {/* Right Hero Visual Mockup: Dual-layer ambient shadow on floating white cards */}
-            <div className="lg:col-span-5 relative flex justify-center">
-              <div className="w-full max-w-[340px] sm:max-w-[370px] bg-white rounded-[24px] p-5 border border-[#E8E4D8] shadow-[0_4px_20px_rgba(45,51,39,0.12),0_30px_60px_rgba(72,86,58,0.06)] space-y-3.5 text-[#26332D]">
-                
-                {/* Top Farm Identity */}
-                <div className="flex items-center justify-between pb-3 border-b border-[#E8E4D8]">
-                  <div>
-                    <div className="text-[10px] font-medium uppercase tracking-wider text-[#5D7368]">Current Farm</div>
-                    <div className="text-sm font-medium text-[#26332D]">Green Hills Dairy • Nakuru</div>
-                  </div>
-                  <span className="px-2.5 py-0.5 rounded-full bg-[#cbdbcf] text-[#345C4A] text-[10px] font-medium">
-                    Live Demo
-                  </span>
-                </div>
-
-                {/* Milk Withdrawal Safety Alert */}
-                <div className="p-3 bg-[#f7d4d4] text-[#26332D] rounded-xl border border-[#E8E4D8] flex items-center gap-2.5 text-xs">
-                  <div className="w-6 h-6 rounded-full bg-white flex items-center justify-center text-[#f25a5a] shrink-0 font-bold">
-                    !
-                  </div>
-                  <div className="text-[11px] font-medium leading-tight text-[#26332D]">
-                    Amani (GH-04) Milk Withdrawal Active (Safe after Oct 26)
-                  </div>
-                </div>
-
-                {/* Key Metrics Row */}
-                <div className="grid grid-cols-2 gap-2.5">
-                  <div className="p-3.5 bg-[#FAF9F5] rounded-xl border border-[#E8E4D8]">
-                    <div className="text-[10px] uppercase font-medium text-[#5D7368]">Today&apos;s Milk</div>
-                    <div className="text-2xl font-light text-[#26332D] mt-0.5 tracking-tight">42 L</div>
-                    <div className="text-[10px] text-[#5D7368] mt-0.5">Morning 24L • Evening 18L</div>
-                  </div>
-
-                  <div className="p-3.5 bg-[#FAF9F5] rounded-xl border border-[#E8E4D8]">
-                    <div className="text-[10px] uppercase font-medium text-[#5D7368]">Active Cows</div>
-                    <div className="text-2xl font-light text-[#26332D] mt-0.5 tracking-tight">6 Milking</div>
-                    <div className="text-[10px] text-[#345C4A] font-medium mt-0.5">8 Total Herd</div>
-                  </div>
-                </div>
-
-                {/* Monthly Income Card */}
-                <div className="p-4 bg-white rounded-xl border border-[#E8E4D8] shadow-sm space-y-1.5">
-                  <div className="flex items-center justify-between text-[11px] text-[#5D7368]">
-                    <span>Milk Sales This Month</span>
-                    <span className="font-medium text-[#345C4A]">Baraka Co-op</span>
-                  </div>
-                  <div className="text-2xl font-light text-[#26332D] tracking-tight">
-                    KSh 38,500
-                  </div>
-                  <div className="flex items-center justify-between text-[11px] text-[#5D7368] pt-1.5 border-t border-[#E8E4D8]">
-                    <span>Deductions: KSh 2,100</span>
-                    <span className="font-medium text-[#345C4A]">Expected: KSh 36,400</span>
-                  </div>
-                </div>
-
-                {/* Upcoming Activity Item */}
-                <div className="p-3 bg-[#FAF9F5] rounded-xl border border-[#E8E4D8] flex items-center justify-between text-xs">
-                  <div className="flex items-center gap-2.5">
-                    <div className="w-8 h-8 rounded-full bg-[#A8BFA5] text-[#345C4A] flex items-center justify-center font-medium text-xs">
-                      AI
-                    </div>
-                    <div>
-                      <div className="text-[11px] font-medium text-[#26332D]">Malkia (GH-06) Pregnancy Check</div>
-                      <div className="text-[10px] text-[#5D7368]">Projected Calving: Nov 20</div>
-                    </div>
-                  </div>
-                  <span className="text-[10px] font-medium text-[#345C4A] bg-white px-2 py-0.5 rounded-full border border-[#E8E4D8]">
-                    Upcoming
-                  </span>
-                </div>
-
-              </div>
-            </div>
-
+          {/* Trust Subtext */}
+          <div className="flex flex-wrap items-center justify-center gap-6 text-xs text-[#5D7368] pt-2">
+            <span className="flex items-center gap-1.5">
+              <CheckCircle2 className="w-4 h-4 text-[#345C4A]" />
+              14-Day Full Free Trial
+            </span>
+            <span className="flex items-center gap-1.5">
+              <CheckCircle2 className="w-4 h-4 text-[#345C4A]" />
+              100% Offline Capability
+            </span>
+            <span className="flex items-center gap-1.5">
+              <CheckCircle2 className="w-4 h-4 text-[#345C4A]" />
+              English & Kiswahili
+            </span>
           </div>
         </div>
       </section>
@@ -434,10 +397,10 @@ Support WhatsApp: ${settings.supportWhatsApp}`;
       {/* ======================================================== */}
       {/* 3. PROBLEM AWARENESS (SOUND FAMILIAR?) */}
       {/* ======================================================== */}
-      <section className="py-20 sm:py-28 bg-[#FAF9F5] border-t border-[#E8E4D8]">
+      <section className="py-12 sm:py-16 bg-[#FAF9F5] border-t border-[#E8E4D8]">
         <div className="max-w-[1200px] mx-auto px-4 sm:px-6 lg:px-8">
           
-          <div className="text-center max-w-2xl mx-auto mb-14 sm:mb-16">
+          <div className="text-center max-w-2xl mx-auto mb-10 sm:mb-12">
             <span className="text-xs font-medium uppercase tracking-wider text-[#345C4A] bg-white px-3.5 py-1 rounded-full border border-[#E8E4D8] shadow-sm">
               Sound Familiar?
             </span>
@@ -510,10 +473,10 @@ Support WhatsApp: ${settings.supportWhatsApp}`;
       {/* ======================================================== */}
       {/* 4. THE SOLUTION & FEATURE SHOWCASE */}
       {/* ======================================================== */}
-      <section id="features" className="py-20 sm:py-28 bg-[#FAF9F5] border-t border-[#E8E4D8]">
+      <section id="features" className="py-12 sm:py-16 bg-[#FAF9F5] border-t border-[#E8E4D8]">
         <div className="max-w-[1200px] mx-auto px-4 sm:px-6 lg:px-8">
           
-          <div className="text-center max-w-3xl mx-auto mb-16 sm:mb-20">
+          <div className="text-center max-w-3xl mx-auto mb-10 sm:mb-12">
             <span className="text-xs font-medium uppercase tracking-wider text-[#345C4A] bg-white px-3.5 py-1 rounded-full border border-[#E8E4D8] shadow-sm">
               The Complete Solution
             </span>
@@ -673,10 +636,10 @@ Support WhatsApp: ${settings.supportWhatsApp}`;
       {/* ======================================================== */}
       {/* 5. HOW IT WORKS (3 SIMPLE STEPS) */}
       {/* ======================================================== */}
-      <section id="how-it-works" className="py-20 sm:py-28 bg-[#FAF9F5] border-t border-[#E8E4D8]">
+      <section id="how-it-works" className="py-12 sm:py-16 bg-[#FAF9F5] border-t border-[#E8E4D8]">
         <div className="max-w-[1200px] mx-auto px-4 sm:px-6 lg:px-8">
           
-          <div className="text-center max-w-2xl mx-auto mb-16">
+          <div className="text-center max-w-2xl mx-auto mb-10 sm:mb-12">
             <span className="text-xs font-medium uppercase tracking-wider text-[#345C4A] bg-white px-3.5 py-1 rounded-full border border-[#E8E4D8] shadow-sm">
               How It Works
             </span>
@@ -738,10 +701,10 @@ Support WhatsApp: ${settings.supportWhatsApp}`;
       {/* ======================================================== */}
       {/* 6. MILK PAYMENTS FEATURE (ELEVATED PANEL ON CANVAS) */}
       {/* ======================================================== */}
-      <section id="payments" className="py-20 sm:py-28 bg-[#FAF9F5] border-t border-[#E8E4D8]">
+      <section id="payments" className="py-12 sm:py-16 bg-[#FAF9F5] border-t border-[#E8E4D8]">
         <div className="max-w-[1200px] mx-auto px-4 sm:px-6 lg:px-8">
           
-          <div className="bg-white rounded-[32px] border border-[#E8E4D8] p-8 sm:p-12 lg:p-16 shadow-[0_3px_16px_rgba(45,51,39,0.08)]">
+          <div className="bg-white rounded-[32px] border border-[#E8E4D8] p-8 sm:p-12 shadow-[0_3px_16px_rgba(45,51,39,0.08)]">
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-14 items-center">
               
               <div className="lg:col-span-7 space-y-5">
@@ -821,10 +784,10 @@ Support WhatsApp: ${settings.supportWhatsApp}`;
       {/* ======================================================== */}
       {/* 7. WHY FARMERS WILL LOVE MYLKIO (BENEFITS GRID) */}
       {/* ======================================================== */}
-      <section className="py-20 sm:py-28 bg-[#FAF9F5] border-t border-[#E8E4D8]">
+      <section className="py-12 sm:py-16 bg-[#FAF9F5] border-t border-[#E8E4D8]">
         <div className="max-w-[1200px] mx-auto px-4 sm:px-6 lg:px-8">
           
-          <div className="text-center max-w-2xl mx-auto mb-16">
+          <div className="text-center max-w-2xl mx-auto mb-10 sm:mb-12">
             <span className="text-xs font-medium uppercase tracking-wider text-[#345C4A] bg-white px-3.5 py-1 rounded-full border border-[#E8E4D8] shadow-sm">
               Benefits
             </span>
@@ -903,10 +866,10 @@ Support WhatsApp: ${settings.supportWhatsApp}`;
       {/* ======================================================== */}
       {/* 8. INTERACTIVE PRODUCT PREVIEW */}
       {/* ======================================================== */}
-      <section className="py-20 sm:py-28 bg-[#FAF9F5] border-t border-[#E8E4D8]">
+      <section className="py-12 sm:py-16 bg-[#FAF9F5] border-t border-[#E8E4D8]">
         <div className="max-w-[1200px] mx-auto px-4 sm:px-6 lg:px-8">
           
-          <div className="text-center max-w-2xl mx-auto mb-12">
+          <div className="text-center max-w-2xl mx-auto mb-8 sm:mb-10">
             <span className="text-xs font-medium uppercase tracking-wider text-[#345C4A] bg-white px-3.5 py-1 rounded-full border border-[#E8E4D8] shadow-sm">
               Product Preview
             </span>
@@ -1066,10 +1029,10 @@ Support WhatsApp: ${settings.supportWhatsApp}`;
       {/* ======================================================== */}
       {/* 9. PRICING (AIRY WHITE CARDS WITH PERIWINKLE HIGHLIGHT) */}
       {/* ======================================================== */}
-      <section id="pricing" className="py-20 sm:py-28 bg-[#FAF9F5] border-t border-[#E8E4D8]">
+      <section id="pricing" className="py-12 sm:py-16 bg-[#FAF9F5] border-t border-[#E8E4D8]">
         <div className="max-w-[1200px] mx-auto px-4 sm:px-6 lg:px-8">
           
-          <div className="text-center max-w-2xl mx-auto mb-16">
+          <div className="text-center max-w-2xl mx-auto mb-10 sm:mb-12">
             <span className="text-xs font-medium uppercase tracking-wider text-[#345C4A] bg-white px-3.5 py-1 rounded-full border border-[#E8E4D8] shadow-sm">
               Pricing
             </span>
@@ -1229,10 +1192,10 @@ Support WhatsApp: ${settings.supportWhatsApp}`;
       {/* 10. TRUST & CREDIBILITY (AUTHENTIC TESTIMONIALS) */}
       {/* ======================================================== */}
       {approvedTestimonials.length > 0 && (
-        <section className="py-20 sm:py-28 bg-[#FAF9F5] border-t border-[#E8E4D8]">
+        <section className="py-12 sm:py-16 bg-[#FAF9F5] border-t border-[#E8E4D8]">
           <div className="max-w-[1200px] mx-auto px-4 sm:px-6 lg:px-8">
             
-            <div className="text-center max-w-2xl mx-auto mb-16">
+            <div className="text-center max-w-2xl mx-auto mb-10 sm:mb-12">
               <span className="text-xs font-medium uppercase tracking-wider text-[#345C4A] bg-white px-3.5 py-1 rounded-full border border-[#E8E4D8] shadow-sm">
                 Trust &amp; Credibility
               </span>
@@ -1270,32 +1233,40 @@ Support WhatsApp: ${settings.supportWhatsApp}`;
       )}
 
       {/* ======================================================== */}
-      {/* 11. LEAD MAGNET (FREE CHECKLIST) */}
+      {/* 11. LEAD MAGNET (FREE CHECKLIST WITH SUBTLE BACKDROP) */}
       {/* ======================================================== */}
-      <section className="py-20 sm:py-24 bg-[#FAF9F5] border-t border-[#E8E4D8]">
+      <section className="py-12 sm:py-16 bg-[#FAF9F5] border-t border-[#E8E4D8]">
         <div className="max-w-[1200px] mx-auto px-4 sm:px-6 lg:px-8">
           
-          <div className="bg-white rounded-[32px] border border-[#E8E4D8] p-8 sm:p-12 text-center max-w-3xl mx-auto space-y-5 shadow-[0_3px_16px_rgba(73,46,107,0.1)]">
-            <span className="text-xs font-medium uppercase tracking-wider text-[#345C4A] bg-[#FAF9F5] px-3.5 py-1 rounded-full border border-[#E8E4D8]">
-              Free Resource
-            </span>
+          <div className="relative overflow-hidden bg-white/95 backdrop-blur-sm rounded-[32px] border border-[#E8E4D8] p-8 sm:p-12 text-center max-w-3xl mx-auto shadow-sm">
+            {/* Low Opacity Relevant Dairy Farm Image Behind Card Content */}
+            <div 
+              className="absolute inset-0 bg-cover bg-center opacity-[0.09] pointer-events-none mix-blend-multiply"
+              style={{ backgroundImage: "url('https://images.unsplash.com/photo-1527153857715-3908f2ae5e81?auto=format&fit=crop&w=1200&q=80')" }}
+            />
+            
+            <div className="relative z-10 space-y-4">
+              <span className="text-xs font-medium uppercase tracking-wider text-[#345C4A] bg-[#FAF9F5] px-3.5 py-1 rounded-full border border-[#E8E4D8]">
+                Free Resource
+              </span>
 
-            <h2 className="font-light text-2xl sm:text-4xl text-[#26332D] tracking-[-0.03em]">
-              Not Ready for Software Yet? Start with Better Farm Records.
-            </h2>
+              <h2 className="font-light text-2xl sm:text-4xl text-[#26332D] tracking-[-0.03em]">
+                Not Ready for Software Yet? Start with Better Farm Records.
+              </h2>
 
-            <p className="text-xs sm:text-sm text-[#3D4F46] max-w-xl mx-auto leading-relaxed">
-              Get Our Free Dairy Farm Record-Keeping Checklist covering daily milk production, milk deliveries, cow health dates, breeding activities, farm expenses, and customer payments.
-            </p>
+              <p className="text-xs sm:text-sm text-[#3D4F46] max-w-xl mx-auto leading-relaxed">
+                Get Our Free Dairy Farm Record-Keeping Checklist covering daily milk production, milk deliveries, cow health dates, breeding activities, farm expenses, and customer payments.
+              </p>
 
-            <div className="pt-2">
-              <button
-                onClick={() => setIsChecklistModalOpen(true)}
-                className="px-7 py-3.5 rounded-full bg-[#345C4A] hover:bg-[#274537] text-white font-medium text-xs shadow-sm transition-all inline-flex items-center gap-2"
-              >
-                <Download className="w-4 h-4" />
-                <span>Get the Free Checklist</span>
-              </button>
+              <div className="pt-2">
+                <button
+                  onClick={() => setIsChecklistModalOpen(true)}
+                  className="px-7 py-3.5 rounded-full bg-[#345C4A] hover:bg-[#274537] text-white font-medium text-xs shadow-sm transition-all inline-flex items-center gap-2"
+                >
+                  <Download className="w-4 h-4" />
+                  <span>Get the Free Checklist</span>
+                </button>
+              </div>
             </div>
           </div>
 
@@ -1305,14 +1276,14 @@ Support WhatsApp: ${settings.supportWhatsApp}`;
       {/* ======================================================== */}
       {/* 12. FREQUENTLY ASKED QUESTIONS */}
       {/* ======================================================== */}
-      <section id="faqs" className="py-20 sm:py-28 bg-[#FAF9F5] border-t border-[#E8E4D8]">
+      <section id="faqs" className="py-12 sm:py-16 bg-[#FAF9F5] border-t border-[#E8E4D8]">
         <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
           
-          <div className="text-center mb-14">
+          <div className="text-center mb-10">
             <span className="text-xs font-medium uppercase tracking-wider text-[#345C4A] bg-white px-3.5 py-1 rounded-full border border-[#E8E4D8] shadow-sm">
               FAQs
             </span>
-            <h2 className="font-light text-3xl sm:text-5xl text-[#26332D] tracking-[-0.03em] mt-4 leading-tight">
+            <h2 className="font-light text-3xl sm:text-5xl text-[#26332D] tracking-[-0.03em] mt-3 leading-tight">
               Frequently Asked Questions
             </h2>
           </div>
@@ -1347,9 +1318,169 @@ Support WhatsApp: ${settings.supportWhatsApp}`;
       </section>
 
       {/* ======================================================== */}
-      {/* 13. FINAL CTA (WHISPER VOICE ON CLOUD CANVAS) */}
+      {/* 13. DEDICATED CONTACT & SUPPORT SECTION WITH FORM */}
       {/* ======================================================== */}
-      <section className="py-20 sm:py-32 bg-[#FAF9F5] border-t border-[#E8E4D8] text-center">
+      <section id="contact" className="py-12 sm:py-16 bg-[#FAF9F5] border-t border-[#E8E4D8]">
+        <div className="max-w-[1200px] mx-auto px-4 sm:px-6 lg:px-8">
+          
+          <div className="text-center max-w-2xl mx-auto mb-10">
+            <span className="text-xs font-medium uppercase tracking-wider text-[#345C4A] bg-white px-3.5 py-1 rounded-full border border-[#E8E4D8] shadow-sm">
+              Contact &amp; Support
+            </span>
+            <h2 className="font-light text-3xl sm:text-4xl text-[#26332D] tracking-[-0.03em] mt-3 leading-tight">
+              Talk Directly with Our Kenyan Team.
+            </h2>
+            <p className="text-xs sm:text-sm text-[#5D7368] mt-2">
+              Have questions about getting your farm started, cooperative payment tracking, or subscribing? We are here to help.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start max-w-5xl mx-auto">
+            {/* Direct Contact Cards */}
+            <div className="lg:col-span-5 space-y-4">
+              <a 
+                href="tel:+254184129145"
+                className="p-5 rounded-2xl bg-white border border-[#E8E4D8] hover:border-[#345C4A]/50 transition-all shadow-xs flex items-center space-x-4 group block"
+              >
+                <div className="w-12 h-12 rounded-2xl bg-[#A8BFA5]/20 text-[#345C4A] flex items-center justify-center shrink-0 group-hover:bg-[#345C4A] group-hover:text-white transition-colors">
+                  <Phone className="w-5 h-5" />
+                </div>
+                <div>
+                  <div className="text-[11px] font-semibold text-[#879C91] uppercase tracking-wider">Direct Phone</div>
+                  <div className="text-base font-bold text-[#26332D] mt-0.5">+254 184 129145</div>
+                  <p className="text-[11px] text-[#5D7368]">Monday – Saturday, 7:00 AM – 7:00 PM</p>
+                </div>
+              </a>
+
+              <a 
+                href="https://wa.me/254184129145?text=Hello%20Mylkio,%20I%20would%20like%20to%20inquire%20about%20the%20dairy%20management%20system."
+                target="_blank"
+                rel="noopener noreferrer"
+                className="p-5 rounded-2xl bg-white border border-[#E8E4D8] hover:border-[#345C4A]/50 transition-all shadow-xs flex items-center space-x-4 group block"
+              >
+                <div className="w-12 h-12 rounded-2xl bg-[#FAF5EB] text-[#C6A76A] border border-[#E5D5B5] flex items-center justify-center shrink-0 group-hover:bg-[#C6A76A] group-hover:text-white transition-colors">
+                  <MessageSquare className="w-5 h-5" />
+                </div>
+                <div>
+                  <div className="text-[11px] font-semibold text-[#879C91] uppercase tracking-wider">WhatsApp Line</div>
+                  <div className="text-base font-bold text-[#26332D] mt-0.5">+254 184 129145</div>
+                  <p className="text-[11px] text-[#5D7368]">Quick responses on setup & questions</p>
+                </div>
+              </a>
+
+              <a 
+                href="mailto:versalylabs@gmail.com"
+                className="p-5 rounded-2xl bg-white border border-[#E8E4D8] hover:border-[#345C4A]/50 transition-all shadow-xs flex items-center space-x-4 group block"
+              >
+                <div className="w-12 h-12 rounded-2xl bg-[#FAF9F5] text-[#26332D] border border-gray-200 flex items-center justify-center shrink-0 group-hover:bg-[#26332D] group-hover:text-white transition-colors">
+                  <Mail className="w-5 h-5" />
+                </div>
+                <div>
+                  <div className="text-[11px] font-semibold text-[#879C91] uppercase tracking-wider">Email Inquiry</div>
+                  <div className="text-base font-bold text-[#26332D] mt-0.5">versalylabs@gmail.com</div>
+                  <p className="text-[11px] text-[#5D7368]">For cooperative partnerships & billing</p>
+                </div>
+              </a>
+            </div>
+
+            {/* Interactive Contact Form */}
+            <div className="lg:col-span-7 bg-white rounded-3xl border border-[#E8E4D8] p-6 sm:p-8 shadow-xs">
+              <h3 className="text-lg font-bold text-[#26332D]">Send Us a Message</h3>
+              <p className="text-xs text-[#5D7368] mt-1 mb-5">
+                Fill in the details below and our team will get back to you shortly.
+              </p>
+
+              <form onSubmit={handleContactSubmit} className="space-y-4">
+                {contactSubmitted && (
+                  <div className="p-4 bg-[#A8BFA5]/20 border border-[#A8BFA5]/40 text-[#26332D] rounded-2xl text-xs font-semibold flex items-center gap-2">
+                    <CheckCircle2 className="w-4 h-4 text-[#345C4A] shrink-0" />
+                    <span>Thank you! Your message has been received. Our team will contact you shortly via phone or WhatsApp.</span>
+                  </div>
+                )}
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-xs font-semibold text-[#26332D] mb-1">Your Name *</label>
+                    <input
+                      type="text"
+                      required
+                      value={contactName}
+                      onChange={(e) => setContactName(e.target.value)}
+                      placeholder="e.g. John Mwangi"
+                      className="w-full px-3.5 py-2.5 rounded-xl border border-[#E8E4D8] bg-[#FAF9F5] text-xs font-medium text-[#26332D] focus:outline-none focus:ring-2 focus:ring-[#345C4A]"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-semibold text-[#26332D] mb-1">Phone / WhatsApp *</label>
+                    <input
+                      type="tel"
+                      required
+                      value={contactPhone}
+                      onChange={(e) => setContactPhone(e.target.value)}
+                      placeholder="e.g. 0718 123 456"
+                      className="w-full px-3.5 py-2.5 rounded-xl border border-[#E8E4D8] bg-[#FAF9F5] text-xs font-medium text-[#26332D] focus:outline-none focus:ring-2 focus:ring-[#345C4A]"
+                    />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-xs font-semibold text-[#26332D] mb-1">County / Location</label>
+                    <input
+                      type="text"
+                      value={contactCounty}
+                      onChange={(e) => setContactCounty(e.target.value)}
+                      placeholder="e.g. Nakuru, Kiambu, Meru..."
+                      className="w-full px-3.5 py-2.5 rounded-xl border border-[#E8E4D8] bg-[#FAF9F5] text-xs font-medium text-[#26332D] focus:outline-none focus:ring-2 focus:ring-[#345C4A]"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-semibold text-[#26332D] mb-1">Estimated Herd Size</label>
+                    <select
+                      value={contactCows}
+                      onChange={(e) => setContactCows(e.target.value)}
+                      className="w-full px-3.5 py-2.5 rounded-xl border border-[#E8E4D8] bg-[#FAF9F5] text-xs font-medium text-[#26332D] focus:outline-none focus:ring-2 focus:ring-[#345C4A]"
+                    >
+                      <option value="1-5">1 – 5 cows (Starter)</option>
+                      <option value="6-15">6 – 15 cows (Farmer)</option>
+                      <option value="16-30">16 – 30 cows (Pro)</option>
+                      <option value="31+">31+ cows (Commercial)</option>
+                      <option value="cooperative">Dairy Cooperative / Group</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-xs font-semibold text-[#26332D] mb-1">Message or Question</label>
+                  <textarea
+                    rows={3}
+                    value={contactMessage}
+                    onChange={(e) => setContactMessage(e.target.value)}
+                    placeholder="Tell us about your dairy farm or ask any questions..."
+                    className="w-full px-3.5 py-2.5 rounded-xl border border-[#E8E4D8] bg-[#FAF9F5] text-xs font-medium text-[#26332D] focus:outline-none focus:ring-2 focus:ring-[#345C4A]"
+                  />
+                </div>
+
+                <button
+                  type="submit"
+                  className="w-full sm:w-auto px-7 py-3 rounded-full bg-[#345C4A] hover:bg-[#274537] text-white font-medium text-xs shadow-sm transition-all flex items-center justify-center gap-2"
+                >
+                  <span>Submit Message</span>
+                  <ArrowRight className="w-3.5 h-3.5" />
+                </button>
+              </form>
+            </div>
+          </div>
+
+        </div>
+      </section>
+
+      {/* ======================================================== */}
+      {/* 14. FINAL CTA (WHISPER VOICE ON CLOUD CANVAS) */}
+      {/* ======================================================== */}
+      <section className="py-12 sm:py-16 bg-[#FAF9F5] border-t border-[#E8E4D8] text-center">
         <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6">
           <h2 className="font-light text-3xl sm:text-5xl lg:text-6xl text-[#26332D] tracking-[-0.04em] leading-tight">
             Your Farm Deserves Better Than Guesswork.
@@ -1359,7 +1490,7 @@ Support WhatsApp: ${settings.supportWhatsApp}`;
             Bring your cows, milk records, farm activities, and payments into one simple place with Mylkio.
           </p>
 
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-3.5 pt-3">
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-3.5 pt-2">
             <button
               onClick={() => onOpenAuth('signup')}
               className="w-full sm:w-auto px-8 py-3.5 rounded-full bg-[#345C4A] hover:bg-[#274537] text-white font-medium text-sm shadow-[0_3px_16px_rgba(45,51,39,0.08)] transition-all flex items-center justify-center gap-2"
@@ -1369,7 +1500,7 @@ Support WhatsApp: ${settings.supportWhatsApp}`;
             </button>
 
             <a
-              href={whatsappUrl}
+              href="https://wa.me/254184129145?text=Hello%20Mylkio,%20I%20would%20like%20to%20inquire%20about%20the%20dairy%20management%20system."
               target="_blank"
               rel="noreferrer"
               className="w-full sm:w-auto px-6 py-3.5 rounded-full bg-white hover:bg-slate-50 text-[#26332D] font-medium text-sm border border-[#E8E4D8] transition-all flex items-center justify-center gap-2 shadow-sm"
@@ -1380,35 +1511,46 @@ Support WhatsApp: ${settings.supportWhatsApp}`;
           </div>
 
           <p className="text-xs text-[#5D7368] pt-2">
-            Mylkio is developed by Versaly, a software company building practical business solutions for Kenyan industries.
+            Mylkio is developed by Versaly, building practical software solutions for Kenyan dairy farmers.
           </p>
         </div>
       </section>
 
       {/* ======================================================== */}
-      {/* 14. FOOTER */}
+      {/* 15. FOOTER */}
       {/* ======================================================== */}
-      <footer className="bg-white text-[#5D7368] py-12 border-t border-[#E8E4D8] text-xs">
-        <div className="max-w-[1200px] mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-6">
-          <div className="flex items-center space-x-3">
-            <div className="w-7 h-7 rounded-full bg-[#26332D] flex items-center justify-center text-white font-bold text-xs">
-              M
+      <footer className="bg-white text-[#5D7368] py-10 border-t border-[#E8E4D8] text-xs">
+        <div className="max-w-[1200px] mx-auto px-4 sm:px-6 lg:px-8 space-y-6">
+          <div className="flex flex-col md:flex-row items-center justify-between gap-6 pb-6 border-b border-[#E8E4D8]">
+            <div className="flex items-center space-x-3">
+              <div className="w-7 h-7 rounded-full bg-[#26332D] flex items-center justify-center text-white font-bold text-xs">
+                M
+              </div>
+              <div>
+                <span className="font-medium text-[#26332D] text-sm">Mylkio — Smarter Dairy Farming, Made Simple.</span>
+                <p className="text-[11px] text-[#5D7368]">A product by Versaly.</p>
+              </div>
+            </div>
+
+            <div className="flex flex-wrap items-center justify-center gap-5 text-[#5D7368]">
+              <a href="#features" className="hover:text-[#345C4A]">Features</a>
+              <a href="#how-it-works" className="hover:text-[#345C4A]">How It Works</a>
+              <a href="#payments" className="hover:text-[#345C4A]">Milk Sales</a>
+              <a href="#pricing" className="hover:text-[#345C4A]">Pricing</a>
+              <a href="#contact" className="hover:text-[#345C4A] font-medium">Contact</a>
+              <a href="#faqs" className="hover:text-[#345C4A]">FAQs</a>
+            </div>
+          </div>
+
+          <div className="flex flex-col sm:flex-row items-center justify-between gap-3 text-[11px] text-[#879C91]">
+            <div className="flex flex-wrap items-center gap-4">
+              <span>Phone: <strong className="text-[#26332D]">+254 184 129145</strong></span>
+              <span>•</span>
+              <span>Email: <strong className="text-[#26332D]">versalylabs@gmail.com</strong></span>
             </div>
             <div>
-              <span className="font-medium text-[#26332D] text-sm">Mylkio — Smarter Dairy Farming, Made Simple.</span>
-              <p className="text-[11px] text-[#5D7368]">A product by Versaly.</p>
+              &copy; {new Date().getFullYear()} Versaly. All rights reserved.
             </div>
-          </div>
-
-          <div className="flex items-center space-x-6 text-[#5D7368]">
-            <a href="#features" className="hover:text-[#345C4A]">Features</a>
-            <a href="#how-it-works" className="hover:text-[#345C4A]">How It Works</a>
-            <a href="#pricing" className="hover:text-[#345C4A]">Pricing</a>
-            <a href="#faqs" className="hover:text-[#345C4A]">FAQs</a>
-          </div>
-
-          <div className="text-center sm:text-right text-[11px] text-[#879C91]">
-            &copy; {new Date().getFullYear()} Versaly. All rights reserved.
           </div>
         </div>
       </footer>
@@ -1463,7 +1605,7 @@ Support WhatsApp: ${settings.supportWhatsApp}`;
                     required
                     value={leadPhone}
                     onChange={(e) => setLeadPhone(e.target.value)}
-                    placeholder="0712 345 678"
+                    placeholder="e.g. 0718 123 456"
                     className="w-full px-3.5 py-2 text-xs rounded-xl border border-[#E8E4D8] focus:border-[#345C4A] focus:ring-1 focus:ring-[#345C4A] text-[#26332D] bg-[#FAF9F5]"
                   />
                 </div>

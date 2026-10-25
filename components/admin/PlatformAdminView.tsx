@@ -190,28 +190,28 @@ export const PlatformAdminView: React.FC<PlatformAdminViewProps> = ({
   );
 
   return (
-    <div className="min-h-screen bg-[#1c2621] text-slate-100 flex flex-col font-sans">
+    <div className="min-h-screen bg-[#FAF9F5] text-[#26332D] flex flex-col font-sans">
       {/* Top Admin Navigation Header */}
-      <header className="bg-[#121915] border-b border-[#2d3b35] px-4 sm:px-8 py-3.5 flex items-center justify-between sticky top-0 z-30">
+      <header className="bg-white border-b border-[#E8E4D8] px-4 sm:px-8 py-3.5 flex items-center justify-between sticky top-0 z-30 shadow-2xs">
         <div className="flex items-center space-x-3">
           <div className="w-9 h-9 rounded-xl bg-[#345C4A] flex items-center justify-center text-white font-black text-lg shadow-sm">
             M
           </div>
           <div>
             <div className="flex items-center gap-2">
-              <span className="font-extrabold text-base tracking-tight text-white">Mylkio Super Admin</span>
-              <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-[#345C4A]/40 text-[#A8BFA5] border border-[#A8BFA5]/30">
+              <span className="font-extrabold text-base tracking-tight text-[#26332D]">Mylkio Super Admin</span>
+              <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-[#FAF5EB] text-[#C6A76A] border border-[#E5D5B5]">
                 Versaly Labs
               </span>
             </div>
-            <p className="text-[11px] text-[#A8BFA5]/80">Master Platform Operations & Tenant Hub</p>
+            <p className="text-[11px] text-[#5D7368]">Master Platform Operations & Tenant Hub</p>
           </div>
         </div>
 
         <div className="flex items-center space-x-2.5">
           <button
             onClick={() => onImpersonateFarm('farm-green-hills')}
-            className="flex items-center space-x-1.5 px-3 py-1.5 rounded-xl bg-[#26332D] hover:bg-[#32433b] text-slate-200 text-xs font-semibold border border-[#394943] transition-colors"
+            className="flex items-center space-x-1.5 px-3 py-1.5 rounded-xl bg-[#FAF9F5] hover:bg-[#F2EFE7] text-[#26332D] text-xs font-semibold border border-[#E8E4D8] transition-colors"
           >
             <Building2 className="w-3.5 h-3.5 text-[#C6A76A]" />
             <span className="hidden sm:inline">Inspect Green Hills Demo</span>
@@ -219,7 +219,7 @@ export const PlatformAdminView: React.FC<PlatformAdminViewProps> = ({
 
           <button
             onClick={onLogout}
-            className="flex items-center space-x-1 px-3 py-1.5 rounded-xl bg-red-950/60 hover:bg-red-900 text-red-200 border border-red-800 text-xs font-semibold transition-colors"
+            className="flex items-center space-x-1 px-3 py-1.5 rounded-xl bg-white hover:bg-red-50 text-red-600 border border-red-200 text-xs font-semibold transition-colors"
           >
             <LogOut className="w-3.5 h-3.5" />
             <span>Sign Out</span>
@@ -231,13 +231,13 @@ export const PlatformAdminView: React.FC<PlatformAdminViewProps> = ({
       <div className="flex-1 max-w-7xl w-full mx-auto p-4 sm:p-6 lg:p-8 space-y-6">
 
         {/* Tab Switcher */}
-        <div className="flex flex-wrap gap-2 border-b border-[#2d3b35] pb-3">
+        <div className="flex flex-wrap gap-2 border-b border-[#E8E4D8] pb-3">
           <button
             onClick={() => setActiveTab('overview')}
             className={`px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2 ${
               activeTab === 'overview'
-                ? 'bg-dairy-600 text-white shadow-sm'
-                : 'text-slate-400 hover:text-white hover:bg-slate-800'
+                ? 'bg-[#345C4A] text-white shadow-xs'
+                : 'text-[#5D7368] hover:text-[#26332D] hover:bg-white bg-white/60 border border-[#E8E4D8]'
             }`}
           >
             <DollarSign className="w-4 h-4" />
@@ -248,8 +248,8 @@ export const PlatformAdminView: React.FC<PlatformAdminViewProps> = ({
             onClick={() => setActiveTab('accounts')}
             className={`px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2 ${
               activeTab === 'accounts'
-                ? 'bg-dairy-600 text-white shadow-sm'
-                : 'text-slate-400 hover:text-white hover:bg-slate-800'
+                ? 'bg-[#345C4A] text-white shadow-xs'
+                : 'text-[#5D7368] hover:text-[#26332D] hover:bg-white bg-white/60 border border-[#E8E4D8]'
             }`}
           >
             <Users className="w-4 h-4" />
@@ -260,8 +260,8 @@ export const PlatformAdminView: React.FC<PlatformAdminViewProps> = ({
             onClick={() => setActiveTab('testimonials')}
             className={`px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2 ${
               activeTab === 'testimonials'
-                ? 'bg-dairy-600 text-white shadow-sm'
-                : 'text-slate-400 hover:text-white hover:bg-slate-800'
+                ? 'bg-[#345C4A] text-white shadow-xs'
+                : 'text-[#5D7368] hover:text-[#26332D] hover:bg-white bg-white/60 border border-[#E8E4D8]'
             }`}
           >
             <MessageSquare className="w-4 h-4" />
@@ -272,14 +272,14 @@ export const PlatformAdminView: React.FC<PlatformAdminViewProps> = ({
             onClick={() => setActiveTab('leads')}
             className={`px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2 relative ${
               activeTab === 'leads'
-                ? 'bg-dairy-600 text-white shadow-sm'
-                : 'text-slate-400 hover:text-white hover:bg-slate-800'
+                ? 'bg-[#345C4A] text-white shadow-xs'
+                : 'text-[#5D7368] hover:text-[#26332D] hover:bg-white bg-white/60 border border-[#E8E4D8]'
             }`}
           >
             <PhoneCall className="w-4 h-4" />
             <span>Website Inquiries & Leads ({leads.length})</span>
             {newLeadsCount > 0 && (
-              <span className="w-2 h-2 rounded-full bg-dairy-400 animate-ping absolute top-2 right-2" />
+              <span className="w-2 h-2 rounded-full bg-[#C6A76A] animate-ping absolute top-2 right-2" />
             )}
           </button>
 
@@ -287,8 +287,8 @@ export const PlatformAdminView: React.FC<PlatformAdminViewProps> = ({
             onClick={() => setActiveTab('settings')}
             className={`px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2 ${
               activeTab === 'settings'
-                ? 'bg-dairy-600 text-white shadow-sm'
-                : 'text-slate-400 hover:text-white hover:bg-slate-800'
+                ? 'bg-[#345C4A] text-white shadow-xs'
+                : 'text-[#5D7368] hover:text-[#26332D] hover:bg-white bg-white/60 border border-[#E8E4D8]'
             }`}
           >
             <Settings className="w-4 h-4" />
@@ -303,54 +303,54 @@ export const PlatformAdminView: React.FC<PlatformAdminViewProps> = ({
           <div className="space-y-6">
             {/* KPI Cards */}
             <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-              <div className="bg-[#26332D] border border-[#394943] rounded-2xl p-5 shadow-sm">
-                <div className="flex items-center justify-between text-[#A8BFA5] mb-2">
+              <div className="bg-white border border-[#E8E4D8] rounded-2xl p-5 shadow-xs">
+                <div className="flex items-center justify-between text-[#5D7368] mb-2">
                   <span className="text-xs font-semibold uppercase tracking-wider">Monthly Run-Rate (MRR)</span>
                   <DollarSign className="w-4 h-4 text-[#C6A76A]" />
                 </div>
-                <div className="text-2xl font-black text-[#C6A76A]">
+                <div className="text-2xl font-black text-[#345C4A]">
                   KSh {totalMrr.toLocaleString()}
                 </div>
-                <p className="text-[11px] text-[#A8BFA5]/80 mt-1">
+                <p className="text-[11px] text-[#879C91] mt-1">
                   From {activeSubscriptions.length} active paying farms
                 </p>
               </div>
 
-              <div className="bg-[#26332D] border border-[#394943] rounded-2xl p-5 shadow-sm">
-                <div className="flex items-center justify-between text-[#A8BFA5] mb-2">
+              <div className="bg-white border border-[#E8E4D8] rounded-2xl p-5 shadow-xs">
+                <div className="flex items-center justify-between text-[#5D7368] mb-2">
                   <span className="text-xs font-semibold uppercase tracking-wider">Active Paid Subs</span>
-                  <CreditCard className="w-4 h-4 text-[#A8BFA5]" />
+                  <CreditCard className="w-4 h-4 text-[#345C4A]" />
                 </div>
-                <div className="text-2xl font-black text-white">
+                <div className="text-2xl font-black text-[#26332D]">
                   {activeSubscriptions.length}
                 </div>
-                <p className="text-[11px] text-[#A8BFA5]/80 mt-1">
+                <p className="text-[11px] text-[#879C91] mt-1">
                   {pastDueSubscriptions.length} account(s) past due
                 </p>
               </div>
 
-              <div className="bg-[#26332D] border border-[#394943] rounded-2xl p-5 shadow-sm">
-                <div className="flex items-center justify-between text-[#A8BFA5] mb-2">
+              <div className="bg-white border border-[#E8E4D8] rounded-2xl p-5 shadow-xs">
+                <div className="flex items-center justify-between text-[#5D7368] mb-2">
                   <span className="text-xs font-semibold uppercase tracking-wider">14-Day Free Trials</span>
                   <Calendar className="w-4 h-4 text-[#C6A76A]" />
                 </div>
-                <div className="text-2xl font-black text-white">
+                <div className="text-2xl font-black text-[#C6A76A]">
                   {trialSubscriptions.length}
                 </div>
-                <p className="text-[11px] text-[#A8BFA5]/80 mt-1">
+                <p className="text-[11px] text-[#879C91] mt-1">
                   Converting within next 2 weeks
                 </p>
               </div>
 
-              <div className="bg-[#26332D] border border-[#394943] rounded-2xl p-5 shadow-sm">
-                <div className="flex items-center justify-between text-[#A8BFA5] mb-2">
+              <div className="bg-white border border-[#E8E4D8] rounded-2xl p-5 shadow-xs">
+                <div className="flex items-center justify-between text-[#5D7368] mb-2">
                   <span className="text-xs font-semibold uppercase tracking-wider">Total Farms</span>
-                  <Users className="w-4 h-4 text-[#A8BFA5]" />
+                  <Users className="w-4 h-4 text-[#345C4A]" />
                 </div>
-                <div className="text-2xl font-black text-white">
+                <div className="text-2xl font-black text-[#26332D]">
                   {farmerAccounts.length}
                 </div>
-                <p className="text-[11px] text-slate-400 mt-1">
+                <p className="text-[11px] text-[#879C91] mt-1">
                   Registered dairy tenants in Kenya
                 </p>
               </div>
@@ -359,15 +359,15 @@ export const PlatformAdminView: React.FC<PlatformAdminViewProps> = ({
             {/* Quick Action Summary */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
               {/* Recent Inquiries */}
-              <div className="bg-slate-800/80 border border-slate-700/80 rounded-2xl p-5 space-y-4">
+              <div className="bg-white border border-[#E8E4D8] rounded-2xl p-5 space-y-4 shadow-xs">
                 <div className="flex items-center justify-between">
-                  <h3 className="text-sm font-bold text-white flex items-center gap-2">
-                    <PhoneCall className="w-4 h-4 text-dairy-400" />
+                  <h3 className="text-sm font-bold text-[#26332D] flex items-center gap-2">
+                    <PhoneCall className="w-4 h-4 text-[#345C4A]" />
                     <span>Recent Website Leads</span>
                   </h3>
                   <button 
                     onClick={() => setActiveTab('leads')}
-                    className="text-xs text-dairy-400 hover:underline"
+                    className="text-xs text-[#345C4A] hover:underline font-semibold"
                   >
                     View all ({leads.length})
                   </button>
@@ -375,34 +375,36 @@ export const PlatformAdminView: React.FC<PlatformAdminViewProps> = ({
 
                 <div className="space-y-2.5">
                   {leads.slice(0, 3).map((lead) => (
-                    <div key={lead.id} className="p-3 bg-slate-900/60 rounded-xl border border-slate-700/50 flex items-center justify-between text-xs">
+                    <div key={lead.id} className="p-3 bg-[#FAF9F5] rounded-xl border border-[#E8E4D8] flex items-center justify-between text-xs">
                       <div>
-                        <div className="font-bold text-white">{lead.name} • {lead.county || 'Kenya'}</div>
-                        <div className="text-slate-400 text-[11px] mt-0.5">{lead.phone} • {lead.cowsCount || 0} cows</div>
+                        <div className="font-bold text-[#26332D]">{lead.name} • {lead.county || 'Kenya'}</div>
+                        <div className="text-[#5D7368] text-[11px] mt-0.5">{lead.phone} • {lead.cowsCount || 0} cows</div>
                       </div>
                       <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${
-                        lead.status === 'new' ? 'bg-amber-900/70 text-amber-300' : 'bg-slate-800 text-slate-300'
+                        lead.status === 'new' 
+                          ? 'bg-[#C6A76A]/15 text-[#8F7438] border border-[#C6A76A]/30' 
+                          : 'bg-[#A8BFA5]/25 text-[#26332D] border border-[#A8BFA5]/40'
                       }`}>
                         {lead.status.toUpperCase()}
                       </span>
                     </div>
                   ))}
                   {leads.length === 0 && (
-                    <p className="text-xs text-slate-500 py-3 text-center">No leads recorded yet.</p>
+                    <p className="text-xs text-[#879C91] py-3 text-center">No leads recorded yet.</p>
                   )}
                 </div>
               </div>
 
               {/* Subscribed Farmers Distribution */}
-              <div className="bg-slate-800/80 border border-slate-700/80 rounded-2xl p-5 space-y-4">
+              <div className="bg-white border border-[#E8E4D8] rounded-2xl p-5 space-y-4 shadow-xs">
                 <div className="flex items-center justify-between">
-                  <h3 className="text-sm font-bold text-white flex items-center gap-2">
-                    <Users className="w-4 h-4 text-emerald-400" />
+                  <h3 className="text-sm font-bold text-[#26332D] flex items-center gap-2">
+                    <Users className="w-4 h-4 text-[#345C4A]" />
                     <span>Active Tenant Summary</span>
                   </h3>
                   <button 
                     onClick={() => setActiveTab('accounts')}
-                    className="text-xs text-dairy-400 hover:underline"
+                    className="text-xs text-[#345C4A] hover:underline font-semibold"
                   >
                     Manage tenants
                   </button>
@@ -410,20 +412,20 @@ export const PlatformAdminView: React.FC<PlatformAdminViewProps> = ({
 
                 <div className="space-y-2.5">
                   {farmerAccounts.slice(0, 3).map((acc) => (
-                    <div key={acc.id} className="p-3 bg-slate-900/60 rounded-xl border border-slate-700/50 flex items-center justify-between text-xs">
+                    <div key={acc.id} className="p-3 bg-[#FAF9F5] rounded-xl border border-[#E8E4D8] flex items-center justify-between text-xs">
                       <div>
-                        <div className="font-bold text-white">{acc.name}</div>
-                        <div className="text-slate-400 text-[11px] mt-0.5">{acc.email} • {acc.subscription.plan.toUpperCase()}</div>
+                        <div className="font-bold text-[#26332D]">{acc.name}</div>
+                        <div className="text-[#5D7368] text-[11px] mt-0.5">{acc.email} • {acc.subscription.plan.toUpperCase()}</div>
                       </div>
                       <div className="text-right">
                         <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${
                           acc.subscription.status === 'active' 
-                            ? 'bg-emerald-950 text-emerald-300 border border-emerald-800' 
-                            : 'bg-amber-950 text-amber-300 border border-amber-800'
+                            ? 'bg-[#345C4A]/10 text-[#345C4A] border border-[#345C4A]/25' 
+                            : 'bg-[#C6A76A]/15 text-[#8F7438] border border-[#C6A76A]/30'
                         }`}>
                           {acc.subscription.status.toUpperCase()}
                         </span>
-                        <div className="text-[10px] text-slate-400 mt-1">KSh {acc.subscription.monthlyPriceKsh}/mo</div>
+                        <div className="text-[10px] text-[#5D7368] mt-1 font-medium">KSh {acc.subscription.monthlyPriceKsh}/mo</div>
                       </div>
                     </div>
                   ))}
@@ -440,26 +442,26 @@ export const PlatformAdminView: React.FC<PlatformAdminViewProps> = ({
           <div className="space-y-4">
             <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
               <div>
-                <h2 className="text-base font-bold text-white">Registered Farm Tenants</h2>
-                <p className="text-xs text-slate-400">Manage farm subscriptions, renewal dates, and tenant access.</p>
+                <h2 className="text-base font-bold text-[#26332D]">Registered Farm Tenants</h2>
+                <p className="text-xs text-[#5D7368]">Manage farm subscriptions, renewal dates, and tenant access.</p>
               </div>
 
               <div className="relative">
-                <Search className="w-4 h-4 text-slate-400 absolute left-3 top-2.5" />
+                <Search className="w-4 h-4 text-[#879C91] absolute left-3 top-2.5" />
                 <input
                   type="text"
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
                   placeholder="Search farmers..."
-                  className="pl-9 pr-4 py-2 bg-slate-800 border border-slate-700 rounded-xl text-xs text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-dairy-500 w-full sm:w-64"
+                  className="pl-9 pr-4 py-2 bg-white border border-[#E8E4D8] rounded-xl text-xs text-[#26332D] placeholder-[#879C91] focus:outline-none focus:ring-2 focus:ring-[#345C4A]/30 focus:border-[#345C4A] w-full sm:w-64 shadow-xs"
                 />
               </div>
             </div>
 
-            <div className="bg-slate-800/80 border border-slate-700/80 rounded-2xl overflow-hidden shadow-sm">
+            <div className="bg-white border border-[#E8E4D8] rounded-2xl overflow-hidden shadow-xs">
               <div className="overflow-x-auto">
                 <table className="w-full text-left text-xs">
-                  <thead className="bg-slate-900/90 text-slate-400 uppercase tracking-wider text-[10px] border-b border-slate-700">
+                  <thead className="bg-[#FAF9F5] text-[#5D7368] uppercase tracking-wider text-[10px] border-b border-[#E8E4D8]">
                     <tr>
                       <th className="px-4 py-3 font-semibold">Farmer & Email</th>
                       <th className="px-4 py-3 font-semibold">Phone</th>
@@ -470,21 +472,21 @@ export const PlatformAdminView: React.FC<PlatformAdminViewProps> = ({
                       <th className="px-4 py-3 font-semibold text-right">Actions</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-slate-700/50 text-slate-200">
+                  <tbody className="divide-y divide-[#E8E4D8] text-[#26332D]">
                     {filteredAccounts.map((acc) => (
-                      <tr key={acc.id} className="hover:bg-slate-700/30 transition-colors">
+                      <tr key={acc.id} className="hover:bg-[#FAF9F5]/80 transition-colors">
                         <td className="px-4 py-3.5">
-                          <div className="font-bold text-white">{acc.name}</div>
-                          <div className="text-[11px] text-slate-400">{acc.email}</div>
+                          <div className="font-bold text-[#26332D]">{acc.name}</div>
+                          <div className="text-[11px] text-[#5D7368]">{acc.email}</div>
                         </td>
-                        <td className="px-4 py-3.5 text-slate-300">
+                        <td className="px-4 py-3.5 text-[#5D7368]">
                           {acc.phone || '—'}
                         </td>
                         <td className="px-4 py-3.5">
                           <select
                             value={acc.subscription.plan}
                             onChange={(e) => handleUpdatePlan(acc.id, e.target.value as SubscriptionPlan)}
-                            className="bg-slate-900 border border-slate-700 rounded-lg px-2 py-1 text-xs text-white focus:ring-1 focus:ring-dairy-500"
+                            className="bg-[#FAF9F5] border border-[#E8E4D8] rounded-lg px-2 py-1 text-xs text-[#26332D] focus:ring-1 focus:ring-[#345C4A] focus:outline-none"
                           >
                             <option value="starter">Starter (KSh 500)</option>
                             <option value="farmer">Farmer (KSh 1,000)</option>
@@ -495,12 +497,12 @@ export const PlatformAdminView: React.FC<PlatformAdminViewProps> = ({
                           <select
                             value={acc.subscription.status}
                             onChange={(e) => handleUpdateStatus(acc.id, e.target.value as SubscriptionStatus)}
-                            className={`border rounded-lg px-2 py-1 text-xs font-semibold ${
+                            className={`border rounded-lg px-2 py-1 text-xs font-semibold focus:outline-none ${
                               acc.subscription.status === 'active'
-                                ? 'bg-emerald-950 text-emerald-300 border-emerald-800'
+                                ? 'bg-[#345C4A]/10 text-[#345C4A] border-[#345C4A]/25'
                                 : acc.subscription.status === 'trial'
-                                ? 'bg-amber-950 text-amber-300 border-amber-800'
-                                : 'bg-red-950 text-red-300 border-red-800'
+                                ? 'bg-[#C6A76A]/15 text-[#8F7438] border-[#C6A76A]/30'
+                                : 'bg-red-50 text-red-700 border-red-200'
                             }`}
                           >
                             <option value="trial">Trial (14 Days)</option>
@@ -509,16 +511,16 @@ export const PlatformAdminView: React.FC<PlatformAdminViewProps> = ({
                             <option value="cancelled">Cancelled</option>
                           </select>
                         </td>
-                        <td className="px-4 py-3.5 font-bold text-white">
+                        <td className="px-4 py-3.5 font-bold text-[#26332D]">
                           KSh {acc.subscription.monthlyPriceKsh?.toLocaleString()}
                         </td>
-                        <td className="px-4 py-3.5 text-[11px] text-slate-400">
+                        <td className="px-4 py-3.5 text-[11px] text-[#5D7368]">
                           {new Date(acc.subscription.renewsAt).toLocaleDateString()}
                         </td>
                         <td className="px-4 py-3.5 text-right">
                           <button
                             onClick={() => onImpersonateFarm(acc.farmId)}
-                            className="px-2.5 py-1 bg-dairy-700/80 hover:bg-dairy-600 text-white rounded-lg text-xs font-bold transition-colors inline-flex items-center gap-1 shadow-2xs"
+                            className="px-2.5 py-1 bg-[#345C4A] hover:bg-[#274537] text-white rounded-lg text-xs font-bold transition-colors inline-flex items-center gap-1 shadow-xs"
                             title="Inspect this farm's records"
                           >
                             <span>Inspect</span>
@@ -541,13 +543,13 @@ export const PlatformAdminView: React.FC<PlatformAdminViewProps> = ({
           <div className="space-y-5">
             <div className="flex items-center justify-between">
               <div>
-                <h2 className="text-base font-bold text-white">Website Testimonial Manager</h2>
-                <p className="text-xs text-slate-400">Add, edit, approve, and curate authentic farmer stories for the marketing landing page.</p>
+                <h2 className="text-base font-bold text-[#26332D]">Website Testimonial Manager</h2>
+                <p className="text-xs text-[#5D7368]">Add, edit, approve, and curate authentic farmer stories for the marketing landing page.</p>
               </div>
 
               <button
                 onClick={() => setIsAddingTestimonial(!isAddingTestimonial)}
-                className="px-3.5 py-2 bg-dairy-600 hover:bg-dairy-700 text-white rounded-xl text-xs font-bold transition-colors flex items-center gap-1.5 shadow-sm"
+                className="px-3.5 py-2 bg-[#345C4A] hover:bg-[#274537] text-white rounded-xl text-xs font-bold transition-colors flex items-center gap-1.5 shadow-xs"
               >
                 <Plus className="w-4 h-4" />
                 <span>{isAddingTestimonial ? 'Close Form' : 'Add Testimonial'}</span>
@@ -556,92 +558,92 @@ export const PlatformAdminView: React.FC<PlatformAdminViewProps> = ({
 
             {/* Testimonial Creation Form */}
             {isAddingTestimonial && (
-              <form onSubmit={handleCreateTestimonial} className="bg-slate-800/90 border border-slate-700 rounded-2xl p-5 space-y-4 animate-fade-in">
-                <h3 className="text-xs font-bold uppercase tracking-wider text-dairy-400">New Farmer Testimonial</h3>
+              <form onSubmit={handleCreateTestimonial} className="bg-white border border-[#E8E4D8] rounded-2xl p-5 space-y-4 shadow-xs animate-fade-in">
+                <h3 className="text-xs font-bold uppercase tracking-wider text-[#345C4A]">New Farmer Testimonial</h3>
 
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                   <div>
-                    <label className="block text-[11px] font-bold uppercase text-slate-300 mb-1">Farmer Name *</label>
+                    <label className="block text-[11px] font-bold uppercase text-[#5D7368] mb-1">Farmer Name *</label>
                     <input
                       type="text"
                       required
                       value={testFarmerName}
                       onChange={(e) => setTestFarmerName(e.target.value)}
                       placeholder="e.g. Samuel K. Ndegwa"
-                      className="w-full px-3 py-2 bg-slate-900 border border-slate-700 rounded-xl text-xs text-white"
+                      className="w-full px-3 py-2 bg-[#FAF9F5] border border-[#E8E4D8] rounded-xl text-xs text-[#26332D] focus:outline-none focus:ring-1 focus:ring-[#345C4A]"
                     />
                   </div>
 
                   <div>
-                    <label className="block text-[11px] font-bold uppercase text-slate-300 mb-1">Farm Name *</label>
+                    <label className="block text-[11px] font-bold uppercase text-[#5D7368] mb-1">Farm Name *</label>
                     <input
                       type="text"
                       required
                       value={testFarmName}
                       onChange={(e) => setTestFarmName(e.target.value)}
                       placeholder="e.g. Menengai Vista Dairy"
-                      className="w-full px-3 py-2 bg-slate-900 border border-slate-700 rounded-xl text-xs text-white"
+                      className="w-full px-3 py-2 bg-[#FAF9F5] border border-[#E8E4D8] rounded-xl text-xs text-[#26332D] focus:outline-none focus:ring-1 focus:ring-[#345C4A]"
                     />
                   </div>
 
                   <div>
-                    <label className="block text-[11px] font-bold uppercase text-slate-300 mb-1">County *</label>
+                    <label className="block text-[11px] font-bold uppercase text-[#5D7368] mb-1">County *</label>
                     <input
                       type="text"
                       required
                       value={testCounty}
                       onChange={(e) => setTestCounty(e.target.value)}
                       placeholder="e.g. Nakuru County"
-                      className="w-full px-3 py-2 bg-slate-900 border border-slate-700 rounded-xl text-xs text-white"
+                      className="w-full px-3 py-2 bg-[#FAF9F5] border border-[#E8E4D8] rounded-xl text-xs text-[#26332D] focus:outline-none focus:ring-1 focus:ring-[#345C4A]"
                     />
                   </div>
                 </div>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   <div>
-                    <label className="block text-[11px] font-bold uppercase text-slate-300 mb-1">English Quote *</label>
+                    <label className="block text-[11px] font-bold uppercase text-[#5D7368] mb-1">English Quote *</label>
                     <textarea
                       required
                       rows={3}
                       value={testQuote}
                       onChange={(e) => setTestQuote(e.target.value)}
                       placeholder="What did the farmer achieve with Mylkio?"
-                      className="w-full px-3 py-2 bg-slate-900 border border-slate-700 rounded-xl text-xs text-white"
+                      className="w-full px-3 py-2 bg-[#FAF9F5] border border-[#E8E4D8] rounded-xl text-xs text-[#26332D] focus:outline-none focus:ring-1 focus:ring-[#345C4A]"
                     />
                   </div>
 
                   <div>
-                    <label className="block text-[11px] font-bold uppercase text-slate-300 mb-1">Kiswahili Quote (Optional)</label>
+                    <label className="block text-[11px] font-bold uppercase text-[#5D7368] mb-1">Kiswahili Quote (Optional)</label>
                     <textarea
                       rows={3}
                       value={testQuoteSw}
                       onChange={(e) => setTestQuoteSw(e.target.value)}
                       placeholder="Toleo la Kiswahili..."
-                      className="w-full px-3 py-2 bg-slate-900 border border-slate-700 rounded-xl text-xs text-white"
+                      className="w-full px-3 py-2 bg-[#FAF9F5] border border-[#E8E4D8] rounded-xl text-xs text-[#26332D] focus:outline-none focus:ring-1 focus:ring-[#345C4A]"
                     />
                   </div>
                 </div>
 
                 <div className="flex flex-wrap items-center gap-4">
                   <div>
-                    <label className="block text-[11px] font-bold uppercase text-slate-300 mb-1">Number of Cows</label>
+                    <label className="block text-[11px] font-bold uppercase text-[#5D7368] mb-1">Number of Cows</label>
                     <input
                       type="number"
                       value={testCows}
                       onChange={(e) => setTestCows(Number(e.target.value))}
-                      className="w-24 px-3 py-1.5 bg-slate-900 border border-slate-700 rounded-xl text-xs text-white"
+                      className="w-24 px-3 py-1.5 bg-[#FAF9F5] border border-[#E8E4D8] rounded-xl text-xs text-[#26332D] focus:outline-none focus:ring-1 focus:ring-[#345C4A]"
                     />
                   </div>
 
                   <div>
-                    <label className="block text-[11px] font-bold uppercase text-slate-300 mb-1">Star Rating (1-5)</label>
+                    <label className="block text-[11px] font-bold uppercase text-[#5D7368] mb-1">Star Rating (1-5)</label>
                     <input
                       type="number"
                       min={1}
                       max={5}
                       value={testRating}
                       onChange={(e) => setTestRating(Number(e.target.value))}
-                      className="w-20 px-3 py-1.5 bg-slate-900 border border-slate-700 rounded-xl text-xs text-white"
+                      className="w-20 px-3 py-1.5 bg-[#FAF9F5] border border-[#E8E4D8] rounded-xl text-xs text-[#26332D] focus:outline-none focus:ring-1 focus:ring-[#345C4A]"
                     />
                   </div>
 
@@ -651,9 +653,9 @@ export const PlatformAdminView: React.FC<PlatformAdminViewProps> = ({
                       id="featCheck"
                       checked={testFeatured}
                       onChange={(e) => setTestFeatured(e.target.checked)}
-                      className="w-4 h-4 rounded text-dairy-600 bg-slate-900 border-slate-700"
+                      className="w-4 h-4 rounded text-[#345C4A] accent-[#345C4A] border-[#E8E4D8]"
                     />
-                    <label htmlFor="featCheck" className="text-xs text-slate-300 font-semibold cursor-pointer">
+                    <label htmlFor="featCheck" className="text-xs text-[#26332D] font-semibold cursor-pointer">
                       Feature on Homepage
                     </label>
                   </div>
@@ -661,7 +663,7 @@ export const PlatformAdminView: React.FC<PlatformAdminViewProps> = ({
                   <div className="pt-4 ml-auto">
                     <button
                       type="submit"
-                      className="px-5 py-2 bg-dairy-600 hover:bg-dairy-700 text-white rounded-xl text-xs font-bold transition-all shadow-sm"
+                      className="px-5 py-2 bg-[#345C4A] hover:bg-[#274537] text-white rounded-xl text-xs font-bold transition-all shadow-xs"
                     >
                       Publish Testimonial
                     </button>
@@ -675,34 +677,34 @@ export const PlatformAdminView: React.FC<PlatformAdminViewProps> = ({
               {testimonials.map((test) => (
                 <div 
                   key={test.id}
-                  className={`p-5 rounded-2xl border transition-all ${
+                  className={`p-5 rounded-2xl border transition-all bg-white shadow-xs ${
                     test.isApproved 
-                      ? 'bg-slate-800/80 border-slate-700/80' 
-                      : 'bg-slate-900/60 border-slate-800 opacity-60'
+                      ? 'border-[#E8E4D8]' 
+                      : 'opacity-70 border-dashed border-[#E8E4D8]'
                   }`}
                 >
                   <div className="flex items-start justify-between gap-3">
                     <div>
-                      <h4 className="font-bold text-white text-sm">{test.farmerName}</h4>
-                      <p className="text-[11px] text-dairy-400 font-medium">{test.farmName} • {test.county} ({test.cowsCount} cows)</p>
+                      <h4 className="font-bold text-[#26332D] text-sm">{test.farmerName}</h4>
+                      <p className="text-[11px] text-[#345C4A] font-medium">{test.farmName} • {test.county} ({test.cowsCount} cows)</p>
                     </div>
 
                     <div className="flex items-center space-x-1.5">
                       <button
                         onClick={() => handleToggleTestimonial(test.id, test.isApproved)}
-                        className={`p-1.5 rounded-lg text-xs font-semibold ${
+                        className={`p-1.5 rounded-lg text-xs font-semibold transition-colors ${
                           test.isApproved 
-                            ? 'bg-emerald-950 text-emerald-300 border border-emerald-800' 
-                            : 'bg-slate-800 text-slate-400'
+                            ? 'bg-[#345C4A]/10 text-[#345C4A] border border-[#345C4A]/25 hover:bg-[#345C4A]/20' 
+                            : 'bg-[#FAF9F5] text-[#879C91] border border-[#E8E4D8] hover:bg-[#E8E4D8]'
                         }`}
                         title={test.isApproved ? 'Unpublish' : 'Approve for website'}
                       >
-                        {test.isApproved ? <CheckCircle className="w-4 h-4" /> : <XCircle className="w-4 h-4" />}
+                        {test.isApproved ? <CheckCircle className="w-4 h-4 text-[#345C4A]" /> : <XCircle className="w-4 h-4" />}
                       </button>
 
                       <button
                         onClick={() => handleDeleteTestimonial(test.id)}
-                        className="p-1.5 rounded-lg bg-red-950/60 hover:bg-red-900 text-red-300 border border-red-800 text-xs transition-colors"
+                        className="p-1.5 rounded-lg bg-white hover:bg-red-50 text-red-600 border border-red-200 text-xs transition-colors"
                         title="Delete testimonial"
                       >
                         <Trash2 className="w-4 h-4" />
@@ -710,20 +712,20 @@ export const PlatformAdminView: React.FC<PlatformAdminViewProps> = ({
                     </div>
                   </div>
 
-                  <blockquote className="mt-3 text-xs text-slate-300 italic border-l-2 border-dairy-500 pl-3">
+                  <blockquote className="mt-3 text-xs text-[#3D4F46] italic border-l-2 border-[#345C4A] pl-3">
                     &ldquo;{test.quote}&rdquo;
                   </blockquote>
 
                   {test.quoteSw && (
-                    <blockquote className="mt-2 text-[11px] text-slate-400 italic border-l-2 border-slate-600 pl-3">
+                    <blockquote className="mt-2 text-[11px] text-[#5D7368] italic border-l-2 border-[#A8BFA5] pl-3">
                       &ldquo;{test.quoteSw}&rdquo;
                     </blockquote>
                   )}
 
-                  <div className="mt-3 flex items-center justify-between text-[11px] text-slate-400 pt-2 border-t border-slate-700/50">
-                    <span className="text-amber-400 font-bold">★ {test.rating}.0 Rating</span>
+                  <div className="mt-3 flex items-center justify-between text-[11px] text-[#5D7368] pt-2 border-t border-[#E8E4D8]">
+                    <span className="text-[#C6A76A] font-bold">★ {test.rating}.0 Rating</span>
                     {test.featured && (
-                      <span className="px-2 py-0.5 rounded-full bg-dairy-950 text-dairy-300 text-[10px] font-bold border border-dairy-800">
+                      <span className="px-2 py-0.5 rounded-full bg-[#C6A76A]/15 text-[#8F7438] text-[10px] font-bold border border-[#C6A76A]/30">
                         Featured on Hero
                       </span>
                     )}
@@ -741,15 +743,15 @@ export const PlatformAdminView: React.FC<PlatformAdminViewProps> = ({
           <div className="space-y-4">
             <div className="flex items-center justify-between">
               <div>
-                <h2 className="text-base font-bold text-white">Farmer Inquiries & Demo Leads</h2>
-                <p className="text-xs text-slate-400">Captured automatically from the marketing landing page and checklist downloads.</p>
+                <h2 className="text-base font-bold text-[#26332D]">Farmer Inquiries & Demo Leads</h2>
+                <p className="text-xs text-[#5D7368]">Captured automatically from the marketing landing page and contact forms.</p>
               </div>
             </div>
 
-            <div className="bg-slate-800/80 border border-slate-700/80 rounded-2xl overflow-hidden shadow-sm">
+            <div className="bg-white border border-[#E8E4D8] rounded-2xl overflow-hidden shadow-xs">
               <div className="overflow-x-auto">
                 <table className="w-full text-left text-xs">
-                  <thead className="bg-slate-900/90 text-slate-400 uppercase tracking-wider text-[10px] border-b border-slate-700">
+                  <thead className="bg-[#FAF9F5] text-[#5D7368] uppercase tracking-wider text-[10px] border-b border-[#E8E4D8]">
                     <tr>
                       <th className="px-4 py-3 font-semibold">Farmer Name</th>
                       <th className="px-4 py-3 font-semibold">Phone / WhatsApp</th>
@@ -760,44 +762,44 @@ export const PlatformAdminView: React.FC<PlatformAdminViewProps> = ({
                       <th className="px-4 py-3 font-semibold text-right">Actions</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-slate-700/50 text-slate-200">
+                  <tbody className="divide-y divide-[#E8E4D8] text-[#26332D]">
                     {leads.map((lead) => {
                       const cleanPhone = lead.phone.replace(/[^0-9]/g, '');
                       const whatsappUrl = `https://wa.me/${cleanPhone}?text=Hello%20${encodeURIComponent(lead.name)},%20thank%20you%20for%20contacting%20Mylkio%20Dairy%20MS!`;
 
                       return (
-                        <tr key={lead.id} className="hover:bg-slate-700/30 transition-colors">
-                          <td className="px-4 py-3.5 font-bold text-white">
+                        <tr key={lead.id} className="hover:bg-[#FAF9F5]/80 transition-colors">
+                          <td className="px-4 py-3.5 font-bold text-[#26332D]">
                             {lead.name}
-                            <div className="text-[10px] text-slate-400 font-normal mt-0.5">
+                            <div className="text-[10px] text-[#5D7368] font-normal mt-0.5">
                               {new Date(lead.createdAt).toLocaleDateString()}
                             </div>
                           </td>
                           <td className="px-4 py-3.5">
-                            <div className="font-semibold text-dairy-300">{lead.phone}</div>
+                            <div className="font-semibold text-[#345C4A]">{lead.phone}</div>
                           </td>
-                          <td className="px-4 py-3.5">
+                          <td className="px-4 py-3.5 text-[#5D7368]">
                             <div>{lead.county || 'Not specified'}</div>
-                            <div className="text-[10px] text-slate-400">{lead.cowsCount ? `${lead.cowsCount} cows` : 'Count unknown'}</div>
+                            <div className="text-[10px] text-[#879C91]">{lead.cowsCount ? `${lead.cowsCount} cows` : 'Count unknown'}</div>
                           </td>
-                          <td className="px-4 py-3.5 uppercase text-[10px] font-bold text-slate-300">
+                          <td className="px-4 py-3.5 uppercase text-[10px] font-bold text-[#5D7368]">
                             {lead.preferredContact}
                           </td>
-                          <td className="px-4 py-3.5 max-w-xs truncate text-slate-300 text-[11px]" title={lead.message}>
+                          <td className="px-4 py-3.5 max-w-xs truncate text-[#5D7368] text-[11px]" title={lead.message}>
                             {lead.message || 'General inquiry'}
                           </td>
                           <td className="px-4 py-3.5">
                             <select
                               value={lead.status}
                               onChange={(e) => handleLeadStatus(lead.id, e.target.value as ContactLead['status'])}
-                              className={`border rounded-lg px-2 py-1 text-xs font-semibold ${
+                              className={`border rounded-lg px-2 py-1 text-xs font-semibold focus:outline-none ${
                                 lead.status === 'new'
-                                  ? 'bg-amber-950 text-amber-300 border-amber-800'
+                                  ? 'bg-[#C6A76A]/15 text-[#8F7438] border-[#C6A76A]/30'
                                   : lead.status === 'contacted'
-                                  ? 'bg-blue-950 text-blue-300 border-blue-800'
+                                  ? 'bg-[#A8BFA5]/25 text-[#26332D] border-[#A8BFA5]/40'
                                   : lead.status === 'converted'
-                                  ? 'bg-emerald-950 text-emerald-300 border-emerald-800'
-                                  : 'bg-slate-800 text-slate-400 border-slate-700'
+                                  ? 'bg-[#345C4A]/10 text-[#345C4A] border-[#345C4A]/25'
+                                  : 'bg-[#FAF9F5] text-[#879C91] border-[#E8E4D8]'
                               }`}
                             >
                               <option value="new">New Lead</option>
@@ -811,7 +813,7 @@ export const PlatformAdminView: React.FC<PlatformAdminViewProps> = ({
                               href={whatsappUrl}
                               target="_blank"
                               rel="noreferrer"
-                              className="p-1.5 rounded-lg bg-emerald-900/60 hover:bg-emerald-800 text-emerald-200 border border-emerald-700 text-xs inline-flex items-center gap-1 transition-colors"
+                              className="p-1.5 rounded-lg bg-[#345C4A]/10 hover:bg-[#345C4A]/20 text-[#345C4A] border border-[#345C4A]/30 text-xs inline-flex items-center gap-1 transition-colors font-medium"
                               title="Chat on WhatsApp"
                             >
                               <MessageCircle className="w-3.5 h-3.5" />
@@ -820,7 +822,7 @@ export const PlatformAdminView: React.FC<PlatformAdminViewProps> = ({
 
                             <button
                               onClick={() => handleDeleteLead(lead.id)}
-                              className="p-1.5 rounded-lg bg-red-950/60 hover:bg-red-900 text-red-300 border border-red-800 text-xs transition-colors inline-block"
+                              className="p-1.5 rounded-lg bg-white hover:bg-red-50 text-red-600 border border-red-200 text-xs transition-colors inline-block"
                               title="Delete lead"
                             >
                               <Trash2 className="w-3.5 h-3.5" />
@@ -831,7 +833,7 @@ export const PlatformAdminView: React.FC<PlatformAdminViewProps> = ({
                     })}
                     {leads.length === 0 && (
                       <tr>
-                        <td colSpan={7} className="text-center py-8 text-slate-400">
+                        <td colSpan={7} className="text-center py-8 text-[#879C91]">
                           No inquiries received yet. When farmers submit the website contact or demo form, they will appear here!
                         </td>
                       </tr>
@@ -847,15 +849,15 @@ export const PlatformAdminView: React.FC<PlatformAdminViewProps> = ({
         {/* PLATFORM SETTINGS TAB */}
         {/* ======================================================== */}
         {activeTab === 'settings' && (
-          <div className="bg-slate-800/80 border border-slate-700/80 rounded-2xl p-6 max-w-2xl space-y-5">
+          <div className="bg-white border border-[#E8E4D8] rounded-2xl p-6 max-w-2xl space-y-5 shadow-xs">
             <div>
-              <h2 className="text-base font-bold text-white">Platform Commercial Settings</h2>
-              <p className="text-xs text-slate-400">Configure global pricing tiers, customer care WhatsApp, and trial durations.</p>
+              <h2 className="text-base font-bold text-[#26332D]">Platform Commercial Settings</h2>
+              <p className="text-xs text-[#5D7368]">Configure global pricing tiers, customer care WhatsApp, and trial durations.</p>
             </div>
 
             {savedSettingsSuccess && (
-              <div className="p-3 bg-emerald-950/70 border border-emerald-800 text-emerald-200 rounded-xl text-xs font-semibold flex items-center gap-2">
-                <Check className="w-4 h-4 text-emerald-400" />
+              <div className="p-3 bg-[#345C4A]/10 border border-[#345C4A]/25 text-[#345C4A] rounded-xl text-xs font-semibold flex items-center gap-2">
+                <Check className="w-4 h-4 text-[#345C4A]" />
                 <span>Platform settings updated successfully!</span>
               </div>
             )}
@@ -863,72 +865,72 @@ export const PlatformAdminView: React.FC<PlatformAdminViewProps> = ({
             <form onSubmit={handleSaveSettings} className="space-y-4 text-xs">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                  <label className="block font-bold uppercase text-slate-300 mb-1">Support WhatsApp Number</label>
+                  <label className="block font-bold uppercase text-[#5D7368] mb-1">Support WhatsApp Number</label>
                   <input
                     type="text"
                     value={settings.supportWhatsApp}
                     onChange={(e) => setSettings({ ...settings, supportWhatsApp: e.target.value })}
-                    className="w-full px-3 py-2 bg-slate-900 border border-slate-700 rounded-xl text-white font-medium"
+                    className="w-full px-3 py-2 bg-[#FAF9F5] border border-[#E8E4D8] rounded-xl text-[#26332D] font-medium focus:outline-none focus:ring-1 focus:ring-[#345C4A]"
                   />
                 </div>
 
                 <div>
-                  <label className="block font-bold uppercase text-slate-300 mb-1">Support Email</label>
+                  <label className="block font-bold uppercase text-[#5D7368] mb-1">Support Email</label>
                   <input
                     type="email"
                     value={settings.supportEmail}
                     onChange={(e) => setSettings({ ...settings, supportEmail: e.target.value })}
-                    className="w-full px-3 py-2 bg-slate-900 border border-slate-700 rounded-xl text-white font-medium"
+                    className="w-full px-3 py-2 bg-[#FAF9F5] border border-[#E8E4D8] rounded-xl text-[#26332D] font-medium focus:outline-none focus:ring-1 focus:ring-[#345C4A]"
                   />
                 </div>
               </div>
 
               <div className="grid grid-cols-3 gap-3">
                 <div>
-                  <label className="block font-bold uppercase text-slate-300 mb-1">Starter Plan (KSh/mo)</label>
+                  <label className="block font-bold uppercase text-[#5D7368] mb-1">Starter Plan (KSh/mo)</label>
                   <input
                     type="number"
                     value={settings.starterPriceKsh}
                     onChange={(e) => setSettings({ ...settings, starterPriceKsh: Number(e.target.value) })}
-                    className="w-full px-3 py-2 bg-slate-900 border border-slate-700 rounded-xl text-white font-medium"
+                    className="w-full px-3 py-2 bg-[#FAF9F5] border border-[#E8E4D8] rounded-xl text-[#26332D] font-medium focus:outline-none focus:ring-1 focus:ring-[#345C4A]"
                   />
                 </div>
 
                 <div>
-                  <label className="block font-bold uppercase text-slate-300 mb-1">Farmer Plan (KSh/mo)</label>
+                  <label className="block font-bold uppercase text-[#5D7368] mb-1">Farmer Plan (KSh/mo)</label>
                   <input
                     type="number"
                     value={settings.farmerPriceKsh}
                     onChange={(e) => setSettings({ ...settings, farmerPriceKsh: Number(e.target.value) })}
-                    className="w-full px-3 py-2 bg-slate-900 border border-slate-700 rounded-xl text-white font-medium"
+                    className="w-full px-3 py-2 bg-[#FAF9F5] border border-[#E8E4D8] rounded-xl text-[#26332D] font-medium focus:outline-none focus:ring-1 focus:ring-[#345C4A]"
                   />
                 </div>
 
                 <div>
-                  <label className="block font-bold uppercase text-slate-300 mb-1">Pro Plan (KSh/mo)</label>
+                  <label className="block font-bold uppercase text-[#5D7368] mb-1">Pro Plan (KSh/mo)</label>
                   <input
                     type="number"
                     value={settings.proPriceKsh}
                     onChange={(e) => setSettings({ ...settings, proPriceKsh: Number(e.target.value) })}
-                    className="w-full px-3 py-2 bg-slate-900 border border-slate-700 rounded-xl text-white font-medium"
+                    className="w-full px-3 py-2 bg-[#FAF9F5] border border-[#E8E4D8] rounded-xl text-[#26332D] font-medium focus:outline-none focus:ring-1 focus:ring-[#345C4A]"
                   />
                 </div>
               </div>
 
               <div>
-                <label className="block font-bold uppercase text-slate-300 mb-1">Free Trial Duration (Days)</label>
+                <label className="block font-bold uppercase text-[#5D7368] mb-1">Free Trial Duration (Days)</label>
                 <input
                   type="number"
                   value={settings.trialDays}
                   onChange={(e) => setSettings({ ...settings, trialDays: Number(e.target.value) })}
-                  className="w-32 px-3 py-2 bg-slate-900 border border-slate-700 rounded-xl text-white font-medium"
+                  className="w-32 px-3 py-2 bg-[#FAF9F5] border border-[#E8E4D8] rounded-xl text-[#26332D] font-medium focus:outline-none focus:ring-1 focus:ring-[#345C4A]"
                 />
               </div>
 
               <div className="pt-2">
                 <button
                   type="submit"
-                  className="px-5 py-2.5 bg-dairy-600 hover:bg-dairy-700 text-white rounded-xl text-xs font-bold transition-all shadow-sm flex items-center gap-2"
+                  className="px-5 py-2.5 bg-[#345C4A] hover:bg-[#274537] text-white rounded-xl text-xs font-bold transition-all shadow-xs flex items-center gap-2"
                 >
                   <Check className="w-4 h-4" />
                   <span>Save Platform Settings</span>
@@ -937,7 +939,6 @@ export const PlatformAdminView: React.FC<PlatformAdminViewProps> = ({
             </form>
           </div>
         )}
-
       </div>
     </div>
   );

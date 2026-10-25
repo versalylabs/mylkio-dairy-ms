@@ -888,7 +888,14 @@ export const AppStorage = {
       return initialPlatformSettings;
     }
     try {
-      return JSON.parse(data);
+      const parsed = JSON.parse(data);
+      if (parsed.supportPhone === '+254 712 345 678' || !parsed.supportPhone || parsed.supportPhone === '+254 700 123 456') {
+        parsed.supportPhone = '+254 184 129145';
+        parsed.supportWhatsApp = '+254 184 129145';
+        parsed.supportEmail = 'versalylabs@gmail.com';
+        localStorage.setItem(STORAGE_KEYS.SETTINGS, JSON.stringify(parsed));
+      }
+      return parsed;
     } catch {
       return initialPlatformSettings;
     }

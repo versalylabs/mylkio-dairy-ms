@@ -726,8 +726,8 @@ export const initialLeads: ContactLead[] = [
 ];
 
 export const initialPlatformSettings: PlatformSettings = {
-  supportPhone: '+254 712 345 678',
-  supportWhatsApp: '+254 712 345 678',
+  supportPhone: '+254 184 129145',
+  supportWhatsApp: '+254 184 129145',
   supportEmail: 'versalylabs@gmail.com',
   starterPriceKsh: 500,
   farmerPriceKsh: 1000,
