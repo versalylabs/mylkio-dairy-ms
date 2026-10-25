@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Testimonial, PlatformSettings } from '@/types';
 import { AppStorage } from '@/lib/storage';
 import { 
@@ -49,6 +49,16 @@ export const MarketingLandingPage: React.FC<MarketingLandingPageProps> = ({
   settings,
 }) => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [isScrolled, setIsScrolled] = useState(false);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      setIsScrolled(window.scrollY > 25);
+    };
+    handleScroll();
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
   const [activePreviewTab, setActivePreviewTab] = useState<'dashboard' | 'milk' | 'herd' | 'sales' | 'finance'>('dashboard');
   const [expandedFaq, setExpandedFaq] = useState<number | null>(null);
 
@@ -185,7 +195,11 @@ Support Email: versalylabs@gmail.com`;
       {/* ======================================================== */}
       {/* 1. TOP NAVIGATION BAR (AIRY, MINIMAL, REVENUECAT STYLE) */}
       {/* ======================================================== */}
-      <header className="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-[#E8E4D8]">
+      <header className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
+        isScrolled 
+          ? 'bg-white/80 backdrop-blur-xl backdrop-saturate-150 border-b border-[#E8E4D8]/80 shadow-[0_8px_30px_rgba(45,51,39,0.06)]' 
+          : 'bg-transparent border-b border-transparent'
+      }`}>
         <div className="max-w-[1200px] mx-auto px-4 sm:px-6 lg:px-8 h-16 sm:h-20 flex items-center justify-between">
           
           {/* Brand Wordmark */}
@@ -226,7 +240,7 @@ Support Email: versalylabs@gmail.com`;
 
             <button
               onClick={onExploreDemo}
-              className="px-4 py-2 rounded-full text-xs font-medium border border-[#E8E4D8] bg-white hover:border-[#A8BFA5] text-[#26332D] transition-all flex items-center gap-1.5 shadow-sm"
+              className="btn-fill-sage px-4 py-2 rounded-full text-xs font-semibold border border-[#E8E4D8] bg-white text-[#26332D] transition-all flex items-center gap-1.5 shadow-xs"
             >
               <Tractor className="w-3.5 h-3.5 text-[#345C4A]" />
               <span>Explore Demo</span>
@@ -234,10 +248,10 @@ Support Email: versalylabs@gmail.com`;
 
             <button
               onClick={() => onOpenAuth('signup')}
-              className="px-5 py-2.5 rounded-full bg-[#345C4A] hover:bg-[#274537] active:scale-[0.98] text-white font-medium text-xs shadow-sm transition-all flex items-center gap-2"
+              className="btn-premium px-5 py-2.5 rounded-full bg-[#345C4A] hover:bg-[#274537] text-white font-semibold text-xs shadow-xs transition-all flex items-center gap-2 group"
             >
               <span>Start Managing Farm</span>
-              <ArrowRight className="w-3.5 h-3.5" />
+              <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" />
             </button>
           </div>
 
@@ -337,7 +351,7 @@ Support Email: versalylabs@gmail.com`;
       {/* ======================================================== */}
       {/* 2. HERO SECTION (NEXORA LAYOUT: LEFT-ALIGNED WITH PHOTOGRAPHIC BANNER) */}
       {/* ======================================================== */}
-      <section className="relative min-h-[580px] sm:min-h-[640px] flex items-center overflow-hidden bg-[#FAF9F5]">
+      <section className="relative min-h-[620px] sm:min-h-[720px] flex items-center overflow-hidden bg-[#FAF9F5] pt-24 sm:pt-32">
         {/* Full-Width Dairy Farm Photography Background */}
         <div 
           className="absolute inset-0 bg-cover bg-right sm:bg-center pointer-events-none"
@@ -356,7 +370,7 @@ Support Email: versalylabs@gmail.com`;
             </div>
 
             {/* Nexora-Style 2-Tone Headline */}
-            <h1 className="text-4xl sm:text-5xl lg:text-[58px] font-extrabold text-[#26332D] tracking-tight leading-[1.1] text-left">
+            <h1 className="text-5xl sm:text-6xl md:text-7xl lg:text-[76px] xl:text-[84px] font-black text-[#26332D] tracking-[-0.04em] leading-[1.04] text-left">
               Your Dairy Farm. <br />
               <span className="text-[#345C4A]">Under Control.</span>
             </h1>
@@ -371,20 +385,20 @@ Support Email: versalylabs@gmail.com`;
             </p>
 
             {/* Action Buttons (Matching Nexora Button Pair: Solid Primary + Outlined Watch/Demo Button) */}
-            <div className="flex flex-wrap items-center gap-3.5 pt-3">
+            <div className="flex flex-wrap items-center gap-4 pt-3">
               <button
                 onClick={() => onOpenAuth('signup')}
-                className="px-6 sm:px-7 py-3.5 rounded-xl bg-[#345C4A] hover:bg-[#274537] text-white font-semibold text-xs sm:text-sm shadow-sm transition-all flex items-center gap-2 active:scale-95"
+                className="btn-premium px-7 sm:px-8 py-3.5 sm:py-4 rounded-xl bg-[#345C4A] hover:bg-[#274537] text-white font-bold text-xs sm:text-sm shadow-md hover:shadow-xl transition-all flex items-center gap-2.5 group"
               >
                 <span>Start Managing Your Farm</span>
-                <ArrowRight className="w-4 h-4" />
+                <ArrowRight className="w-4 h-4 group-hover:translate-x-1.5 transition-transform" />
               </button>
 
               <button
                 onClick={onExploreDemo}
-                className="px-5 sm:px-6 py-3.5 rounded-xl bg-white/95 hover:bg-white border border-[#E8E4D8] hover:border-[#345C4A]/40 text-[#26332D] font-semibold text-xs sm:text-sm shadow-xs transition-all flex items-center gap-2"
+                className="btn-fill-sage px-6 sm:px-7 py-3.5 sm:py-4 rounded-xl bg-white border border-[#E8E4D8] text-[#26332D] font-bold text-xs sm:text-sm shadow-xs transition-all flex items-center gap-2 group"
               >
-                <Play className="w-3.5 h-3.5 text-[#345C4A] fill-[#345C4A]" />
+                <Play className="w-4 h-4 text-[#345C4A] fill-[#345C4A] group-hover:text-white group-hover:fill-white transition-colors" />
                 <span>See How Mylkio Works</span>
               </button>
             </div>
@@ -601,7 +615,7 @@ Support Email: versalylabs@gmail.com`;
               <div className="pt-4">
                 <button
                   onClick={() => onOpenAuth('signup')}
-                  className="px-7 py-3.5 rounded-xl bg-[#345C4A] hover:bg-[#274537] text-white font-semibold text-xs sm:text-sm shadow-sm transition-all inline-flex items-center gap-2"
+                  className="btn-premium px-7 py-3.5 rounded-xl bg-[#345C4A] hover:bg-[#274537] text-white font-semibold text-xs sm:text-sm shadow-sm transition-all inline-flex items-center gap-2"
                 >
                   <span>Start 14-Day Free Trial</span>
                   <ArrowRight className="w-4 h-4" />
@@ -613,7 +627,7 @@ Support Email: versalylabs@gmail.com`;
             <div className="lg:col-span-6">
               <div className="relative rounded-3xl overflow-hidden shadow-md border border-[#E8E4D8]">
                 <img 
-                  src="https://images.unsplash.com/photo-1527153857715-3908f2ae5e81?auto=format&fit=crop&w=1200&q=80" 
+                  src="https://images.unsplash.com/photo-1570042225831-d98fa7577f1e?auto=format&fit=crop&w=1200&q=80" 
                   alt="Kenyan Dairy Farming"
                   className="w-full h-[380px] sm:h-[440px] object-cover"
                 />
@@ -657,7 +671,7 @@ Support Email: versalylabs@gmail.com`;
       {/* ======================================================== */}
       {/* 5. THE COMPLETE SOLUTION (FEATURE GRID) */}
       {/* ======================================================== */}
-      <section id="features" className="py-14 sm:py-20 bg-[#FAF9F5] border-t border-[#E8E4D8]">
+      <section id="features" className="py-14 sm:py-20 bg-[#FAF9F5] border-t border-[#E8E4D8] scroll-mt-24">
         <div className="max-w-[1200px] mx-auto px-4 sm:px-6 lg:px-8">
           
           <div className="text-center max-w-3xl mx-auto mb-10 sm:mb-12">
@@ -820,91 +834,91 @@ Support Email: versalylabs@gmail.com`;
       {/* ======================================================== */}
       {/* 6. MILK PAYMENTS FEATURE (ELEVATED PANEL ON CANVAS) */}
       {/* ======================================================== */}
-      <section id="payments" className="py-14 sm:py-20 bg-white border-t border-[#E8E4D8]">
-        <div className="max-w-[1200px] mx-auto px-4 sm:px-6 lg:px-8">
+      <section id="payments" className="py-16 sm:py-24 bg-[#345C4A] text-white relative overflow-hidden scroll-mt-24">
+        {/* Decorative subtle lighting */}
+        <div className="absolute -top-32 -right-32 w-96 h-96 rounded-full bg-white/5 blur-3xl pointer-events-none" />
+        <div className="absolute -bottom-32 -left-32 w-96 h-96 rounded-full bg-[#C6A76A]/10 blur-3xl pointer-events-none" />
+
+        <div className="relative max-w-[1200px] mx-auto px-4 sm:px-6 lg:px-8">
           
-          <div className="bg-[#FAF9F5] rounded-3xl border border-[#E8E4D8] p-7 sm:p-11 shadow-xs">
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center">
-              
-              <div className="lg:col-span-7 space-y-4">
-                <span className="text-xs font-bold uppercase tracking-wider text-[#345C4A]">
-                  The Milk Payments Feature
-                </span>
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-14 items-center">
+            
+            <div className="lg:col-span-7 space-y-5">
+              <span className="inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full bg-white/10 border border-[#C6A76A]/40 text-[#C6A76A] text-[11px] font-bold uppercase tracking-wider">
+                The Milk Payments Feature
+              </span>
 
-                <h2 className="text-2xl sm:text-4xl font-extrabold text-[#26332D] tracking-tight leading-tight">
-                  Delivered the Milk? <br className="hidden sm:inline" />
-                  <span className="text-[#345C4A]">Keep Track of Every Shilling You&apos;re Owed.</span>
-                </h2>
+              <h2 className="text-3xl sm:text-4xl lg:text-5xl font-black text-white tracking-tight leading-tight">
+                Delivered the Milk? <br className="hidden sm:inline" />
+                <span className="text-[#C6A76A]">Keep Track of Every Shilling You&apos;re Owed.</span>
+              </h2>
 
-                <p className="text-xs sm:text-sm text-[#5D7368] leading-relaxed">
-                  Whether you sell to a cooperative or individual customers, Mylkio helps you maintain a clear record of milk delivered, payments received, and outstanding balances.
-                </p>
+              <p className="text-sm sm:text-base text-[#FAF9F5]/90 leading-relaxed">
+                Whether you sell to a cooperative or individual customers, Mylkio helps you maintain a clear record of milk delivered, payments received, and outstanding balances.
+              </p>
+
+              <div className="pt-2">
+                <div className="p-4 sm:p-5 bg-white/10 backdrop-blur-md rounded-2xl border border-white/20 text-xs text-[#FAF9F5] leading-relaxed">
+                  <strong className="text-[#C6A76A]">No more relying on memory to reconcile your milk sales.</strong> At month-end, simply pull up your logged deliveries against the cooperative slip to confirm accuracy before payment is finalized.
+                </div>
+              </div>
+            </div>
+
+            {/* Illustrative Monthly Statement Card (Pure White & Ivory for Striking Contrast) */}
+            <div className="lg:col-span-5">
+              <div className="bg-white rounded-3xl p-6 sm:p-8 border border-white/30 shadow-[0_20px_50px_rgba(20,40,30,0.3)] text-[#26332D] space-y-4">
+                <div className="flex items-center justify-between pb-3 border-b border-[#E8E4D8]">
+                  <div>
+                    <span className="text-[10px] font-bold uppercase tracking-wider text-[#5D7368]">Monthly Statement (Example)</span>
+                    <h3 className="text-sm font-extrabold text-[#26332D]">Baraka Dairy Farmers Co-op</h3>
+                  </div>
+                  <span className="text-xs font-bold text-[#345C4A] bg-[#345C4A]/10 border border-[#345C4A]/25 px-2.5 py-0.5 rounded-full">
+                    Reconciled
+                  </span>
+                </div>
+
+                <div className="space-y-2.5 text-xs">
+                  <div className="flex items-center justify-between py-1 border-b border-[#E8E4D8]">
+                    <span className="text-[#5D7368]">Milk Delivered:</span>
+                    <span className="font-bold text-[#26332D]">850 litres</span>
+                  </div>
+
+                  <div className="flex items-center justify-between py-1 border-b border-[#E8E4D8]">
+                    <span className="text-[#5D7368]">Agreed Price:</span>
+                    <span className="font-bold text-[#26332D]">KSh 50 per litre</span>
+                  </div>
+
+                  <div className="flex items-center justify-between py-1 border-b border-[#E8E4D8]">
+                    <span className="text-[#5D7368]">Gross Value:</span>
+                    <span className="font-bold text-[#26332D]">KSh 42,500</span>
+                  </div>
+
+                  <div className="flex items-center justify-between py-1 border-b border-[#E8E4D8] text-[#A63A3A]">
+                    <span>Recorded Deductions:</span>
+                    <span className="font-bold">- KSh 2,500</span>
+                  </div>
+
+                  <div className="pt-2 flex items-center justify-between text-sm">
+                    <span className="font-extrabold text-[#26332D]">Expected Net Payment:</span>
+                    <span className="font-black text-xl text-[#345C4A]">KSh 40,000</span>
+                  </div>
+                </div>
 
                 <div className="pt-2">
-                  <div className="p-4 bg-white rounded-xl border border-[#E8E4D8] text-xs text-[#5D7368] leading-relaxed">
-                    <strong className="text-[#26332D]">No more relying on memory to reconcile your milk sales.</strong> At month-end, simply pull up your logged deliveries against the cooperative slip to confirm accuracy before payment is finalized.
+                  <div className="p-3 bg-[#FAF9F5] rounded-xl text-[10px] text-[#5D7368] italic text-center border border-[#E8E4D8]">
+                    *Illustrative monthly reconciliation example calculated from logged deliveries.
                   </div>
                 </div>
               </div>
-
-              {/* Illustrative Monthly Statement Card */}
-              <div className="lg:col-span-5">
-                <div className="bg-white rounded-2xl p-6 sm:p-7 border border-[#E8E4D8] space-y-4 shadow-xs">
-                  <div className="flex items-center justify-between pb-3 border-b border-[#E8E4D8]">
-                    <div>
-                      <span className="text-[10px] font-bold uppercase tracking-wider text-[#5D7368]">Monthly Statement (Example)</span>
-                      <h3 className="text-sm font-bold text-[#26332D]">Baraka Dairy Farmers Co-op</h3>
-                    </div>
-                    <span className="text-xs font-bold text-[#345C4A] bg-[#345C4A]/10 border border-[#345C4A]/25 px-2.5 py-0.5 rounded-full">
-                      Reconciled
-                    </span>
-                  </div>
-
-                  <div className="space-y-2.5 text-xs">
-                    <div className="flex items-center justify-between py-1 border-b border-[#E8E4D8]">
-                      <span className="text-[#5D7368]">Milk Delivered:</span>
-                      <span className="font-semibold text-[#26332D]">850 litres</span>
-                    </div>
-
-                    <div className="flex items-center justify-between py-1 border-b border-[#E8E4D8]">
-                      <span className="text-[#5D7368]">Agreed Price:</span>
-                      <span className="font-semibold text-[#26332D]">KSh 50 per litre</span>
-                    </div>
-
-                    <div className="flex items-center justify-between py-1 border-b border-[#E8E4D8]">
-                      <span className="text-[#5D7368]">Gross Value:</span>
-                      <span className="font-semibold text-[#26332D]">KSh 42,500</span>
-                    </div>
-
-                    <div className="flex items-center justify-between py-1 border-b border-[#E8E4D8] text-[#A63A3A]">
-                      <span>Recorded Deductions:</span>
-                      <span className="font-semibold">- KSh 2,500</span>
-                    </div>
-
-                    <div className="pt-2 flex items-center justify-between text-sm">
-                      <span className="font-bold text-[#26332D]">Expected Net Payment:</span>
-                      <span className="font-bold text-lg text-[#345C4A]">KSh 40,000</span>
-                    </div>
-                  </div>
-
-                  <div className="pt-2">
-                    <div className="p-2.5 bg-[#FAF9F5] rounded-xl text-[10px] text-[#5D7368] italic text-center border border-[#E8E4D8]">
-                      *Illustrative monthly reconciliation example calculated from logged deliveries.
-                    </div>
-                  </div>
-                </div>
-              </div>
-
             </div>
-          </div>
 
+          </div>
         </div>
       </section>
 
-      {/* ======================================================== */}
       {/* 7. HOW IT WORKS (3 SIMPLE STEPS) */}
       {/* ======================================================== */}
-      <section id="how-it-works" className="py-14 sm:py-20 bg-[#FAF9F5] border-t border-[#E8E4D8]">
+      <section id="how-it-works" className="py-14 sm:py-20 bg-[#FAF9F5] border-t border-[#E8E4D8] scroll-mt-24">
         <div className="max-w-[1200px] mx-auto px-4 sm:px-6 lg:px-8">
           
           <div className="text-center max-w-2xl mx-auto mb-10 sm:mb-12">
@@ -956,7 +970,7 @@ Support Email: versalylabs@gmail.com`;
           <div className="mt-12 text-center">
             <button
               onClick={() => onOpenAuth('signup')}
-              className="px-8 py-3.5 rounded-full bg-[#345C4A] hover:bg-[#274537] text-white font-semibold text-xs sm:text-sm shadow-[0_4px_16px_rgba(52,92,74,0.2)] transition-all inline-flex items-center gap-2"
+              className="btn-premium px-8 py-3.5 rounded-full bg-[#345C4A] hover:bg-[#274537] text-white font-semibold text-xs sm:text-sm shadow-[0_4px_16px_rgba(52,92,74,0.2)] transition-all inline-flex items-center gap-2"
             >
               <span>Get Started with Mylkio</span>
               <ArrowRight className="w-4 h-4" />
@@ -1132,7 +1146,7 @@ Support Email: versalylabs@gmail.com`;
       {/* ======================================================== */}
       {/* 9. PRICING */}
       {/* ======================================================== */}
-      <section id="pricing" className="py-14 sm:py-20 bg-[#FAF9F5] border-t border-[#E8E4D8]">
+      <section id="pricing" className="py-14 sm:py-20 bg-[#FAF9F5] border-t border-[#E8E4D8] scroll-mt-24">
         <div className="max-w-[1200px] mx-auto px-4 sm:px-6 lg:px-8">
           
           <div className="text-center max-w-2xl mx-auto mb-10 sm:mb-12">
@@ -1186,7 +1200,7 @@ Support Email: versalylabs@gmail.com`;
 
               <button
                 onClick={() => onOpenAuth('signup', 'starter')}
-                className="w-full py-3 rounded-full bg-white hover:bg-slate-50 border border-[#E8E4D8] text-[#26332D] font-bold text-xs transition-all text-center shadow-xs"
+                className="btn-fill-sage w-full py-3 rounded-full bg-white border border-[#E8E4D8] text-[#26332D] font-bold text-xs transition-all text-center shadow-xs"
               >
                 Start 14-Day Free Trial
               </button>
@@ -1237,7 +1251,7 @@ Support Email: versalylabs@gmail.com`;
 
               <button
                 onClick={() => onOpenAuth('signup', 'farmer')}
-                className="w-full py-3.5 rounded-full bg-[#345C4A] hover:bg-[#274537] text-white font-bold text-xs shadow-xs transition-all text-center"
+                className="btn-premium w-full py-3.5 rounded-full bg-[#345C4A] hover:bg-[#274537] text-white font-bold text-xs shadow-xs transition-all text-center"
               >
                 Start 14-Day Free Trial
               </button>
@@ -1280,7 +1294,7 @@ Support Email: versalylabs@gmail.com`;
 
               <button
                 onClick={() => onOpenAuth('signup', 'farm_pro')}
-                className="w-full py-3 rounded-full bg-white hover:bg-slate-50 border border-[#E8E4D8] text-[#26332D] font-bold text-xs transition-all text-center shadow-xs"
+                className="btn-fill-sage w-full py-3 rounded-full bg-white border border-[#E8E4D8] text-[#26332D] font-bold text-xs transition-all text-center shadow-xs"
               >
                 Start 14-Day Free Trial
               </button>
@@ -1345,7 +1359,7 @@ Support Email: versalylabs@gmail.com`;
             {/* Highly Visible Dairy Farm Image Behind Card Content */}
             <div 
               className="absolute inset-0 bg-cover bg-center opacity-30 pointer-events-none"
-              style={{ backgroundImage: "url('https://images.unsplash.com/photo-1527153857715-3908f2ae5e81?auto=format&fit=crop&w=1200&q=80')" }}
+              style={{ backgroundImage: "url('https://images.unsplash.com/photo-1570042225831-d98fa7577f1e?auto=format&fit=crop&w=1200&q=80')" }}
             />
             <div className="absolute inset-0 bg-white/80 pointer-events-none" />
             
@@ -1365,7 +1379,7 @@ Support Email: versalylabs@gmail.com`;
               <div className="pt-2">
                 <button
                   onClick={() => setIsChecklistModalOpen(true)}
-                  className="px-7 py-3.5 rounded-full bg-[#345C4A] hover:bg-[#274537] text-white font-bold text-xs shadow-xs transition-all inline-flex items-center gap-2"
+                  className="btn-premium px-7 py-3.5 rounded-full bg-[#345C4A] hover:bg-[#274537] text-white font-bold text-xs shadow-xs transition-all inline-flex items-center gap-2"
                 >
                   <Download className="w-4 h-4" />
                   <span>Get the Free Checklist</span>
@@ -1379,7 +1393,7 @@ Support Email: versalylabs@gmail.com`;
 
       {/* 12. FREQUENTLY ASKED QUESTIONS */}
       {/* ======================================================== */}
-      <section id="faqs" className="py-12 sm:py-16 bg-[#FAF9F5] border-t border-[#E8E4D8]">
+      <section id="faqs" className="py-12 sm:py-16 bg-[#FAF9F5] border-t border-[#E8E4D8] scroll-mt-24">
         <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
           
           <div className="text-center mb-10">
@@ -1423,7 +1437,7 @@ Support Email: versalylabs@gmail.com`;
       {/* ======================================================== */}
       {/* 13. DEDICATED CONTACT & SUPPORT SECTION WITH FORM */}
       {/* ======================================================== */}
-      <section id="contact" className="py-12 sm:py-16 bg-[#FAF9F5] border-t border-[#E8E4D8]">
+      <section id="contact" className="py-12 sm:py-16 bg-[#FAF9F5] border-t border-[#E8E4D8] scroll-mt-24">
         <div className="max-w-[1200px] mx-auto px-4 sm:px-6 lg:px-8">
           
           <div className="text-center max-w-2xl mx-auto mb-10">
@@ -1568,7 +1582,7 @@ Support Email: versalylabs@gmail.com`;
 
                 <button
                   type="submit"
-                  className="w-full sm:w-auto px-7 py-3 rounded-full bg-[#345C4A] hover:bg-[#274537] text-white font-medium text-xs shadow-sm transition-all flex items-center justify-center gap-2"
+                  className="btn-premium w-full sm:w-auto px-7 py-3 rounded-full bg-[#345C4A] hover:bg-[#274537] text-white font-medium text-xs shadow-sm transition-all flex items-center justify-center gap-2"
                 >
                   <span>Submit Message</span>
                   <ArrowRight className="w-3.5 h-3.5" />
@@ -1596,7 +1610,7 @@ Support Email: versalylabs@gmail.com`;
           <div className="flex flex-col sm:flex-row items-center justify-center gap-3.5 pt-2">
             <button
               onClick={() => onOpenAuth('signup')}
-              className="w-full sm:w-auto px-8 py-3.5 rounded-full bg-[#345C4A] hover:bg-[#274537] text-white font-medium text-sm shadow-[0_3px_16px_rgba(45,51,39,0.08)] transition-all flex items-center justify-center gap-2"
+              className="btn-premium w-full sm:w-auto px-8 py-3.5 rounded-full bg-[#345C4A] hover:bg-[#274537] text-white font-medium text-sm shadow-[0_3px_16px_rgba(45,51,39,0.08)] transition-all flex items-center justify-center gap-2"
             >
               <span>Start Managing Your Farm</span>
               <ArrowRight className="w-4 h-4" />
@@ -1606,7 +1620,7 @@ Support Email: versalylabs@gmail.com`;
               href="https://wa.me/254184129145?text=Hello%20Mylkio,%20I%20would%20like%20to%20inquire%20about%20the%20dairy%20management%20system."
               target="_blank"
               rel="noreferrer"
-              className="w-full sm:w-auto px-6 py-3.5 rounded-full bg-white hover:bg-slate-50 text-[#26332D] font-medium text-sm border border-[#E8E4D8] transition-all flex items-center justify-center gap-2 shadow-sm"
+              className="btn-fill-sage w-full sm:w-auto px-6 py-3.5 rounded-full bg-white text-[#26332D] font-medium text-sm border border-[#E8E4D8] transition-all flex items-center justify-center gap-2 shadow-sm"
             >
               <MessageCircle className="w-4 h-4 text-[#345C4A]" />
               <span>Talk to Our Team</span>
@@ -1622,37 +1636,38 @@ Support Email: versalylabs@gmail.com`;
       {/* ======================================================== */}
       {/* 15. FOOTER */}
       {/* ======================================================== */}
-      <footer className="bg-white text-[#5D7368] py-10 border-t border-[#E8E4D8] text-xs">
-        <div className="max-w-[1200px] mx-auto px-4 sm:px-6 lg:px-8 space-y-6">
-          <div className="flex flex-col md:flex-row items-center justify-between gap-6 pb-6 border-b border-[#E8E4D8]">
+      <footer className="bg-[#213b2d] text-[#FAF9F5] py-14 border-t border-[#345C4A] text-xs">
+        <div className="max-w-[1200px] mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
+          <div className="flex flex-col md:flex-row items-center justify-between gap-6 pb-8 border-b border-white/10">
             <div className="flex items-center space-x-3">
-              <div className="w-7 h-7 rounded-full bg-[#26332D] flex items-center justify-center text-white font-bold text-xs">
+              <div className="w-9 h-9 rounded-full bg-white flex items-center justify-center text-[#345C4A] font-extrabold text-sm shadow-sm">
                 M
               </div>
               <div>
-                <span className="font-medium text-[#26332D] text-sm">Mylkio — Smarter Dairy Farming, Made Simple.</span>
-                <p className="text-[11px] text-[#5D7368]">A product by Versaly.</p>
+                <span className="font-bold text-white text-base">Mylkio — Smarter Dairy Farming, Made Simple.</span>
+                <p className="text-[11px] text-[#A8BFA5]">A product by Versaly.</p>
               </div>
             </div>
 
-            <div className="flex flex-wrap items-center justify-center gap-5 text-[#5D7368]">
-              <a href="#features" className="hover:text-[#345C4A]">Features</a>
-              <a href="#how-it-works" className="hover:text-[#345C4A]">How It Works</a>
-              <a href="#payments" className="hover:text-[#345C4A]">Milk Sales</a>
-              <a href="#pricing" className="hover:text-[#345C4A]">Pricing</a>
-              <a href="#contact" className="hover:text-[#345C4A] font-medium">Contact</a>
-              <a href="#faqs" className="hover:text-[#345C4A]">FAQs</a>
+            <div className="flex flex-wrap items-center justify-center gap-6 text-[#FAF9F5]/90 font-medium">
+              <a href="#features" className="hover:text-[#C6A76A] transition-colors">Features</a>
+              <a href="#how-it-works" className="hover:text-[#C6A76A] transition-colors">How It Works</a>
+              <a href="#payments" className="hover:text-[#C6A76A] transition-colors">Milk Sales</a>
+              <a href="#pricing" className="hover:text-[#C6A76A] transition-colors">Pricing</a>
+              <a href="#contact" className="hover:text-[#C6A76A] font-bold text-[#C6A76A] transition-colors">Contact</a>
+              <a href="#faqs" className="hover:text-[#C6A76A] transition-colors">FAQs</a>
             </div>
           </div>
 
-          <div className="flex flex-col sm:flex-row items-center justify-between gap-3 text-[11px] text-[#879C91]">
+          <div className="flex flex-col sm:flex-row items-center justify-between gap-4 text-[11px] text-[#A8BFA5]">
             <div className="flex flex-wrap items-center gap-4">
-              <span>Phone: <strong className="text-[#26332D]">+254 184 129145</strong></span>
+              <span>Phone: <a href="tel:+254184129145" className="text-white font-bold hover:text-[#C6A76A] transition-colors">+254 184 129145</a></span>
               <span>•</span>
-              <span>Email: <strong className="text-[#26332D]">versalylabs@gmail.com</strong></span>
+              <span>Email: <a href="mailto:versalylabs@gmail.com" className="text-white font-bold hover:text-[#C6A76A] transition-colors">versalylabs@gmail.com</a></span>
             </div>
-            <div>
-              &copy; {new Date().getFullYear()} Versaly. All rights reserved.
+
+            <div className="text-[#A8BFA5]/80">
+              © {new Date().getFullYear()} Mylkio by Versaly. Built for Kenyan dairy farmers.
             </div>
           </div>
         </div>
@@ -1739,7 +1754,7 @@ Support Email: versalylabs@gmail.com`;
 
                 <button
                   type="submit"
-                  className="w-full py-3 rounded-full bg-[#345C4A] hover:bg-[#274537] text-white font-medium text-xs shadow-sm transition-all flex items-center justify-center gap-2 mt-2"
+                  className="btn-premium w-full py-3 rounded-full bg-[#345C4A] hover:bg-[#274537] text-white font-medium text-xs shadow-sm transition-all flex items-center justify-center gap-2 mt-2"
                 >
                   <Download className="w-4 h-4" />
                   <span>Get the Free Checklist</span>
@@ -1759,7 +1774,7 @@ Support Email: versalylabs@gmail.com`;
 
                 <button
                   onClick={handleDownloadChecklistDirectly}
-                  className="w-full py-3 rounded-full bg-[#345C4A] hover:bg-[#274537] text-white font-medium text-xs shadow-sm transition-all flex items-center justify-center gap-2"
+                  className="btn-premium w-full py-3 rounded-full bg-[#345C4A] hover:bg-[#274537] text-white font-medium text-xs shadow-sm transition-all flex items-center justify-center gap-2"
                 >
                   <Download className="w-4 h-4" />
                   <span>Save Checklist File (.txt)</span>

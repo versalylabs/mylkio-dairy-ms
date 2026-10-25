@@ -59,12 +59,59 @@
   --foreground: #26332D;
 }
 
+html {
+  scroll-behavior: smooth;
+}
+
 body {
   color: var(--foreground);
   background: var(--background);
   font-family: var(--font-sans), -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+/* Custom interactive button animations & utilities */
+@layer components {
+  .btn-premium {
+    @apply relative overflow-hidden transition-all duration-300 active:scale-[0.98];
+  }
+  .btn-premium::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.22), transparent);
+    transition: transform 0.65s ease-in-out;
+    pointer-events: none;
+  }
+  .btn-premium:hover::after {
+    transform: translateX(200%);
+  }
+
+  .btn-fill-sage {
+    @apply relative overflow-hidden transition-all duration-300 z-10;
+  }
+  .btn-fill-sage::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 0%;
+    height: 100%;
+    background-color: #345C4A;
+    transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    z-index: -1;
+  }
+  .btn-fill-sage:hover::before {
+    width: 100%;
+  }
+  .btn-fill-sage:hover {
+    color: #ffffff !important;
+    border-color: #345C4A !important;
+  }
 }
 
 /* Custom scrollbar and touch target utilities */
