@@ -13,6 +13,13 @@ export const metadata: Metadata = {
   title: "Mylkio — Dairy Farm Management System",
   description: "Smarter Dairy Farming. Made Simple. Mobile-first management for Kenyan dairy farmers.",
   manifest: "/manifest.json",
+  icons: {
+    icon: [
+      { url: "/icon.svg", type: "image/svg+xml" },
+    ],
+    shortcut: "/icon.svg",
+    apple: "/icon.svg",
+  },
   appleWebApp: {
     capable: true,
     statusBarStyle: "default",

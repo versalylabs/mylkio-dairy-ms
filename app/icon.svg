@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="32" height="32">
+  <defs>
+    <linearGradient id="sageGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#3D6B56" />
+      <stop offset="100%" stop-color="#264537" />
+    </linearGradient>
+    <linearGradient id="goldGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#E5CA92" />
+      <stop offset="100%" stop-color="#C6A76A" />
+    </linearGradient>
+  </defs>
+  <!-- Background squircle -->
+  <rect width="32" height="32" rx="8" fill="url(#sageGrad)" />
+  
+  <!-- Subtle border highlight -->
+  <rect x="0.5" y="0.5" width="31" height="31" rx="7.5" fill="none" stroke="#A8BFA5" stroke-opacity="0.35" stroke-width="1" />
+
+  <!-- Milk droplet (Warm Ivory) -->
+  <path d="M16 5.5 C16 5.5 10 14 10 18.5 C10 22.08 12.69 25 16 25 C19.31 25 22 22.08 22 18.5 C22 14 16 5.5 16 5.5 Z" fill="#FAF9F5" />
+  
+  <!-- Droplet shine / reflection curve -->
+  <path d="M13.5 14.5 C12.6 16.5 12.6 18.5 13 20" stroke="#CBDBCF" stroke-width="1.2" stroke-linecap="round" fill="none" />
+
+  <!-- Gold dairy accent leaf/splash -->
+  <path d="M16 23 C18 23 20 21.5 20.5 19 C21.5 21 20 23.5 17 24.5 C16.5 24.2 16.2 23.5 16 23 Z" fill="url(#goldGrad)" />
+  
+  <!-- Premium quality star accent -->
+  <circle cx="21" cy="9" r="1.5" fill="url(#goldGrad)" />
+</svg>

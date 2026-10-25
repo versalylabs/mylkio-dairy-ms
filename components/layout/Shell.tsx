@@ -61,9 +61,9 @@ export const Shell: React.FC<ShellProps> = ({
   const mobileNavItems = navItems.filter((i) => i.key !== 'settings');
 
   return (
-    <div className="min-h-screen bg-[#FAF9F5] flex flex-col md:flex-row text-[#26332D]">
-      {/* Desktop Sidebar */}
-      <aside className="hidden md:flex flex-col w-64 bg-white border-r border-[#E8E4D8] p-4 shrink-0">
+    <div className="min-h-screen md:h-screen md:overflow-hidden bg-[#FAF9F5] flex flex-col md:flex-row text-[#26332D]">
+      {/* Desktop Sidebar - Independently Scrollable */}
+      <aside className="hidden md:flex flex-col w-64 bg-white border-r border-[#E8E4D8] p-4 shrink-0 md:h-screen md:overflow-y-auto custom-scrollbar">
         {/* Brand */}
         <div className="flex items-center space-x-3 px-3 py-3 mb-6">
           <div className="w-10 h-10 rounded-2xl bg-[#345C4A] flex items-center justify-center text-white font-black text-xl shadow-md">
@@ -189,8 +189,8 @@ export const Shell: React.FC<ShellProps> = ({
         </div>
       </aside>
 
-      {/* Main Content Area */}
-      <div className="flex-1 flex flex-col min-w-0">
+      {/* Main Content Area - Independently Scrollable */}
+      <div className="flex-1 flex flex-col min-w-0 md:h-screen md:overflow-y-auto custom-scrollbar">
         {/* Mobile Super Admin Return Notice */}
         {isSuperAdminViewing && (
           <div className="md:hidden bg-[#FAF5EB] border-b border-[#E5D5B5] text-[#26332D] px-4 py-2 flex items-center justify-between text-xs font-bold">
