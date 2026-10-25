@@ -31,7 +31,8 @@ import {
   ChevronRight,
   Phone,
   Mail,
-  MessageSquare
+  MessageSquare,
+  Play
 } from 'lucide-react';
 
 interface MarketingLandingPageProps {
@@ -333,200 +334,224 @@ Support Email: versalylabs@gmail.com`;
 
       {/* ======================================================== */}
       {/* ======================================================== */}
-      {/* 2. HERO SECTION (CENTERED WITH VISIBLE DAIRY FARM BACKDROP & DASHBOARD PREVIEW) */}
       {/* ======================================================== */}
-      <section className="relative pt-12 pb-16 sm:pt-16 sm:pb-24 overflow-hidden bg-[#FAF9F5]">
-        {/* Clearly Visible Dairy Farm Background Image with Balanced Overlay */}
+      {/* 2. HERO SECTION (NEXORA LAYOUT: LEFT-ALIGNED WITH PHOTOGRAPHIC BANNER) */}
+      {/* ======================================================== */}
+      <section className="relative min-h-[580px] sm:min-h-[640px] flex items-center overflow-hidden bg-[#FAF9F5]">
+        {/* Full-Width Dairy Farm Photography Background */}
         <div 
-          className="absolute inset-0 bg-cover bg-center pointer-events-none opacity-30"
-          style={{ backgroundImage: "url('https://images.unsplash.com/photo-1500595046743-cd271d694d30?auto=format&fit=crop&w=1920&q=80')" }}
+          className="absolute inset-0 bg-cover bg-right sm:bg-center pointer-events-none"
+          style={{ backgroundImage: "url('https://images.unsplash.com/photo-1500595046743-cd271d694d30?auto=format&fit=crop&w=2000&q=85')" }}
         />
-        <div className="absolute inset-0 bg-gradient-to-b from-[#FAF9F5]/70 via-[#FAF9F5]/85 to-[#FAF9F5] pointer-events-none" />
+        {/* Horizontal Gradient Overlay: Solid/Opaque on Left for High Readability, Fading to Reveal Photo on Right */}
+        <div className="absolute inset-0 bg-gradient-to-r from-[#FAF9F5] via-[#FAF9F5]/90 sm:via-[#FAF9F5]/80 to-[#FAF9F5]/20 sm:to-transparent pointer-events-none" />
+        <div className="absolute inset-0 bg-gradient-to-b from-white/40 via-transparent to-[#FAF9F5] sm:hidden pointer-events-none" />
 
-        <div className="relative max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 text-center space-y-5">
-          {/* Refined Eyebrow Pill */}
-          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white/95 backdrop-blur-sm border border-[#E8E4D8] text-[#345C4A] text-xs font-semibold shadow-xs">
-            <span className="w-2 h-2 rounded-full bg-[#345C4A] animate-pulse" />
-            <span>Mobile-First Dairy Management • Built for Kenya</span>
-          </div>
+        <div className="relative max-w-[1200px] mx-auto px-4 sm:px-6 lg:px-8 w-full py-16 sm:py-24">
+          <div className="max-w-xl sm:max-w-2xl space-y-5">
+            {/* Nexora-Style Eyebrow */}
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/90 backdrop-blur-sm border border-[#E8E4D8] text-[#345C4A] text-xs font-bold tracking-wider uppercase shadow-xs">
+              <span className="w-2 h-2 rounded-full bg-[#345C4A] animate-pulse" />
+              <span>Mobile-First Dairy Management</span>
+            </div>
 
-          {/* Authoritative, Well-Proportioned Headline */}
-          <h1 className="text-4xl sm:text-6xl lg:text-[68px] font-light text-[#26332D] tracking-[-0.035em] leading-[1.08] max-w-4xl mx-auto">
-            Your Dairy Farm. <br />
-            <span className="font-semibold text-[#345C4A]">Under Total Control.</span>
-          </h1>
+            {/* Nexora-Style 2-Tone Headline */}
+            <h1 className="text-4xl sm:text-5xl lg:text-[58px] font-extrabold text-[#26332D] tracking-tight leading-[1.1] text-left">
+              Your Dairy Farm. <br />
+              <span className="text-[#345C4A]">Under Control.</span>
+            </h1>
 
-          {/* Clean, Persuasive Subtitle */}
-          <p className="text-base sm:text-lg text-[#3D4F46] max-w-2xl mx-auto leading-relaxed font-normal">
-            Track every litre of milk, manage cow health and breeding, reconcile cooperative deliveries, and know your true farm profits — all from your phone, even with zero internet signal.
-          </p>
+            {/* Description (Exact Original Texts) */}
+            <p className="text-base sm:text-lg text-[#3D4F46] font-normal leading-relaxed text-left">
+              Track every litre of milk, manage your cows, and know where your farm income goes — all from your phone.
+            </p>
 
-          {/* Centered Action Buttons */}
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-3 pt-2">
-            <button
-              onClick={() => onOpenAuth('signup')}
-              className="w-full sm:w-auto px-7 py-3.5 rounded-full bg-[#345C4A] hover:bg-[#274537] text-white font-semibold text-xs sm:text-sm shadow-[0_4px_16px_rgba(52,92,74,0.2)] hover:shadow-[0_6px_20px_rgba(52,92,74,0.28)] transition-all flex items-center justify-center gap-2 active:scale-95"
-            >
-              <span>Start Managing Your Farm</span>
-              <ArrowRight className="w-4 h-4" />
-            </button>
+            <p className="text-xs sm:text-sm text-[#5D7368] font-normal leading-relaxed text-left">
+              Mylkio brings your milk records, cow health, breeding activities, sales, and farm expenses into one simple system built for everyday dairy farming. No complicated paperwork. No scattered records. Just a clearer picture of your farm.
+            </p>
 
-            <button
-              onClick={onExploreDemo}
-              className="w-full sm:w-auto px-6 py-3.5 rounded-full bg-white hover:bg-slate-50 border border-[#E8E4D8] text-[#26332D] font-semibold text-xs sm:text-sm shadow-xs hover:border-[#345C4A]/40 transition-all flex items-center justify-center gap-2"
-            >
-              <Tractor className="w-4 h-4 text-[#345C4A]" />
-              <span>Explore Live Demo Farm</span>
-            </button>
-          </div>
+            {/* Action Buttons (Matching Nexora Button Pair: Solid Primary + Outlined Watch/Demo Button) */}
+            <div className="flex flex-wrap items-center gap-3.5 pt-3">
+              <button
+                onClick={() => onOpenAuth('signup')}
+                className="px-6 sm:px-7 py-3.5 rounded-xl bg-[#345C4A] hover:bg-[#274537] text-white font-semibold text-xs sm:text-sm shadow-sm transition-all flex items-center gap-2 active:scale-95"
+              >
+                <span>Start Managing Your Farm</span>
+                <ArrowRight className="w-4 h-4" />
+              </button>
 
-          {/* Trust Subtext */}
-          <div className="flex flex-wrap items-center justify-center gap-4 sm:gap-6 text-xs text-[#5D7368] pt-1">
-            <span className="flex items-center gap-1.5 font-medium">
-              <CheckCircle2 className="w-4 h-4 text-[#345C4A]" />
-              14-Day Free Trial
-            </span>
-            <span className="flex items-center gap-1.5 font-medium">
-              <CheckCircle2 className="w-4 h-4 text-[#345C4A]" />
-              100% Offline Capability
-            </span>
-            <span className="flex items-center gap-1.5 font-medium">
-              <CheckCircle2 className="w-4 h-4 text-[#345C4A]" />
-              Co-op &amp; M-Pesa Ready
-            </span>
-            <span className="flex items-center gap-1.5 font-medium">
-              <CheckCircle2 className="w-4 h-4 text-[#345C4A]" />
-              English &amp; Kiswahili
-            </span>
-          </div>
-
-          {/* Visual Anchor: Sleek Modern Dairy Dashboard Preview Card */}
-          <div className="pt-6 sm:pt-10 max-w-4xl mx-auto">
-            <div className="bg-white/95 backdrop-blur-md rounded-2xl sm:rounded-3xl border border-[#E8E4D8] p-4 sm:p-6 shadow-[0_12px_36px_rgba(45,51,39,0.08)] text-left space-y-4">
-              {/* Preview Card Header */}
-              <div className="flex flex-wrap items-center justify-between gap-3 pb-3 border-b border-[#E8E4D8]">
-                <div className="flex items-center gap-3">
-                  <div className="w-8 h-8 rounded-lg bg-[#345C4A] text-white flex items-center justify-center font-bold text-xs shadow-xs">
-                    M
-                  </div>
-                  <div>
-                    <div className="text-xs font-bold text-[#26332D]">Green Hills Dairy • Nakuru County</div>
-                    <div className="text-[11px] text-[#5D7368]">12 Cows in Herd • 9 Milking Today</div>
-                  </div>
-                </div>
-                <div className="flex items-center gap-2">
-                  <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-[#345C4A]/10 text-[#345C4A] text-[10px] font-bold border border-[#345C4A]/20">
-                    <span className="w-1.5 h-1.5 rounded-full bg-[#345C4A] animate-pulse"></span>
-                    Offline Sync Active
-                  </span>
-                  <span className="text-[11px] text-[#879C91] font-mono hidden sm:inline">KES KSh</span>
-                </div>
-              </div>
-
-              {/* 4 Stats Grid */}
-              <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
-                <div className="p-3.5 bg-[#FAF9F5] rounded-xl border border-[#E8E4D8]">
-                  <span className="text-[10px] uppercase font-bold tracking-wider text-[#5D7368]">Today&apos;s Production</span>
-                  <div className="text-xl sm:text-2xl font-extrabold text-[#26332D] mt-0.5">42.5 L</div>
-                  <p className="text-[10px] text-[#345C4A] mt-1 font-medium">Morning 24.5L • Evening 18L</p>
-                </div>
-
-                <div className="p-3.5 bg-[#FAF9F5] rounded-xl border border-[#E8E4D8]">
-                  <span className="text-[10px] uppercase font-bold tracking-wider text-[#5D7368]">Baraka Co-op Delivery</span>
-                  <div className="text-xl sm:text-2xl font-extrabold text-[#345C4A] mt-0.5">34.0 L</div>
-                  <p className="text-[10px] text-[#5D7368] mt-1 font-medium">Receipt #1849 • Reconciled</p>
-                </div>
-
-                <div className="p-3.5 bg-[#FAF9F5] rounded-xl border border-[#E8E4D8]">
-                  <span className="text-[10px] uppercase font-bold tracking-wider text-[#5D7368]">Milk Sales (Month)</span>
-                  <div className="text-xl sm:text-2xl font-extrabold text-[#26332D] mt-0.5">KSh 48,200</div>
-                  <p className="text-[10px] text-[#8F7438] mt-1 font-semibold">Net Profit: KSh 31,400</p>
-                </div>
-
-                <div className="p-3.5 bg-[#FAF9F5] rounded-xl border border-[#E8E4D8]">
-                  <span className="text-[10px] uppercase font-bold tracking-wider text-[#5D7368]">Herd Health Safety</span>
-                  <div className="text-xs font-bold text-[#26332D] mt-1.5 flex items-center gap-1.5">
-                    <span className="w-2 h-2 rounded-full bg-emerald-500"></span>
-                    <span>0 Active Withdrawal</span>
-                  </div>
-                  <p className="text-[10px] text-[#5D7368] mt-1 font-medium">Next: Pregnancy check Oct 28</p>
-                </div>
-              </div>
+              <button
+                onClick={onExploreDemo}
+                className="px-5 sm:px-6 py-3.5 rounded-xl bg-white/95 hover:bg-white border border-[#E8E4D8] hover:border-[#345C4A]/40 text-[#26332D] font-semibold text-xs sm:text-sm shadow-xs transition-all flex items-center gap-2"
+              >
+                <Play className="w-3.5 h-3.5 text-[#345C4A] fill-[#345C4A]" />
+                <span>See How Mylkio Works</span>
+              </button>
             </div>
           </div>
         </div>
       </section>
 
       {/* ======================================================== */}
-      {/* 3. PROBLEM AWARENESS (SOUND FAMILIAR?) */}
+      {/* FLOATING STATS RIBBON (OVERLAPPING HERO JUST LIKE NEXORA) */}
       {/* ======================================================== */}
-      <section className="py-14 sm:py-20 bg-[#FAF9F5] border-t border-[#E8E4D8]">
+      <section className="-mt-8 sm:-mt-14 relative z-20 max-w-[1200px] mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="bg-white rounded-2xl sm:rounded-3xl border border-[#E8E4D8] p-5 sm:p-7 shadow-[0_12px_32px_rgba(45,51,39,0.08)]">
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-5 sm:gap-6 divide-y sm:divide-y-0 sm:divide-x divide-[#E8E4D8]">
+            
+            {/* Stat 1 */}
+            <div className="flex items-center gap-4 pt-2 sm:pt-0 sm:px-4 first:px-0">
+              <div className="w-12 h-12 rounded-xl bg-[#345C4A]/10 text-[#345C4A] flex items-center justify-center shrink-0">
+                <Smartphone className="w-6 h-6" />
+              </div>
+              <div>
+                <div className="text-2xl sm:text-3xl font-black text-[#26332D]">100%</div>
+                <div className="text-xs text-[#5D7368] font-medium mt-0.5">Offline Capability</div>
+              </div>
+            </div>
+
+            {/* Stat 2 */}
+            <div className="flex items-center gap-4 pt-2 sm:pt-0 sm:px-4">
+              <div className="w-12 h-12 rounded-xl bg-[#345C4A]/10 text-[#345C4A] flex items-center justify-center shrink-0">
+                <Milk className="w-6 h-6" />
+              </div>
+              <div>
+                <div className="text-2xl sm:text-3xl font-black text-[#26332D]">&lt;20s</div>
+                <div className="text-xs text-[#5D7368] font-medium mt-0.5">Daily Milk Logging</div>
+              </div>
+            </div>
+
+            {/* Stat 3 */}
+            <div className="flex items-center gap-4 pt-2 sm:pt-0 sm:px-4">
+              <div className="w-12 h-12 rounded-xl bg-[#C6A76A]/15 text-[#8F7438] flex items-center justify-center shrink-0">
+                <ShieldCheck className="w-6 h-6" />
+              </div>
+              <div>
+                <div className="text-2xl sm:text-3xl font-black text-[#26332D]">100%</div>
+                <div className="text-xs text-[#5D7368] font-medium mt-0.5">Reconciled Co-op Sales</div>
+              </div>
+            </div>
+
+            {/* Stat 4 */}
+            <div className="flex items-center gap-4 pt-2 sm:pt-0 sm:px-4">
+              <div className="w-12 h-12 rounded-xl bg-[#345C4A]/10 text-[#345C4A] flex items-center justify-center shrink-0">
+                <Calendar className="w-6 h-6" />
+              </div>
+              <div>
+                <div className="text-2xl sm:text-3xl font-black text-[#26332D]">14 Days</div>
+                <div className="text-xs text-[#5D7368] font-medium mt-0.5">Full Free Trial</div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </section>
+
+      {/* ======================================================== */}
+      {/* 3. PROBLEM AWARENESS (WHAT WE SOLVE - ASYMMETRIC HEADER + 4 CARDS) */}
+      {/* ======================================================== */}
+      <section className="py-14 sm:py-20 bg-[#FAF9F5]">
         <div className="max-w-[1200px] mx-auto px-4 sm:px-6 lg:px-8">
           
-          <div className="text-center max-w-2xl mx-auto mb-10 sm:mb-12">
-            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#FAF5EB] border border-[#E5D5B5] text-[#8F7438] text-[11px] font-bold uppercase tracking-wider">
-              Common Farm Challenges
-            </span>
-            <h2 className="text-2xl sm:text-4xl font-light text-[#26332D] tracking-tight mt-3 leading-tight">
-              Running a Dairy Farm Is Hard Enough. <br className="hidden sm:inline" />
-              <span className="font-semibold text-[#26332D]">Your Records Shouldn&apos;t Make It Harder.</span>
-            </h2>
-            <p className="text-xs sm:text-sm text-[#5D7368] mt-2.5 max-w-xl mx-auto leading-relaxed">
-              Most Kenyan dairy farmers lose money not from bad cows, but from missing records, lost paper chits, and unreconciled collection centre deliveries.
-            </p>
+          {/* Nexora-Style Asymmetric Header: Left Title + Right Text & Link */}
+          <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-6 mb-10 sm:mb-12 pb-2">
+            <div>
+              <span className="text-xs font-bold uppercase tracking-wider text-[#345C4A]">
+                Sound Familiar?
+              </span>
+              <h2 className="text-2xl sm:text-4xl font-extrabold text-[#26332D] tracking-tight mt-2 leading-tight max-w-xl">
+                Running a Dairy Farm Is Hard Enough. <br />
+                Your Records <span className="text-[#345C4A]">Shouldn&apos;t Make It Harder.</span>
+              </h2>
+            </div>
+
+            <div className="lg:max-w-md lg:text-right space-y-2">
+              <p className="text-xs sm:text-sm text-[#5D7368] leading-relaxed">
+                Most Kenyan dairy farmers lose money not from bad cows, but from missing records and unreconciled deliveries.
+              </p>
+              <a href="#features" className="inline-flex items-center gap-1.5 text-xs font-bold text-[#345C4A] hover:underline">
+                <span>Explore All Solutions</span>
+                <ArrowRight className="w-3.5 h-3.5" />
+              </a>
+            </div>
           </div>
 
+          {/* 4 Cards Grid (Matching Nexora's 4 White Service Cards) */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 sm:gap-6">
             
             {/* Card 1 */}
-            <div className="p-6 sm:p-7 rounded-2xl bg-white border border-[#E8E4D8] space-y-3.5 hover:border-[#345C4A]/40 hover:shadow-xs transition-all">
-              <div className="w-11 h-11 rounded-xl bg-[#345C4A]/10 text-[#345C4A] flex items-center justify-center font-bold">
-                <FileText className="w-5 h-5" />
+            <div className="p-6 sm:p-7 rounded-2xl bg-white border border-[#E8E4D8] space-y-3.5 hover:border-[#345C4A]/40 hover:shadow-xs transition-all flex flex-col justify-between">
+              <div className="space-y-3.5">
+                <div className="w-11 h-11 rounded-xl bg-[#345C4A]/10 text-[#345C4A] flex items-center justify-center font-bold">
+                  <FileText className="w-5 h-5" />
+                </div>
+                <h3 className="text-base font-bold text-[#26332D]">Milk Records Everywhere</h3>
+                <p className="text-xs text-[#5D7368] leading-relaxed">
+                  You record milk in notebooks, on paper, or sometimes just try to remember the numbers. Papers get lost or smudged with milk.
+                </p>
               </div>
-              <h3 className="text-base font-bold text-[#26332D]">Milk Records Everywhere</h3>
-              <p className="text-xs text-[#5D7368] leading-relaxed">
-                You record milk in notebooks, on loose paper, or try to remember numbers. Slips get lost, damaged by rain, or smudged with milk.
-              </p>
+              <div className="pt-2 text-xs font-semibold text-[#345C4A] inline-flex items-center gap-1">
+                <span>Learn More</span>
+                <ChevronRight className="w-3.5 h-3.5" />
+              </div>
             </div>
 
             {/* Card 2 */}
-            <div className="p-6 sm:p-7 rounded-2xl bg-white border border-[#E8E4D8] space-y-3.5 hover:border-[#345C4A]/40 hover:shadow-xs transition-all">
-              <div className="w-11 h-11 rounded-xl bg-[#C6A76A]/15 text-[#8F7438] border border-[#C6A76A]/25 flex items-center justify-center font-bold">
-                <Receipt className="w-5 h-5" />
+            <div className="p-6 sm:p-7 rounded-2xl bg-white border border-[#E8E4D8] space-y-3.5 hover:border-[#345C4A]/40 hover:shadow-xs transition-all flex flex-col justify-between">
+              <div className="space-y-3.5">
+                <div className="w-11 h-11 rounded-xl bg-[#C6A76A]/15 text-[#8F7438] border border-[#C6A76A]/25 flex items-center justify-center font-bold">
+                  <Receipt className="w-5 h-5" />
+                </div>
+                <h3 className="text-base font-bold text-[#26332D]">Confusing Payments</h3>
+                <p className="text-xs text-[#5D7368] leading-relaxed">
+                  At the end of the month, you&apos;re unsure whether every litre delivered has been accounted for. Unrecorded transport deductions reduce your earnings.
+                </p>
               </div>
-              <h3 className="text-base font-bold text-[#26332D]">Confusing Payments</h3>
-              <p className="text-xs text-[#5D7368] leading-relaxed">
-                At the end of the month, you&apos;re unsure whether every litre delivered has been accounted for. Unrecorded transport deductions quietly eat your earnings.
-              </p>
+              <div className="pt-2 text-xs font-semibold text-[#345C4A] inline-flex items-center gap-1">
+                <span>Learn More</span>
+                <ChevronRight className="w-3.5 h-3.5" />
+              </div>
             </div>
 
             {/* Card 3 */}
-            <div className="p-6 sm:p-7 rounded-2xl bg-white border border-[#E8E4D8] space-y-3.5 hover:border-[#345C4A]/40 hover:shadow-xs transition-all">
-              <div className="w-11 h-11 rounded-xl bg-[#345C4A]/10 text-[#345C4A] flex items-center justify-center font-bold">
-                <Calendar className="w-5 h-5" />
+            <div className="p-6 sm:p-7 rounded-2xl bg-white border border-[#E8E4D8] space-y-3.5 hover:border-[#345C4A]/40 hover:shadow-xs transition-all flex flex-col justify-between">
+              <div className="space-y-3.5">
+                <div className="w-11 h-11 rounded-xl bg-[#345C4A]/10 text-[#345C4A] flex items-center justify-center font-bold">
+                  <Calendar className="w-5 h-5" />
+                </div>
+                <h3 className="text-base font-bold text-[#26332D]">Missed Farm Activities</h3>
+                <p className="text-xs text-[#5D7368] leading-relaxed">
+                  Important dates like pregnancy checks, treatments, and vaccinations are easy to forget when they are written on separate slips.
+                </p>
               </div>
-              <h3 className="text-base font-bold text-[#26332D]">Missed Farm Activities</h3>
-              <p className="text-xs text-[#5D7368] leading-relaxed">
-                Critical dates like pregnancy checks, AI repeat cycles, and vaccinations are easy to forget when they are scribbled on separate pieces of paper.
-              </p>
+              <div className="pt-2 text-xs font-semibold text-[#345C4A] inline-flex items-center gap-1">
+                <span>Learn More</span>
+                <ChevronRight className="w-3.5 h-3.5" />
+              </div>
             </div>
 
             {/* Card 4 */}
-            <div className="p-6 sm:p-7 rounded-2xl bg-white border border-[#E8E4D8] space-y-3.5 hover:border-[#345C4A]/40 hover:shadow-xs transition-all">
-              <div className="w-11 h-11 rounded-xl bg-[#C6A76A]/15 text-[#8F7438] border border-[#C6A76A]/25 flex items-center justify-center font-bold">
-                <DollarSign className="w-5 h-5" />
+            <div className="p-6 sm:p-7 rounded-2xl bg-white border border-[#E8E4D8] space-y-3.5 hover:border-[#345C4A]/40 hover:shadow-xs transition-all flex flex-col justify-between">
+              <div className="space-y-3.5">
+                <div className="w-11 h-11 rounded-xl bg-[#C6A76A]/15 text-[#8F7438] border border-[#C6A76A]/25 flex items-center justify-center font-bold">
+                  <DollarSign className="w-5 h-5" />
+                </div>
+                <h3 className="text-base font-bold text-[#26332D]">Unclear Farm Profits</h3>
+                <p className="text-xs text-[#5D7368] leading-relaxed">
+                  You sell milk regularly, but calculating what your farm actually earns is another story once feed and veterinary bills arrive.
+                </p>
               </div>
-              <h3 className="text-base font-bold text-[#26332D]">Unclear Farm Profits</h3>
-              <p className="text-xs text-[#5D7368] leading-relaxed">
-                You sell milk daily, but calculating what your farm actually earns is difficult once feed, silage, fodder, and veterinary bills arrive.
-              </p>
+              <div className="pt-2 text-xs font-semibold text-[#345C4A] inline-flex items-center gap-1">
+                <span>Learn More</span>
+                <ChevronRight className="w-3.5 h-3.5" />
+              </div>
             </div>
 
           </div>
 
           <div className="mt-12 text-center">
             <p className="text-sm font-semibold text-[#26332D]">
-              There&apos;s a simpler, more organized way to manage it all.
+              There&apos;s a simpler way to manage it all.
             </p>
             <div className="w-12 h-0.5 bg-[#345C4A] mx-auto mt-2.5 rounded-full" />
           </div>
@@ -535,21 +560,115 @@ Support Email: versalylabs@gmail.com`;
       </section>
 
       {/* ======================================================== */}
-      {/* 4. THE SOLUTION & FEATURE SHOWCASE */}
+      {/* 4. SPLIT FEATURE SHOWCASE (NEXORA 2-COLUMN BOTTOM LAYOUT) */}
+      {/* ======================================================== */}
+      <section className="py-14 sm:py-20 bg-white border-t border-[#E8E4D8]">
+        <div className="max-w-[1200px] mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-14 items-center">
+            
+            {/* Left Column: Story & Value Prop */}
+            <div className="lg:col-span-6 space-y-5">
+              <span className="text-xs font-bold uppercase tracking-wider text-[#345C4A]">
+                ABOUT MYLKIO
+              </span>
+              <h2 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-[#26332D] tracking-tight leading-tight">
+                Everything You Need to Run Your Dairy Farm. <br />
+                <span className="text-[#345C4A]">In One Simple Place.</span>
+              </h2>
+              <p className="text-sm sm:text-base text-[#3D4F46] leading-relaxed">
+                From your first milk record to your monthly payments, Mylkio helps you stay organized and make more informed farming decisions.
+              </p>
+
+              <div className="space-y-3 pt-2 text-xs sm:text-sm text-[#26332D]">
+                <div className="flex items-center gap-2.5">
+                  <CheckCircle2 className="w-4 h-4 text-[#345C4A] shrink-0" />
+                  <span>Quick farm-total recording in under 20 seconds</span>
+                </div>
+                <div className="flex items-center gap-2.5">
+                  <CheckCircle2 className="w-4 h-4 text-[#345C4A] shrink-0" />
+                  <span>Cow ear-tag identification, breed registry &amp; photos</span>
+                </div>
+                <div className="flex items-center gap-2.5">
+                  <CheckCircle2 className="w-4 h-4 text-[#345C4A] shrink-0" />
+                  <span>Antibiotic milk withdrawal warnings prevent co-op penalties</span>
+                </div>
+                <div className="flex items-center gap-2.5">
+                  <CheckCircle2 className="w-4 h-4 text-[#345C4A] shrink-0" />
+                  <span>Reconcile cooperative delivery slips against expected payout</span>
+                </div>
+              </div>
+
+              <div className="pt-4">
+                <button
+                  onClick={() => onOpenAuth('signup')}
+                  className="px-7 py-3.5 rounded-xl bg-[#345C4A] hover:bg-[#274537] text-white font-semibold text-xs sm:text-sm shadow-sm transition-all inline-flex items-center gap-2"
+                >
+                  <span>Start 14-Day Free Trial</span>
+                  <ArrowRight className="w-4 h-4" />
+                </button>
+              </div>
+            </div>
+
+            {/* Right Column: Photography Card with Live Status Chip */}
+            <div className="lg:col-span-6">
+              <div className="relative rounded-3xl overflow-hidden shadow-md border border-[#E8E4D8]">
+                <img 
+                  src="https://images.unsplash.com/photo-1527153857715-3908f2ae5e81?auto=format&fit=crop&w=1200&q=80" 
+                  alt="Kenyan Dairy Farming"
+                  className="w-full h-[380px] sm:h-[440px] object-cover"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-[#26332D]/90 via-[#26332D]/30 to-transparent" />
+
+                {/* Live Overlaid Snapshot Card */}
+                <div className="absolute bottom-5 left-5 right-5 p-4 sm:p-5 bg-white/95 backdrop-blur-md rounded-2xl border border-[#E8E4D8] shadow-sm">
+                  <div className="flex items-center justify-between pb-2 border-b border-[#E8E4D8]">
+                    <div className="flex items-center gap-2">
+                      <div className="w-7 h-7 rounded-lg bg-[#345C4A] text-white font-bold text-xs flex items-center justify-center">
+                        M
+                      </div>
+                      <span className="text-xs font-bold text-[#26332D]">Green Hills Dairy • Nakuru</span>
+                    </div>
+                    <span className="text-[10px] font-bold text-[#345C4A] bg-[#345C4A]/10 px-2 py-0.5 rounded-full border border-[#345C4A]/25">
+                      ● Offline Synchronized
+                    </span>
+                  </div>
+                  <div className="grid grid-cols-3 gap-2 pt-3 text-center">
+                    <div>
+                      <div className="text-[10px] text-[#5D7368] uppercase font-bold">Today Milk</div>
+                      <div className="text-base font-extrabold text-[#26332D]">42.5 L</div>
+                    </div>
+                    <div>
+                      <div className="text-[10px] text-[#5D7368] uppercase font-bold">Co-op Slip</div>
+                      <div className="text-base font-extrabold text-[#345C4A]">34.0 L</div>
+                    </div>
+                    <div>
+                      <div className="text-[10px] text-[#5D7368] uppercase font-bold">Month Revenue</div>
+                      <div className="text-base font-extrabold text-[#8F7438]">KSh 48,200</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </section>
+
+      {/* ======================================================== */}
+      {/* 5. THE COMPLETE SOLUTION (FEATURE GRID) */}
       {/* ======================================================== */}
       <section id="features" className="py-14 sm:py-20 bg-[#FAF9F5] border-t border-[#E8E4D8]">
         <div className="max-w-[1200px] mx-auto px-4 sm:px-6 lg:px-8">
           
           <div className="text-center max-w-3xl mx-auto mb-10 sm:mb-12">
-            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#FAF5EB] border border-[#E5D5B5] text-[#8F7438] text-[11px] font-bold uppercase tracking-wider">
+            <span className="text-xs font-bold uppercase tracking-wider text-[#345C4A]">
               The Complete Solution
             </span>
-            <h2 className="text-2xl sm:text-4xl font-light text-[#26332D] tracking-tight mt-3 leading-tight">
-              Everything You Need to Run Your Dairy Farm. <br className="hidden sm:inline" />
-              <span className="font-semibold text-[#345C4A]">In One Simple System.</span>
+            <h2 className="text-2xl sm:text-4xl font-extrabold text-[#26332D] tracking-tight mt-2 leading-tight">
+              Everything You Need to Run Your Dairy Farm. In One Place.
             </h2>
             <p className="text-xs sm:text-sm text-[#5D7368] mt-2.5 max-w-2xl mx-auto leading-relaxed">
-              From your morning milking totals to your monthly co-op statements, Mylkio helps you stay organized and make more informed farming decisions.
+              From your first milk record to your monthly payments, Mylkio helps you stay organized and make more informed farming decisions.
             </p>
           </div>
 
@@ -564,7 +683,7 @@ Support Email: versalylabs@gmail.com`;
                 Know Exactly How Much Milk Your Farm Produces
               </h3>
               <p className="text-xs text-[#5D7368] leading-relaxed">
-                Record daily milk output, compare production over time, and understand how your herd performs without tedious calculations.
+                Record daily milk output, compare production over time, and understand how your farm is performing without tedious calculations.
               </p>
               <ul className="text-xs text-[#5D7368] space-y-2 pt-2 border-t border-[#E8E4D8]">
                 <li className="flex items-center gap-2">
@@ -587,7 +706,7 @@ Support Email: versalylabs@gmail.com`;
                 Every Cow Has a Story. Keep Track of It.
               </h3>
               <p className="text-xs text-[#5D7368] leading-relaxed">
-                Manage cow profiles, ear-tag records, breeding dates, health treatments, parity counts, and production history with multiple photo attachments.
+                Manage cow profiles, important dates, health records, parity counts, and production history with smartphone photo attachments.
               </p>
               <ul className="text-xs text-[#5D7368] space-y-2 pt-2 border-t border-[#E8E4D8]">
                 <li className="flex items-center gap-2">
@@ -610,7 +729,7 @@ Support Email: versalylabs@gmail.com`;
                 Stay Ahead of Important Farm Activities
               </h3>
               <p className="text-xs text-[#5D7368] leading-relaxed">
-                Keep track of upcoming veterinary treatments, AI services, and expected calving dates with automated withdrawal alert banners.
+                Keep track of upcoming veterinary activities, breeding events, and expected calving dates with automated withdrawal alert banners.
               </p>
               <ul className="text-xs text-[#5D7368] space-y-2 pt-2 border-t border-[#E8E4D8]">
                 <li className="flex items-center gap-2">
@@ -633,7 +752,7 @@ Support Email: versalylabs@gmail.com`;
                 Every Litre Sold Should Be Accounted For
               </h3>
               <p className="text-xs text-[#5D7368] leading-relaxed">
-                Record deliveries to cooperatives, collection centres, and direct retail buyers. Track prices per litre, transport deductions, and balances.
+                Record deliveries to cooperatives, collection centres, and individual customers. Track prices per litre, transport deductions, and balances.
               </p>
               <ul className="text-xs text-[#5D7368] space-y-2 pt-2 border-t border-[#E8E4D8]">
                 <li className="flex items-center gap-2">
@@ -656,7 +775,7 @@ Support Email: versalylabs@gmail.com`;
                 Know Where Your Farm Money Goes
               </h3>
               <p className="text-xs text-[#5D7368] leading-relaxed">
-                Track dairy meal, silage, fodder, veterinary care, wages, transport, and maintenance costs against your milk receipts.
+                Track dairy meal, silage, fodder, veterinary fees, worker wages, transport, and maintenance costs against your milk receipts.
               </p>
               <ul className="text-xs text-[#5D7368] space-y-2 pt-2 border-t border-[#E8E4D8]">
                 <li className="flex items-center gap-2">
@@ -699,96 +818,30 @@ Support Email: versalylabs@gmail.com`;
       </section>
 
       {/* ======================================================== */}
-      {/* 5. HOW IT WORKS (3 SIMPLE STEPS) */}
-      {/* ======================================================== */}
-      <section id="how-it-works" className="py-14 sm:py-20 bg-[#FAF9F5] border-t border-[#E8E4D8]">
-        <div className="max-w-[1200px] mx-auto px-4 sm:px-6 lg:px-8">
-          
-          <div className="text-center max-w-2xl mx-auto mb-10 sm:mb-12">
-            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#FAF5EB] border border-[#E5D5B5] text-[#8F7438] text-[11px] font-bold uppercase tracking-wider">
-              How It Works
-            </span>
-            <h2 className="text-2xl sm:text-4xl font-light text-[#26332D] tracking-tight mt-3 leading-tight">
-              From Notebooks to Organized Records <br className="hidden sm:inline" />
-              <span className="font-semibold text-[#26332D]">in Three Simple Steps.</span>
-            </h2>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            
-            {/* Step 1 */}
-            <div className="p-7 rounded-2xl bg-white border border-[#E8E4D8] space-y-3.5 text-center shadow-xs hover:border-[#345C4A]/40 transition-all">
-              <div className="w-11 h-11 rounded-full bg-[#345C4A] text-white flex items-center justify-center font-bold text-sm mx-auto shadow-xs">
-                1
-              </div>
-              <h3 className="text-base font-bold text-[#26332D]">Set Up Your Farm</h3>
-              <p className="text-xs text-[#5D7368] leading-relaxed">
-                Create your farm profile in under 2 minutes. Add your cows with their ear tags or start with a clean slate.
-              </p>
-            </div>
-
-            {/* Step 2 */}
-            <div className="p-7 rounded-2xl bg-white border border-[#E8E4D8] space-y-3.5 text-center shadow-xs hover:border-[#345C4A]/40 transition-all">
-              <div className="w-11 h-11 rounded-full bg-[#345C4A] text-white flex items-center justify-center font-bold text-sm mx-auto shadow-xs">
-                2
-              </div>
-              <h3 className="text-base font-bold text-[#26332D]">Record Daily Activities</h3>
-              <p className="text-xs text-[#5D7368] leading-relaxed">
-                Log milk production, sales, expenses, and cow events with fast, big touch buttons designed for smartphone use.
-              </p>
-            </div>
-
-            {/* Step 3 */}
-            <div className="p-7 rounded-2xl bg-white border border-[#E8E4D8] space-y-3.5 text-center shadow-xs hover:border-[#345C4A]/40 transition-all">
-              <div className="w-11 h-11 rounded-full bg-[#345C4A] text-white flex items-center justify-center font-bold text-sm mx-auto shadow-xs">
-                3
-              </div>
-              <h3 className="text-base font-bold text-[#26332D]">Understand Your Farm</h3>
-              <p className="text-xs text-[#5D7368] leading-relaxed">
-                Use your dashboard and financial statements to see exactly what&apos;s happening, who owes you, and what needs attention.
-              </p>
-            </div>
-
-          </div>
-
-          <div className="mt-12 text-center">
-            <button
-              onClick={() => onOpenAuth('signup')}
-              className="px-8 py-3.5 rounded-full bg-[#345C4A] hover:bg-[#274537] text-white font-semibold text-xs sm:text-sm shadow-[0_4px_16px_rgba(52,92,74,0.2)] transition-all inline-flex items-center gap-2"
-            >
-              <span>Get Started with Mylkio</span>
-              <ArrowRight className="w-4 h-4" />
-            </button>
-          </div>
-
-        </div>
-      </section>
-
-      {/* ======================================================== */}
       {/* 6. MILK PAYMENTS FEATURE (ELEVATED PANEL ON CANVAS) */}
       {/* ======================================================== */}
-      <section id="payments" className="py-14 sm:py-20 bg-[#FAF9F5] border-t border-[#E8E4D8]">
+      <section id="payments" className="py-14 sm:py-20 bg-white border-t border-[#E8E4D8]">
         <div className="max-w-[1200px] mx-auto px-4 sm:px-6 lg:px-8">
           
-          <div className="bg-white rounded-3xl border border-[#E8E4D8] p-7 sm:p-11 shadow-xs">
+          <div className="bg-[#FAF9F5] rounded-3xl border border-[#E8E4D8] p-7 sm:p-11 shadow-xs">
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center">
               
               <div className="lg:col-span-7 space-y-4">
-                <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#FAF5EB] border border-[#E5D5B5] text-[#8F7438] text-[11px] font-bold uppercase tracking-wider">
+                <span className="text-xs font-bold uppercase tracking-wider text-[#345C4A]">
                   The Milk Payments Feature
                 </span>
 
-                <h2 className="text-2xl sm:text-4xl font-light text-[#26332D] tracking-tight leading-tight">
+                <h2 className="text-2xl sm:text-4xl font-extrabold text-[#26332D] tracking-tight leading-tight">
                   Delivered the Milk? <br className="hidden sm:inline" />
-                  <span className="font-semibold text-[#345C4A]">Keep Track of Every Shilling You&apos;re Owed.</span>
+                  <span className="text-[#345C4A]">Keep Track of Every Shilling You&apos;re Owed.</span>
                 </h2>
 
                 <p className="text-xs sm:text-sm text-[#5D7368] leading-relaxed">
-                  Whether you sell to a cooperative or direct retail customers, Mylkio helps you maintain a clear record of milk delivered, payments received, and outstanding balances.
+                  Whether you sell to a cooperative or individual customers, Mylkio helps you maintain a clear record of milk delivered, payments received, and outstanding balances.
                 </p>
 
                 <div className="pt-2">
-                  <div className="p-4 bg-[#FAF9F5] rounded-xl border border-[#E8E4D8] text-xs text-[#5D7368] leading-relaxed">
+                  <div className="p-4 bg-white rounded-xl border border-[#E8E4D8] text-xs text-[#5D7368] leading-relaxed">
                     <strong className="text-[#26332D]">No more relying on memory to reconcile your milk sales.</strong> At month-end, simply pull up your logged deliveries against the cooperative slip to confirm accuracy before payment is finalized.
                   </div>
                 </div>
@@ -796,7 +849,7 @@ Support Email: versalylabs@gmail.com`;
 
               {/* Illustrative Monthly Statement Card */}
               <div className="lg:col-span-5">
-                <div className="bg-[#FAF9F5] rounded-2xl p-6 sm:p-7 border border-[#E8E4D8] space-y-4 shadow-xs">
+                <div className="bg-white rounded-2xl p-6 sm:p-7 border border-[#E8E4D8] space-y-4 shadow-xs">
                   <div className="flex items-center justify-between pb-3 border-b border-[#E8E4D8]">
                     <div>
                       <span className="text-[10px] font-bold uppercase tracking-wider text-[#5D7368]">Monthly Statement (Example)</span>
@@ -835,7 +888,7 @@ Support Email: versalylabs@gmail.com`;
                   </div>
 
                   <div className="pt-2">
-                    <div className="p-2.5 bg-white rounded-xl text-[10px] text-[#5D7368] italic text-center border border-[#E8E4D8]">
+                    <div className="p-2.5 bg-[#FAF9F5] rounded-xl text-[10px] text-[#5D7368] italic text-center border border-[#E8E4D8]">
                       *Illustrative monthly reconciliation example calculated from logged deliveries.
                     </div>
                   </div>
@@ -849,83 +902,65 @@ Support Email: versalylabs@gmail.com`;
       </section>
 
       {/* ======================================================== */}
-      {/* 7. WHY FARMERS WILL LOVE MYLKIO (BENEFITS GRID) */}
+      {/* 7. HOW IT WORKS (3 SIMPLE STEPS) */}
       {/* ======================================================== */}
-      <section className="py-14 sm:py-20 bg-[#FAF9F5] border-t border-[#E8E4D8]">
+      <section id="how-it-works" className="py-14 sm:py-20 bg-[#FAF9F5] border-t border-[#E8E4D8]">
         <div className="max-w-[1200px] mx-auto px-4 sm:px-6 lg:px-8">
           
           <div className="text-center max-w-2xl mx-auto mb-10 sm:mb-12">
-            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#FAF5EB] border border-[#E5D5B5] text-[#8F7438] text-[11px] font-bold uppercase tracking-wider">
-              Benefits
+            <span className="text-xs font-bold uppercase tracking-wider text-[#345C4A]">
+              How It Works
             </span>
-            <h2 className="text-2xl sm:text-4xl font-light text-[#26332D] tracking-tight mt-3 leading-tight">
-              Built Around Your Farm. <br className="hidden sm:inline" />
-              <span className="font-semibold text-[#26332D]">Not the Other Way Around.</span>
+            <h2 className="text-2xl sm:text-4xl font-extrabold text-[#26332D] tracking-tight mt-2 leading-tight">
+              From Notebook to Organized Farm Records in Three Simple Steps.
             </h2>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             
-            <div className="p-6 sm:p-7 rounded-2xl bg-white border border-[#E8E4D8] space-y-3 shadow-xs hover:border-[#345C4A]/40 transition-all">
-              <div className="w-11 h-11 rounded-xl bg-[#345C4A]/10 text-[#345C4A] flex items-center justify-center font-bold">
-                <CheckCircle2 className="w-5 h-5" />
+            {/* Step 1 */}
+            <div className="p-7 rounded-2xl bg-white border border-[#E8E4D8] space-y-3.5 text-center shadow-xs hover:border-[#345C4A]/40 transition-all">
+              <div className="w-11 h-11 rounded-full bg-[#345C4A] text-white flex items-center justify-center font-bold text-sm mx-auto shadow-xs">
+                1
               </div>
-              <h3 className="text-base font-bold text-[#26332D]">Simple to Learn</h3>
+              <h3 className="text-base font-bold text-[#26332D]">Set Up Your Farm</h3>
               <p className="text-xs text-[#5D7368] leading-relaxed">
-                Easy-to-understand screens designed for everyday farm activities without complicated computer menus.
+                Create your farm profile and add your cows. Enter their ear tags or start with a clean slate.
               </p>
             </div>
 
-            <div className="p-6 sm:p-7 rounded-2xl bg-white border border-[#E8E4D8] space-y-3 shadow-xs hover:border-[#345C4A]/40 transition-all">
-              <div className="w-11 h-11 rounded-xl bg-[#345C4A]/10 text-[#345C4A] flex items-center justify-center font-bold">
-                <Smartphone className="w-5 h-5" />
+            {/* Step 2 */}
+            <div className="p-7 rounded-2xl bg-white border border-[#E8E4D8] space-y-3.5 text-center shadow-xs hover:border-[#345C4A]/40 transition-all">
+              <div className="w-11 h-11 rounded-full bg-[#345C4A] text-white flex items-center justify-center font-bold text-sm mx-auto shadow-xs">
+                2
               </div>
-              <h3 className="text-base font-bold text-[#26332D]">Made for Your Phone</h3>
+              <h3 className="text-base font-bold text-[#26332D]">Record Daily Activities</h3>
               <p className="text-xs text-[#5D7368] leading-relaxed">
-                Manage your farm directly from your smartphone without needing a desktop computer or special hardware.
+                Log milk production, sales, expenses, and important cow activities with touch buttons on your phone.
               </p>
             </div>
 
-            <div className="p-6 sm:p-7 rounded-2xl bg-white border border-[#E8E4D8] space-y-3 shadow-xs hover:border-[#345C4A]/40 transition-all">
-              <div className="w-11 h-11 rounded-xl bg-[#C6A76A]/15 text-[#8F7438] border border-[#C6A76A]/25 flex items-center justify-center font-bold">
-                <Layers className="w-5 h-5" />
+            {/* Step 3 */}
+            <div className="p-7 rounded-2xl bg-white border border-[#E8E4D8] space-y-3.5 text-center shadow-xs hover:border-[#345C4A]/40 transition-all">
+              <div className="w-11 h-11 rounded-full bg-[#345C4A] text-white flex items-center justify-center font-bold text-sm mx-auto shadow-xs">
+                3
               </div>
-              <h3 className="text-base font-bold text-[#26332D]">Designed for Kenyan Farmers</h3>
+              <h3 className="text-base font-bold text-[#26332D]">Understand Your Farm</h3>
               <p className="text-xs text-[#5D7368] leading-relaxed">
-                Support local currency, common dairy sales workflows, and familiar farming terminology in English and Kiswahili.
+                Use your dashboard and reports to see what&apos;s happening, who owes you, and what needs attention.
               </p>
             </div>
 
-            <div className="p-6 sm:p-7 rounded-2xl bg-white border border-[#E8E4D8] space-y-3 shadow-xs hover:border-[#345C4A]/40 transition-all">
-              <div className="w-11 h-11 rounded-xl bg-[#345C4A]/10 text-[#345C4A] flex items-center justify-center font-bold">
-                <FileText className="w-5 h-5" />
-              </div>
-              <h3 className="text-base font-bold text-[#26332D]">Your Records in One Place</h3>
-              <p className="text-xs text-[#5D7368] leading-relaxed">
-                Find your cow information, milk history, and payment records without searching through messy notebooks.
-              </p>
-            </div>
+          </div>
 
-            <div className="p-6 sm:p-7 rounded-2xl bg-white border border-[#E8E4D8] space-y-3 shadow-xs hover:border-[#345C4A]/40 transition-all">
-              <div className="w-11 h-11 rounded-xl bg-[#C6A76A]/15 text-[#8F7438] border border-[#C6A76A]/25 flex items-center justify-center font-bold">
-                <TrendingUp className="w-5 h-5" />
-              </div>
-              <h3 className="text-base font-bold text-[#26332D]">Grow at Your Own Pace</h3>
-              <p className="text-xs text-[#5D7368] leading-relaxed">
-                Start with basic records and use more detailed features when you need them as your herd expands.
-              </p>
-            </div>
-
-            <div className="p-6 sm:p-7 rounded-2xl bg-white border border-[#E8E4D8] space-y-3 shadow-xs hover:border-[#345C4A]/40 transition-all">
-              <div className="w-11 h-11 rounded-xl bg-[#345C4A]/10 text-[#345C4A] flex items-center justify-center font-bold">
-                <ShieldCheck className="w-5 h-5" />
-              </div>
-              <h3 className="text-base font-bold text-[#26332D]">Stay Informed</h3>
-              <p className="text-xs text-[#5D7368] leading-relaxed">
-                See upcoming farm activities, pregnancy milestones, and useful milk production summaries every morning.
-              </p>
-            </div>
-
+          <div className="mt-12 text-center">
+            <button
+              onClick={() => onOpenAuth('signup')}
+              className="px-8 py-3.5 rounded-full bg-[#345C4A] hover:bg-[#274537] text-white font-semibold text-xs sm:text-sm shadow-[0_4px_16px_rgba(52,92,74,0.2)] transition-all inline-flex items-center gap-2"
+            >
+              <span>Get Started with Mylkio</span>
+              <ArrowRight className="w-4 h-4" />
+            </button>
           </div>
 
         </div>
@@ -934,20 +969,20 @@ Support Email: versalylabs@gmail.com`;
       {/* ======================================================== */}
       {/* 8. INTERACTIVE PRODUCT PREVIEW */}
       {/* ======================================================== */}
-      <section className="py-14 sm:py-20 bg-[#FAF9F5] border-t border-[#E8E4D8]">
+      <section className="py-14 sm:py-20 bg-white border-t border-[#E8E4D8]">
         <div className="max-w-[1200px] mx-auto px-4 sm:px-6 lg:px-8">
           
           <div className="text-center max-w-2xl mx-auto mb-8 sm:mb-10">
-            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#FAF5EB] border border-[#E5D5B5] text-[#8F7438] text-[11px] font-bold uppercase tracking-wider">
+            <span className="text-xs font-bold uppercase tracking-wider text-[#345C4A]">
               Product Preview
             </span>
-            <h2 className="text-2xl sm:text-4xl font-light text-[#26332D] tracking-tight mt-3 leading-tight">
+            <h2 className="text-2xl sm:text-4xl font-extrabold text-[#26332D] tracking-tight mt-2 leading-tight">
               See What a More Organized Dairy Farm Looks Like.
             </h2>
           </div>
 
           {/* Tab Selector (Pill Container) */}
-          <div className="flex flex-wrap justify-center gap-1.5 p-1 bg-[#E8E4D8]/80 rounded-full max-w-2xl mx-auto mb-10">
+          <div className="flex flex-wrap justify-center gap-1.5 p-1 bg-[#FAF9F5] border border-[#E8E4D8] rounded-full max-w-2xl mx-auto mb-10 shadow-2xs">
             {[
               { key: 'dashboard', label: 'Dashboard' },
               { key: 'milk', label: 'Milk Records' },
@@ -973,7 +1008,7 @@ Support Email: versalylabs@gmail.com`;
           </div>
 
           {/* Preview Container Card */}
-          <div className="bg-white rounded-3xl border border-[#E8E4D8] p-6 sm:p-9 shadow-xs max-w-4xl mx-auto">
+          <div className="bg-[#FAF9F5] rounded-3xl border border-[#E8E4D8] p-6 sm:p-9 shadow-xs max-w-4xl mx-auto">
             {activePreviewTab === 'dashboard' && (
               <div className="space-y-4 animate-fade-in">
                 <div className="flex items-center justify-between pb-3 border-b border-[#E8E4D8]">
@@ -981,19 +1016,19 @@ Support Email: versalylabs@gmail.com`;
                   <span className="text-xs text-[#345C4A] font-semibold">Green Hills Dairy, Nakuru</span>
                 </div>
                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs">
-                  <div className="p-4 bg-[#FAF9F5] rounded-xl border border-[#E8E4D8]">
+                  <div className="p-4 bg-white rounded-xl border border-[#E8E4D8]">
                     <div className="text-[#5D7368] text-[10px] uppercase font-bold tracking-wider">Today&apos;s Milk</div>
                     <div className="text-2xl font-extrabold text-[#26332D] mt-0.5">42 L</div>
                   </div>
-                  <div className="p-4 bg-[#FAF9F5] rounded-xl border border-[#E8E4D8]">
+                  <div className="p-4 bg-white rounded-xl border border-[#E8E4D8]">
                     <div className="text-[#5D7368] text-[10px] uppercase font-bold tracking-wider">Active Cows</div>
                     <div className="text-2xl font-extrabold text-[#26332D] mt-0.5">6 Milking</div>
                   </div>
-                  <div className="p-4 bg-[#FAF9F5] rounded-xl border border-[#E8E4D8]">
+                  <div className="p-4 bg-white rounded-xl border border-[#E8E4D8]">
                     <div className="text-[#5D7368] text-[10px] uppercase font-bold tracking-wider">Month Sales</div>
                     <div className="text-2xl font-extrabold text-[#345C4A] mt-0.5">KSh 38,500</div>
                   </div>
-                  <div className="p-4 bg-[#FAF9F5] rounded-xl border border-[#E8E4D8]">
+                  <div className="p-4 bg-white rounded-xl border border-[#E8E4D8]">
                     <div className="text-[#5D7368] text-[10px] uppercase font-bold tracking-wider">Upcoming Activity</div>
                     <div className="text-sm font-bold text-[#26332D] mt-1.5">Pregnancy Check</div>
                   </div>
@@ -1010,7 +1045,7 @@ Support Email: versalylabs@gmail.com`;
                   <h4 className="font-bold text-[#26332D] text-sm">Daily Milk Production Logging</h4>
                   <span className="text-xs text-[#345C4A] font-semibold">Fast entry under 20s</span>
                 </div>
-                <div className="p-4 bg-[#FAF9F5] rounded-xl border border-[#E8E4D8] space-y-2 text-xs">
+                <div className="p-4 bg-white rounded-xl border border-[#E8E4D8] space-y-2 text-xs">
                   <div className="flex justify-between font-bold text-[#26332D]">
                     <span>Morning Shift Milking</span>
                     <span className="text-[#345C4A]">24.0 Litres</span>
@@ -1053,12 +1088,12 @@ Support Email: versalylabs@gmail.com`;
                   <span className="text-xs text-[#345C4A] font-bold">Reconciled</span>
                 </div>
                 <div className="grid grid-cols-2 gap-3 text-xs">
-                  <div className="p-4 bg-[#FAF9F5] rounded-xl border border-[#E8E4D8]">
+                  <div className="p-4 bg-white rounded-xl border border-[#E8E4D8]">
                     <div className="font-bold text-[#26332D]">Baraka Dairy Co-op</div>
                     <div className="text-[#5D7368] text-[11px]">Daily pickup • KSh 50/L</div>
                     <div className="text-[#345C4A] font-bold mt-1">Pending: KSh 40,000</div>
                   </div>
-                  <div className="p-4 bg-[#FAF9F5] rounded-xl border border-[#E8E4D8]">
+                  <div className="p-4 bg-white rounded-xl border border-[#E8E4D8]">
                     <div className="font-bold text-[#26332D]">Green Garden Hotel</div>
                     <div className="text-[#5D7368] text-[11px]">Direct customer • KSh 60/L</div>
                     <div className="text-[#345C4A] font-bold mt-1">Paid: KSh 7,200 (M-Pesa)</div>
@@ -1073,7 +1108,7 @@ Support Email: versalylabs@gmail.com`;
                   <h4 className="font-bold text-[#26332D] text-sm">Farm Finances &amp; Operating Net Margin</h4>
                   <span className="text-xs text-[#345C4A] font-bold">Profitable</span>
                 </div>
-                <div className="p-4 bg-[#FAF9F5] rounded-xl border border-[#E8E4D8] space-y-2 text-xs">
+                <div className="p-4 bg-white rounded-xl border border-[#E8E4D8] space-y-2 text-xs">
                   <div className="flex justify-between">
                     <span className="text-[#5D7368]">Total Milk Sales Revenue:</span>
                     <span className="font-bold text-[#26332D]">KSh 47,200</span>
@@ -1101,14 +1136,14 @@ Support Email: versalylabs@gmail.com`;
         <div className="max-w-[1200px] mx-auto px-4 sm:px-6 lg:px-8">
           
           <div className="text-center max-w-2xl mx-auto mb-10 sm:mb-12">
-            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#FAF5EB] border border-[#E5D5B5] text-[#8F7438] text-[11px] font-bold uppercase tracking-wider">
-              Pricing Plans
+            <span className="text-xs font-bold uppercase tracking-wider text-[#345C4A]">
+              Pricing
             </span>
-            <h2 className="text-2xl sm:text-4xl font-light text-[#26332D] tracking-tight mt-3 leading-tight">
+            <h2 className="text-2xl sm:text-4xl font-extrabold text-[#26332D] tracking-tight mt-2 leading-tight">
               Simple Pricing for Farms of Every Size.
             </h2>
             <p className="text-xs sm:text-sm text-[#5D7368] mt-2.5">
-              Whether you&apos;re managing a few cows or a growing commercial herd, Mylkio has an affordable monthly option.
+              Whether you&apos;re managing a few cows or a growing dairy farm, Mylkio has a suitable option.
             </p>
           </div>
 
@@ -1260,14 +1295,14 @@ Support Email: versalylabs@gmail.com`;
       {/* 10. TRUST & CREDIBILITY (AUTHENTIC TESTIMONIALS) */}
       {/* ======================================================== */}
       {approvedTestimonials.length > 0 && (
-        <section className="py-14 sm:py-20 bg-[#FAF9F5] border-t border-[#E8E4D8]">
+        <section className="py-14 sm:py-20 bg-white border-t border-[#E8E4D8]">
           <div className="max-w-[1200px] mx-auto px-4 sm:px-6 lg:px-8">
             
             <div className="text-center max-w-2xl mx-auto mb-10 sm:mb-12">
-              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#FAF5EB] border border-[#E5D5B5] text-[#8F7438] text-[11px] font-bold uppercase tracking-wider">
+              <span className="text-xs font-bold uppercase tracking-wider text-[#345C4A]">
                 Trust &amp; Credibility
               </span>
-              <h2 className="text-2xl sm:text-4xl font-light text-[#26332D] tracking-tight mt-3 leading-tight">
+              <h2 className="text-2xl sm:text-4xl font-extrabold text-[#26332D] tracking-tight mt-2 leading-tight">
                 Built with Kenyan Dairy Farmers in Mind.
               </h2>
             </div>
@@ -1276,7 +1311,7 @@ Support Email: versalylabs@gmail.com`;
               {approvedTestimonials.map((t) => (
                 <div 
                   key={t.id} 
-                  className="p-7 rounded-2xl bg-white border border-[#E8E4D8] shadow-xs flex flex-col justify-between space-y-5 hover:border-[#345C4A]/40 transition-all"
+                  className="p-7 rounded-2xl bg-[#FAF9F5] border border-[#E8E4D8] shadow-xs flex flex-col justify-between space-y-5 hover:border-[#345C4A]/40 transition-all"
                 >
                   <blockquote className="text-xs text-[#3D4F46] leading-relaxed italic border-l-2 border-[#345C4A] pl-3.5">
                     &ldquo;{t.quote}&rdquo;
@@ -1315,17 +1350,16 @@ Support Email: versalylabs@gmail.com`;
             <div className="absolute inset-0 bg-white/80 pointer-events-none" />
             
             <div className="relative z-10 space-y-4">
-              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#FAF5EB] border border-[#E5D5B5] text-[#8F7438] text-[11px] font-bold uppercase tracking-wider">
+              <span className="text-xs font-bold uppercase tracking-wider text-[#345C4A]">
                 Free Resource
               </span>
 
-              <h2 className="text-2xl sm:text-4xl font-light text-[#26332D] tracking-tight leading-tight">
-                Not Ready for Software Yet? <br className="hidden sm:inline" />
-                <span className="font-semibold text-[#26332D]">Start with Better Farm Records.</span>
+              <h2 className="text-2xl sm:text-4xl font-extrabold text-[#26332D] tracking-tight leading-tight">
+                Not Ready for Software Yet? Start with Better Farm Records.
               </h2>
 
               <p className="text-xs sm:text-sm text-[#5D7368] max-w-xl mx-auto leading-relaxed">
-                Get our free Dairy Farm Record-Keeping Checklist covering daily milk production, collection deliveries, cow health dates, breeding activities, farm expenses, and customer payments.
+                Get Our Free Dairy Farm Record-Keeping Checklist covering daily milk production, milk deliveries, cow health dates, breeding activities, farm expenses, and customer payments.
               </p>
 
               <div className="pt-2">
