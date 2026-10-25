@@ -88,7 +88,7 @@ export const BreedingModal: React.FC<BreedingModalProps> = ({
         {/* Header */}
         <div className="flex items-center justify-between p-5 border-b border-gray-100 sticky top-0 bg-white z-10">
           <div className="flex items-center space-x-2.5">
-            <div className="w-10 h-10 rounded-2xl bg-purple-50 text-purple-700 flex items-center justify-center">
+            <div className="w-10 h-10 rounded-2xl bg-[#FAF5EB] text-[#C6A76A] border border-[#E5D5B5] flex items-center justify-center">
               <Dna className="w-5 h-5" />
             </div>
             <div>
@@ -220,10 +220,10 @@ export const BreedingModal: React.FC<BreedingModalProps> = ({
           )}
 
           {type === 'insemination' && (
-            <div className="p-3.5 bg-purple-50/70 border border-purple-200 rounded-2xl space-y-2">
+            <div className="p-3.5 bg-[#FAF5EB] border border-[#E5D5B5] rounded-2xl space-y-2">
               <div className="flex items-center justify-between">
-                <span className="text-xs font-bold text-purple-900 flex items-center gap-1.5">
-                  <Calendar className="w-4 h-4 text-purple-600" />
+                <span className="text-xs font-bold text-[#26332D] flex items-center gap-1.5">
+                  <Calendar className="w-4 h-4 text-[#C6A76A]" />
                   <span>{lang === 'sw' ? 'Makadirio ya Tarehe ya Kuzaa (~Siku 283)' : 'Projected Calving Date (~283 days gestation)'}</span>
                 </span>
               </div>
@@ -231,23 +231,23 @@ export const BreedingModal: React.FC<BreedingModalProps> = ({
                 type="date"
                 value={expectedCalvingDate}
                 onChange={(e) => setExpectedCalvingDate(e.target.value)}
-                className="w-full px-3 py-2 rounded-xl border border-purple-300 bg-white text-xs font-bold text-purple-900"
+                className="w-full px-3 py-2 rounded-xl border border-[#E5D5B5] bg-white text-xs font-bold text-[#26332D] focus:ring-2 focus:ring-[#345C4A]"
               />
-              <p className="text-[11px] text-purple-700">
+              <p className="text-[11px] text-[#5D7368]">
                 Calculated automatically based on standard bovine gestation. Editable as vet confirms.
               </p>
             </div>
           )}
 
           {type === 'calving' && (
-            <div className="p-3.5 bg-blue-50/70 border border-blue-200 rounded-2xl space-y-3">
-              <label className="block text-xs font-bold uppercase tracking-wider text-blue-900">
+            <div className="p-3.5 bg-[#FAF9F5] border border-gray-200 rounded-2xl space-y-3">
+              <label className="block text-xs font-bold uppercase tracking-wider text-[#26332D]">
                 {lang === 'sw' ? 'Matokeo ya Kuzaa (Outcome)' : 'Calving Outcome'}
               </label>
               <select
                 value={calvingOutcome}
                 onChange={(e) => setCalvingOutcome(e.target.value as any)}
-                className="w-full px-3.5 py-2 rounded-xl border border-blue-300 bg-white text-xs font-bold text-blue-900"
+                className="w-full px-3.5 py-2 rounded-xl border border-gray-200 bg-white text-xs font-bold text-[#26332D] focus:ring-2 focus:ring-[#345C4A]"
               >
                 <option value="heifer_calf">{lang === 'sw' ? 'Ndama Jike (Heifer Calf)' : 'Single Heifer Calf (Female)'}</option>
                 <option value="bull_calf">{lang === 'sw' ? 'Ndama Dume (Bull Calf)' : 'Single Bull Calf (Male)'}</option>

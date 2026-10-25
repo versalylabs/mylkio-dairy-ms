@@ -99,7 +99,7 @@ export const RecordDeliveryModal: React.FC<RecordDeliveryModalProps> = ({
         {/* Header */}
         <div className="flex items-center justify-between p-5 border-b border-gray-100 sticky top-0 bg-white z-10">
           <div className="flex items-center space-x-2.5">
-            <div className="w-10 h-10 rounded-2xl bg-blue-50 text-blue-700 flex items-center justify-center">
+            <div className="w-10 h-10 rounded-2xl bg-[#A8BFA5]/20 text-[#345C4A] flex items-center justify-center">
               <Truck className="w-5 h-5" />
             </div>
             <div>
@@ -122,8 +122,8 @@ export const RecordDeliveryModal: React.FC<RecordDeliveryModalProps> = ({
         {/* Form Body */}
         <form onSubmit={handleSubmit} className="p-5 space-y-4">
           {buyers.length === 0 && (
-            <div className="p-3 bg-amber-50 border border-amber-200 text-amber-800 rounded-xl text-xs font-semibold flex items-center gap-2">
-              <AlertCircle className="w-4 h-4 text-amber-600 shrink-0" />
+            <div className="p-3 bg-[#FAF5EB] border border-[#E5D5B5] text-[#26332D] rounded-xl text-xs font-semibold flex items-center gap-2">
+              <AlertCircle className="w-4 h-4 text-[#C6A76A] shrink-0" />
               <span>{lang === 'sw' ? 'Hakuna mnunuzi aliyesajiliwa bado. Tafadhali ongeza mnunuzi kwanza.' : 'No buyers or cooperatives registered yet. Please add a buyer in the Sales tab first.'}</span>
             </div>
           )}
@@ -239,14 +239,14 @@ export const RecordDeliveryModal: React.FC<RecordDeliveryModalProps> = ({
           </div>
 
           {/* Real-time Calculation Summary */}
-          <div className="p-3.5 bg-blue-50/70 border border-blue-200/80 rounded-2xl space-y-2 text-xs">
-            <div className="flex items-center justify-between text-blue-900 font-medium">
+          <div className="p-3.5 bg-[#FAF9F5] border border-[#E8E4D8] rounded-2xl space-y-2 text-xs">
+            <div className="flex items-center justify-between text-[#26332D] font-medium">
               <span>Accepted Litres:</span>
               <span className="font-bold">{acceptedLitres.toFixed(1)} L</span>
             </div>
-            <div className="flex items-center justify-between text-blue-900 font-semibold text-sm pt-1 border-t border-blue-200/60">
+            <div className="flex items-center justify-between text-[#26332D] font-semibold text-sm pt-1 border-t border-[#E8E4D8]">
               <span>{lang === 'sw' ? 'Kiasi Kinachotarajiwa:' : 'Expected Amount:'}</span>
-              <span className="font-black text-blue-950">KSh {expectedAmount.toLocaleString()}</span>
+              <span className="font-black text-[#345C4A]">KSh {expectedAmount.toLocaleString()}</span>
             </div>
           </div>
 
@@ -270,7 +270,7 @@ export const RecordDeliveryModal: React.FC<RecordDeliveryModalProps> = ({
               <label className="block text-xs font-semibold uppercase tracking-wider text-gray-700 mb-1">
                 {lang === 'sw' ? 'Baki (Deni)' : 'Balance Due'}
               </label>
-              <div className="px-3 py-2.5 rounded-xl border border-gray-200 bg-gray-50 text-sm font-extrabold text-amber-700">
+              <div className="px-3 py-2.5 rounded-xl border border-gray-200 bg-gray-50 text-sm font-extrabold text-[#b39252]">
                 KSh {netBalance.toLocaleString()}
               </div>
             </div>

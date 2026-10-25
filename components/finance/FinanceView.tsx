@@ -90,12 +90,12 @@ export const FinanceView: React.FC<FinanceViewProps> = ({
       {/* KPI Cards: Revenue, Expenses, Net Profit */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         {/* Total Billed Revenue */}
-        <div className="bg-white rounded-3xl p-5 border border-gray-200 shadow-sm flex flex-col justify-between">
+        <div className="bg-white rounded-3xl p-5 border border-gray-200 shadow-xs flex flex-col justify-between">
           <div className="flex items-center justify-between">
             <span className="text-xs font-semibold text-gray-500 uppercase tracking-wider">
               {lang === 'sw' ? 'Mauzo Yaliyorekodiwa' : 'Total Milk Revenue'}
             </span>
-            <div className="p-2 bg-blue-50 text-blue-600 rounded-xl">
+            <div className="p-2 bg-[#FAF5EB] text-[#C6A76A] rounded-xl border border-[#E5D5B5]">
               <DollarSign className="w-4 h-4" />
             </div>
           </div>
@@ -110,7 +110,7 @@ export const FinanceView: React.FC<FinanceViewProps> = ({
         </div>
 
         {/* Cash Collected */}
-        <div className="bg-white rounded-3xl p-5 border border-gray-200 shadow-sm flex flex-col justify-between">
+        <div className="bg-white rounded-3xl p-5 border border-gray-200 shadow-xs flex flex-col justify-between">
           <div className="flex items-center justify-between">
             <span className="text-xs font-semibold text-gray-500 uppercase tracking-wider">
               {lang === 'sw' ? 'Pesa Zilizopokelewa' : 'Cash Collected'}
@@ -130,40 +130,40 @@ export const FinanceView: React.FC<FinanceViewProps> = ({
         </div>
 
         {/* Total Expenses */}
-        <div className="bg-white rounded-3xl p-5 border border-gray-200 shadow-sm flex flex-col justify-between">
+        <div className="bg-white rounded-3xl p-5 border border-gray-200 shadow-xs flex flex-col justify-between">
           <div className="flex items-center justify-between">
             <span className="text-xs font-semibold text-gray-500 uppercase tracking-wider">
               {lang === 'sw' ? 'Jumla ya Gharama' : 'Total Farm Costs'}
             </span>
-            <div className="p-2 bg-rose-50 text-rose-600 rounded-xl">
+            <div className="p-2 bg-[#FAF9F5] text-[#26332D] rounded-xl border border-gray-200">
               <Receipt className="w-4 h-4" />
             </div>
           </div>
           <div className="mt-2">
-            <div className="text-2xl font-black text-rose-700">
+            <div className="text-2xl font-black text-[#26332D]">
               KSh {totalExpenses.toLocaleString()}
             </div>
-            <div className="text-[11px] text-rose-600 mt-0.5">
+            <div className="text-[11px] text-[#5D7368] mt-0.5">
               {expenses.length} expense items
             </div>
           </div>
         </div>
 
         {/* Net Operating Margin */}
-        <div className={`rounded-3xl p-5 text-white shadow-md flex flex-col justify-between ${
+        <div className={`rounded-3xl p-5 text-white shadow-xs flex flex-col justify-between ${
           netMargin >= 0 
-            ? 'bg-gradient-to-br from-dairy-800 to-dairy-950'
-            : 'bg-gradient-to-br from-rose-800 to-rose-950'
+            ? 'bg-gradient-to-br from-[#345C4A] via-[#274537] to-[#1d3329]'
+            : 'bg-[#26332D] border border-[#3D4F46]'
         }`}>
           <div className="flex items-center justify-between">
-            <span className="text-xs font-semibold uppercase tracking-wider text-dairy-200">
+            <span className="text-xs font-semibold uppercase tracking-wider text-[#FAF5EB]/90">
               {lang === 'sw' ? 'Faida Halisi (Margin)' : 'Net Farm Margin'}
             </span>
             <div className="p-2 bg-white/10 rounded-xl">
               {netMargin >= 0 ? (
-                <TrendingUp className="w-4 h-4 text-emerald-300" />
+                <TrendingUp className="w-4 h-4 text-[#A8BFA5]" />
               ) : (
-                <TrendingDown className="w-4 h-4 text-rose-300" />
+                <TrendingDown className="w-4 h-4 text-[#FAF5EB]" />
               )}
             </div>
           </div>
@@ -171,32 +171,32 @@ export const FinanceView: React.FC<FinanceViewProps> = ({
             <div className="text-2xl font-black">
               KSh {netMargin.toLocaleString()}
             </div>
-            <div className="text-[11px] text-dairy-200/80 mt-0.5">
-              Billed revenue less operating costs
+            <div className="text-[11px] text-[#FAF5EB]/70 mt-0.5">
+              {netMargin >= 0 ? 'Billed revenue less operating costs' : 'Deficit: operating costs exceed billed revenue'}
             </div>
           </div>
         </div>
       </div>
 
       {/* Category Breakdown Chips */}
-      <div className="bg-white rounded-3xl p-5 border border-gray-200 shadow-sm space-y-3">
+      <div className="bg-white rounded-3xl p-5 border border-gray-200 shadow-xs space-y-3">
         <h2 className="text-sm font-bold text-gray-900 flex items-center gap-1.5">
-          <PieChart className="w-4 h-4 text-dairy-700" />
+          <PieChart className="w-4 h-4 text-[#345C4A]" />
           <span>{lang === 'sw' ? 'Mgawanyo wa Gharama kwa Makundi' : 'Cost Breakdown by Category'}</span>
         </h2>
 
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
           {[
-            { key: 'feed', label: 'Feeds & Hay', amount: categoryTotals.feed, color: 'bg-amber-50 text-amber-900 border-amber-200' },
-            { key: 'veterinary', label: 'Vet & Drugs', amount: categoryTotals.veterinary, color: 'bg-rose-50 text-rose-900 border-rose-200' },
-            { key: 'labor', label: 'Labor Wages', amount: categoryTotals.labor, color: 'bg-blue-50 text-blue-900 border-blue-200' },
-            { key: 'transport', label: 'Milk Transport', amount: categoryTotals.transport, color: 'bg-purple-50 text-purple-900 border-purple-200' },
-            { key: 'maintenance', label: 'Maintenance', amount: categoryTotals.maintenance, color: 'bg-slate-50 text-slate-900 border-slate-200' },
-            { key: 'other', label: 'Other Ops', amount: categoryTotals.other, color: 'bg-gray-50 text-gray-900 border-gray-200' },
+            { key: 'feed', label: 'Feeds & Hay', amount: categoryTotals.feed },
+            { key: 'veterinary', label: 'Vet & Drugs', amount: categoryTotals.veterinary },
+            { key: 'labor', label: 'Labor Wages', amount: categoryTotals.labor },
+            { key: 'transport', label: 'Milk Transport', amount: categoryTotals.transport },
+            { key: 'maintenance', label: 'Maintenance', amount: categoryTotals.maintenance },
+            { key: 'other', label: 'Other Ops', amount: categoryTotals.other },
           ].map((cat) => (
-            <div key={cat.key} className={`p-3 rounded-2xl border ${cat.color} flex flex-col justify-between`}>
-              <span className="text-[11px] font-semibold opacity-75">{cat.label}</span>
-              <span className="text-base font-extrabold mt-1">
+            <div key={cat.key} className="bg-[#FAF9F5] border border-[#E8E4D8] hover:border-[#345C4A]/40 transition-all p-3 rounded-2xl flex flex-col justify-between">
+              <span className="text-[11px] font-semibold text-[#5D7368]">{cat.label}</span>
+              <span className="text-base font-extrabold text-[#26332D] mt-1">
                 KSh {cat.amount.toLocaleString()}
               </span>
             </div>

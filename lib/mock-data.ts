@@ -41,6 +41,11 @@ export const initialCows: Cow[] = [
     parity: 2,
     dob: '2022-04-10',
     photoUrl: 'https://images.unsplash.com/photo-1546445317-29f4545e9d53?auto=format&fit=crop&w=400&q=80',
+    photoUrls: [
+      'https://images.unsplash.com/photo-1546445317-29f4545e9d53?auto=format&fit=crop&w=600&q=80',
+      'https://images.unsplash.com/photo-1527153857715-3908f2ae5e81?auto=format&fit=crop&w=600&q=80',
+      'https://images.unsplash.com/photo-1570042225831-d98fa7577f1e?auto=format&fit=crop&w=600&q=80',
+    ],
     notes: 'High producer, gentle temperament. Produced ~18L daily last season.',
     createdAt: '2026-10-01T08:00:00Z',
   },
@@ -57,6 +62,10 @@ export const initialCows: Cow[] = [
     parity: 3,
     dob: '2021-08-20',
     photoUrl: 'https://images.unsplash.com/photo-1527153857715-3908f2ae5e81?auto=format&fit=crop&w=400&q=80',
+    photoUrls: [
+      'https://images.unsplash.com/photo-1527153857715-3908f2ae5e81?auto=format&fit=crop&w=600&q=80',
+      'https://images.unsplash.com/photo-1500595046743-cd271d694d30?auto=format&fit=crop&w=600&q=80',
+    ],
     notes: 'Confirmed pregnant by Vet Dr. Otieno on Sept 10. High butterfat yield.',
     createdAt: '2026-10-01T08:00:00Z',
   },

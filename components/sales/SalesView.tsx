@@ -80,7 +80,7 @@ export const SalesView: React.FC<SalesViewProps> = ({
 
           <button
             onClick={onOpenRecordPayment}
-            className="flex items-center space-x-1.5 px-4 py-2.5 rounded-xl bg-purple-600 hover:bg-purple-700 text-white font-semibold text-xs shadow-sm transition-all"
+            className="flex items-center space-x-1.5 px-4 py-2.5 rounded-xl bg-[#C6A76A] hover:bg-[#b39252] text-white font-semibold text-xs shadow-xs transition-all"
           >
             <DollarSign className="w-4 h-4" />
             <span>{lang === 'sw' ? 'Pokea Malipo' : 'Receive Payment'}</span>
@@ -99,25 +99,25 @@ export const SalesView: React.FC<SalesViewProps> = ({
       {/* Summary KPI Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         {/* Outstanding Receivables */}
-        <div className="bg-gradient-to-br from-amber-600 via-amber-700 to-amber-800 rounded-3xl p-5 text-white shadow-md flex items-center justify-between">
+        <div className="bg-[#FAF5EB] rounded-3xl p-5 border border-[#E5D5B5] shadow-xs flex items-center justify-between text-[#26332D]">
           <div>
-            <span className="text-xs font-semibold uppercase tracking-wider text-amber-100">
+            <span className="text-xs font-bold uppercase tracking-wider text-[#b39252]">
               {lang === 'sw' ? 'Deni Linalodaiwa' : 'Outstanding Receivables'}
             </span>
-            <div className="text-2xl sm:text-3xl font-extrabold mt-2">
+            <div className="text-2xl sm:text-3xl font-extrabold text-[#26332D] mt-2">
               KSh {totalOwed.toLocaleString()}
             </div>
-            <p className="text-xs text-amber-100/80 mt-1">
+            <p className="text-xs text-[#879C91] mt-1">
               Across {buyers.length} registered buyers
             </p>
           </div>
-          <div className="p-3 bg-white/10 rounded-2xl">
-            <Wallet className="w-7 h-7 text-amber-100" />
+          <div className="p-3 bg-white text-[#C6A76A] rounded-2xl shadow-2xs border border-[#E5D5B5]">
+            <Wallet className="w-7 h-7" />
           </div>
         </div>
 
         {/* Milk Delivered */}
-        <div className="bg-white rounded-3xl p-5 border border-gray-200 shadow-sm flex items-center justify-between">
+        <div className="bg-white rounded-3xl p-5 border border-gray-200 shadow-xs flex items-center justify-between">
           <div>
             <span className="text-xs font-semibold uppercase tracking-wider text-gray-500">
               {lang === 'sw' ? 'Maziwa Yaliyopelekwa' : 'Total Delivered'}
@@ -129,7 +129,7 @@ export const SalesView: React.FC<SalesViewProps> = ({
               {deliveries.length} delivery records
             </p>
           </div>
-          <div className="p-3 bg-blue-50 text-blue-600 rounded-2xl">
+          <div className="p-3 bg-[#A8BFA5]/20 text-[#345C4A] rounded-2xl">
             <Truck className="w-7 h-7" />
           </div>
         </div>
@@ -231,8 +231,8 @@ export const SalesView: React.FC<SalesViewProps> = ({
                       </span>
                       <span className={`px-2 py-0.5 rounded-md text-[10px] font-semibold ${
                         del.buyerType === 'cooperative'
-                          ? 'bg-blue-100 text-blue-800'
-                          : 'bg-emerald-100 text-emerald-800'
+                          ? 'bg-[#A8BFA5]/25 text-[#345C4A]'
+                          : 'bg-[#FAF5EB] text-[#26332D] border border-[#E5D5B5]'
                       }`}>
                         {del.buyerType === 'cooperative' ? 'Co-op' : 'Household'}
                       </span>
@@ -319,7 +319,7 @@ export const SalesView: React.FC<SalesViewProps> = ({
                       <span className="font-bold text-sm text-gray-900">
                         {pay.buyerName}
                       </span>
-                      <span className="px-2 py-0.5 rounded-md text-[10px] font-bold uppercase tracking-wider bg-purple-100 text-purple-800 flex items-center gap-1">
+                      <span className="px-2 py-0.5 rounded-md text-[10px] font-bold uppercase tracking-wider bg-[#FAF5EB] text-[#26332D] border border-[#E5D5B5] flex items-center gap-1">
                         {pay.paymentMethod === 'mpesa' && <Smartphone className="w-3 h-3" />}
                         {pay.paymentMethod === 'cash' && <Banknote className="w-3 h-3" />}
                         {pay.paymentMethod === 'bank' && <CreditCard className="w-3 h-3" />}

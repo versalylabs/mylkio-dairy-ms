@@ -180,7 +180,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
       {/* Farm Profile Form */}
       <div className="bg-white rounded-2xl border border-gray-200/90 p-5 shadow-sm">
         <div className="flex items-center space-x-3 mb-5">
-          <div className="p-2.5 bg-blue-50 text-blue-600 rounded-xl">
+          <div className="p-2.5 bg-[#A8BFA5]/20 text-[#345C4A] rounded-xl">
             <Building className="w-5 h-5" />
           </div>
           <div>
@@ -300,7 +300,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
       {/* Offline Status & Demo Data Control */}
       <div className="bg-white rounded-2xl border border-gray-200/90 p-5 shadow-sm space-y-4">
         <div className="flex items-center space-x-3">
-          <div className="p-2.5 bg-amber-50 text-amber-600 rounded-xl">
+          <div className="p-2.5 bg-[#FAF5EB] text-[#C6A76A] border border-[#E5D5B5] rounded-xl">
             <Database className="w-5 h-5" />
           </div>
           <div>

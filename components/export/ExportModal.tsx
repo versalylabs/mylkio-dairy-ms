@@ -89,9 +89,9 @@ export const ExportModal: React.FC<ExportModalProps> = ({
           </div>
 
           {/* Deliveries CSV */}
-          <div className="p-4 bg-slate-50 hover:bg-dairy-50/50 rounded-2xl border border-slate-200 transition-colors flex items-center justify-between">
+          <div className="p-4 bg-[#FAF9F5] hover:bg-white rounded-2xl border border-gray-200 transition-colors flex items-center justify-between">
             <div className="flex items-center space-x-3">
-              <div className="p-2.5 bg-white text-blue-700 rounded-xl shadow-xs border border-gray-100">
+              <div className="p-2.5 bg-white text-[#345C4A] rounded-xl shadow-2xs border border-gray-200">
                 <Truck className="w-5 h-5" />
               </div>
               <div>
@@ -105,7 +105,7 @@ export const ExportModal: React.FC<ExportModalProps> = ({
             </div>
             <button
               onClick={() => DataExporter.exportDeliveriesToCSV(deliveries)}
-              className="px-3.5 py-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-bold transition-all shadow-xs flex items-center gap-1"
+              className="px-3.5 py-1.5 bg-[#345C4A] hover:bg-[#274537] text-white rounded-xl text-xs font-bold transition-all shadow-xs flex items-center gap-1"
             >
               <Download className="w-3.5 h-3.5" />
               <span>CSV</span>
@@ -113,9 +113,9 @@ export const ExportModal: React.FC<ExportModalProps> = ({
           </div>
 
           {/* Expenses CSV */}
-          <div className="p-4 bg-slate-50 hover:bg-dairy-50/50 rounded-2xl border border-slate-200 transition-colors flex items-center justify-between">
+          <div className="p-4 bg-[#FAF9F5] hover:bg-white rounded-2xl border border-gray-200 transition-colors flex items-center justify-between">
             <div className="flex items-center space-x-3">
-              <div className="p-2.5 bg-white text-rose-700 rounded-xl shadow-xs border border-gray-100">
+              <div className="p-2.5 bg-white text-[#26332D] rounded-xl shadow-2xs border border-gray-200">
                 <Receipt className="w-5 h-5" />
               </div>
               <div>
@@ -129,7 +129,7 @@ export const ExportModal: React.FC<ExportModalProps> = ({
             </div>
             <button
               onClick={() => DataExporter.exportExpensesToCSV(expenses)}
-              className="px-3.5 py-1.5 bg-rose-600 hover:bg-rose-700 text-white rounded-xl text-xs font-bold transition-all shadow-xs flex items-center gap-1"
+              className="px-3.5 py-1.5 bg-[#345C4A] hover:bg-[#274537] text-white rounded-xl text-xs font-bold transition-all shadow-xs flex items-center gap-1"
             >
               <Download className="w-3.5 h-3.5" />
               <span>CSV</span>
@@ -137,9 +137,9 @@ export const ExportModal: React.FC<ExportModalProps> = ({
           </div>
 
           {/* Herd CSV */}
-          <div className="p-4 bg-slate-50 hover:bg-dairy-50/50 rounded-2xl border border-slate-200 transition-colors flex items-center justify-between">
+          <div className="p-4 bg-[#FAF9F5] hover:bg-white rounded-2xl border border-gray-200 transition-colors flex items-center justify-between">
             <div className="flex items-center space-x-3">
-              <div className="p-2.5 bg-white text-purple-700 rounded-xl shadow-xs border border-gray-100">
+              <div className="p-2.5 bg-white text-[#C6A76A] rounded-xl shadow-2xs border border-[#E5D5B5]">
                 <Users className="w-5 h-5" />
               </div>
               <div>
@@ -153,7 +153,7 @@ export const ExportModal: React.FC<ExportModalProps> = ({
             </div>
             <button
               onClick={() => DataExporter.exportHerdToCSV(cows)}
-              className="px-3.5 py-1.5 bg-purple-600 hover:bg-purple-700 text-white rounded-xl text-xs font-bold transition-all shadow-xs flex items-center gap-1"
+              className="px-3.5 py-1.5 bg-[#345C4A] hover:bg-[#274537] text-white rounded-xl text-xs font-bold transition-all shadow-xs flex items-center gap-1"
             >
               <Download className="w-3.5 h-3.5" />
               <span>CSV</span>

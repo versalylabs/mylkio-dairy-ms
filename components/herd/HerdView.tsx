@@ -1,7 +1,8 @@
 'use client';
 
 import React, { useState } from 'react';
-import { Cow, CowStatus, HealthEvent, BreedingEvent, Language } from '@/types';
+import { Cow, CowStatus, HealthEvent, BreedingEvent, Language, MilkEntry } from '@/types';
+import { CowDetailModal } from './CowDetailModal';
 import { translations } from '@/lib/translations';
 import { 
   Plus, 
@@ -23,6 +24,7 @@ interface HerdViewProps {
   cows: Cow[];
   healthEvents: HealthEvent[];
   breedingEvents: BreedingEvent[];
+  milkEntries?: MilkEntry[];
   onAddCow: () => void;
   onEditCow: (cow: Cow) => void;
   onDeleteCow: (id: string) => void;
@@ -37,6 +39,7 @@ export const HerdView: React.FC<HerdViewProps> = ({
   cows,
   healthEvents,
   breedingEvents,
+  milkEntries = [],
   onAddCow,
   onEditCow,
   onDeleteCow,
@@ -50,6 +53,7 @@ export const HerdView: React.FC<HerdViewProps> = ({
   const [activeSubTab, setActiveSubTab] = useState<'registry' | 'health' | 'breeding'>('registry');
   const [search, setSearch] = useState('');
   const [filter, setFilter] = useState<string>('all');
+  const [selectedCowForDetail, setSelectedCowForDetail] = useState<Cow | null>(null);
 
   const filteredCows = cows.filter((cow) => {
     const matchesSearch =
@@ -142,7 +146,7 @@ export const HerdView: React.FC<HerdViewProps> = ({
 
           <button
             onClick={onOpenRecordBreeding}
-            className="flex items-center space-x-1.5 px-4 py-2.5 rounded-xl bg-purple-600 hover:bg-purple-700 text-white font-semibold text-xs shadow-sm transition-all"
+            className="flex items-center space-x-1.5 px-4 py-2.5 rounded-xl bg-[#C6A76A] hover:bg-[#b39252] text-white font-semibold text-xs shadow-xs transition-all"
           >
             <Dna className="w-4 h-4" />
             <span>{lang === 'sw' ? 'Rekodi Uzazi' : 'Log Breeding'}</span>
@@ -258,130 +262,141 @@ export const HerdView: React.FC<HerdViewProps> = ({
             </div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {filteredCows.map((cow) => (
-                <div
-                  key={cow.id}
-                  className="bg-white rounded-2xl border border-gray-200/90 shadow-sm hover:shadow transition-all flex flex-col justify-between overflow-hidden"
-                >
-                  {/* Cow Photo Banner */}
-                  {cow.photoUrl ? (
-                    <div className="relative h-40 w-full bg-gray-100 overflow-hidden">
-                      <img
-                        src={cow.photoUrl}
-                        alt={cow.name || cow.tag}
-                        className="w-full h-full object-cover"
-                      />
-                      <div className="absolute top-2.5 left-2.5">
-                        <span className="px-2.5 py-1 bg-black/75 backdrop-blur-md text-white font-mono font-bold text-xs rounded-lg shadow">
-                          {cow.tag}
-                        </span>
-                      </div>
-                      <div className="absolute top-2.5 right-2.5">
-                        <span className="text-xs font-semibold text-gray-800 bg-white/90 backdrop-blur-md px-2 py-0.5 rounded-md shadow">
-                          {cow.breed}
-                        </span>
-                      </div>
-                    </div>
-                  ) : (
-                    <div className="p-4 pb-0 flex items-start justify-between gap-2">
-                      <div className="flex items-center space-x-2">
-                        <span className="px-2.5 py-1 bg-dairy-900 text-white font-mono font-bold text-xs rounded-lg">
-                          {cow.tag}
-                        </span>
-                        <h3 className="font-bold text-gray-900 text-base">
-                          {cow.name || cow.tag}
-                        </h3>
-                      </div>
-                      <span className="text-xs font-medium text-gray-500 bg-gray-50 px-2 py-0.5 rounded-md border border-gray-100">
-                        {cow.breed}
-                      </span>
-                    </div>
-                  )}
+              {filteredCows.map((cow) => {
+                const photos = cow.photoUrls && cow.photoUrls.length > 0 ? cow.photoUrls : (cow.photoUrl ? [cow.photoUrl] : []);
+                const primaryPhoto = photos[0];
 
-                  {/* Card Body */}
-                  <div className="p-4 flex-1 flex flex-col justify-between">
-                    <div>
-                      {cow.photoUrl && (
-                        <div className="flex items-center justify-between mb-2">
-                          <h3 className="font-bold text-gray-900 text-lg">
-                            {cow.name || cow.tag}
-                          </h3>
-                          {cow.name && (
-                            <span className="text-xs font-mono text-gray-400">
-                              {cow.tag}
-                            </span>
-                          )}
-                        </div>
-                      )}
-
-                      <div className="mt-1">
-                        {getStatusBadge(cow.status, cow.isPregnant)}
-                      </div>
-
-                      {/* Meta Details */}
-                      <div className="mt-3.5 grid grid-cols-2 gap-2 text-xs text-gray-600 bg-gray-50/70 p-2.5 rounded-xl border border-gray-100">
-                        <div>
-                          <span className="text-gray-400 block text-[11px]">{t.herd.parity}</span>
-                          <span className="font-semibold text-gray-800">{cow.parity} {cow.parity === 1 ? 'calving' : 'calvings'}</span>
-                        </div>
-                        <div>
-                          <span className="text-gray-400 block text-[11px]">{t.herd.age}</span>
-                          <span className="font-semibold text-gray-800">
-                            {cow.dob ? cow.dob : 'Unknown'}
+                return (
+                  <div
+                    key={cow.id}
+                    onClick={() => setSelectedCowForDetail(cow)}
+                    className="bg-white rounded-2xl border border-gray-200/90 shadow-xs hover:shadow-md hover:border-[#345C4A]/50 transition-all flex flex-col justify-between overflow-hidden cursor-pointer group"
+                  >
+                    {/* Cow Photo Banner */}
+                    {primaryPhoto ? (
+                      <div className="relative h-44 w-full bg-gray-100 overflow-hidden">
+                        <img
+                          src={primaryPhoto}
+                          alt={cow.name || cow.tag}
+                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                        />
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+                        <div className="absolute top-2.5 left-2.5">
+                          <span className="px-2.5 py-1 bg-black/75 backdrop-blur-md text-white font-mono font-bold text-xs rounded-lg shadow-sm">
+                            {cow.tag}
                           </span>
                         </div>
-                        {cow.expectedCalvingDate && (
-                          <div className="col-span-2 pt-1 border-t border-gray-200/60 flex items-center gap-1.5 text-purple-700 font-medium">
-                            <Calendar className="w-3.5 h-3.5 shrink-0" />
-                            <span>{t.herd.expectedCalving}: {cow.expectedCalvingDate}</span>
+                        <div className="absolute top-2.5 right-2.5">
+                          <span className="text-xs font-semibold text-gray-800 bg-white/90 backdrop-blur-md px-2 py-0.5 rounded-md shadow-sm">
+                            {cow.breed}
+                          </span>
+                        </div>
+                        {photos.length > 1 && (
+                          <div className="absolute bottom-2.5 right-2.5 bg-black/60 backdrop-blur-md text-white text-[10px] font-bold px-2 py-0.5 rounded-full flex items-center gap-1 shadow-sm">
+                            <Camera className="w-3 h-3" />
+                            <span>{photos.length} photos</span>
                           </div>
                         )}
                       </div>
+                    ) : (
+                      <div className="p-4 pb-0 flex items-start justify-between gap-2">
+                        <div className="flex items-center space-x-2">
+                          <span className="px-2.5 py-1 bg-[#345C4A] text-white font-mono font-bold text-xs rounded-lg">
+                            {cow.tag}
+                          </span>
+                          <h3 className="font-bold text-gray-900 text-base">
+                            {cow.name || cow.tag}
+                          </h3>
+                        </div>
+                        <span className="text-xs font-medium text-gray-500 bg-gray-50 px-2 py-0.5 rounded-md border border-gray-100">
+                          {cow.breed}
+                        </span>
+                      </div>
+                    )}
 
-                      {cow.notes && (
-                        <p className="mt-3 text-xs text-gray-500 line-clamp-2 italic">
-                          &quot;{cow.notes}&quot;
-                        </p>
-                      )}
-                    </div>
+                    {/* Card Body */}
+                    <div className="p-4 flex-1 flex flex-col justify-between">
+                      <div>
+                        {primaryPhoto && (
+                          <div className="flex items-center justify-between mb-2">
+                            <h3 className="font-bold text-gray-900 text-lg group-hover:text-[#345C4A] transition-colors">
+                              {cow.name || cow.tag}
+                            </h3>
+                            {cow.name && (
+                              <span className="text-xs font-mono text-gray-400">
+                                {cow.tag}
+                              </span>
+                            )}
+                          </div>
+                        )}
 
-                    {/* Action Buttons */}
-                    <div className="mt-4 pt-3 border-t border-gray-100 flex items-center justify-between">
-                      {!cow.photoUrl && (
-                        <button
-                          onClick={() => onEditCow(cow)}
-                          className="inline-flex items-center space-x-1 text-xs text-dairy-700 font-medium hover:underline"
-                        >
-                          <Camera className="w-3.5 h-3.5" />
-                          <span>{lang === 'sw' ? 'Weka picha' : 'Add photo'}</span>
-                        </button>
-                      )}
-                      {cow.photoUrl && <span></span>}
+                        <div className="mt-1">
+                          {getStatusBadge(cow.status, cow.isPregnant)}
+                        </div>
 
-                      <div className="flex items-center space-x-2">
-                        <button
-                          onClick={() => onEditCow(cow)}
-                          className="p-2 rounded-lg text-gray-500 hover:text-dairy-700 hover:bg-dairy-50 transition-colors"
-                          title={t.common.edit}
-                        >
-                          <Edit2 className="w-4 h-4" />
-                        </button>
-                        <button
-                          onClick={() => {
-                            if (confirm(lang === 'sw' ? `Una uhakika unataka kumfuta ng'ombe ${cow.tag}?` : `Are you sure you want to delete ${cow.tag}?`)) {
-                              onDeleteCow(cow.id);
-                            }
-                          }}
-                          className="p-2 rounded-lg text-gray-400 hover:text-red-600 hover:bg-red-50 transition-colors"
-                          title={t.common.delete}
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </button>
+                        {/* Meta Details */}
+                        <div className="mt-3.5 grid grid-cols-2 gap-2 text-xs text-gray-600 bg-[#FAF9F5] p-2.5 rounded-xl border border-gray-100">
+                          <div>
+                            <span className="text-gray-400 block text-[11px]">{t.herd.parity}</span>
+                            <span className="font-semibold text-gray-800">{cow.parity} {cow.parity === 1 ? 'calving' : 'calvings'}</span>
+                          </div>
+                          <div>
+                            <span className="text-gray-400 block text-[11px]">{t.herd.age}</span>
+                            <span className="font-semibold text-gray-800">
+                              {cow.dob ? cow.dob : 'Unknown'}
+                            </span>
+                          </div>
+                          {cow.expectedCalvingDate && (
+                            <div className="col-span-2 pt-1 border-t border-gray-200/60 flex items-center gap-1.5 text-[#345C4A] font-medium">
+                              <Calendar className="w-3.5 h-3.5 shrink-0 text-[#C6A76A]" />
+                              <span>{t.herd.expectedCalving}: {cow.expectedCalvingDate}</span>
+                            </div>
+                          )}
+                        </div>
+
+                        {cow.notes && (
+                          <p className="mt-3 text-xs text-gray-500 line-clamp-2 italic">
+                            &quot;{cow.notes}&quot;
+                          </p>
+                        )}
+                      </div>
+
+                      {/* Action Buttons */}
+                      <div className="mt-4 pt-3 border-t border-gray-100 flex items-center justify-between">
+                        <span className="text-[11px] text-[#5D7368] group-hover:text-[#345C4A] font-medium flex items-center gap-1">
+                          <span>{lang === 'sw' ? 'Bofya kutazama faili' : 'Click to view details'}</span>
+                          <span>→</span>
+                        </span>
+
+                        <div className="flex items-center space-x-1" onClick={(e) => e.stopPropagation()}>
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              onEditCow(cow);
+                            }}
+                            className="p-1.5 rounded-lg text-gray-500 hover:text-[#345C4A] hover:bg-[#345C4A]/10 transition-colors"
+                            title={t.common.edit}
+                          >
+                            <Edit2 className="w-4 h-4" />
+                          </button>
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              if (confirm(lang === 'sw' ? `Una uhakika unataka kumfuta ng'ombe ${cow.tag}?` : `Are you sure you want to delete ${cow.tag}?`)) {
+                                onDeleteCow(cow.id);
+                              }
+                            }}
+                            className="p-1.5 rounded-lg text-gray-400 hover:text-red-600 hover:bg-red-50 transition-colors"
+                            title={t.common.delete}
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </button>
+                        </div>
                       </div>
                     </div>
                   </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           )}
         </div>
@@ -519,7 +534,7 @@ export const HerdView: React.FC<HerdViewProps> = ({
             </div>
             <button
               onClick={onOpenRecordBreeding}
-              className="px-4 py-2 bg-purple-50 text-purple-700 hover:bg-purple-100 rounded-xl text-xs font-bold transition-colors"
+              className="px-4 py-2 bg-[#FAF5EB] text-[#C6A76A] border border-[#E5D5B5] hover:bg-[#FAF5EB]/80 rounded-xl text-xs font-bold transition-colors"
             >
               + Log Breeding Event
             </button>
@@ -541,7 +556,7 @@ export const HerdView: React.FC<HerdViewProps> = ({
                       <span className="font-bold text-sm text-gray-900">
                         {b.cowTag} {b.cowName ? `(${b.cowName})` : ''}
                       </span>
-                      <span className="px-2 py-0.5 rounded-md text-[10px] font-bold uppercase tracking-wider bg-purple-100 text-purple-800">
+                      <span className="px-2 py-0.5 rounded-md text-[10px] font-bold uppercase tracking-wider bg-[#FAF5EB] text-[#26332D] border border-[#E5D5B5]">
                         {b.type.replace('_', ' ')}
                       </span>
                       <span className="text-xs text-gray-400 font-medium">
@@ -600,6 +615,29 @@ export const HerdView: React.FC<HerdViewProps> = ({
           )}
         </div>
       )}
+
+      {/* Cow Detail Information Modal */}
+      <CowDetailModal
+        cow={selectedCowForDetail}
+        isOpen={!!selectedCowForDetail}
+        onClose={() => setSelectedCowForDetail(null)}
+        onEdit={(cow) => {
+          setSelectedCowForDetail(null);
+          onEditCow(cow);
+        }}
+        onOpenRecordHealth={() => {
+          setSelectedCowForDetail(null);
+          onOpenRecordHealth();
+        }}
+        onOpenRecordBreeding={() => {
+          setSelectedCowForDetail(null);
+          onOpenRecordBreeding();
+        }}
+        healthEvents={healthEvents}
+        breedingEvents={breedingEvents}
+        milkEntries={milkEntries}
+        lang={lang}
+      />
     </div>
   );
 };

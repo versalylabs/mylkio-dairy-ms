@@ -42,7 +42,7 @@ export const CowModal: React.FC<CowModalProps> = ({
   const [expectedCalvingDate, setExpectedCalvingDate] = useState('');
   const [parity, setParity] = useState(1);
   const [dob, setDob] = useState('');
-  const [photoUrl, setPhotoUrl] = useState<string>('');
+  const [photoUrls, setPhotoUrls] = useState<string[]>([]);
   const [notes, setNotes] = useState('');
   const [error, setError] = useState('');
 
@@ -56,7 +56,10 @@ export const CowModal: React.FC<CowModalProps> = ({
       setExpectedCalvingDate(cowToEdit.expectedCalvingDate || '');
       setParity(cowToEdit.parity);
       setDob(cowToEdit.dob || '');
-      setPhotoUrl(cowToEdit.photoUrl || '');
+      const existingPhotos = cowToEdit.photoUrls && cowToEdit.photoUrls.length > 0
+        ? cowToEdit.photoUrls
+        : (cowToEdit.photoUrl ? [cowToEdit.photoUrl] : []);
+      setPhotoUrls(existingPhotos);
       setNotes(cowToEdit.notes || '');
     } else {
       setTag('');
@@ -67,7 +70,7 @@ export const CowModal: React.FC<CowModalProps> = ({
       setExpectedCalvingDate('');
       setParity(1);
       setDob('');
-      setPhotoUrl('');
+      setPhotoUrls([]);
       setNotes('');
     }
     setError('');
@@ -75,23 +78,42 @@ export const CowModal: React.FC<CowModalProps> = ({
 
   if (!isOpen) return null;
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
+  const handleFilesChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (!files || files.length === 0) return;
 
-    // Check size limit ~3MB for browser local storage
-    if (file.size > 3 * 1024 * 1024) {
-      setError(lang === 'sw' ? 'Picha ni kubwa mno (chagua chini ya 3MB)' : 'Photo size too large (under 3MB recommended)');
-      return;
-    }
-
-    const reader = new FileReader();
-    reader.onload = (event) => {
-      if (typeof event.target?.result === 'string') {
-        setPhotoUrl(event.target.result);
+    Array.from(files).forEach((file) => {
+      if (file.size > 3.5 * 1024 * 1024) {
+        setError(lang === 'sw' ? 'Picha moja ni kubwa mno (chagua chini ya 3.5MB)' : 'One of the photos exceeds 3.5MB limit');
+        return;
       }
-    };
-    reader.readAsDataURL(file);
+
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        if (typeof event.target?.result === 'string') {
+          const resultStr = event.target.result;
+          setPhotoUrls((prev) => [...prev, resultStr]);
+        }
+      };
+      reader.readAsDataURL(file);
+    });
+
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
+    }
+  };
+
+  const handleRemovePhoto = (indexToRemove: number) => {
+    setPhotoUrls((prev) => prev.filter((_, idx) => idx !== indexToRemove));
+  };
+
+  const handleSetPrimary = (indexToPrimary: number) => {
+    setPhotoUrls((prev) => {
+      if (indexToPrimary === 0) return prev;
+      const selected = prev[indexToPrimary];
+      const others = prev.filter((_, idx) => idx !== indexToPrimary);
+      return [selected, ...others];
+    });
   };
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -111,7 +133,8 @@ export const CowModal: React.FC<CowModalProps> = ({
       expectedCalvingDate: isPregnant ? expectedCalvingDate : undefined,
       parity: Number(parity) || 0,
       dob: dob || undefined,
-      photoUrl: photoUrl || undefined,
+      photoUrl: photoUrls[0] || undefined,
+      photoUrls: photoUrls.length > 0 ? photoUrls : undefined,
       notes: notes.trim() || undefined,
     });
 
@@ -147,58 +170,103 @@ export const CowModal: React.FC<CowModalProps> = ({
             </div>
           )}
 
-          {/* Photo Upload Area */}
+          {/* Multiple Photo Upload Area */}
           <div>
-            <label className="block text-xs font-semibold uppercase tracking-wider text-gray-700 mb-1.5">
-              {lang === 'sw' ? 'Picha ya Ng\'ombe (Kamera au Faili)' : 'Cow Photo (Camera / Upload)'}
-            </label>
+            <div className="flex items-center justify-between mb-1.5">
+              <label className="block text-xs font-semibold uppercase tracking-wider text-gray-700">
+                {lang === 'sw' ? 'Picha za Ng\'ombe (Kamera au Faili)' : 'Cow Photos (Upload Multiple)'}
+              </label>
+              <span className="text-[11px] text-[#879C91]">
+                {photoUrls.length} {photoUrls.length === 1 ? 'photo' : 'photos'}
+              </span>
+            </div>
+
             <input
               type="file"
               ref={fileInputRef}
               accept="image/*"
-              onChange={handleFileChange}
+              multiple
+              onChange={handleFilesChange}
               className="hidden"
             />
-            {photoUrl ? (
-              <div className="relative rounded-2xl overflow-hidden border border-gray-200 bg-gray-50 h-44 group">
-                <img
-                  src={photoUrl}
-                  alt="Cow preview"
-                  className="w-full h-full object-cover"
-                />
-                <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-3">
+
+            {photoUrls.length > 0 ? (
+              <div className="space-y-3">
+                {/* Thumbnails Grid */}
+                <div className="grid grid-cols-3 gap-2.5">
+                  {photoUrls.map((url, idx) => (
+                    <div
+                      key={idx}
+                      className={`relative rounded-xl overflow-hidden border-2 h-28 bg-[#FAF9F5] group transition-all ${
+                        idx === 0 ? 'border-[#345C4A] shadow-xs' : 'border-[#E8E4D8]'
+                      }`}
+                    >
+                      <img
+                        src={url}
+                        alt={`Photo ${idx + 1}`}
+                        className="w-full h-full object-cover"
+                      />
+
+                      {/* Primary Badge */}
+                      {idx === 0 ? (
+                        <span className="absolute top-1.5 left-1.5 bg-[#345C4A] text-white text-[9px] uppercase tracking-wider font-bold px-1.5 py-0.5 rounded-md shadow-xs">
+                          {lang === 'sw' ? 'Kuu' : 'Primary'}
+                        </span>
+                      ) : (
+                        <button
+                          type="button"
+                          onClick={() => handleSetPrimary(idx)}
+                          className="absolute top-1.5 left-1.5 bg-black/60 hover:bg-[#345C4A] text-white text-[9px] font-semibold px-1.5 py-0.5 rounded-md opacity-0 group-hover:opacity-100 transition-opacity"
+                        >
+                          Make Primary
+                        </button>
+                      )}
+
+                      {/* Delete button */}
+                      <button
+                        type="button"
+                        onClick={() => handleRemovePhoto(idx)}
+                        className="absolute top-1.5 right-1.5 p-1 bg-red-600/90 hover:bg-red-700 text-white rounded-md shadow-xs transition-colors"
+                        title="Delete photo"
+                      >
+                        <Trash2 className="w-3.5 h-3.5" />
+                      </button>
+                    </div>
+                  ))}
+
+                  {/* Add more button */}
                   <button
                     type="button"
                     onClick={() => fileInputRef.current?.click()}
-                    className="p-2.5 bg-white text-gray-800 rounded-xl text-xs font-bold shadow hover:bg-gray-100 transition-colors flex items-center gap-1.5"
+                    className="h-28 rounded-xl border-2 border-dashed border-[#cbdbcf] hover:border-[#345C4A] bg-[#f3f7f4]/60 hover:bg-[#e4ede7]/50 text-[#345C4A] flex flex-col items-center justify-center gap-1 transition-all"
                   >
-                    <Camera className="w-4 h-4" />
-                    <span>{lang === 'sw' ? 'Badilisha' : 'Change'}</span>
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setPhotoUrl('')}
-                    className="p-2.5 bg-red-600 text-white rounded-xl text-xs font-bold shadow hover:bg-red-700 transition-colors flex items-center gap-1.5"
-                  >
-                    <Trash2 className="w-4 h-4" />
-                    <span>{lang === 'sw' ? 'Ondoa' : 'Remove'}</span>
+                    <Camera className="w-5 h-5" />
+                    <span className="text-[11px] font-bold">
+                      {lang === 'sw' ? '+ Picha Zaidi' : '+ Add More'}
+                    </span>
                   </button>
                 </div>
+
+                <p className="text-[11px] text-[#5D7368]">
+                  {lang === 'sw'
+                    ? 'Kidokezo: Picha ya kwanza ndiyo itaonekana kwenye kadi ya ng\'ombe.'
+                    : 'Tip: The first photo is the primary image shown on cow cards.'}
+                </p>
               </div>
             ) : (
               <button
                 type="button"
                 onClick={() => fileInputRef.current?.click()}
-                className="w-full h-32 rounded-2xl border-2 border-dashed border-gray-300 hover:border-dairy-500 bg-gray-50/70 hover:bg-dairy-50/40 transition-colors flex flex-col items-center justify-center text-gray-500 hover:text-dairy-700 gap-2"
+                className="w-full h-32 rounded-2xl border-2 border-dashed border-[#cbdbcf] hover:border-[#345C4A] bg-[#f3f7f4]/60 hover:bg-[#e4ede7]/40 transition-colors flex flex-col items-center justify-center text-[#5D7368] hover:text-[#345C4A] gap-2"
               >
-                <div className="p-2.5 rounded-full bg-white shadow-xs border border-gray-200">
-                  <Camera className="w-5 h-5 text-dairy-600" />
+                <div className="p-2.5 rounded-full bg-white shadow-xs border border-[#E8E4D8]">
+                  <Camera className="w-5 h-5 text-[#345C4A]" />
                 </div>
                 <div className="text-center">
-                  <span className="text-xs font-bold text-gray-800 block">
-                    {lang === 'sw' ? 'Piga picha au pakia kutoka simuni' : 'Take photo or upload image'}
+                  <span className="text-xs font-bold text-[#26332D] block">
+                    {lang === 'sw' ? 'Piga picha au pakia (picha moja au zaidi)' : 'Take photo or upload (one or more)'}
                   </span>
-                  <span className="text-[10px] text-gray-400">JPG, PNG under 3MB</span>
+                  <span className="text-[10px] text-[#879C91]">Select multiple images from phone or camera</span>
                 </div>
               </button>
             )}

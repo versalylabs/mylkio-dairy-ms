@@ -69,7 +69,7 @@ export const ExpenseModal: React.FC<ExpenseModalProps> = ({
         {/* Header */}
         <div className="flex items-center justify-between p-5 border-b border-gray-100 sticky top-0 bg-white z-10">
           <div className="flex items-center space-x-2.5">
-            <div className="w-10 h-10 rounded-2xl bg-amber-50 text-amber-700 flex items-center justify-center">
+            <div className="w-10 h-10 rounded-2xl bg-[#FAF9F5] text-[#345C4A] border border-gray-200 flex items-center justify-center">
               <Receipt className="w-5 h-5" />
             </div>
             <div>
@@ -204,11 +204,11 @@ export const ExpenseModal: React.FC<ExpenseModalProps> = ({
                 onClick={() => setPaymentMethod('bank')}
                 className={`p-2.5 rounded-xl border text-center flex flex-col items-center justify-center transition-all ${
                   paymentMethod === 'bank'
-                    ? 'border-blue-600 bg-blue-50 text-blue-800 font-bold ring-2 ring-blue-500/20'
+                    ? 'border-[#345C4A] bg-[#A8BFA5]/20 text-[#345C4A] font-bold ring-2 ring-[#345C4A]/20'
                     : 'border-gray-200 hover:bg-gray-50 text-gray-700'
                 }`}
               >
-                <CreditCard className="w-4 h-4 mb-1 text-blue-600" />
+                <CreditCard className="w-4 h-4 mb-1 text-[#345C4A]" />
                 <span className="text-xs">{lang === 'sw' ? 'Benki' : 'Bank'}</span>
               </button>
             </div>

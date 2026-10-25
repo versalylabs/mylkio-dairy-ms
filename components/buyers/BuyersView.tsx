@@ -143,7 +143,7 @@ export const BuyersView: React.FC<BuyersViewProps> = ({
               <div>
                 <div className="flex items-start justify-between gap-2">
                   <div className="flex items-center space-x-2.5">
-                    <div className={`p-2 rounded-xl ${buyer.type === 'cooperative' ? 'bg-blue-50 text-blue-700' : 'bg-emerald-50 text-emerald-700'}`}>
+                    <div className={`p-2 rounded-xl ${buyer.type === 'cooperative' ? 'bg-[#A8BFA5]/25 text-[#345C4A]' : 'bg-[#FAF5EB] text-[#C6A76A] border border-[#E5D5B5]'}`}>
                       {buyer.type === 'cooperative' ? (
                         <Building2 className="w-5 h-5" />
                       ) : (
@@ -179,7 +179,7 @@ export const BuyersView: React.FC<BuyersViewProps> = ({
                     <span className="text-[11px] text-gray-400 block font-medium">
                       {t.buyers.balance}
                     </span>
-                    <span className={`text-base font-extrabold ${buyer.currentBalance > 0 ? 'text-amber-600' : 'text-gray-700'}`}>
+                    <span className={`text-base font-extrabold ${buyer.currentBalance > 0 ? 'text-[#b39252]' : 'text-gray-700'}`}>
                       KSh {buyer.currentBalance.toLocaleString()}
                     </span>
                   </div>

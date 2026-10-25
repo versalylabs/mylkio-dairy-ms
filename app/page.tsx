@@ -383,6 +383,7 @@ export default function Home() {
           cows={cows}
           healthEvents={healthEvents}
           breedingEvents={breedingEvents}
+          milkEntries={milkEntries}
           onAddCow={handleOpenAddCow}
           onEditCow={handleEditCow}
           onDeleteCow={handleDeleteCow}

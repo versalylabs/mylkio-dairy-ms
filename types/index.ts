@@ -52,6 +52,7 @@ export interface Cow {
   sire?: string;
   notes?: string;
   photoUrl?: string;
+  photoUrls?: string[]; // Multiple photos support
   createdAt: string;
 }
 

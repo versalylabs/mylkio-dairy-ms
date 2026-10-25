@@ -140,7 +140,7 @@ export const MilkView: React.FC<MilkViewProps> = ({
             <span className="text-xs font-semibold uppercase tracking-wider text-gray-500">
               {lang === 'sw' ? 'Kinara wa Maziwa' : 'Top Producer'}
             </span>
-            <div className="p-2 bg-amber-50 rounded-xl text-amber-600">
+            <div className="p-2 bg-[#FAF5EB] rounded-xl text-[#C6A76A] border border-[#E5D5B5]">
               <Award className="w-5 h-5" />
             </div>
           </div>
@@ -153,7 +153,7 @@ export const MilkView: React.FC<MilkViewProps> = ({
                   className="w-12 h-12 rounded-xl object-cover shrink-0"
                 />
               ) : (
-                <div className="w-12 h-12 rounded-xl bg-amber-100 text-amber-900 font-bold flex items-center justify-center shrink-0">
+                <div className="w-12 h-12 rounded-xl bg-[#FAF5EB] text-[#26332D] border border-[#E5D5B5] font-bold flex items-center justify-center shrink-0">
                   {topCows[0].tag.slice(-2)}
                 </div>
               )}
@@ -161,7 +161,7 @@ export const MilkView: React.FC<MilkViewProps> = ({
                 <div className="text-base font-bold text-gray-900">
                   {topCows[0].name || topCows[0].tag}
                 </div>
-                <div className="text-xs font-medium text-amber-700">
+                <div className="text-xs font-medium text-[#C6A76A]">
                   {topCows[0].litres.toFixed(1)} L recorded
                 </div>
               </div>
@@ -227,8 +227,8 @@ export const MilkView: React.FC<MilkViewProps> = ({
                     </span>
                     <span className={`px-2 py-0.5 rounded-md text-[10px] font-semibold ${
                       entry.mode === 'cow_level'
-                        ? 'bg-purple-100 text-purple-800'
-                        : 'bg-dairy-100 text-dairy-800'
+                        ? 'bg-[#A8BFA5]/25 text-[#345C4A]'
+                        : 'bg-[#FAF9F5] text-[#26332D] border border-gray-200'
                     }`}>
                       {entry.mode === 'cow_level'
                         ? (lang === 'sw' ? 'Kwa Ng\'ombe' : 'By Cow')

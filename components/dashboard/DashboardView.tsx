@@ -166,12 +166,12 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
         </div>
 
         {/* Milk Sold */}
-        <div className="bg-white p-4 rounded-2xl border border-gray-200/90 shadow-sm flex flex-col justify-between">
+        <div className="bg-white p-4 rounded-2xl border border-gray-200/90 shadow-xs flex flex-col justify-between">
           <div className="flex items-center justify-between">
             <span className="text-xs font-semibold text-gray-500 uppercase tracking-wider">
               {t.dashboard.milkSold}
             </span>
-            <div className="p-2 bg-blue-50 rounded-xl text-blue-600">
+            <div className="p-2 bg-[#A8BFA5]/20 rounded-xl text-[#345C4A]">
               <CheckCircle2 className="w-4 h-4" />
             </div>
           </div>
@@ -186,12 +186,12 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
         </div>
 
         {/* Cash Received */}
-        <div className="bg-white p-4 rounded-2xl border border-gray-200/90 shadow-sm flex flex-col justify-between">
+        <div className="bg-white p-4 rounded-2xl border border-gray-200/90 shadow-xs flex flex-col justify-between">
           <div className="flex items-center justify-between">
             <span className="text-xs font-semibold text-gray-500 uppercase tracking-wider">
               {t.dashboard.cashReceived}
             </span>
-            <div className="p-2 bg-purple-50 rounded-xl text-purple-600">
+            <div className="p-2 bg-[#FAF5EB] rounded-xl text-[#C6A76A] border border-[#E5D5B5]">
               <DollarSign className="w-4 h-4" />
             </div>
           </div>
@@ -199,7 +199,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
             <div className="text-2xl font-black text-gray-900 tracking-tight">
               KSh {totalPaymentsMonth.toLocaleString()}
             </div>
-            <div className="text-[11px] font-medium text-purple-600 mt-0.5">
+            <div className="text-[11px] font-medium text-[#5D7368] mt-0.5">
               {payments.length} receipt(s)
             </div>
           </div>
@@ -350,27 +350,27 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
         </div>
 
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-          <div className="p-3 bg-emerald-50 rounded-xl border border-emerald-100 flex items-center space-x-3">
-            <span className="text-2xl font-black text-emerald-800">{lactatingCount}</span>
-            <div className="text-xs font-medium text-emerald-900">
+          <div className="p-3 bg-[#A8BFA5]/20 rounded-xl border border-[#A8BFA5]/40 flex items-center space-x-3">
+            <span className="text-2xl font-black text-[#345C4A]">{lactatingCount}</span>
+            <div className="text-xs font-semibold text-[#26332D]">
               {t.dashboard.lactating}
             </div>
           </div>
-          <div className="p-3 bg-amber-50 rounded-xl border border-amber-100 flex items-center space-x-3">
-            <span className="text-2xl font-black text-amber-800">{dryCount}</span>
-            <div className="text-xs font-medium text-amber-900">
+          <div className="p-3 bg-[#FAF5EB] rounded-xl border border-[#E5D5B5] flex items-center space-x-3">
+            <span className="text-2xl font-black text-[#C6A76A]">{dryCount}</span>
+            <div className="text-xs font-semibold text-[#26332D]">
               {t.dashboard.dry}
             </div>
           </div>
-          <div className="p-3 bg-purple-50 rounded-xl border border-purple-100 flex items-center space-x-3">
-            <span className="text-2xl font-black text-purple-800">{pregnantCount}</span>
-            <div className="text-xs font-medium text-purple-900">
+          <div className="p-3 bg-[#F2EFE7] rounded-xl border border-[#E8E4D8] flex items-center space-x-3">
+            <span className="text-2xl font-black text-[#26332D]">{pregnantCount}</span>
+            <div className="text-xs font-semibold text-[#26332D]">
               {t.dashboard.pregnant}
             </div>
           </div>
-          <div className="p-3 bg-blue-50 rounded-xl border border-blue-100 flex items-center space-x-3">
-            <span className="text-2xl font-black text-blue-800">{calvesCount}</span>
-            <div className="text-xs font-medium text-blue-900">
+          <div className="p-3 bg-[#FAF9F5] rounded-xl border border-[#E8E4D8] flex items-center space-x-3">
+            <span className="text-2xl font-black text-[#26332D]">{calvesCount}</span>
+            <div className="text-xs font-semibold text-[#26332D]">
               {t.dashboard.calves}
             </div>
           </div>
@@ -378,16 +378,16 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
       </div>
 
       {/* Quick Action Buttons */}
-      <div className="bg-white rounded-2xl border border-gray-200/90 p-5 shadow-sm">
+      <div className="bg-white rounded-2xl border border-gray-200/90 p-5 shadow-xs">
         <h2 className="text-base font-bold text-gray-900 mb-3">
           {t.quickActions.title}
         </h2>
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
           <button
             onClick={onOpenRecordMilk}
-            className="flex flex-col items-center justify-center p-3.5 rounded-xl border border-gray-200 hover:border-dairy-500 hover:bg-dairy-50/50 transition-all text-center group"
+            className="flex flex-col items-center justify-center p-3.5 rounded-xl border border-gray-200 hover:border-[#345C4A] hover:bg-[#FAF9F5] transition-all text-center group"
           >
-            <div className="p-2.5 bg-dairy-50 text-dairy-600 rounded-xl group-hover:bg-dairy-600 group-hover:text-white transition-colors">
+            <div className="p-2.5 bg-[#A8BFA5]/20 text-[#345C4A] rounded-xl group-hover:bg-[#345C4A] group-hover:text-white transition-colors">
               <Milk className="w-5 h-5" />
             </div>
             <span className="text-xs font-bold text-gray-800 mt-2">{t.quickActions.recordMilk}</span>
@@ -395,9 +395,9 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
 
           <button
             onClick={onOpenRecordDelivery}
-            className="flex flex-col items-center justify-center p-3.5 rounded-xl border border-gray-200 hover:border-dairy-500 hover:bg-dairy-50/50 transition-all text-center group"
+            className="flex flex-col items-center justify-center p-3.5 rounded-xl border border-gray-200 hover:border-[#345C4A] hover:bg-[#FAF9F5] transition-all text-center group"
           >
-            <div className="p-2.5 bg-blue-50 text-blue-600 rounded-xl group-hover:bg-blue-600 group-hover:text-white transition-colors">
+            <div className="p-2.5 bg-[#FAF9F5] text-[#345C4A] border border-gray-200 rounded-xl group-hover:bg-[#345C4A] group-hover:text-white transition-colors">
               <Truck className="w-5 h-5" />
             </div>
             <span className="text-xs font-bold text-gray-800 mt-2">{lang === 'sw' ? 'Rekodi Utoaji' : 'Log Delivery'}</span>
@@ -405,9 +405,9 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
 
           <button
             onClick={onOpenRecordPayment}
-            className="flex flex-col items-center justify-center p-3.5 rounded-xl border border-gray-200 hover:border-dairy-500 hover:bg-dairy-50/50 transition-all text-center group"
+            className="flex flex-col items-center justify-center p-3.5 rounded-xl border border-gray-200 hover:border-[#C6A76A] hover:bg-[#FAF5EB] transition-all text-center group"
           >
-            <div className="p-2.5 bg-purple-50 text-purple-600 rounded-xl group-hover:bg-purple-600 group-hover:text-white transition-colors">
+            <div className="p-2.5 bg-[#FAF5EB] text-[#C6A76A] border border-[#E5D5B5] rounded-xl group-hover:bg-[#C6A76A] group-hover:text-white transition-colors">
               <DollarSign className="w-5 h-5" />
             </div>
             <span className="text-xs font-bold text-gray-800 mt-2">{t.quickActions.receivePayment}</span>
@@ -415,9 +415,9 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
 
           <button
             onClick={onOpenAddCow}
-            className="flex flex-col items-center justify-center p-3.5 rounded-xl border border-gray-200 hover:border-dairy-500 hover:bg-dairy-50/50 transition-all text-center group"
+            className="flex flex-col items-center justify-center p-3.5 rounded-xl border border-gray-200 hover:border-[#345C4A] hover:bg-[#FAF9F5] transition-all text-center group"
           >
-            <div className="p-2.5 bg-dairy-50 text-dairy-600 rounded-xl group-hover:bg-dairy-600 group-hover:text-white transition-colors">
+            <div className="p-2.5 bg-[#A8BFA5]/20 text-[#345C4A] rounded-xl group-hover:bg-[#345C4A] group-hover:text-white transition-colors">
               <Plus className="w-5 h-5" />
             </div>
             <span className="text-xs font-bold text-gray-800 mt-2">{t.quickActions.addCow}</span>
