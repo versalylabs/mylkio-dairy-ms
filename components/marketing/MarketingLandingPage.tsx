@@ -1350,41 +1350,41 @@ Support Email: versalylabs@gmail.com`;
       )}
 
       {/* ======================================================== */}
-      {/* 11. LEAD MAGNET (FREE CHECKLIST WITH VISIBLE BACKDROP) */}
+      {/* 11. LEAD MAGNET (FREE CHECKLIST WITH SECTION BACKGROUND) */}
       {/* ======================================================== */}
-      <section className="py-14 sm:py-20 bg-[#FAF9F5] border-t border-[#E8E4D8]">
-        <div className="max-w-[1200px] mx-auto px-4 sm:px-6 lg:px-8">
+      <section className="relative py-16 sm:py-24 overflow-hidden border-t border-[#E8E4D8]">
+        {/* Full Section Background Image (Behind the Card) */}
+        <div 
+          className="absolute inset-0 bg-cover bg-center pointer-events-none"
+          style={{ backgroundImage: "url('https://images.unsplash.com/photo-1570042225831-d98fa7577f1e?auto=format&fit=crop&w=1920&q=80')" }}
+        />
+        {/* Warm Ivory overlay so the pastoral backdrop is clearly visible and cohesive */}
+        <div className="absolute inset-0 bg-gradient-to-b from-[#FAF9F5]/75 via-[#FAF9F5]/85 to-[#FAF9F5]/75 pointer-events-none" />
+
+        <div className="relative max-w-[1200px] mx-auto px-4 sm:px-6 lg:px-8">
           
-          <div className="relative overflow-hidden bg-white rounded-3xl border border-[#E8E4D8] p-8 sm:p-14 text-center max-w-3xl mx-auto shadow-xs">
-            {/* Highly Visible Dairy Farm Image Behind Card Content */}
-            <div 
-              className="absolute inset-0 bg-cover bg-center opacity-30 pointer-events-none"
-              style={{ backgroundImage: "url('https://images.unsplash.com/photo-1570042225831-d98fa7577f1e?auto=format&fit=crop&w=1200&q=80')" }}
-            />
-            <div className="absolute inset-0 bg-white/80 pointer-events-none" />
-            
-            <div className="relative z-10 space-y-4">
-              <span className="text-xs font-bold uppercase tracking-wider text-[#345C4A]">
-                Free Resource
-              </span>
+          {/* Pristine Floating Card on Top of Section Background */}
+          <div className="bg-white rounded-3xl border border-[#E8E4D8] p-8 sm:p-14 text-center max-w-3xl mx-auto shadow-[0_12px_40px_rgba(45,51,39,0.1)] relative z-10 space-y-4">
+            <span className="text-xs font-bold uppercase tracking-wider text-[#345C4A]">
+              Free Resource
+            </span>
 
-              <h2 className="text-2xl sm:text-4xl font-extrabold text-[#26332D] tracking-tight leading-tight">
-                Not Ready for Software Yet? Start with Better Farm Records.
-              </h2>
+            <h2 className="text-2xl sm:text-4xl font-extrabold text-[#26332D] tracking-tight leading-tight">
+              Not Ready for Software Yet? Start with Better Farm Records.
+            </h2>
 
-              <p className="text-xs sm:text-sm text-[#5D7368] max-w-xl mx-auto leading-relaxed">
-                Get Our Free Dairy Farm Record-Keeping Checklist covering daily milk production, milk deliveries, cow health dates, breeding activities, farm expenses, and customer payments.
-              </p>
+            <p className="text-xs sm:text-sm text-[#5D7368] max-w-xl mx-auto leading-relaxed">
+              Get Our Free Dairy Farm Record-Keeping Checklist covering daily milk production, milk deliveries, cow health dates, breeding activities, farm expenses, and customer payments.
+            </p>
 
-              <div className="pt-2">
-                <button
-                  onClick={() => setIsChecklistModalOpen(true)}
-                  className="btn-premium px-7 py-3.5 rounded-full bg-[#345C4A] hover:bg-[#274537] text-white font-bold text-xs shadow-xs transition-all inline-flex items-center gap-2"
-                >
-                  <Download className="w-4 h-4" />
-                  <span>Get the Free Checklist</span>
-                </button>
-              </div>
+            <div className="pt-2">
+              <button
+                onClick={() => setIsChecklistModalOpen(true)}
+                className="btn-premium px-7 py-3.5 rounded-full bg-[#345C4A] hover:bg-[#274537] text-white font-bold text-xs shadow-xs transition-all inline-flex items-center gap-2"
+              >
+                <Download className="w-4 h-4" />
+                <span>Get the Free Checklist</span>
+              </button>
             </div>
           </div>
 
