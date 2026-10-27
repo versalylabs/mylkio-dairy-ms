@@ -494,7 +494,7 @@ Support Email: versalylabs@gmail.com`;
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 sm:gap-6">
             
             {/* Card 1 */}
-            <div className="p-6 sm:p-7 rounded-2xl bg-white border border-[#E8E4D8] space-y-3.5 hover:border-[#345C4A]/40 hover:shadow-xs transition-all flex flex-col justify-between">
+            <div className="p-6 sm:p-7 rounded-2xl bg-white border border-[#E8E4D8] space-y-3.5 hover:border-[#345C4A]/40 hover:shadow-sm transition-all flex flex-col justify-between group">
               <div className="space-y-3.5">
                 <div className="w-11 h-11 rounded-xl bg-[#345C4A]/10 text-[#345C4A] flex items-center justify-center font-bold">
                   <FileText className="w-5 h-5" />
@@ -504,14 +504,18 @@ Support Email: versalylabs@gmail.com`;
                   You record milk in notebooks, on paper, or sometimes just try to remember the numbers. Papers get lost or smudged with milk.
                 </p>
               </div>
-              <div className="pt-2 text-xs font-semibold text-[#345C4A] inline-flex items-center gap-1">
+              <a 
+                href="#features"
+                onClick={() => setActivePreviewTab('milk')}
+                className="pt-3 text-xs font-bold text-[#345C4A] hover:text-[#274537] inline-flex items-center gap-1.5 transition-colors cursor-pointer w-fit"
+              >
                 <span>Learn More</span>
-                <ChevronRight className="w-3.5 h-3.5" />
-              </div>
+                <ChevronRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" />
+              </a>
             </div>
 
             {/* Card 2 */}
-            <div className="p-6 sm:p-7 rounded-2xl bg-white border border-[#E8E4D8] space-y-3.5 hover:border-[#345C4A]/40 hover:shadow-xs transition-all flex flex-col justify-between">
+            <div className="p-6 sm:p-7 rounded-2xl bg-white border border-[#E8E4D8] space-y-3.5 hover:border-[#345C4A]/40 hover:shadow-sm transition-all flex flex-col justify-between group">
               <div className="space-y-3.5">
                 <div className="w-11 h-11 rounded-xl bg-[#C6A76A]/15 text-[#8F7438] border border-[#C6A76A]/25 flex items-center justify-center font-bold">
                   <Receipt className="w-5 h-5" />
@@ -521,14 +525,18 @@ Support Email: versalylabs@gmail.com`;
                   At the end of the month, you&apos;re unsure whether every litre delivered has been accounted for. Unrecorded transport deductions reduce your earnings.
                 </p>
               </div>
-              <div className="pt-2 text-xs font-semibold text-[#345C4A] inline-flex items-center gap-1">
+              <a 
+                href="#payments"
+                onClick={() => setActivePreviewTab('sales')}
+                className="pt-3 text-xs font-bold text-[#345C4A] hover:text-[#274537] inline-flex items-center gap-1.5 transition-colors cursor-pointer w-fit"
+              >
                 <span>Learn More</span>
-                <ChevronRight className="w-3.5 h-3.5" />
-              </div>
+                <ChevronRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" />
+              </a>
             </div>
 
             {/* Card 3 */}
-            <div className="p-6 sm:p-7 rounded-2xl bg-white border border-[#E8E4D8] space-y-3.5 hover:border-[#345C4A]/40 hover:shadow-xs transition-all flex flex-col justify-between">
+            <div className="p-6 sm:p-7 rounded-2xl bg-white border border-[#E8E4D8] space-y-3.5 hover:border-[#345C4A]/40 hover:shadow-sm transition-all flex flex-col justify-between group">
               <div className="space-y-3.5">
                 <div className="w-11 h-11 rounded-xl bg-[#345C4A]/10 text-[#345C4A] flex items-center justify-center font-bold">
                   <Calendar className="w-5 h-5" />
@@ -538,14 +546,18 @@ Support Email: versalylabs@gmail.com`;
                   Important dates like pregnancy checks, treatments, and vaccinations are easy to forget when they are written on separate slips.
                 </p>
               </div>
-              <div className="pt-2 text-xs font-semibold text-[#345C4A] inline-flex items-center gap-1">
+              <a 
+                href="#features"
+                onClick={() => setActivePreviewTab('herd')}
+                className="pt-3 text-xs font-bold text-[#345C4A] hover:text-[#274537] inline-flex items-center gap-1.5 transition-colors cursor-pointer w-fit"
+              >
                 <span>Learn More</span>
-                <ChevronRight className="w-3.5 h-3.5" />
-              </div>
+                <ChevronRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" />
+              </a>
             </div>
 
             {/* Card 4 */}
-            <div className="p-6 sm:p-7 rounded-2xl bg-white border border-[#E8E4D8] space-y-3.5 hover:border-[#345C4A]/40 hover:shadow-xs transition-all flex flex-col justify-between">
+            <div className="p-6 sm:p-7 rounded-2xl bg-white border border-[#E8E4D8] space-y-3.5 hover:border-[#345C4A]/40 hover:shadow-sm transition-all flex flex-col justify-between group">
               <div className="space-y-3.5">
                 <div className="w-11 h-11 rounded-xl bg-[#C6A76A]/15 text-[#8F7438] border border-[#C6A76A]/25 flex items-center justify-center font-bold">
                   <DollarSign className="w-5 h-5" />
@@ -555,10 +567,14 @@ Support Email: versalylabs@gmail.com`;
                   You sell milk regularly, but calculating what your farm actually earns is another story once feed and veterinary bills arrive.
                 </p>
               </div>
-              <div className="pt-2 text-xs font-semibold text-[#345C4A] inline-flex items-center gap-1">
+              <a 
+                href="#features"
+                onClick={() => setActivePreviewTab('finance')}
+                className="pt-3 text-xs font-bold text-[#345C4A] hover:text-[#274537] inline-flex items-center gap-1.5 transition-colors cursor-pointer w-fit"
+              >
                 <span>Learn More</span>
-                <ChevronRight className="w-3.5 h-3.5" />
-              </div>
+                <ChevronRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" />
+              </a>
             </div>
 
           </div>
