@@ -377,7 +377,7 @@ Support Email: versalylabs@gmail.com`;
 
             {/* Description (Exact Original Texts) */}
             <p className="text-base sm:text-lg text-[#3D4F46] font-normal leading-relaxed text-left">
-              Track every litre of milk, manage your cows, and know where your farm income goes — all from your phone.
+              Track every litre of milk, manage your cows, and know where your farm income goes all from your phone.
             </p>
 
             <p className="text-xs sm:text-sm text-[#5D7368] font-normal leading-relaxed text-left">
