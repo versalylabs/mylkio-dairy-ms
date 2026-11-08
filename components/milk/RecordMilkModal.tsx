@@ -1,16 +1,26 @@
 'use client';
 
-import React, { useState } from 'react';
-import { Cow, MilkEntry, MilkAllocation, Language } from '@/types';
+import React, { useEffect, useState } from 'react';
+import { Cow, MilkEntry, MilkAllocation, Language, HealthEvent } from '@/types';
 import { translations } from '@/lib/translations';
-import { X, Check, Milk, Sparkles, AlertCircle, ChevronDown, ChevronUp } from 'lucide-react';
+import { farmToday, formatFarmDate } from '@/lib/dates';
+import { findMilkOverlaps } from '@/lib/milk';
+import { X, Check, Milk, Sparkles, AlertCircle, ChevronDown, ChevronUp, ShieldAlert } from 'lucide-react';
 
 interface RecordMilkModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onSave: (entry: Omit<MilkEntry, 'id' | 'createdAt' | 'farmId' | 'synced'>) => void;
+  onSave: (entry: Omit<MilkEntry, 'id' | 'createdAt' | 'farmId' | 'synced'>, replaceIds: string[]) => void;
   cows: Cow[];
+  entries: MilkEntry[];
+  healthEvents: HealthEvent[];
   lang: Language;
+}
+
+/** AM before midday in Kenya, PM after. */
+function defaultSession(): 'AM' | 'PM' {
+  const hour = Number(new Intl.DateTimeFormat('en-GB', { hour: '2-digit', hour12: false, timeZone: 'Africa/Nairobi' }).format(new Date()));
+  return hour < 12 ? 'AM' : 'PM';
 }
 
 export const RecordMilkModal: React.FC<RecordMilkModalProps> = ({
@@ -18,17 +28,28 @@ export const RecordMilkModal: React.FC<RecordMilkModalProps> = ({
   onClose,
   onSave,
   cows,
+  entries,
+  healthEvents,
   lang,
 }) => {
   const t = translations[lang];
-  const todayStr = new Date().toISOString().split('T')[0];
 
-  const lactatingCows = cows.filter(
-    (c) => c.status === 'lactating' || c.status === 'pregnant_heifer'
-  );
+  // Only cows currently in milk. A pregnant heifer has not calved and gives no milk.
+  const lactatingCows = cows.filter((c) => c.status === 'lactating');
 
-  const [date, setDate] = useState(todayStr);
-  const [session, setSession] = useState<'AM' | 'PM' | 'total'>('AM');
+  const [date, setDate] = useState(farmToday());
+  const [session, setSession] = useState<'AM' | 'PM' | 'total'>(defaultSession());
+  const [replaceConfirmed, setReplaceConfirmed] = useState(false);
+
+  // A modal left open overnight must not keep yesterday's date.
+  useEffect(() => {
+    if (isOpen) {
+      setDate(farmToday());
+      setSession(defaultSession());
+    }
+  }, [isOpen]);
+
+  useEffect(() => setReplaceConfirmed(false), [date, session]);
   const [mode, setMode] = useState<'farm_total' | 'cow_level'>('farm_total');
   const [totalLitres, setTotalLitres] = useState<string>('');
   const [cowYields, setCowYields] = useState<Record<string, string>>({});
@@ -44,6 +65,17 @@ export const RecordMilkModal: React.FC<RecordMilkModalProps> = ({
   const [error, setError] = useState('');
 
   if (!isOpen) return null;
+
+  const overlaps = findMilkOverlaps(entries, date, session);
+
+  // Cows with a recorded treatment withdrawal covering this date.
+  const withdrawalByCow = new Map<string, string>();
+  for (const h of healthEvents) {
+    if (h.withdrawalEndDate && h.date <= date && h.withdrawalEndDate >= date) {
+      const current = withdrawalByCow.get(h.cowId);
+      if (!current || h.withdrawalEndDate > current) withdrawalByCow.set(h.cowId, h.withdrawalEndDate);
+    }
+  }
 
   // Calculate live sum if cow_level
   const calculatedCowTotal = Object.values(cowYields).reduce(
@@ -70,6 +102,15 @@ export const RecordMilkModal: React.FC<RecordMilkModalProps> = ({
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+
+    if (overlaps.length > 0 && !replaceConfirmed) {
+      setError(
+        lang === 'sw'
+          ? 'Maziwa haya tayari yamerekodiwa. Thibitisha kubadilisha rekodi ya awali au badilisha tarehe/zamu.'
+          : 'This milk is already recorded. Confirm that you want to replace the earlier record, or change the date or session.'
+      );
+      return;
+    }
 
     if (activeTotalLitres <= 0) {
       setError(
@@ -110,9 +151,10 @@ export const RecordMilkModal: React.FC<RecordMilkModalProps> = ({
       cowBreakdown,
       allocation,
       notes: notes.trim() || undefined,
-    });
+    }, overlaps.map((o) => o.id));
 
     // Reset form
+    setReplaceConfirmed(false);
     setTotalLitres('');
     setCowYields({});
     setSoldLitres('');
@@ -138,7 +180,7 @@ export const RecordMilkModal: React.FC<RecordMilkModalProps> = ({
                 {lang === 'sw' ? 'Rekodi Maziwa' : 'Record Milk Yield'}
               </h2>
               <p className="text-xs text-gray-500">
-                {lang === 'sw' ? 'Ingiza haraka chini ya sekunde 30' : 'Fast daily logging (under 30s target)'}
+                {lang === 'sw' ? 'Jumla ya shamba au kwa kila ng\'ombe' : 'Farm total or by individual cow'}
               </p>
             </div>
           </div>
@@ -196,6 +238,45 @@ export const RecordMilkModal: React.FC<RecordMilkModalProps> = ({
               </div>
             </div>
           </div>
+
+          {overlaps.length > 0 && (
+            <div className="p-3.5 rounded-2xl border-2 border-amber-300 bg-amber-50 text-amber-950 space-y-2" role="alert">
+              <div className="flex items-start gap-2 text-sm font-bold">
+                <AlertCircle className="w-4 h-4 mt-0.5 shrink-0 text-amber-700" />
+                <span>
+                  {lang === 'sw'
+                    ? `Tayari kuna rekodi ya ${formatFarmDate(date, lang)} inayofunika maziwa haya:`
+                    : `Milk for ${formatFarmDate(date, lang)} is already recorded here:`}
+                </span>
+              </div>
+              <ul className="text-sm pl-6 list-disc">
+                {overlaps.map((o) => (
+                  <li key={o.id}>
+                    {o.session === 'total' ? (lang === 'sw' ? 'Jumla ya siku' : 'Day total') : o.session}: <strong>{o.totalLitres} L</strong>{' '}
+                    ({o.mode === 'cow_level' ? (lang === 'sw' ? 'kwa ng\'ombe' : 'by cow') : (lang === 'sw' ? 'jumla ya shamba' : 'farm total')})
+                  </li>
+                ))}
+              </ul>
+              <p className="text-sm">
+                {lang === 'sw'
+                  ? 'Kuhifadhi zote mbili kungehesabu maziwa yale yale mara mbili.'
+                  : 'Saving both would count the same milk twice.'}
+              </p>
+              <label className="flex items-start gap-2 text-sm font-semibold cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={replaceConfirmed}
+                  onChange={(e) => setReplaceConfirmed(e.target.checked)}
+                  className="mt-1 w-4 h-4 accent-[#345C4A]"
+                />
+                <span>
+                  {lang === 'sw'
+                    ? 'Badilisha rekodi hiyo na hii mpya (ya awali itabaki kwenye historia)'
+                    : 'Replace with this new record (the earlier one stays in history, marked as replaced)'}
+                </span>
+              </label>
+            </div>
+          )}
 
           {/* Mode Switch: Farm Total vs By Cow */}
           <div className="p-1 bg-gray-100 rounded-2xl flex items-center">
@@ -321,16 +402,24 @@ export const RecordMilkModal: React.FC<RecordMilkModalProps> = ({
                           <div className="font-bold text-xs text-gray-900 truncate">
                             {cow.name || cow.tag}
                           </div>
-                          <div className="text-[10px] text-gray-400 font-mono">
+                          <div className="text-[11px] text-gray-500 font-mono">
                             {cow.tag} • {cow.breed}
                           </div>
+                          {withdrawalByCow.has(cow.id) && (
+                            <div className="mt-0.5 inline-flex items-center gap-1 text-[11px] font-bold text-rose-700">
+                              <ShieldAlert className="w-3 h-3" />
+                              {lang === 'sw'
+                                ? `Kizuizi hadi ${formatFarmDate(withdrawalByCow.get(cow.id)!, lang)} — usiuze`
+                                : `Withdrawal until ${formatFarmDate(withdrawalByCow.get(cow.id)!, lang)} — keep out of sale milk`}
+                            </div>
+                          )}
                         </div>
                       </div>
 
                       <div className="w-24 shrink-0 relative">
                         <input
                           type="number"
-                          step="0.5"
+                          step="0.1"
                           min="0"
                           value={cowYields[cow.id] || ''}
                           onChange={(e) => handleCowYieldChange(cow.id, e.target.value)}
@@ -372,7 +461,7 @@ export const RecordMilkModal: React.FC<RecordMilkModalProps> = ({
                     </label>
                     <input
                       type="number"
-                      step="0.5"
+                      step="0.1"
                       min="0"
                       value={soldLitres}
                       onChange={(e) => setSoldLitres(e.target.value)}
@@ -387,7 +476,7 @@ export const RecordMilkModal: React.FC<RecordMilkModalProps> = ({
                     </label>
                     <input
                       type="number"
-                      step="0.5"
+                      step="0.1"
                       min="0"
                       value={householdLitres}
                       onChange={(e) => setHouseholdLitres(e.target.value)}
@@ -402,7 +491,7 @@ export const RecordMilkModal: React.FC<RecordMilkModalProps> = ({
                     </label>
                     <input
                       type="number"
-                      step="0.5"
+                      step="0.1"
                       min="0"
                       value={calvesLitres}
                       onChange={(e) => setCalvesLitres(e.target.value)}
@@ -417,7 +506,7 @@ export const RecordMilkModal: React.FC<RecordMilkModalProps> = ({
                     </label>
                     <input
                       type="number"
-                      step="0.5"
+                      step="0.1"
                       min="0"
                       value={wasteLitres}
                       onChange={(e) => setWasteLitres(e.target.value)}
@@ -454,11 +543,14 @@ export const RecordMilkModal: React.FC<RecordMilkModalProps> = ({
             </button>
             <button
               type="submit"
-              className="flex items-center space-x-2 px-6 py-2.5 rounded-xl bg-dairy-600 hover:bg-dairy-700 text-white font-bold text-xs shadow-sm transition-all"
+              disabled={overlaps.length > 0 && !replaceConfirmed}
+              className="flex items-center space-x-2 px-6 py-2.5 rounded-xl bg-dairy-600 hover:bg-dairy-700 disabled:bg-gray-300 disabled:cursor-not-allowed text-white font-bold text-sm shadow-sm transition-all"
             >
               <Check className="w-4 h-4" />
               <span>
-                {lang === 'sw'
+                {overlaps.length > 0
+                  ? (lang === 'sw' ? `Badilisha kwa Lita ${activeTotalLitres.toFixed(1)}` : `Replace with ${activeTotalLitres.toFixed(1)} L`)
+                  : lang === 'sw'
                   ? `Hifadhi Lita ${activeTotalLitres.toFixed(1)}`
                   : `Save ${activeTotalLitres.toFixed(1)} L Milk`}
               </span>

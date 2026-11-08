@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react';
 import { ExpenseRecord, ExpenseCategory, Language } from '@/types';
+import { farmToday } from '@/lib/dates';
 import { translations } from '@/lib/translations';
 import { X, Check, Receipt, Smartphone, Banknote, CreditCard, AlertCircle } from 'lucide-react';
 
@@ -19,7 +20,7 @@ export const ExpenseModal: React.FC<ExpenseModalProps> = ({
   lang,
 }) => {
   const t = translations[lang];
-  const todayStr = new Date().toISOString().split('T')[0];
+  const todayStr = farmToday();
 
   const [date, setDate] = useState(todayStr);
   const [category, setCategory] = useState<ExpenseCategory>('feed');
@@ -155,7 +156,7 @@ export const ExpenseModal: React.FC<ExpenseModalProps> = ({
               </span>
               <input
                 type="number"
-                step="50"
+                step="any"
                 min="1"
                 value={amount}
                 onChange={(e) => setAmount(e.target.value)}

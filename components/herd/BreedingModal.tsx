@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react';
 import { Cow, BreedingEvent, BreedingEventType, Language } from '@/types';
+import { addDays, farmToday } from '@/lib/dates';
 import { translations } from '@/lib/translations';
 import { X, Check, Dna, Calendar, AlertCircle } from 'lucide-react';
 
@@ -21,7 +22,7 @@ export const BreedingModal: React.FC<BreedingModalProps> = ({
   lang,
 }) => {
   const t = translations[lang];
-  const todayStr = new Date().toISOString().split('T')[0];
+  const todayStr = farmToday();
 
   const femaleCows = cows.filter((c) => c.sex !== 'male');
 
@@ -42,9 +43,7 @@ export const BreedingModal: React.FC<BreedingModalProps> = ({
   // Auto-calculate expected calving date (~283 days average gestation) if insemination
   const calculateCalvingDate = (insemDate: string) => {
     if (!insemDate) return '';
-    const d = new Date(insemDate);
-    d.setDate(d.getDate() + 283);
-    return d.toISOString().split('T')[0];
+    return addDays(insemDate, 283);
   };
 
   const handleDateChange = (newDate: string) => {

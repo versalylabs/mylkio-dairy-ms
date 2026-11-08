@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { Testimonial, PlatformSettings } from '@/types';
+import { farmToday } from '@/lib/dates';
 import { AppStorage } from '@/lib/storage';
 import { 
   CheckCircle2, 
@@ -152,7 +153,7 @@ Support Email: versalylabs@gmail.com`;
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
     link.href = url;
-    link.download = `Mylkio_Dairy_Record_Checklist_${new Date().toISOString().split('T')[0]}.txt`;
+    link.download = `Mylkio_Dairy_Record_Checklist_${farmToday()}.txt`;
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -165,7 +166,7 @@ Support Email: versalylabs@gmail.com`;
     },
     {
       q: 'Can I use Mylkio on my Android phone when offline?',
-      a: 'Yes! Mylkio is a Progressive Web App (PWA) with built-in offline synchronization. You can record milk and deliveries in the cowshed even with zero internet signal. All records are saved securely on your phone and automatically sync when connectivity returns.',
+      a: 'The demo works on this device. After a farm account is connected, records can be saved on this device and synchronized with the farm cloud when connectivity returns.',
     },
     {
       q: 'Can I record farm milk totals without entering each cow individually?',

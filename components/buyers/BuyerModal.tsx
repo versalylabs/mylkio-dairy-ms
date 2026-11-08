@@ -28,7 +28,9 @@ export const BuyerModal: React.FC<BuyerModalProps> = ({
   const [ratePerLitre, setRatePerLitre] = useState<number>(48);
   const [deliverySchedule, setDeliverySchedule] = useState<'daily' | 'twice_daily' | 'on_demand'>('daily');
   const [paymentCycle, setPaymentCycle] = useState<'monthly' | 'weekly' | 'daily' | 'advance'>('monthly');
-  const [currentBalance, setCurrentBalance] = useState<number>(0);
+  const [openingBalance, setOpeningBalance] = useState<number>(0);
+  const [memberNumber, setMemberNumber] = useState('');
+  const [collectionCentre, setCollectionCentre] = useState('');
   const [notes, setNotes] = useState('');
   const [error, setError] = useState('');
 
@@ -40,7 +42,9 @@ export const BuyerModal: React.FC<BuyerModalProps> = ({
       setRatePerLitre(buyerToEdit.ratePerLitre);
       setDeliverySchedule(buyerToEdit.deliverySchedule || 'daily');
       setPaymentCycle(buyerToEdit.paymentCycle || 'monthly');
-      setCurrentBalance(buyerToEdit.currentBalance || 0);
+      setOpeningBalance(buyerToEdit.openingBalance ?? 0);
+      setMemberNumber(buyerToEdit.memberNumber || '');
+      setCollectionCentre(buyerToEdit.collectionCentre || '');
       setNotes(buyerToEdit.notes || '');
     } else {
       setName('');
@@ -49,7 +53,9 @@ export const BuyerModal: React.FC<BuyerModalProps> = ({
       setRatePerLitre(48);
       setDeliverySchedule('daily');
       setPaymentCycle('monthly');
-      setCurrentBalance(0);
+      setOpeningBalance(0);
+      setMemberNumber('');
+      setCollectionCentre('');
       setNotes('');
     }
     setError('');
@@ -75,7 +81,10 @@ export const BuyerModal: React.FC<BuyerModalProps> = ({
       ratePerLitre: Number(ratePerLitre),
       deliverySchedule,
       paymentCycle,
-      currentBalance: Number(currentBalance) || 0,
+      currentBalance: Number(openingBalance) || 0,
+      openingBalance: Number(openingBalance) || 0,
+      memberNumber: type === 'cooperative' ? memberNumber.trim() || undefined : undefined,
+      collectionCentre: type === 'cooperative' ? collectionCentre.trim() || undefined : undefined,
       notes: notes.trim() || undefined,
     });
 
@@ -155,7 +164,7 @@ export const BuyerModal: React.FC<BuyerModalProps> = ({
                 <span className="absolute left-3.5 top-2.5 text-xs font-bold text-gray-400">KSh</span>
                 <input
                   type="number"
-                  step="0.5"
+                  step="any"
                   min="1"
                   value={ratePerLitre}
                   onChange={(e) => setRatePerLitre(parseFloat(e.target.value) || 0)}
@@ -197,6 +206,25 @@ export const BuyerModal: React.FC<BuyerModalProps> = ({
             </div>
           </div>
 
+          {type === 'cooperative' && (
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <label htmlFor="buyer-member" className="block text-xs font-semibold uppercase tracking-wider text-gray-700 mb-1">
+                  {lang === 'sw' ? 'Nambari ya mwanachama' : 'Member / supplier no.'}
+                </label>
+                <input id="buyer-member" type="text" value={memberNumber} onChange={(e) => setMemberNumber(e.target.value)}
+                  placeholder="e.g. BDF-0417" className="w-full px-3.5 py-2.5 rounded-xl border border-gray-300 focus:ring-2 focus:ring-dairy-500 text-sm" />
+              </div>
+              <div>
+                <label htmlFor="buyer-centre" className="block text-xs font-semibold uppercase tracking-wider text-gray-700 mb-1">
+                  {lang === 'sw' ? 'Kituo cha kukusanya' : 'Collection centre'}
+                </label>
+                <input id="buyer-centre" type="text" value={collectionCentre} onChange={(e) => setCollectionCentre(e.target.value)}
+                  placeholder="e.g. Rongai" className="w-full px-3.5 py-2.5 rounded-xl border border-gray-300 focus:ring-2 focus:ring-dairy-500 text-sm" />
+              </div>
+            </div>
+          )}
+
           <div>
             <label className="block text-xs font-semibold uppercase tracking-wider text-gray-700 mb-1">
               {t.buyerModal.initialBalanceLabel}
@@ -205,15 +233,22 @@ export const BuyerModal: React.FC<BuyerModalProps> = ({
               <span className="absolute left-3.5 top-2.5 text-xs font-bold text-gray-400">KSh</span>
               <input
                 type="number"
-                value={currentBalance}
-                onChange={(e) => setCurrentBalance(parseFloat(e.target.value) || 0)}
+                value={openingBalance}
+                onChange={(e) => setOpeningBalance(parseFloat(e.target.value) || 0)}
                 placeholder="0"
                 className="w-full pl-12 pr-4 py-2.5 rounded-xl border border-gray-300 focus:ring-2 focus:ring-dairy-500 text-sm"
               />
             </div>
-            <p className="text-[11px] text-gray-500 mt-1">
-              {lang === 'sw' ? 'Kiasi ambacho mnunuzi anadaiwa na shamba kufikia sasa.' : 'Amount this buyer currently owes the farm (leave 0 if balanced).'}
+            <p className="text-sm text-gray-600 mt-1">
+              {lang === 'sw'
+                ? 'Deni kabla ya kuanza kutumia Mylkio (weka hasi kwa malipo ya mapema). Salio la sasa linahesabiwa kutoka kwa utoaji na malipo.'
+                : 'Owed before you started using Mylkio (negative for an advance). The current balance is calculated from deliveries and payments.'}
             </p>
+            {buyerToEdit && (
+              <p className="text-sm font-semibold text-gray-800 mt-1">
+                {lang === 'sw' ? 'Salio la sasa' : 'Current balance'}: KSh {buyerToEdit.currentBalance.toLocaleString()}
+              </p>
+            )}
           </div>
 
           <div>

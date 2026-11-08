@@ -67,7 +67,20 @@ export interface Buyer {
   ratePerLitre: number;
   deliverySchedule?: 'daily' | 'twice_daily' | 'on_demand';
   paymentCycle?: 'monthly' | 'weekly' | 'daily' | 'advance';
-  currentBalance: number; // Positive = buyer owes farmer, Negative = advance
+  /**
+   * Display value only. The authoritative balance is calculated by
+   * `lib/ledger.ts` from openingBalance + charges − receipts. Positive = buyer
+   * owes the farm, negative = advance held for the buyer.
+   */
+  currentBalance: number;
+  /** Amount owed (positive) or held as advance (negative) when the ledger started. */
+  openingBalance?: number;
+  openingBalanceDate?: string;
+  /** Set once the buyer's balance is derived from the ledger (1 = Phase 3 ledger). */
+  ledgerVersion?: number;
+  /** Cooperatives: the farmer's member/supplier number and usual collection centre. */
+  memberNumber?: string;
+  collectionCentre?: string;
   notes?: string;
   createdAt: string;
 }
@@ -96,6 +109,11 @@ export interface MilkEntry {
   notes?: string;
   synced: boolean;
   createdAt: string;
+  /** Corrections never delete: a voided record stays visible but is not counted. */
+  voidedAt?: string;
+  voidReason?: string;
+  /** The entry that replaced this one, when voided as an overlap correction. */
+  replacedById?: string;
 }
 
 export interface Delivery {
@@ -108,13 +126,21 @@ export interface Delivery {
   litres: number;
   ratePerLitre: number;
   rejectedLitres: number;
+  /** Cooperative delivery slip / receipt number from the collection centre. */
+  slipReference?: string;
+  rejectionReason?: string;
   adjustmentKSh: number; // e.g. deductions or transport
   expectedAmount: number; // (litres - rejectedLitres) * rate + adjustment
+  /** Paid when delivered. Also recorded once as a linked PaymentRecord (source 'delivery'). */
   amountPaid: number;
+  /** Legacy per-delivery balance. Not used for buyer balances. */
   balance: number;
   synced: boolean;
   notes?: string;
   createdAt: string;
+  /** Corrections never delete: a voided record stays visible but is not counted. */
+  voidedAt?: string;
+  voidReason?: string;
 }
 
 export interface PaymentRecord {
@@ -129,6 +155,12 @@ export interface PaymentRecord {
   notes?: string;
   synced: boolean;
   createdAt: string;
+  /** 'delivery' = taken at delivery time and linked to that delivery. */
+  source?: 'receipt' | 'delivery';
+  deliveryId?: string;
+  /** Corrections never delete: a voided record stays visible but is not counted. */
+  voidedAt?: string;
+  voidReason?: string;
 }
 
 export type HealthEventType = 'vaccination' | 'treatment' | 'deworming' | 'routine_check';
@@ -212,6 +244,79 @@ export interface FarmReminder {
   createdAt: string;
 }
 
+// ==========================================
+// Settlements, bills and payment allocations (Phase 4)
+// ==========================================
+
+export interface StatementDeduction {
+  id: string;
+  label: string; // e.g. Transport, Feed advance, AI services, Shares
+  amount: number; // KSh, positive = taken off the payout
+}
+
+/**
+ * A cooperative's monthly statement as printed by the cooperative. For its period it
+ * replaces the farmer's own delivery charges in the buyer ledger, so the balance
+ * matches what the cooperative will actually pay. Created once, then only voided.
+ */
+export interface CoopStatement {
+  id: string;
+  farmId: string;
+  buyerId: string;
+  buyerName: string;
+  periodFrom: string; // YYYY-MM-DD inclusive
+  periodTo: string;
+  statementRef?: string;
+  statementLitres: number; // accepted litres according to the cooperative
+  ratePerLitre: number;
+  bonusKSh: number; // quality/volume bonus added by the cooperative
+  deductions: StatementDeduction[];
+  expectedPaymentDate?: string;
+  notes?: string;
+  synced: boolean;
+  createdAt: string;
+  voidedAt?: string;
+  voidReason?: string;
+}
+
+/**
+ * A household/customer bill grouping deliveries for a period. Bills do not change
+ * the balance (the deliveries already did); they lock those deliveries so they
+ * can never be billed twice, and give the customer a clear amount to pay.
+ */
+export interface CustomerBill {
+  id: string;
+  farmId: string;
+  buyerId: string;
+  buyerName: string;
+  periodFrom: string;
+  periodTo: string;
+  deliveryIds: string[];
+  litres: number;
+  amount: number;
+  billNumber: string;
+  dueDate?: string;
+  synced: boolean;
+  createdAt: string;
+  voidedAt?: string;
+  voidReason?: string;
+}
+
+/** Applies part or all of a payment to a statement or bill. Created once, then only voided. */
+export interface PaymentAllocation {
+  id: string;
+  farmId: string;
+  paymentId: string;
+  buyerId: string;
+  targetKind: 'statement' | 'bill';
+  targetId: string;
+  amount: number;
+  synced: boolean;
+  createdAt: string;
+  voidedAt?: string;
+  voidReason?: string;
+}
+
 // Multi-tenant & Subscription Types
 export type UserRole = 'super_admin' | 'farmer';
 export type SubscriptionPlan = 'starter' | 'farmer' | 'farm_pro' | 'admin';
@@ -229,7 +334,6 @@ export interface Subscription {
 export interface UserAccount {
   id: string;
   email: string;
-  password?: string;
   role: UserRole;
   farmId: string;
   name: string;

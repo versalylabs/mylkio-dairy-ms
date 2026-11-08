@@ -3,6 +3,9 @@
 import React from 'react';
 import { Cow, Buyer, MilkEntry, Delivery, PaymentRecord, FarmReminder, ExpenseRecord, Language, Farm, UserAccount } from '@/types';
 import { translations } from '@/lib/translations';
+import { farmToday, monthRange } from '@/lib/dates';
+import { dailyProduction } from '@/lib/milk';
+import { cashReceived, expensesInRange, salesInRange, summariseBalances } from '@/lib/ledger';
 import { 
   Milk, 
   TrendingUp, 
@@ -60,27 +63,34 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
   user,
 }) => {
   const t = translations[lang];
-  const todayStr = new Date().toISOString().split('T')[0];
+  const sw = lang === 'sw';
+  const todayStr = farmToday();
+  const today = { from: todayStr, to: todayStr };
+  const month = monthRange(todayStr);
+  const monthName = new Intl.DateTimeFormat(sw ? 'sw-KE' : 'en-KE', { month: 'long', timeZone: 'UTC' }).format(new Date(`${month.from}T00:00:00Z`));
 
   const lactatingCount = cows.filter((c) => c.status === 'lactating').length;
   const dryCount = cows.filter((c) => c.status === 'dry').length;
   const pregnantCount = cows.filter((c) => c.isPregnant || c.status === 'pregnant_heifer').length;
   const calvesCount = cows.filter((c) => c.status === 'calf').length;
 
-  const totalOwed = buyers.reduce((acc, b) => acc + (b.currentBalance > 0 ? b.currentBalance : 0), 0);
+  // `buyers` arrive with ledger-derived balances (see app/page.tsx).
+  const owed = summariseBalances(buyers.map((b) => b.currentBalance));
 
-  // Live dynamic production stats
-  const todayMilkEntries = milkEntries.filter((e) => e.date === todayStr);
-  const todayLitres = todayMilkEntries.reduce((sum, e) => sum + e.totalLitres, 0);
-
-  const todayDeliveries = deliveries.filter((d) => d.date === todayStr);
-  const soldLitres = todayDeliveries.reduce((sum, d) => sum + d.litres, 0);
-  const soldValue = todayDeliveries.reduce((sum, d) => sum + d.expectedAmount, 0);
-
-  const totalPaymentsMonth = payments.reduce((sum, p) => sum + p.amount, 0);
-  const totalExpenses = expenses.reduce((sum, e) => sum + e.amount, 0);
-  const totalSalesRevenue = deliveries.reduce((sum, d) => sum + d.expectedAmount, 0);
-  const netOperatingMargin = totalSalesRevenue - totalExpenses;
+  // Every figure below is calculated from records for an explicit period.
+  const todayMilk = dailyProduction(milkEntries, todayStr);
+  const todayLitres = todayMilk.litres;
+  const todaySales = salesInRange(deliveries, today);
+  const cashToday = cashReceived(payments, today);
+  const cashMonth = cashReceived(payments, month);
+  const monthSales = salesInRange(deliveries, month);
+  const monthExpenses = expensesInRange(expenses, month);
+  const monthSurplus = monthSales.billed - monthExpenses.amount;
+  const sessionsText = todayMilk.dayTotal !== null
+    ? (sw ? 'Jumla ya siku nzima' : 'Whole-day total')
+    : todayMilk.countedIds.length === 0
+    ? (sw ? 'Bado haijarekodiwa' : 'Not recorded yet')
+    : [todayMilk.am !== null ? 'AM' : null, todayMilk.pm !== null ? 'PM' : null].filter(Boolean).join(' + ') + (sw ? ' imerekodiwa' : ' recorded');
 
   const displayName = farm?.ownerName || user?.name || 'Farmer';
   const farmLocation = farm ? `${farm.name} • ${farm.county}` : 'My Dairy Farm';
@@ -160,7 +170,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
             </div>
             <div className="text-[11px] font-medium text-[#345C4A] flex items-center gap-1 mt-0.5">
               <TrendingUp className="w-3 h-3" />
-              <span>{todayMilkEntries.length} session(s) today</span>
+              <span>{sessionsText}{todayMilk.needsReview ? (sw ? ' · kagua' : ' · needs review') : ''}</span>
             </div>
           </div>
         </div>
@@ -177,10 +187,11 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
           </div>
           <div className="mt-2">
             <div className="text-2xl font-black text-gray-900 tracking-tight">
-              {soldLitres.toFixed(1)} <span className="text-sm font-normal text-gray-500">{t.common.lShort}</span>
+              {todaySales.acceptedLitres.toFixed(1)} <span className="text-sm font-normal text-gray-500">{t.common.lShort}</span>
             </div>
-            <div className="text-[11px] font-medium text-gray-500 mt-0.5">
-              ~KSh {soldValue.toLocaleString()} value
+            <div className="text-xs font-medium text-gray-600 mt-0.5">
+              {sw ? 'Zilizokubaliwa leo' : 'Accepted today'} · KSh {todaySales.billed.toLocaleString()}
+              {todaySales.rejectedLitres > 0 && (sw ? ` · ${todaySales.rejectedLitres} L zilikataliwa` : ` · ${todaySales.rejectedLitres} L rejected`)}
             </div>
           </div>
         </div>
@@ -197,10 +208,10 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
           </div>
           <div className="mt-2">
             <div className="text-2xl font-black text-gray-900 tracking-tight">
-              KSh {totalPaymentsMonth.toLocaleString()}
+              KSh {cashToday.amount.toLocaleString()}
             </div>
-            <div className="text-[11px] font-medium text-[#5D7368] mt-0.5">
-              {payments.length} receipt(s)
+            <div className="text-xs font-medium text-[#5D7368] mt-0.5">
+              {sw ? 'Leo' : 'Today'} · {sw ? `${monthName}: KSh ${cashMonth.amount.toLocaleString()}` : `${monthName}: KSh ${cashMonth.amount.toLocaleString()}`}
             </div>
           </div>
         </div>
@@ -217,10 +228,11 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
           </div>
           <div className="mt-2">
             <div className="text-2xl font-black text-[#b39252] tracking-tight">
-              KSh {totalOwed.toLocaleString()}
+              KSh {owed.owedToFarm.toLocaleString()}
             </div>
-            <div className="text-[11px] font-medium text-gray-500 mt-0.5">
-              {buyers.length} {lang === 'sw' ? 'wanunuzi' : 'buyers with balance'}
+            <div className="text-xs font-medium text-gray-600 mt-0.5">
+              {sw ? `Wanunuzi ${owed.buyersOwing} wanadaiwa` : `${owed.buyersOwing} buyer${owed.buyersOwing === 1 ? '' : 's'} owing`}
+              {owed.advancesHeld > 0 && (sw ? ` · mapema KSh ${owed.advancesHeld.toLocaleString()}` : ` · KSh ${owed.advancesHeld.toLocaleString()} advances`)}
             </div>
           </div>
         </div>
@@ -301,7 +313,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
           <div className="flex items-center space-x-2">
             <Receipt className="w-4 h-4 text-[#A8BFA5]" />
             <h2 className="text-sm font-bold">
-              {lang === 'sw' ? 'Hali ya Kifedha ya Shamba' : 'Operating Profit & Expense Snapshot'}
+              {sw ? `Fedha za ${monthName}` : `${monthName} so far`}
             </h2>
           </div>
           <button
@@ -315,17 +327,24 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
 
         <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 pt-1">
           <div className="p-3 bg-white/10 rounded-2xl">
-            <span className="text-[11px] text-[#cbdbcf] block">Total Expenses</span>
-            <span className="text-lg font-black text-rose-300">KSh {totalExpenses.toLocaleString()}</span>
+            <span className="text-xs text-[#cbdbcf] block">{sw ? 'Mauzo yaliyodaiwa' : 'Milk billed'}</span>
+            <span className="text-lg font-black text-[#C6A76A]">KSh {monthSales.billed.toLocaleString()}</span>
           </div>
           <div className="p-3 bg-white/10 rounded-2xl">
-            <span className="text-[11px] text-[#cbdbcf] block">Estimated Revenue</span>
-            <span className="text-lg font-black text-[#C6A76A]">KSh 45,000+</span>
+            <span className="text-xs text-[#cbdbcf] block">{sw ? 'Gharama' : 'Expenses'}</span>
+            <span className="text-lg font-black text-rose-300">KSh {monthExpenses.amount.toLocaleString()}</span>
           </div>
           <div className="p-3 bg-white/10 rounded-2xl col-span-2 sm:col-span-1">
-            <span className="text-[11px] text-[#cbdbcf] block">Net Surplus / Margin</span>
-            <span className="text-lg font-black text-[#A8BFA5]">+KSh {(45000 - totalExpenses > 0 ? 45000 - totalExpenses : 0).toLocaleString()}</span>
+            <span className="text-xs text-[#cbdbcf] block">{sw ? 'Ziada (mauzo − gharama)' : 'Surplus (billed − expenses)'}</span>
+            <span className={`text-lg font-black ${monthSurplus >= 0 ? 'text-[#A8BFA5]' : 'text-rose-300'}`}>
+              {monthSurplus >= 0 ? '+' : '−'}KSh {Math.abs(monthSurplus).toLocaleString()}
+            </span>
           </div>
+          <p className="col-span-2 sm:col-span-3 text-xs text-[#cbdbcf]">
+            {sw
+              ? `Pesa iliyopokelewa mwezi huu: KSh ${cashMonth.amount.toLocaleString()}. Mauzo yaliyodaiwa si sawa na pesa iliyopokelewa.`
+              : `Cash actually received this month: KSh ${cashMonth.amount.toLocaleString()}. Billed sales are not the same as cash received.`}
+          </p>
         </div>
       </div>
 

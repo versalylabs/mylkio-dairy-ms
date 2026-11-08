@@ -1,14 +1,16 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { Buyer, Delivery, Language } from '@/types';
+import { Buyer, Delivery, Language, PaymentRecord } from '@/types';
 import { translations } from '@/lib/translations';
+import { farmToday } from '@/lib/dates';
+import { acceptedLitres as accepted, deliveryCharge } from '@/lib/ledger';
 import { X, Check, Truck, AlertCircle } from 'lucide-react';
 
 interface RecordDeliveryModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onSave: (delivery: Omit<Delivery, 'id' | 'createdAt' | 'farmId' | 'synced'>) => void;
+  onSave: (delivery: Omit<Delivery, 'id' | 'createdAt' | 'farmId' | 'synced'>, paymentMethod: PaymentRecord['paymentMethod']) => void;
   buyers: Buyer[];
   lang: Language;
 }
@@ -21,16 +23,18 @@ export const RecordDeliveryModal: React.FC<RecordDeliveryModalProps> = ({
   lang,
 }) => {
   const t = translations[lang];
-  const todayStr = new Date().toISOString().split('T')[0];
 
   const [buyerId, setBuyerId] = useState(buyers[0]?.id || '');
-  const [date, setDate] = useState(todayStr);
+  const [date, setDate] = useState(farmToday());
+  const [paymentMethod, setPaymentMethod] = useState<PaymentRecord['paymentMethod']>('cash');
   const [litres, setLitres] = useState<string>('');
   const [ratePerLitre, setRatePerLitre] = useState<number>(48);
   const [rejectedLitres, setRejectedLitres] = useState<string>('0');
   const [adjustmentKSh, setAdjustmentKSh] = useState<string>('0');
   const [amountPaid, setAmountPaid] = useState<string>('0');
   const [notes, setNotes] = useState('');
+  const [slipReference, setSlipReference] = useState('');
+  const [rejectionReason, setRejectionReason] = useState('');
   const [error, setError] = useState('');
 
   const selectedBuyer = buyers.find((b) => b.id === buyerId);
@@ -47,14 +51,19 @@ export const RecordDeliveryModal: React.FC<RecordDeliveryModalProps> = ({
     }
   }, [buyers, buyerId]);
 
+  // A modal left open overnight must not keep yesterday's date.
+  useEffect(() => {
+    if (isOpen) setDate(farmToday());
+  }, [isOpen]);
+
   if (!isOpen) return null;
 
   const numLitres = parseFloat(litres) || 0;
   const numRejected = parseFloat(rejectedLitres) || 0;
-  const acceptedLitres = Math.max(0, numLitres - numRejected);
   const numAdjustment = parseFloat(adjustmentKSh) || 0;
-  const expectedAmount = Math.max(0, acceptedLitres * ratePerLitre + numAdjustment);
-  const numPaid = parseFloat(amountPaid) || 0;
+  const acceptedLitres = accepted({ litres: numLitres, rejectedLitres: numRejected });
+  const expectedAmount = deliveryCharge({ litres: numLitres, rejectedLitres: numRejected, ratePerLitre, adjustmentKSh: numAdjustment });
+  const numPaid = Math.max(0, parseFloat(amountPaid) || 0);
   const netBalance = expectedAmount - numPaid;
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -65,6 +74,14 @@ export const RecordDeliveryModal: React.FC<RecordDeliveryModalProps> = ({
     }
     if (numLitres <= 0) {
       setError(lang === 'sw' ? 'Weka lita zilizopelekwa' : 'Please enter delivered litres');
+      return;
+    }
+    if (numRejected < 0 || numRejected > numLitres) {
+      setError(lang === 'sw' ? 'Lita zilizokataliwa haziwezi kuzidi zilizopelekwa' : 'Rejected litres cannot be more than the litres delivered');
+      return;
+    }
+    if (ratePerLitre <= 0) {
+      setError(lang === 'sw' ? 'Weka bei kwa lita' : 'Please enter the rate per litre');
       return;
     }
 
@@ -81,7 +98,9 @@ export const RecordDeliveryModal: React.FC<RecordDeliveryModalProps> = ({
       amountPaid: numPaid,
       balance: netBalance,
       notes: notes.trim() || undefined,
-    });
+      slipReference: slipReference.trim() || undefined,
+      rejectionReason: numRejected > 0 ? rejectionReason.trim() || undefined : undefined,
+    }, paymentMethod);
 
     // Reset
     setLitres('');
@@ -89,6 +108,8 @@ export const RecordDeliveryModal: React.FC<RecordDeliveryModalProps> = ({
     setAdjustmentKSh('0');
     setAmountPaid('0');
     setNotes('');
+    setSlipReference('');
+    setRejectionReason('');
     setError('');
     onClose();
   };
@@ -174,7 +195,7 @@ export const RecordDeliveryModal: React.FC<RecordDeliveryModalProps> = ({
               </label>
               <input
                 type="number"
-                step="0.5"
+                step="any"
                 value={ratePerLitre}
                 onChange={(e) => setRatePerLitre(parseFloat(e.target.value) || 0)}
                 className="w-full px-3 py-2.5 rounded-xl border border-gray-300 focus:ring-2 focus:ring-dairy-500 text-sm font-semibold"
@@ -191,7 +212,7 @@ export const RecordDeliveryModal: React.FC<RecordDeliveryModalProps> = ({
             <div className="relative">
               <input
                 type="number"
-                step="0.5"
+                step="0.1"
                 min="0.1"
                 value={litres}
                 onChange={(e) => setLitres(e.target.value)}
@@ -213,7 +234,7 @@ export const RecordDeliveryModal: React.FC<RecordDeliveryModalProps> = ({
                 </label>
                 <input
                   type="number"
-                  step="0.5"
+                  step="0.1"
                   min="0"
                   value={rejectedLitres}
                   onChange={(e) => setRejectedLitres(e.target.value)}
@@ -224,11 +245,11 @@ export const RecordDeliveryModal: React.FC<RecordDeliveryModalProps> = ({
 
               <div>
                 <label className="block text-[11px] font-semibold text-gray-600 mb-1">
-                  {lang === 'sw' ? 'Marekebisho (KSh transport/feed)' : 'Deductions (KSh -transport)'}
+                  {lang === 'sw' ? 'Makato (KSh, weka kama hasi: -100)' : 'Deductions (KSh, enter as negative: -100)'}
                 </label>
                 <input
                   type="number"
-                  step="10"
+                  step="any"
                   value={adjustmentKSh}
                   onChange={(e) => setAdjustmentKSh(e.target.value)}
                   placeholder="-100"
@@ -238,10 +259,33 @@ export const RecordDeliveryModal: React.FC<RecordDeliveryModalProps> = ({
             </div>
           </div>
 
+          {(selectedBuyer?.type === 'cooperative' || numRejected > 0) && (
+            <div className="grid grid-cols-2 gap-3">
+              {selectedBuyer?.type === 'cooperative' && (
+                <div>
+                  <label htmlFor="delivery-slip" className="block text-xs font-semibold uppercase tracking-wider text-gray-700 mb-1">
+                    {lang === 'sw' ? 'Nambari ya risiti ya kituo' : 'Delivery slip no.'}
+                  </label>
+                  <input id="delivery-slip" type="text" value={slipReference} onChange={(e) => setSlipReference(e.target.value)}
+                    placeholder="e.g. RG-1108" className="w-full px-3 py-2.5 rounded-xl border border-gray-300 focus:ring-2 focus:ring-dairy-500 text-sm" />
+                </div>
+              )}
+              {numRejected > 0 && (
+                <div>
+                  <label htmlFor="delivery-reject-reason" className="block text-xs font-semibold uppercase tracking-wider text-gray-700 mb-1">
+                    {lang === 'sw' ? 'Sababu ya kukataliwa' : 'Rejection reason'}
+                  </label>
+                  <input id="delivery-reject-reason" type="text" value={rejectionReason} onChange={(e) => setRejectionReason(e.target.value)}
+                    placeholder={lang === 'sw' ? 'mfano Kipimo cha alkoholi' : 'e.g. Failed alcohol test'} className="w-full px-3 py-2.5 rounded-xl border border-gray-300 focus:ring-2 focus:ring-dairy-500 text-sm" />
+                </div>
+              )}
+            </div>
+          )}
+
           {/* Real-time Calculation Summary */}
           <div className="p-3.5 bg-[#FAF9F5] border border-[#E8E4D8] rounded-2xl space-y-2 text-xs">
             <div className="flex items-center justify-between text-[#26332D] font-medium">
-              <span>Accepted Litres:</span>
+              <span>{lang === 'sw' ? 'Lita zilizokubaliwa:' : 'Accepted litres (billed):'}</span>
               <span className="font-bold">{acceptedLitres.toFixed(1)} L</span>
             </div>
             <div className="flex items-center justify-between text-[#26332D] font-semibold text-sm pt-1 border-t border-[#E8E4D8]">
@@ -268,13 +312,32 @@ export const RecordDeliveryModal: React.FC<RecordDeliveryModalProps> = ({
 
             <div>
               <label className="block text-xs font-semibold uppercase tracking-wider text-gray-700 mb-1">
-                {lang === 'sw' ? 'Baki (Deni)' : 'Balance Due'}
+                {lang === 'sw' ? 'Njia ya malipo' : 'Paid by'}
               </label>
-              <div className="px-3 py-2.5 rounded-xl border border-gray-200 bg-gray-50 text-sm font-extrabold text-[#b39252]">
-                KSh {netBalance.toLocaleString()}
-              </div>
+              <select
+                value={paymentMethod}
+                onChange={(e) => setPaymentMethod(e.target.value as PaymentRecord['paymentMethod'])}
+                disabled={numPaid <= 0}
+                className="w-full px-3 py-2.5 rounded-xl border border-gray-300 focus:ring-2 focus:ring-dairy-500 text-sm font-semibold bg-white disabled:bg-gray-50 disabled:text-gray-400"
+              >
+                <option value="cash">{lang === 'sw' ? 'Pesa taslimu' : 'Cash'}</option>
+                <option value="mpesa">M-Pesa</option>
+                <option value="bank">{lang === 'sw' ? 'Benki' : 'Bank'}</option>
+                <option value="other">{lang === 'sw' ? 'Nyingine' : 'Other'}</option>
+              </select>
             </div>
           </div>
+          <p className="text-sm text-gray-600 -mt-1">
+            {numPaid > 0
+              ? (lang === 'sw'
+                  ? `KSh ${numPaid.toLocaleString()} itarekodiwa kama risiti moja. KSh ${netBalance.toLocaleString()} itaongezwa kwenye akaunti ya mnunuzi.`
+                  : netBalance >= 0
+                  ? `KSh ${numPaid.toLocaleString()} will be recorded once as a receipt. KSh ${netBalance.toLocaleString()} goes on the buyer's account.`
+                  : `KSh ${numPaid.toLocaleString()} will be recorded once as a receipt. The extra KSh ${Math.abs(netBalance).toLocaleString()} is held as an advance.`)
+              : (lang === 'sw'
+                  ? `KSh ${expectedAmount.toLocaleString()} itaongezwa kwenye akaunti ya mnunuzi.`
+                  : `KSh ${expectedAmount.toLocaleString()} goes on the buyer's account.`)}
+          </p>
 
           <div>
             <label className="block text-xs font-semibold uppercase tracking-wider text-gray-700 mb-1">

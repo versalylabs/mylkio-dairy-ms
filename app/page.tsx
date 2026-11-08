@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { 
   Cow, 
   Buyer, 
@@ -16,9 +16,18 @@ import {
   UserAccount,
   SubscriptionPlan,
   Testimonial,
-  PlatformSettings
+  PlatformSettings,
+  CoopStatement,
+  CustomerBill,
+  PaymentAllocation,
 } from '@/types';
+import type { OpenTarget } from '@/lib/settlements';
 import { AppStorage } from '@/lib/storage';
+import { SecureAuth } from '@/lib/auth-client';
+import { withLedgerBalances } from '@/lib/ledger';
+import { sessionLabel } from '@/lib/milk';
+import { formatFarmDate, farmToday } from '@/lib/dates';
+import { CloudSaveNotice } from '@/components/sync/CloudSaveNotice';
 import { Shell } from '@/components/layout/Shell';
 import { DashboardView } from '@/components/dashboard/DashboardView';
 import { HerdView } from '@/components/herd/HerdView';
@@ -41,6 +50,7 @@ import { AuthModal } from '@/components/auth/AuthModal';
 
 export default function Home() {
   const [mounted, setMounted] = useState(false);
+  const [accountError, setAccountError] = useState('');
   const [currentUser, setCurrentUser] = useState<UserAccount | null>(null);
   const [impersonatedFarmId, setImpersonatedFarmId] = useState<string | null>(null);
 
@@ -64,6 +74,9 @@ export default function Home() {
   const [breedingEvents, setBreedingEvents] = useState<BreedingEvent[]>([]);
   const [expenses, setExpenses] = useState<ExpenseRecord[]>([]);
   const [reminders, setReminders] = useState<FarmReminder[]>([]);
+  const [statements, setStatements] = useState<CoopStatement[]>([]);
+  const [bills, setBills] = useState<CustomerBill[]>([]);
+  const [allocations, setAllocations] = useState<PaymentAllocation[]>([]);
 
   // Modals state
   const [isCowModalOpen, setIsCowModalOpen] = useState(false);
@@ -79,6 +92,16 @@ export default function Home() {
   const [isBreedingModalOpen, setIsBreedingModalOpen] = useState(false);
   const [isExpenseModalOpen, setIsExpenseModalOpen] = useState(false);
   const [isExportModalOpen, setIsExportModalOpen] = useState(false);
+
+  const [notice, setNotice] = useState<{ kind: 'success' | 'error'; text: string } | null>(null);
+  useEffect(() => {
+    if (!notice) return;
+    const timer = window.setTimeout(() => setNotice(null), 5000);
+    return () => window.clearTimeout(timer);
+  }, [notice]);
+
+  // Buyer balances are always derived from the ledger, never from a stored total.
+  const ledgerBuyers = useMemo(() => withLedgerBalances(buyers, deliveries, payments, statements), [buyers, deliveries, payments, statements]);
 
   const currentTargetFarmId = impersonatedFarmId || (currentUser?.farmId) || 'farm-green-hills';
 
@@ -98,14 +121,21 @@ export default function Home() {
     setBreedingEvents(AppStorage.getBreedingEvents(activeFarmId));
     setExpenses(AppStorage.getExpenses(activeFarmId));
     setReminders(AppStorage.getReminders(activeFarmId));
+    setStatements(AppStorage.getStatements(activeFarmId));
+    setBills(AppStorage.getBills(activeFarmId));
+    setAllocations(AppStorage.getAllocations(activeFarmId));
     setLang(AppStorage.getLanguage());
     setTestimonials(AppStorage.getTestimonials());
     setPlatformSettings(AppStorage.getPlatformSettings());
   };
 
   useEffect(() => {
-    setMounted(true);
-    refreshData();
+    let cancelled = false;
+    void SecureAuth.initialize().then(() => {
+      if (!cancelled) refreshData();
+    }).catch((error) => {
+      if (!cancelled) setAccountError(error instanceof Error ? error.message : 'Could not load account.');
+    }).finally(() => { if (!cancelled) setMounted(true); });
 
     // Register Service Worker for PWA offline readiness
     if (typeof window !== 'undefined' && 'serviceWorker' in navigator) {
@@ -127,8 +157,11 @@ export default function Home() {
     window.addEventListener('mylkio_reminders_changed', handleStorageChange);
     window.addEventListener('mylkio_testimonials_changed', handleStorageChange);
     window.addEventListener('mylkio_settings_changed', handleStorageChange);
+    window.addEventListener('mylkio_farm_data_synced', handleStorageChange);
+    window.addEventListener('mylkio_settlements_changed', handleStorageChange);
 
     return () => {
+      cancelled = true;
       window.removeEventListener('mylkio_auth_changed', handleStorageChange);
       window.removeEventListener('mylkio_cows_changed', handleStorageChange);
       window.removeEventListener('mylkio_buyers_changed', handleStorageChange);
@@ -143,8 +176,19 @@ export default function Home() {
       window.removeEventListener('mylkio_reminders_changed', handleStorageChange);
       window.removeEventListener('mylkio_testimonials_changed', handleStorageChange);
       window.removeEventListener('mylkio_settings_changed', handleStorageChange);
+      window.removeEventListener('mylkio_farm_data_synced', handleStorageChange);
+      window.removeEventListener('mylkio_settlements_changed', handleStorageChange);
     };
   }, [impersonatedFarmId]);
+
+  const run = (action: () => void, success?: string) => {
+    try {
+      action();
+      if (success) setNotice({ kind: 'success', text: success });
+    } catch (error) {
+      setNotice({ kind: 'error', text: error instanceof Error ? error.message : 'Could not save this record.' });
+    }
+  };
 
   if (!mounted) {
     return (
@@ -166,10 +210,13 @@ export default function Home() {
     refreshData();
   };
 
-  const handleLogout = () => {
-    AppStorage.logout();
-    setCurrentUser(null);
-    setImpersonatedFarmId(null);
+  const handleLogout = async () => {
+    try {
+      await AppStorage.logout();
+      setCurrentUser(null);
+      setImpersonatedFarmId(null);
+      setAccountError('');
+    } catch (error) { setAccountError(error instanceof Error ? error.message : 'Could not sign out.'); }
   };
 
   const handleLanguageToggle = () => {
@@ -223,35 +270,74 @@ export default function Home() {
   };
 
   const handleDeleteBuyer = (id: string) => {
-    AppStorage.deleteBuyer(id, currentTargetFarmId);
+    const result = AppStorage.deleteBuyer(id, currentTargetFarmId);
+    if (!result.deleted) setNotice({ kind: 'error', text: result.reason || 'This buyer cannot be deleted.' });
   };
 
   // Milk Entry actions
-  const handleSaveMilkEntry = (entry: Omit<MilkEntry, 'id' | 'createdAt' | 'farmId' | 'synced'>) => {
-    AppStorage.addMilkEntry(entry, currentTargetFarmId);
+  const handleSaveMilkEntry = (entry: Omit<MilkEntry, 'id' | 'createdAt' | 'farmId' | 'synced'>, replaceIds: string[] = []) => {
+    const isToday = entry.date === farmToday();
+    const sessionName = entry.session === 'total' ? (lang === 'sw' ? 'jumla ya siku' : 'day total') : entry.session;
+    const when = isToday
+      ? (lang === 'sw' ? sessionLabel(entry.session, 'sw') : `for ${sessionLabel(entry.session)}`)
+      : `(${sessionName}, ${formatFarmDate(entry.date, lang)})`;
+    const replaced = replaceIds.length
+      ? (lang === 'sw' ? ' — rekodi ya awali imebadilishwa' : ` and replaced ${replaceIds.length} earlier record${replaceIds.length > 1 ? 's' : ''}`)
+      : '';
+    const text = lang === 'sw' ? `Lita ${entry.totalLitres} zimehifadhiwa ${when}${replaced}` : `Saved ${entry.totalLitres} L ${when}${replaced}`;
+    run(() => AppStorage.addMilkEntry(entry, currentTargetFarmId, { replaceIds }), text);
   };
 
-  const handleDeleteMilkEntry = (id: string) => {
-    AppStorage.deleteMilkEntry(id, currentTargetFarmId);
+  const handleVoidMilkEntry = (id: string, reason: string) => {
+    run(() => AppStorage.voidMilkEntry(id, reason, currentTargetFarmId), lang === 'sw' ? 'Rekodi imebatilishwa. Inabaki kwenye historia lakini haihesabiwi.' : 'Milk record voided. It stays in history but is no longer counted.');
   };
 
   // Delivery actions
-  const handleSaveDelivery = (deliv: Omit<Delivery, 'id' | 'createdAt' | 'farmId' | 'synced'>) => {
-    AppStorage.addDelivery(deliv, currentTargetFarmId);
+  const handleSaveDelivery = (deliv: Omit<Delivery, 'id' | 'createdAt' | 'farmId' | 'synced'>, paymentMethod: PaymentRecord['paymentMethod']) => {
+    const accepted = Math.max(0, deliv.litres - deliv.rejectedLitres);
+    run(() => AppStorage.addDelivery(deliv, currentTargetFarmId, paymentMethod), lang === 'sw'
+      ? `Utoaji umehifadhiwa: lita ${accepted} zimekubaliwa na ${deliv.buyerName}`
+      : `Saved delivery: ${accepted} L accepted by ${deliv.buyerName}`);
   };
 
-  const handleDeleteDelivery = (id: string) => {
-    AppStorage.deleteDelivery(id, currentTargetFarmId);
+  const handleVoidDelivery = (id: string, reason: string) => {
+    run(() => AppStorage.voidDelivery(id, reason, currentTargetFarmId), lang === 'sw' ? 'Utoaji umebatilishwa. Unabaki kwenye historia lakini haudaiwi.' : 'Delivery voided. It stays in history but is no longer billed.');
   };
 
   // Payment actions
-  const handleSavePayment = (pay: Omit<PaymentRecord, 'id' | 'createdAt' | 'farmId' | 'synced'>) => {
-    AppStorage.addPayment(pay, currentTargetFarmId);
+  const handleSavePayment = (pay: Omit<PaymentRecord, 'id' | 'createdAt' | 'farmId' | 'synced'>, allocateTo?: { kind: 'statement' | 'bill'; id: string }) => {
+    run(() => AppStorage.addPayment(pay, currentTargetFarmId, allocateTo), lang === 'sw'
+      ? `Malipo ya KSh ${pay.amount.toLocaleString()} kutoka kwa ${pay.buyerName} yamehifadhiwa`
+      : `Saved KSh ${pay.amount.toLocaleString()} received from ${pay.buyerName}`);
   };
 
-  const handleDeletePayment = (id: string) => {
-    AppStorage.deletePayment(id, currentTargetFarmId);
+  const handleVoidPayment = (id: string, reason: string) => {
+    run(() => AppStorage.voidPayment(id, reason, currentTargetFarmId), lang === 'sw' ? 'Malipo yamebatilishwa. Yanabaki kwenye historia lakini hayahesabiwi.' : 'Payment voided. It stays in history but is no longer counted.');
   };
+
+  // Settlements: co-op statements, customer bills, payment allocations
+  const tryRun = (action: () => void, success: string) => {
+    try {
+      action();
+      setNotice({ kind: 'success', text: success });
+      return true;
+    } catch (error) {
+      setNotice({ kind: 'error', text: error instanceof Error ? error.message : 'Could not save this record.' });
+      return false;
+    }
+  };
+
+  const handleSaveStatement = (st: Omit<CoopStatement, 'id' | 'farmId' | 'synced' | 'createdAt'>) =>
+    tryRun(() => AppStorage.addStatement(st, currentTargetFarmId),
+      lang === 'sw' ? `Taarifa ya ${st.buyerName} imehifadhiwa` : `Saved ${st.buyerName} statement for ${st.periodFrom} to ${st.periodTo}`);
+
+  const handleCreateBill = (buyerId: string, range: { from: string; to: string }, dueDate?: string) =>
+    tryRun(() => { AppStorage.createBill(buyerId, range, dueDate, currentTargetFarmId); },
+      lang === 'sw' ? 'Bili imetengenezwa' : 'Bill created. Its deliveries cannot be billed again.');
+
+  const handleAllocate = (paymentId: string, target: OpenTarget, amount: number) =>
+    tryRun(() => { AppStorage.allocatePayment(paymentId, target, amount, currentTargetFarmId); },
+      lang === 'sw' ? `KSh ${amount.toLocaleString()} imeunganishwa` : `Applied KSh ${amount.toLocaleString()} to ${target.label}`);
 
   // Health actions
   const handleSaveHealth = (event: Omit<HealthEvent, 'id' | 'createdAt' | 'farmId'>) => {
@@ -286,6 +372,7 @@ export default function Home() {
   if (!currentUser) {
     return (
       <>
+        {accountError && <div role="alert" className="bg-amber-50 p-4 text-center text-sm text-amber-950">{accountError}<button className="ml-3 underline" onClick={() => window.location.reload()}>Retry</button></div>}
         <MarketingLandingPage
           onOpenAuth={(mode, plan) => {
             setAuthModalMode(mode);
@@ -319,10 +406,7 @@ export default function Home() {
     return (
       <PlatformAdminView
         onLogout={handleLogout}
-        onImpersonateFarm={(farmId) => {
-          setImpersonatedFarmId(farmId);
-          refreshData();
-        }}
+        onImpersonateFarm={() => {}}
       />
     );
   }
@@ -346,10 +430,21 @@ export default function Home() {
         refreshData();
       }}
     >
+      <CloudSaveNotice />
+      {notice && (
+        <div
+          role={notice.kind === 'error' ? 'alert' : 'status'}
+          className={`fixed bottom-24 md:bottom-6 left-1/2 -translate-x-1/2 z-[60] w-[calc(100%-2rem)] max-w-md px-4 py-3 rounded-2xl shadow-lg text-sm font-semibold flex items-center justify-between gap-3 ${notice.kind === 'error' ? 'bg-rose-700 text-white' : 'bg-[#26332D] text-white'}`}
+        >
+          <span>{notice.text}</span>
+          <button type="button" onClick={() => setNotice(null)} className="underline text-xs opacity-80 shrink-0" aria-label="Dismiss message">OK</button>
+        </div>
+      )}
+      {accountError && <p role="alert" className="rounded-xl bg-amber-50 p-3 text-sm">{accountError}</p>}
       {activeTab === 'home' && (
         <DashboardView
           cows={cows}
-          buyers={buyers}
+          buyers={ledgerBuyers}
           milkEntries={milkEntries}
           deliveries={deliveries}
           payments={payments}
@@ -373,7 +468,7 @@ export default function Home() {
           entries={milkEntries}
           cows={cows}
           onOpenRecordModal={() => setIsRecordMilkModalOpen(true)}
-          onDeleteEntry={handleDeleteMilkEntry}
+          onVoidEntry={handleVoidMilkEntry}
           lang={lang}
         />
       )}
@@ -397,16 +492,25 @@ export default function Home() {
 
       {activeTab === 'sales' && (
         <SalesView
-          buyers={buyers}
+          buyers={ledgerBuyers}
           deliveries={deliveries}
           payments={payments}
           onOpenAddBuyer={handleOpenAddBuyer}
           onEditBuyer={handleEditBuyer}
           onDeleteBuyer={handleDeleteBuyer}
           onOpenRecordDelivery={() => setIsRecordDeliveryModalOpen(true)}
-          onDeleteDelivery={handleDeleteDelivery}
+          onVoidDelivery={handleVoidDelivery}
           onOpenRecordPayment={() => setIsRecordPaymentModalOpen(true)}
-          onDeletePayment={handleDeletePayment}
+          onVoidPayment={handleVoidPayment}
+          statements={statements}
+          bills={bills}
+          allocations={allocations}
+          farm={farm}
+          onSaveStatement={handleSaveStatement}
+          onVoidStatement={(id, reason) => run(() => AppStorage.voidStatement(id, reason, currentTargetFarmId), lang === 'sw' ? 'Taarifa imebatilishwa' : 'Statement voided.')}
+          onCreateBill={handleCreateBill}
+          onVoidBill={(id, reason) => run(() => AppStorage.voidBill(id, reason, currentTargetFarmId), lang === 'sw' ? 'Bili imebatilishwa' : 'Bill voided. Its deliveries can be billed again.')}
+          onAllocate={handleAllocate}
           lang={lang}
         />
       )}
@@ -464,6 +568,8 @@ export default function Home() {
         onClose={() => setIsRecordMilkModalOpen(false)}
         onSave={handleSaveMilkEntry}
         cows={cows}
+        entries={milkEntries}
+        healthEvents={healthEvents}
         lang={lang}
       />
 
@@ -471,7 +577,7 @@ export default function Home() {
         isOpen={isRecordDeliveryModalOpen}
         onClose={() => setIsRecordDeliveryModalOpen(false)}
         onSave={handleSaveDelivery}
-        buyers={buyers}
+        buyers={ledgerBuyers}
         lang={lang}
       />
 
@@ -479,7 +585,9 @@ export default function Home() {
         isOpen={isRecordPaymentModalOpen}
         onClose={() => setIsRecordPaymentModalOpen(false)}
         onSave={handleSavePayment}
-        buyers={buyers}
+        buyers={ledgerBuyers}
+        payments={payments}
+        openTargetsFor={(buyerId) => AppStorage.getOpenTargets(buyerId, currentTargetFarmId)}
         lang={lang}
       />
 
@@ -518,6 +626,10 @@ export default function Home() {
         health={healthEvents}
         breeding={breedingEvents}
         expenses={expenses}
+        reminders={reminders}
+        statements={statements}
+        bills={bills}
+        allocations={allocations}
         lang={lang}
       />
     </Shell>
