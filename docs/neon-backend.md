@@ -1,6 +1,8 @@
 # Neon backend
 
-Status: implemented and tested locally on branch `codex/neon-backend` (8 November 2026). It replaces the Supabase backend from Phase 2. It has not been run against a real Neon project yet: sign-in, the cookie session and the hosted database are untested until you complete the setup below.
+Status: implemented on branch `codex/neon-backend` (8 November 2026). It replaces the Supabase backend from Phase 2.
+
+Set up on 9 November 2026: the Neon project (Frankfurt, Postgres 18) has a `production` branch and a `preview` branch (never auto-deleted). Both migrations were applied to `production` through the console SQL editor and recorded in `public.schema_migrations`, and `preview` was branched from it afterwards, so it has the same schema. A throwaway-farm smoke test on Postgres 18.6 passed: farm creation, owner download, a stranger refused (SQLSTATE 42501) and a record write, all rolled back. Neon Auth is enabled on `preview` only, with the Vercel preview address as a trusted domain, email sign-up on and "Verify at Sign-up" off. Still to do: set the three environment variables in Vercel for the preview, redeploy, and test sign-up end to end. Production has no Auth enabled and no Vercel variables yet.
 
 ## How it fits together
 
@@ -28,7 +30,7 @@ You need a Neon account. **Use one Neon project for production and a separate br
 
 1. **Create the project** in the Neon console. Pick any AWS region; Frankfurt (`aws-eu-central-1`) is the closest to Kenya.
 2. **Enable Auth** on the branch (Auth tab) and copy its Auth URL. In Auth settings, keep **Verify email at signup** off for the pilot (see Limits). Add your site as a trusted domain: `https://mylkio-dairy-ms.vercel.app` and `http://localhost:3005` for local work.
-3. **Apply the schema** from your own machine with the *direct* (non-pooled) connection string:
+3. **Apply the schema.** Either paste `db/migrations/0001_*.sql` then `0002_*.sql` into the Neon SQL editor (no connection string needed; add the two rows to `public.schema_migrations` yourself), or run it from your own machine with the *direct* (non-pooled) connection string:
    ```bash
    DATABASE_URL_UNPOOLED="postgres://…" npm run db:migrate
    ```
@@ -60,5 +62,6 @@ update public.profiles set role = 'super_admin' where email = 'person@example.co
 - **Email confirmation.** Neon's shared email sender supports confirmation *codes*, not confirmation *links*, and production needs your own SMTP provider. This app has no screen for entering a code, so keep "Verify email at signup" off for the pilot. Add custom SMTP and a code screen before opening sign-up widely. Password reset needs email too.
 - **Phone sign-up.** Neon Auth has no phone-first sign-up: a user links a phone number after signing up. Sign-up stays email and password. The phone number is collected as a contact detail.
 - **Farm setup after sign-up.** Sign-up details are kept on the device until the account has a session, then the farm is created. If someone signs up on one device and signs in on another before that happens, the app asks them to repeat "Create account" with the same email and password to finish. That path resumes setup rather than failing.
+- **Sign-up is open to anyone.** Neon Auth currently has no restricted-sign-up option, so anyone who finds the site can create an account and a trial farm. Fine for a pilot with a few farms; plan a gate (invite code or admin approval) before promoting the site widely.
 - **Owner-only writes.** Manager and worker roles are in the schema but not yet permitted to write.
 - **Local storage.** Records are still cached in `localStorage` (about 5 MB). IndexedDB is the next offline step.
