@@ -1,6 +1,9 @@
 'use client';
 
-import { Cow, MilkEntry, Delivery, PaymentRecord, ExpenseRecord, HealthEvent, BreedingEvent, Farm } from '@/types';
+import { Cow, MilkEntry, Delivery, PaymentRecord, ExpenseRecord, HealthEvent, BreedingEvent, Farm, FarmReminder } from '@/types';
+import { farmToday } from './dates';
+import { acceptedLitres, deliveryCharge } from './ledger';
+import { countedEntryIds } from './milk';
 
 function downloadFile(content: string, fileName: string, mimeType: string) {
   if (typeof window === 'undefined') return;
@@ -17,12 +20,14 @@ function downloadFile(content: string, fileName: string, mimeType: string) {
 
 export const DataExporter = {
   exportMilkToCSV(entries: MilkEntry[]) {
-    const headers = ['Date', 'Session', 'Mode', 'Total Litres', 'Sold (L)', 'Household (L)', 'Calves (L)', 'Waste (L)', 'Notes'];
+    const headers = ['Date', 'Session', 'Mode', 'Total Litres', 'Status', 'Sold (L)', 'Household (L)', 'Calves (L)', 'Waste (L)', 'Notes'];
+    const counted = countedEntryIds(entries);
     const rows = entries.map((e) => [
       e.date,
       e.session,
       e.mode,
       e.totalLitres,
+      e.voidedAt ? `"Voided: ${(e.voidReason || '').replace(/"/g, '""')}"` : counted.has(e.id) ? 'Counted' : 'Not counted (overlap)',
       e.allocation?.soldLitres ?? '',
       e.allocation?.householdLitres ?? '',
       e.allocation?.calvesLitres ?? '',
@@ -31,27 +36,28 @@ export const DataExporter = {
     ]);
 
     const csvContent = [headers.join(','), ...rows.map((r) => r.join(','))].join('\n');
-    downloadFile(csvContent, `mylkio_milk_production_${new Date().toISOString().split('T')[0]}.csv`, 'text/csv;charset=utf-8;');
+    downloadFile(csvContent, `mylkio_milk_production_${farmToday()}.csv`, 'text/csv;charset=utf-8;');
   },
 
   exportDeliveriesToCSV(deliveries: Delivery[]) {
-    const headers = ['Date', 'Buyer Name', 'Buyer Type', 'Delivered Litres', 'Rate (KSh)', 'Rejected (L)', 'Adjustment (KSh)', 'Expected (KSh)', 'Paid (KSh)', 'Balance (KSh)', 'Notes'];
+    const headers = ['Date', 'Buyer Name', 'Buyer Type', 'Delivered Litres', 'Rejected (L)', 'Accepted (L)', 'Rate (KSh)', 'Adjustment (KSh)', 'Charge (KSh)', 'Paid at Delivery (KSh)', 'Status', 'Notes'];
     const rows = deliveries.map((d) => [
       d.date,
       `"${d.buyerName.replace(/"/g, '""')}"`,
       d.buyerType,
       d.litres,
-      d.ratePerLitre,
       d.rejectedLitres,
+      acceptedLitres(d),
+      d.ratePerLitre,
       d.adjustmentKSh,
-      d.expectedAmount,
+      deliveryCharge(d),
       d.amountPaid,
-      d.balance,
+      d.voidedAt ? `"Voided: ${(d.voidReason || '').replace(/"/g, '""')}"` : 'Active',
       `"${(d.notes || '').replace(/"/g, '""')}"`,
     ]);
 
     const csvContent = [headers.join(','), ...rows.map((r) => r.join(','))].join('\n');
-    downloadFile(csvContent, `mylkio_deliveries_ledger_${new Date().toISOString().split('T')[0]}.csv`, 'text/csv;charset=utf-8;');
+    downloadFile(csvContent, `mylkio_deliveries_ledger_${farmToday()}.csv`, 'text/csv;charset=utf-8;');
   },
 
   exportExpensesToCSV(expenses: ExpenseRecord[]) {
@@ -67,7 +73,7 @@ export const DataExporter = {
     ]);
 
     const csvContent = [headers.join(','), ...rows.map((r) => r.join(','))].join('\n');
-    downloadFile(csvContent, `mylkio_farm_expenses_${new Date().toISOString().split('T')[0]}.csv`, 'text/csv;charset=utf-8;');
+    downloadFile(csvContent, `mylkio_farm_expenses_${farmToday()}.csv`, 'text/csv;charset=utf-8;');
   },
 
   exportHerdToCSV(cows: Cow[]) {
@@ -85,7 +91,7 @@ export const DataExporter = {
     ]);
 
     const csvContent = [headers.join(','), ...rows.map((r) => r.join(','))].join('\n');
-    downloadFile(csvContent, `mylkio_herd_registry_${new Date().toISOString().split('T')[0]}.csv`, 'text/csv;charset=utf-8;');
+    downloadFile(csvContent, `mylkio_herd_registry_${farmToday()}.csv`, 'text/csv;charset=utf-8;');
   },
 
   exportFullBackupJSON(backupData: {
@@ -98,8 +104,9 @@ export const DataExporter = {
     health: HealthEvent[];
     breeding: BreedingEvent[];
     expenses: ExpenseRecord[];
+    reminders: FarmReminder[];
   }) {
-    const content = JSON.stringify(backupData, null, 2);
-    downloadFile(content, `mylkio_full_farm_backup_${new Date().toISOString().split('T')[0]}.json`, 'application/json');
+    const content = JSON.stringify({ schemaVersion: 2, exportedAt: new Date().toISOString(), ...backupData }, null, 2);
+    downloadFile(content, `mylkio_full_farm_backup_${farmToday()}.json`, 'application/json');
   }
 };

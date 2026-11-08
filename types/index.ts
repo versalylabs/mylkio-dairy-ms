@@ -67,7 +67,17 @@ export interface Buyer {
   ratePerLitre: number;
   deliverySchedule?: 'daily' | 'twice_daily' | 'on_demand';
   paymentCycle?: 'monthly' | 'weekly' | 'daily' | 'advance';
-  currentBalance: number; // Positive = buyer owes farmer, Negative = advance
+  /**
+   * Display value only. The authoritative balance is calculated by
+   * `lib/ledger.ts` from openingBalance + charges − receipts. Positive = buyer
+   * owes the farm, negative = advance held for the buyer.
+   */
+  currentBalance: number;
+  /** Amount owed (positive) or held as advance (negative) when the ledger started. */
+  openingBalance?: number;
+  openingBalanceDate?: string;
+  /** Set once the buyer's balance is derived from the ledger (1 = Phase 3 ledger). */
+  ledgerVersion?: number;
   notes?: string;
   createdAt: string;
 }
@@ -96,6 +106,11 @@ export interface MilkEntry {
   notes?: string;
   synced: boolean;
   createdAt: string;
+  /** Corrections never delete: a voided record stays visible but is not counted. */
+  voidedAt?: string;
+  voidReason?: string;
+  /** The entry that replaced this one, when voided as an overlap correction. */
+  replacedById?: string;
 }
 
 export interface Delivery {
@@ -110,11 +125,16 @@ export interface Delivery {
   rejectedLitres: number;
   adjustmentKSh: number; // e.g. deductions or transport
   expectedAmount: number; // (litres - rejectedLitres) * rate + adjustment
+  /** Paid when delivered. Also recorded once as a linked PaymentRecord (source 'delivery'). */
   amountPaid: number;
+  /** Legacy per-delivery balance. Not used for buyer balances. */
   balance: number;
   synced: boolean;
   notes?: string;
   createdAt: string;
+  /** Corrections never delete: a voided record stays visible but is not counted. */
+  voidedAt?: string;
+  voidReason?: string;
 }
 
 export interface PaymentRecord {
@@ -129,6 +149,12 @@ export interface PaymentRecord {
   notes?: string;
   synced: boolean;
   createdAt: string;
+  /** 'delivery' = taken at delivery time and linked to that delivery. */
+  source?: 'receipt' | 'delivery';
+  deliveryId?: string;
+  /** Corrections never delete: a voided record stays visible but is not counted. */
+  voidedAt?: string;
+  voidReason?: string;
 }
 
 export type HealthEventType = 'vaccination' | 'treatment' | 'deworming' | 'routine_check';
@@ -229,7 +255,6 @@ export interface Subscription {
 export interface UserAccount {
   id: string;
   email: string;
-  password?: string;
   role: UserRole;
   farmId: string;
   name: string;

@@ -33,3 +33,7 @@ yarn-error.log*
 *.tsbuildinfo
 
 .vercel
+
+# local agent worktrees and tooling
+.kilo/
+.claude/

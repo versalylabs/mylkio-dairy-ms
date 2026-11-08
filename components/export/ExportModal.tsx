@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { DataExporter } from '@/lib/export';
-import { Cow, MilkEntry, Delivery, ExpenseRecord, Farm, Language } from '@/types';
+import { Cow, MilkEntry, Delivery, ExpenseRecord, Farm, FarmReminder, Language } from '@/types';
 import { X, Download, FileSpreadsheet, Database, Milk, Truck, Receipt, Users } from 'lucide-react';
 
 interface ExportModalProps {
@@ -17,6 +17,7 @@ interface ExportModalProps {
   health: any[];
   breeding: any[];
   expenses: ExpenseRecord[];
+  reminders: FarmReminder[];
   lang: Language;
 }
 
@@ -32,6 +33,7 @@ export const ExportModal: React.FC<ExportModalProps> = ({
   health,
   breeding,
   expenses,
+  reminders,
   lang,
 }) => {
   if (!isOpen) return null;
@@ -187,6 +189,7 @@ export const ExportModal: React.FC<ExportModalProps> = ({
                   health,
                   breeding,
                   expenses,
+                  reminders,
                 })
               }
               className="px-3.5 py-1.5 bg-white text-dairy-900 hover:bg-dairy-50 rounded-xl text-xs font-black transition-all shadow-xs flex items-center gap-1"

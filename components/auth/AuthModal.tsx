@@ -36,6 +36,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
   const [mode, setMode] = useState<'login' | 'signup'>(initialMode);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const [notice, setNotice] = useState('');
 
   // Login form fields
   const [loginEmail, setLoginEmail] = useState('');
@@ -58,13 +59,13 @@ export const AuthModal: React.FC<AuthModalProps> = ({
 
   if (!isOpen) return null;
 
-  const handleLogin = (e: React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
     setLoading(true);
 
     try {
-      const res = AppStorage.login(loginEmail, loginPassword);
+      const res = await AppStorage.login(loginEmail, loginPassword);
       if (res.success && res.user) {
         onSuccess(res.user);
         onClose();
@@ -85,7 +86,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
     onClose();
   };
 
-  const handleSignup = (e: React.FormEvent) => {
+  const handleSignup = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
     setLoading(true);
@@ -97,13 +98,13 @@ export const AuthModal: React.FC<AuthModalProps> = ({
         return;
       }
 
-      if (signupPassword.length < 6) {
-        setError('Password must be at least 6 characters.');
+      if (signupPassword.length < 12) {
+        setError('Password must be at least 12 characters.');
         setLoading(false);
         return;
       }
 
-      const res = AppStorage.registerFarmer({
+      const res = await AppStorage.registerFarmer({
         name,
         email: signupEmail,
         password: signupPassword,
@@ -114,7 +115,10 @@ export const AuthModal: React.FC<AuthModalProps> = ({
         plan,
       });
 
-      if (res.success && res.user) {
+      if (res.confirmationRequired) {
+        setSignupPassword('');
+        setNotice('Check your email to confirm your account, then sign in.');
+      } else if (res.success && res.user) {
         onSuccess(res.user);
         onClose();
       } else {
@@ -188,6 +192,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
           </div>
         )}
 
+        {notice && <p role="status" className="mx-6 mt-4 rounded-xl bg-green-50 p-3 text-sm text-green-900">{notice}</p>}
         {/* Body Form */}
         <div className="p-6">
           {mode === 'login' ? (
@@ -364,10 +369,10 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                   <input
                     type="password"
                     required
-                    minLength={6}
+                    minLength={12}
                     value={signupPassword}
                     onChange={(e) => setSignupPassword(e.target.value)}
-                    placeholder="Min 6 chars"
+                    placeholder="Min 12 chars"
                     className="w-full px-3 py-2 text-xs rounded-xl border border-slate-200 focus:ring-2 focus:ring-dairy-100 font-medium"
                   />
                 </div>

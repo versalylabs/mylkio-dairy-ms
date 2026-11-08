@@ -35,6 +35,18 @@ import {
   initialPlatformSettings
 } from './mock-data';
 import { SyncEngine } from './sync';
+import { SecureAuth } from './auth-client';
+import { CloudStore } from './cloud-store';
+import type { BucketName } from './backend-contract';
+import { farmToday } from './dates';
+import { findMilkOverlaps } from './milk';
+import { LEDGER_VERSION, deliveryCharge, migrateLegacyLedger, receiptForDelivery, roundMoney } from './ledger';
+
+const bucketForPrefix: Record<string, BucketName> = {
+  mylkio_farm_: 'farm', mylkio_cows_: 'cows', mylkio_buyers_: 'buyers', mylkio_milk_: 'milk',
+  mylkio_deliv_: 'deliveries', mylkio_pay_: 'payments', mylkio_health_: 'health',
+  mylkio_breed_: 'breeding', mylkio_exp_: 'expenses', mylkio_rem_: 'reminders',
+};
 
 const STORAGE_KEYS = {
   ACTIVE_USER: 'mylkio_active_user',
@@ -62,193 +74,18 @@ export const AppStorage = {
   // AUTHENTICATION & MULTI-TENANCY MANAGEMENT
   // ==========================================
 
-  getAccounts(): UserAccount[] {
-    if (typeof window === 'undefined') return initialAccounts;
-    const data = localStorage.getItem(STORAGE_KEYS.ACCOUNTS);
-    if (!data) {
-      localStorage.setItem(STORAGE_KEYS.ACCOUNTS, JSON.stringify(initialAccounts));
-      return initialAccounts;
-    }
-    try {
-      const parsed = JSON.parse(data);
-      // Ensure master admin always exists
-      const hasAdmin = parsed.some((a: UserAccount) => a.email === 'versalylabs@gmail.com');
-      if (!hasAdmin) {
-        parsed.unshift(initialAccounts[0]);
-        localStorage.setItem(STORAGE_KEYS.ACCOUNTS, JSON.stringify(parsed));
-      }
-      return parsed;
-    } catch {
-      return initialAccounts;
-    }
+  // Legacy account lists are not an identity or authorization source.
+  getAccounts(): UserAccount[] { return []; },
+  saveAccounts(_accounts: UserAccount[]) { throw new Error('Use the protected administration API.'); },
+  getActiveUser(): UserAccount | null { return SecureAuth.user(); },
+  login: SecureAuth.login,
+  loginDemoUser: () => SecureAuth.demo(),
+  logout: () => SecureAuth.logout(),
+  registerFarmer(data: { name: string; email: string; password: string; phone: string; farmName: string; county: string; subCounty?: string; plan?: SubscriptionPlan }) {
+    return SecureAuth.register({ ...data, language: this.getLanguage() });
   },
-
-  saveAccounts(accounts: UserAccount[]) {
-    if (typeof window === 'undefined') return;
-    localStorage.setItem(STORAGE_KEYS.ACCOUNTS, JSON.stringify(accounts));
-    window.dispatchEvent(new Event('mylkio_accounts_changed'));
-  },
-
-  getActiveUser(): UserAccount | null {
-    if (typeof window === 'undefined') return null;
-    const data = localStorage.getItem(STORAGE_KEYS.ACTIVE_USER);
-    if (!data) return null;
-    try {
-      return JSON.parse(data);
-    } catch {
-      return null;
-    }
-  },
-
-  setActiveUser(user: UserAccount | null) {
-    if (typeof window === 'undefined') return;
-    if (user) {
-      localStorage.setItem(STORAGE_KEYS.ACTIVE_USER, JSON.stringify(user));
-    } else {
-      localStorage.removeItem(STORAGE_KEYS.ACTIVE_USER);
-    }
-    window.dispatchEvent(new Event('mylkio_auth_changed'));
-  },
-
-  login(email: string, password: string): { success: boolean; user?: UserAccount; error?: string } {
-    const trimmedEmail = email.trim().toLowerCase();
-    const accounts = this.getAccounts();
-
-    // Verify Master Admin explicitly
-    if (trimmedEmail === 'versalylabs@gmail.com') {
-      if (password === 'labversaly-16') {
-        const admin = accounts.find((a) => a.email === 'versalylabs@gmail.com') || initialAccounts[0];
-        this.setActiveUser(admin);
-        return { success: true, user: admin };
-      }
-      return { success: false, error: 'Invalid password for platform admin.' };
-    }
-
-    const found = accounts.find((a) => a.email.toLowerCase() === trimmedEmail);
-    if (!found) {
-      return { success: false, error: 'No account registered with this email address.' };
-    }
-
-    if (found.password && found.password !== password) {
-      return { success: false, error: 'Incorrect password.' };
-    }
-
-    this.setActiveUser(found);
-    return { success: true, user: found };
-  },
-
-  loginDemoUser(): UserAccount {
-    const demoUser = this.getAccounts().find((a) => a.email === 'demo@mylkio.co.ke') || initialAccounts[1];
-    this.setActiveUser(demoUser);
-    return demoUser;
-  },
-
-  logout() {
-    this.setActiveUser(null);
-  },
-
-  registerFarmer(data: {
-    name: string;
-    email: string;
-    password: string;
-    phone: string;
-    farmName: string;
-    county: string;
-    subCounty?: string;
-    plan?: SubscriptionPlan;
-  }): { success: boolean; user?: UserAccount; error?: string } {
-    const accounts = this.getAccounts();
-    const trimmedEmail = data.email.trim().toLowerCase();
-
-    if (accounts.some((a) => a.email.toLowerCase() === trimmedEmail)) {
-      return { success: false, error: 'An account with this email already exists. Please log in.' };
-    }
-
-    const newFarmId = `farm-${Date.now().toString(36)}-${Math.random().toString(36).substr(2, 5)}`;
-    const now = new Date();
-    const renewsDate = new Date();
-    renewsDate.setDate(now.getDate() + 14); // 14-day free trial
-
-    const planPrices: Record<SubscriptionPlan, number> = {
-      starter: 500,
-      farmer: 1000,
-      farm_pro: 2500,
-      admin: 0,
-    };
-
-    const chosenPlan: SubscriptionPlan = data.plan || 'farmer';
-
-    const newUser: UserAccount = {
-      id: `usr-${Date.now()}`,
-      email: trimmedEmail,
-      password: data.password,
-      role: 'farmer',
-      farmId: newFarmId,
-      name: data.name.trim(),
-      phone: data.phone.trim(),
-      subscription: {
-        plan: chosenPlan,
-        status: 'trial',
-        monthlyPriceKsh: planPrices[chosenPlan],
-        startDate: now.toISOString(),
-        renewsAt: renewsDate.toISOString(),
-      },
-      createdAt: now.toISOString(),
-    };
-
-    const newFarm: Farm = {
-      id: newFarmId,
-      name: data.farmName.trim(),
-      county: data.county.trim(),
-      subCounty: data.subCounty?.trim() || undefined,
-      ownerName: data.name.trim(),
-      phone: data.phone.trim(),
-      operatingStyle: 'individual',
-      preferredLanguage: this.getLanguage(),
-      currency: 'KSh',
-      createdAt: now.toISOString(),
-    };
-
-    // Save empty tenant isolated data
-    this.saveFarm(newFarm, newFarmId);
-    this.saveTenantData(STORAGE_KEYS.COWS_PREFIX, newFarmId, []);
-    this.saveTenantData(STORAGE_KEYS.BUYERS_PREFIX, newFarmId, []);
-    this.saveTenantData(STORAGE_KEYS.MILK_PREFIX, newFarmId, []);
-    this.saveTenantData(STORAGE_KEYS.DELIVERIES_PREFIX, newFarmId, []);
-    this.saveTenantData(STORAGE_KEYS.PAYMENTS_PREFIX, newFarmId, []);
-    this.saveTenantData(STORAGE_KEYS.HEALTH_PREFIX, newFarmId, []);
-    this.saveTenantData(STORAGE_KEYS.BREEDING_PREFIX, newFarmId, []);
-    this.saveTenantData(STORAGE_KEYS.EXPENSES_PREFIX, newFarmId, []);
-    this.saveTenantData(STORAGE_KEYS.REMINDERS_PREFIX, newFarmId, []);
-
-    // Save account
-    const updatedAccounts = [newUser, ...accounts];
-    this.saveAccounts(updatedAccounts);
-    this.setActiveUser(newUser);
-
-    return { success: true, user: newUser };
-  },
-
-  updateAccountSubscription(
-    accountId: string, 
-    updates: { plan?: SubscriptionPlan; status?: UserAccount['subscription']['status']; renewsAt?: string }
-  ) {
-    const accounts = this.getAccounts();
-    const idx = accounts.findIndex((a) => a.id === accountId);
-    if (idx === -1) return;
-
-    accounts[idx].subscription = {
-      ...accounts[idx].subscription,
-      ...updates,
-    };
-
-    this.saveAccounts(accounts);
-
-    // If current active user updated, refresh
-    const active = this.getActiveUser();
-    if (active && active.id === accountId) {
-      this.setActiveUser(accounts[idx]);
-    }
+  updateAccountSubscription(_accountId: string, _updates: unknown) {
+    throw new Error('Use the protected administration API.');
   },
 
   getActiveFarmId(): string {
@@ -256,7 +93,7 @@ export const AppStorage = {
     if (activeUser && activeUser.farmId && activeUser.role !== 'super_admin') {
       return activeUser.farmId;
     }
-    return 'farm-green-hills'; // Default demo farm
+    return SecureAuth.user()?.farmId || 'farm-green-hills'; // Demo context only; protected accounts come from a verified session.
   },
 
   // ==========================================
@@ -266,42 +103,24 @@ export const AppStorage = {
   getTenantData<T>(prefix: string, farmId?: string, fallback: T = [] as unknown as T): T {
     if (typeof window === 'undefined') return fallback;
     const targetFarmId = farmId || this.getActiveFarmId();
-    const key = `${prefix}${targetFarmId}`;
-    const data = localStorage.getItem(key);
-
-    if (data) {
-      try {
-        return JSON.parse(data);
-      } catch {
-        return fallback;
-      }
+    if (targetFarmId !== 'farm-green-hills') {
+      return CloudStore.read(targetFarmId, bucketForPrefix[prefix], fallback);
     }
-
-    // For demo farm, check legacy non-prefixed key or return initial mock
-    if (targetFarmId === 'farm-green-hills') {
-      const legacyKey = prefix.replace(/_$/, '');
-      const legacy = localStorage.getItem(legacyKey);
-      if (legacy) {
-        try {
-          const parsed = JSON.parse(legacy);
-          localStorage.setItem(key, legacy);
-          return parsed;
-        } catch {
-          // continue
-        }
-      }
-      return fallback;
-    }
-
-    // For any new farm tenant, return empty data
-    return fallback;
+    // Demo writes use a new namespace; never read or overwrite legacy farmer records.
+    const data = localStorage.getItem(`mylkio_demo_v2_${prefix}`);
+    if (!data) return structuredClone(fallback);
+    try { return JSON.parse(data); } catch { return structuredClone(fallback); }
   },
 
   saveTenantData<T>(prefix: string, farmId: string | undefined, data: T) {
     if (typeof window === 'undefined') return;
     const targetFarmId = farmId || this.getActiveFarmId();
-    const key = `${prefix}${targetFarmId}`;
-    localStorage.setItem(key, JSON.stringify(data));
+    if (targetFarmId === 'farm-green-hills') {
+      if (SecureAuth.user()?.id !== 'usr-demo-01') throw new Error('Open the demo before changing demo records.');
+      localStorage.setItem(`mylkio_demo_v2_${prefix}`, JSON.stringify(data));
+      return;
+    }
+    CloudStore.write(targetFarmId, bucketForPrefix[prefix], data);
   },
 
   // ==========================================
@@ -363,7 +182,7 @@ export const AppStorage = {
     const cows = this.getCows(targetFarmId);
     const newCow: Cow = {
       ...cowData,
-      id: `cow-${Date.now()}`,
+      id: crypto.randomUUID(),
       farmId: targetFarmId,
       createdAt: new Date().toISOString(),
     };
@@ -402,15 +221,30 @@ export const AppStorage = {
   getBuyers(customFarmId?: string): Buyer[] {
     const targetFarmId = customFarmId || this.getActiveFarmId();
     const fallback = targetFarmId === 'farm-green-hills' ? initialBuyers : [];
-    return this.getTenantData<Buyer[]>(STORAGE_KEYS.BUYERS_PREFIX, targetFarmId, fallback);
+    const buyers = this.getTenantData<Buyer[]>(STORAGE_KEYS.BUYERS_PREFIX, targetFarmId, fallback);
+    if (buyers.every((b) => b.ledgerVersion === LEDGER_VERSION)) return buyers;
+    // One-time move from legacy running balances to the ledger (see lib/ledger.ts).
+    const migrated = migrateLegacyLedger(buyers, this.getDeliveries(targetFarmId), this.getPayments(targetFarmId), new Date().toISOString());
+    try {
+      this.saveTenantData(STORAGE_KEYS.PAYMENTS_PREFIX, targetFarmId, migrated.payments);
+      this.saveTenantData(STORAGE_KEYS.BUYERS_PREFIX, targetFarmId, migrated.buyers);
+    } catch {
+      // Not writable yet (e.g. demo not opened). The in-memory result stays consistent.
+    }
+    return migrated.buyers;
   },
 
   addBuyer(buyerData: Omit<Buyer, 'id' | 'createdAt' | 'farmId'>, customFarmId?: string): Buyer {
     const targetFarmId = customFarmId || this.getActiveFarmId();
     const buyers = this.getBuyers(targetFarmId);
+    const opening = roundMoney(buyerData.openingBalance ?? 0);
     const newBuyer: Buyer = {
       ...buyerData,
-      id: `buyer-${Date.now()}`,
+      openingBalance: opening,
+      openingBalanceDate: buyerData.openingBalanceDate ?? farmToday(),
+      currentBalance: opening,
+      ledgerVersion: LEDGER_VERSION,
+      id: crypto.randomUUID(),
       farmId: targetFarmId,
       createdAt: new Date().toISOString(),
     };
@@ -426,20 +260,30 @@ export const AppStorage = {
     const buyers = this.getBuyers(targetFarmId);
     const index = buyers.findIndex((b) => b.id === id);
     if (index === -1) return null;
-    buyers[index] = { ...buyers[index], ...updates };
+    // The balance is derived from the ledger; only the opening balance is editable.
+    const { currentBalance: _ignored, ledgerVersion: _version, ...editable } = updates;
+    buyers[index] = { ...buyers[index], ...editable };
     this.saveTenantData(STORAGE_KEYS.BUYERS_PREFIX, targetFarmId, buyers);
     SyncEngine.enqueue('buyer', 'update', buyers[index]);
     window.dispatchEvent(new Event('mylkio_buyers_changed'));
     return buyers[index];
   },
 
-  deleteBuyer(id: string, customFarmId?: string) {
+  /** Removes a buyer only when it has no ledger history; otherwise history must be kept. */
+  deleteBuyer(id: string, customFarmId?: string): { deleted: boolean; reason?: string } {
     const targetFarmId = customFarmId || this.getActiveFarmId();
+    const hasHistory =
+      this.getDeliveries(targetFarmId).some((d) => d.buyerId === id) ||
+      this.getPayments(targetFarmId).some((p) => p.buyerId === id);
+    if (hasHistory) {
+      return { deleted: false, reason: 'This buyer has deliveries or payments on record. Their history must be kept, so the buyer cannot be deleted.' };
+    }
     const buyers = this.getBuyers(targetFarmId);
     const updated = buyers.filter((b) => b.id !== id);
     this.saveTenantData(STORAGE_KEYS.BUYERS_PREFIX, targetFarmId, updated);
     SyncEngine.enqueue('buyer', 'delete', { id });
     window.dispatchEvent(new Event('mylkio_buyers_changed'));
+    return { deleted: true };
   },
 
   // ==========================================
@@ -452,29 +296,52 @@ export const AppStorage = {
     return this.getTenantData<MilkEntry[]>(STORAGE_KEYS.MILK_PREFIX, targetFarmId, fallback);
   },
 
-  addMilkEntry(entryData: Omit<MilkEntry, 'id' | 'createdAt' | 'farmId' | 'synced'>, customFarmId?: string): MilkEntry {
+  /**
+   * Adds a milk record. `replaceIds` are overlapping entries the farmer chose to
+   * replace; they are voided (kept for history), never deleted. Any other overlap
+   * is refused so the same milk is never counted twice.
+   */
+  addMilkEntry(
+    entryData: Omit<MilkEntry, 'id' | 'createdAt' | 'farmId' | 'synced'>,
+    customFarmId?: string,
+    options: { replaceIds?: string[] } = {},
+  ): MilkEntry {
     const targetFarmId = customFarmId || this.getActiveFarmId();
     const entries = this.getMilkEntries(targetFarmId);
+    const now = new Date().toISOString();
+    const replace = new Set(options.replaceIds ?? []);
+    const unresolved = findMilkOverlaps(entries, entryData.date, entryData.session).filter((e) => !replace.has(e.id));
+    if (unresolved.length > 0) {
+      throw new Error('This milk is already recorded for that date and session. Choose to replace the existing record.');
+    }
     const newEntry: MilkEntry = {
       ...entryData,
-      id: `milk-${Date.now()}`,
+      id: crypto.randomUUID(),
       farmId: targetFarmId,
-      synced: true,
-      createdAt: new Date().toISOString(),
+      synced: false,
+      createdAt: now,
     };
-    const updated = [newEntry, ...entries];
+    const label = entryData.session === 'total' ? 'day total' : entryData.session;
+    const updated = [
+      newEntry,
+      ...entries.map((e) =>
+        replace.has(e.id) && !e.voidedAt
+          ? { ...e, voidedAt: now, voidReason: `Replaced by ${entryData.totalLitres} L ${label} entry`, replacedById: newEntry.id }
+          : e,
+      ),
+    ];
     this.saveTenantData(STORAGE_KEYS.MILK_PREFIX, targetFarmId, updated);
     SyncEngine.enqueue('milk_entry', 'create', newEntry);
     window.dispatchEvent(new Event('mylkio_milk_changed'));
     return newEntry;
   },
 
-  deleteMilkEntry(id: string, customFarmId?: string) {
+  voidMilkEntry(id: string, reason: string, customFarmId?: string) {
     const targetFarmId = customFarmId || this.getActiveFarmId();
     const entries = this.getMilkEntries(targetFarmId);
-    const updated = entries.filter((e) => e.id !== id);
+    const updated = entries.map((e) => (e.id === id && !e.voidedAt ? { ...e, voidedAt: new Date().toISOString(), voidReason: reason } : e));
     this.saveTenantData(STORAGE_KEYS.MILK_PREFIX, targetFarmId, updated);
-    SyncEngine.enqueue('milk_entry', 'delete', { id });
+    SyncEngine.enqueue('milk_entry', 'update', { id });
     window.dispatchEvent(new Event('mylkio_milk_changed'));
   },
 
@@ -488,49 +355,63 @@ export const AppStorage = {
     return this.getTenantData<Delivery[]>(STORAGE_KEYS.DELIVERIES_PREFIX, targetFarmId, fallback);
   },
 
-  addDelivery(deliveryData: Omit<Delivery, 'id' | 'createdAt' | 'farmId' | 'synced'>, customFarmId?: string): Delivery {
+  /**
+   * Records a delivery. Money paid on the spot becomes one linked receipt; buyer
+   * balances are derived from the ledger, so no balance is edited here.
+   */
+  addDelivery(
+    deliveryData: Omit<Delivery, 'id' | 'createdAt' | 'farmId' | 'synced'>,
+    customFarmId?: string,
+    paymentMethod: PaymentRecord['paymentMethod'] = 'cash',
+  ): Delivery {
     const targetFarmId = customFarmId || this.getActiveFarmId();
+    this.getBuyers(targetFarmId); // the ledger migration must run before new records
+    if (deliveryData.rejectedLitres > deliveryData.litres) throw new Error('Rejected litres cannot exceed delivered litres.');
     const deliveries = this.getDeliveries(targetFarmId);
+    const createdAt = new Date().toISOString();
+    const charge = deliveryCharge(deliveryData);
+    const paid = roundMoney(Math.max(0, deliveryData.amountPaid || 0));
     const newDelivery: Delivery = {
       ...deliveryData,
-      id: `deliv-${Date.now()}`,
+      expectedAmount: charge,
+      amountPaid: paid,
+      balance: roundMoney(charge - paid),
+      id: crypto.randomUUID(),
       farmId: targetFarmId,
-      synced: true,
-      createdAt: new Date().toISOString(),
+      synced: false,
+      createdAt,
     };
-    const updated = [newDelivery, ...deliveries];
-    this.saveTenantData(STORAGE_KEYS.DELIVERIES_PREFIX, targetFarmId, updated);
-
-    // Update buyer balance
-    const buyers = this.getBuyers(targetFarmId);
-    const buyerIdx = buyers.findIndex((b) => b.id === deliveryData.buyerId);
-    if (buyerIdx !== -1) {
-      buyers[buyerIdx].currentBalance = (buyers[buyerIdx].currentBalance || 0) + deliveryData.balance;
-      this.saveTenantData(STORAGE_KEYS.BUYERS_PREFIX, targetFarmId, buyers);
-      window.dispatchEvent(new Event('mylkio_buyers_changed'));
+    this.saveTenantData(STORAGE_KEYS.DELIVERIES_PREFIX, targetFarmId, [newDelivery, ...deliveries]);
+    const receipt = receiptForDelivery(newDelivery, createdAt);
+    if (receipt) {
+      this.saveTenantData(STORAGE_KEYS.PAYMENTS_PREFIX, targetFarmId, [{ ...receipt, paymentMethod }, ...this.getPayments(targetFarmId)]);
+      window.dispatchEvent(new Event('mylkio_payments_changed'));
     }
-
     SyncEngine.enqueue('delivery', 'create', newDelivery);
     window.dispatchEvent(new Event('mylkio_deliveries_changed'));
     return newDelivery;
   },
 
-  deleteDelivery(id: string, customFarmId?: string) {
+  /** Voids a delivery and the receipt taken with it. Both remain in history. */
+  voidDelivery(id: string, reason: string, customFarmId?: string) {
     const targetFarmId = customFarmId || this.getActiveFarmId();
+    const now = new Date().toISOString();
     const deliveries = this.getDeliveries(targetFarmId);
-    const deliv = deliveries.find((d) => d.id === id);
-    if (deliv) {
-      const buyers = this.getBuyers(targetFarmId);
-      const buyerIdx = buyers.findIndex((b) => b.id === deliv.buyerId);
-      if (buyerIdx !== -1) {
-        buyers[buyerIdx].currentBalance = Math.max(0, (buyers[buyerIdx].currentBalance || 0) - deliv.balance);
-        this.saveTenantData(STORAGE_KEYS.BUYERS_PREFIX, targetFarmId, buyers);
-        window.dispatchEvent(new Event('mylkio_buyers_changed'));
-      }
+    this.saveTenantData(
+      STORAGE_KEYS.DELIVERIES_PREFIX,
+      targetFarmId,
+      deliveries.map((d) => (d.id === id && !d.voidedAt ? { ...d, voidedAt: now, voidReason: reason } : d)),
+    );
+    const payments = this.getPayments(targetFarmId);
+    if (payments.some((p) => p.deliveryId === id && !p.voidedAt)) {
+      this.saveTenantData(
+        STORAGE_KEYS.PAYMENTS_PREFIX,
+        targetFarmId,
+        payments.map((p) => (p.deliveryId === id && !p.voidedAt ? { ...p, voidedAt: now, voidReason: `Delivery voided: ${reason}` } : p)),
+      );
+      window.dispatchEvent(new Event('mylkio_payments_changed'));
     }
-    const updated = deliveries.filter((d) => d.id !== id);
-    this.saveTenantData(STORAGE_KEYS.DELIVERIES_PREFIX, targetFarmId, updated);
-    SyncEngine.enqueue('delivery', 'delete', { id });
+    SyncEngine.enqueue('delivery', 'update', { id });
     window.dispatchEvent(new Event('mylkio_deliveries_changed'));
   },
 
@@ -546,47 +427,32 @@ export const AppStorage = {
 
   addPayment(paymentData: Omit<PaymentRecord, 'id' | 'createdAt' | 'farmId' | 'synced'>, customFarmId?: string): PaymentRecord {
     const targetFarmId = customFarmId || this.getActiveFarmId();
+    this.getBuyers(targetFarmId); // the ledger migration must run before new records
     const payments = this.getPayments(targetFarmId);
     const newPayment: PaymentRecord = {
       ...paymentData,
-      id: `pay-${Date.now()}`,
+      amount: roundMoney(paymentData.amount),
+      source: 'receipt',
+      id: crypto.randomUUID(),
       farmId: targetFarmId,
-      synced: true,
+      synced: false,
       createdAt: new Date().toISOString(),
     };
-    const updated = [newPayment, ...payments];
-    this.saveTenantData(STORAGE_KEYS.PAYMENTS_PREFIX, targetFarmId, updated);
-
-    // Reduce buyer balance
-    const buyers = this.getBuyers(targetFarmId);
-    const buyerIdx = buyers.findIndex((b) => b.id === paymentData.buyerId);
-    if (buyerIdx !== -1) {
-      buyers[buyerIdx].currentBalance = (buyers[buyerIdx].currentBalance || 0) - paymentData.amount;
-      this.saveTenantData(STORAGE_KEYS.BUYERS_PREFIX, targetFarmId, buyers);
-      window.dispatchEvent(new Event('mylkio_buyers_changed'));
-    }
-
+    this.saveTenantData(STORAGE_KEYS.PAYMENTS_PREFIX, targetFarmId, [newPayment, ...payments]);
     SyncEngine.enqueue('payment', 'create', newPayment);
     window.dispatchEvent(new Event('mylkio_payments_changed'));
     return newPayment;
   },
 
-  deletePayment(id: string, customFarmId?: string) {
+  voidPayment(id: string, reason: string, customFarmId?: string) {
     const targetFarmId = customFarmId || this.getActiveFarmId();
     const payments = this.getPayments(targetFarmId);
-    const pay = payments.find((p) => p.id === id);
-    if (pay) {
-      const buyers = this.getBuyers(targetFarmId);
-      const buyerIdx = buyers.findIndex((b) => b.id === pay.buyerId);
-      if (buyerIdx !== -1) {
-        buyers[buyerIdx].currentBalance = (buyers[buyerIdx].currentBalance || 0) + pay.amount;
-        this.saveTenantData(STORAGE_KEYS.BUYERS_PREFIX, targetFarmId, buyers);
-        window.dispatchEvent(new Event('mylkio_buyers_changed'));
-      }
-    }
-    const updated = payments.filter((p) => p.id !== id);
-    this.saveTenantData(STORAGE_KEYS.PAYMENTS_PREFIX, targetFarmId, updated);
-    SyncEngine.enqueue('payment', 'delete', { id });
+    this.saveTenantData(
+      STORAGE_KEYS.PAYMENTS_PREFIX,
+      targetFarmId,
+      payments.map((p) => (p.id === id && !p.voidedAt ? { ...p, voidedAt: new Date().toISOString(), voidReason: reason } : p)),
+    );
+    SyncEngine.enqueue('payment', 'update', { id });
     window.dispatchEvent(new Event('mylkio_payments_changed'));
   },
 
@@ -605,7 +471,7 @@ export const AppStorage = {
     const events = this.getHealthEvents(targetFarmId);
     const newEvent: HealthEvent = {
       ...eventData,
-      id: `health-${Date.now()}`,
+      id: crypto.randomUUID(),
       farmId: targetFarmId,
       createdAt: new Date().toISOString(),
     };
@@ -668,7 +534,7 @@ export const AppStorage = {
     const events = this.getBreedingEvents(targetFarmId);
     const newEvent: BreedingEvent = {
       ...eventData,
-      id: `breed-${Date.now()}`,
+      id: crypto.randomUUID(),
       farmId: targetFarmId,
       createdAt: new Date().toISOString(),
     };
@@ -723,7 +589,7 @@ export const AppStorage = {
     const expenses = this.getExpenses(targetFarmId);
     const newExpense: ExpenseRecord = {
       ...expenseData,
-      id: `exp-${Date.now()}`,
+      id: crypto.randomUUID(),
       farmId: targetFarmId,
       createdAt: new Date().toISOString(),
     };
@@ -758,7 +624,7 @@ export const AppStorage = {
     const reminders = this.getReminders(targetFarmId);
     const newReminder: FarmReminder = {
       ...remData,
-      id: `rem-${Date.now()}`,
+      id: crypto.randomUUID(),
       farmId: targetFarmId,
       createdAt: new Date().toISOString(),
     };
@@ -911,6 +777,7 @@ export const AppStorage = {
 
   resetToDemo() {
     if (typeof window === 'undefined') return;
+    if (SecureAuth.user()?.id !== 'usr-demo-01') throw new Error('Demo reset is only available in demo mode.');
     const demoFarmId = 'farm-green-hills';
     this.saveFarm(initialFarm, demoFarmId);
     this.saveTenantData(STORAGE_KEYS.COWS_PREFIX, demoFarmId, initialCows);
@@ -936,6 +803,7 @@ export const AppStorage = {
   },
 
   clearCurrentTenant() {
+    if (SecureAuth.user()?.id !== 'usr-demo-01') throw new Error('Bulk deletion of real farm data is disabled.');
     const targetFarmId = this.getActiveFarmId();
     this.saveTenantData(STORAGE_KEYS.COWS_PREFIX, targetFarmId, []);
     this.saveTenantData(STORAGE_KEYS.BUYERS_PREFIX, targetFarmId, []);

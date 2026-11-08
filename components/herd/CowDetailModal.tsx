@@ -3,6 +3,8 @@
 import React, { useState } from 'react';
 import { Cow, HealthEvent, BreedingEvent, MilkEntry, Language } from '@/types';
 import { translations } from '@/lib/translations';
+import { cowYields } from '@/lib/milk';
+import { daysBetween, farmToday, formatFarmDate } from '@/lib/dates';
 import { 
   X, 
   Calendar, 
@@ -66,32 +68,17 @@ export const CowDetailModal: React.FC<CowDetailModalProps> = ({
   const activeWithdrawal = cowHealth.find((h) => h.isWithdrawalActive);
 
   // Recent milk production breakdown
-  const cowMilkHistory = milkEntries
-    .filter((entry) => entry.cowBreakdown?.some((b) => b.cowId === cow.id))
-    .map((entry) => {
-      const match = entry.cowBreakdown?.find((b) => b.cowId === cow.id);
-      return {
-        date: entry.date,
-        session: entry.session,
-        litres: match ? match.litres : 0,
-      };
-    })
-    .slice(0, 7);
-
-  const totalRecordedYield = cowMilkHistory.reduce((sum, item) => sum + item.litres, 0);
-  const averageDailyYield = cowMilkHistory.length > 0 
-    ? (totalRecordedYield / cowMilkHistory.length).toFixed(1) 
+  // Per-day yields from counted cow-level records only (voided/overlapping entries excluded).
+  const cowYield = cowYields(milkEntries).find((y) => y.cowId === cow.id);
+  const cowMilkHistory = (cowYield?.daily ?? []).slice(0, 7);
+  const averageDailyYield = cowMilkHistory.length > 0
+    ? (cowMilkHistory.reduce((sum, d) => sum + d.litres, 0) / cowMilkHistory.length).toFixed(1)
     : null;
 
   // Days until calving calculation
   let daysUntilCalving: number | null = null;
   if (cow.expectedCalvingDate) {
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-    const calvingDate = new Date(cow.expectedCalvingDate);
-    calvingDate.setHours(0, 0, 0, 0);
-    const diffTime = calvingDate.getTime() - today.getTime();
-    daysUntilCalving = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    daysUntilCalving = daysBetween(farmToday(), cow.expectedCalvingDate.slice(0, 10));
   }
 
   // Next / Previous Photo
@@ -360,7 +347,9 @@ export const CowDetailModal: React.FC<CowDetailModalProps> = ({
                 </div>
                 {averageDailyYield && (
                   <span className="text-xs font-bold text-[#345C4A]">
-                    Avg: {averageDailyYield} L / session
+                    {lang === 'sw'
+                      ? `Wastani: ${averageDailyYield} L kwa siku (siku ${cowMilkHistory.length})`
+                      : `Avg: ${averageDailyYield} L per day (${cowMilkHistory.length} recorded day${cowMilkHistory.length === 1 ? '' : 's'})`}
                   </span>
                 )}
               </div>
@@ -368,7 +357,7 @@ export const CowDetailModal: React.FC<CowDetailModalProps> = ({
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 pt-1">
                 {cowMilkHistory.slice(0, 4).map((entry, idx) => (
                   <div key={idx} className="p-2.5 bg-[#FAF9F5] rounded-xl border border-[#E8E4D8] text-center">
-                    <span className="text-[10px] text-[#879C91] block">{entry.date} ({entry.session})</span>
+                    <span className="text-xs text-[#5D7368] block">{formatFarmDate(entry.date, lang)}</span>
                     <span className="text-sm font-black text-[#26332D] mt-0.5 block">{entry.litres.toFixed(1)} L</span>
                   </div>
                 ))}

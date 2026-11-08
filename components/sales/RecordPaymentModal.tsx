@@ -3,6 +3,8 @@
 import React, { useState, useEffect } from 'react';
 import { Buyer, PaymentRecord, Language } from '@/types';
 import { translations } from '@/lib/translations';
+import { farmToday, formatFarmDate } from '@/lib/dates';
+import { paymentsWithReference, roundMoney } from '@/lib/ledger';
 import { X, Check, DollarSign, Smartphone, CreditCard, Banknote } from 'lucide-react';
 
 interface RecordPaymentModalProps {
@@ -10,6 +12,7 @@ interface RecordPaymentModalProps {
   onClose: () => void;
   onSave: (payment: Omit<PaymentRecord, 'id' | 'createdAt' | 'farmId' | 'synced'>) => void;
   buyers: Buyer[];
+  payments: PaymentRecord[];
   lang: Language;
 }
 
@@ -18,13 +21,14 @@ export const RecordPaymentModal: React.FC<RecordPaymentModalProps> = ({
   onClose,
   onSave,
   buyers,
+  payments,
   lang,
 }) => {
   const t = translations[lang];
-  const todayStr = new Date().toISOString().split('T')[0];
+  const [duplicateConfirmed, setDuplicateConfirmed] = useState(false);
 
   const [buyerId, setBuyerId] = useState(buyers[0]?.id || '');
-  const [date, setDate] = useState(todayStr);
+  const [date, setDate] = useState(farmToday());
   const [amount, setAmount] = useState<string>('');
   const [paymentMethod, setPaymentMethod] = useState<'cash' | 'mpesa' | 'bank' | 'other'>('mpesa');
   const [referenceNo, setReferenceNo] = useState('');
@@ -39,7 +43,17 @@ export const RecordPaymentModal: React.FC<RecordPaymentModalProps> = ({
     }
   }, [buyers, buyerId]);
 
+  useEffect(() => {
+    if (isOpen) setDate(farmToday());
+  }, [isOpen]);
+
+  useEffect(() => setDuplicateConfirmed(false), [referenceNo]);
+
   if (!isOpen) return null;
+
+  const sameReference = paymentsWithReference(payments, referenceNo);
+  const enteredAmount = parseFloat(amount) || 0;
+  const balanceAfter = selectedBuyer ? roundMoney(selectedBuyer.currentBalance - enteredAmount) : 0;
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -50,6 +64,10 @@ export const RecordPaymentModal: React.FC<RecordPaymentModalProps> = ({
     }
     if (numAmount <= 0) {
       setError(lang === 'sw' ? 'Weka kiasi kilichopokelewa' : 'Please enter payment amount');
+      return;
+    }
+    if (sameReference.length > 0 && !duplicateConfirmed) {
+      setError(lang === 'sw' ? 'Nambari hii ya muamala tayari imerekodiwa. Thibitisha kama ni malipo tofauti.' : 'This reference is already recorded. Confirm it is a different payment before saving.');
       return;
     }
 
@@ -66,6 +84,7 @@ export const RecordPaymentModal: React.FC<RecordPaymentModalProps> = ({
     // Reset
     setAmount('');
     setReferenceNo('');
+    setDuplicateConfirmed(false);
     setNotes('');
     setError('');
     onClose();
@@ -124,7 +143,7 @@ export const RecordPaymentModal: React.FC<RecordPaymentModalProps> = ({
             >
               {buyers.map((b) => (
                 <option key={b.id} value={b.id}>
-                  {b.name} (Balance: KSh {b.currentBalance.toLocaleString()})
+                  {b.name} ({b.currentBalance >= 0 ? (lang === 'sw' ? 'Deni' : 'Owes') : (lang === 'sw' ? 'Mapema' : 'Advance')}: KSh {Math.abs(b.currentBalance).toLocaleString()})
                 </option>
               ))}
             </select>
@@ -188,7 +207,7 @@ export const RecordPaymentModal: React.FC<RecordPaymentModalProps> = ({
               </span>
               <input
                 type="number"
-                step="50"
+                step="any"
                 min="1"
                 value={amount}
                 onChange={(e) => setAmount(e.target.value)}
@@ -199,8 +218,24 @@ export const RecordPaymentModal: React.FC<RecordPaymentModalProps> = ({
               />
             </div>
             {selectedBuyer && (
-              <p className="text-[11px] text-gray-500">
-                Current outstanding balance: <strong>KSh {selectedBuyer.currentBalance.toLocaleString()}</strong>
+              <p className="text-sm text-gray-600">
+                {lang === 'sw' ? 'Salio sasa' : 'Balance now'}:{' '}
+                <strong>
+                  {selectedBuyer.currentBalance >= 0
+                    ? `KSh ${selectedBuyer.currentBalance.toLocaleString()} ${lang === 'sw' ? 'deni' : 'owed'}`
+                    : `KSh ${Math.abs(selectedBuyer.currentBalance).toLocaleString()} ${lang === 'sw' ? 'mapema' : 'advance'}`}
+                </strong>
+                {enteredAmount > 0 && (
+                  <>
+                    {' → '}
+                    {lang === 'sw' ? 'baada ya malipo' : 'after this payment'}:{' '}
+                    <strong>
+                      {balanceAfter >= 0
+                        ? `KSh ${balanceAfter.toLocaleString()} ${lang === 'sw' ? 'deni' : 'owed'}`
+                        : `KSh ${Math.abs(balanceAfter).toLocaleString()} ${lang === 'sw' ? 'mapema (advance)' : 'held as advance'}`}
+                    </strong>
+                  </>
+                )}
               </p>
             )}
           </div>
@@ -232,6 +267,30 @@ export const RecordPaymentModal: React.FC<RecordPaymentModalProps> = ({
               />
             </div>
           </div>
+
+          {sameReference.length > 0 && (
+            <div className="p-3.5 rounded-2xl border-2 border-amber-300 bg-amber-50 text-amber-950 space-y-2" role="alert">
+              <p className="text-sm font-bold">
+                {lang === 'sw' ? 'Nambari hii tayari imerekodiwa:' : 'This reference is already recorded:'}
+              </p>
+              <ul className="text-sm list-disc pl-5">
+                {sameReference.map((p) => (
+                  <li key={p.id}>
+                    KSh {p.amount.toLocaleString()} {lang === 'sw' ? 'kutoka' : 'from'} {p.buyerName}, {formatFarmDate(p.date, lang)}
+                  </li>
+                ))}
+              </ul>
+              <label className="flex items-start gap-2 text-sm font-semibold cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={duplicateConfirmed}
+                  onChange={(e) => setDuplicateConfirmed(e.target.checked)}
+                  className="mt-1 w-4 h-4 accent-[#345C4A]"
+                />
+                <span>{lang === 'sw' ? 'Hii ni malipo tofauti — hifadhi hata hivyo' : 'This is a different payment — save it anyway'}</span>
+              </label>
+            </div>
+          )}
 
           <div>
             <label className="block text-xs font-semibold uppercase tracking-wider text-gray-700 mb-1">

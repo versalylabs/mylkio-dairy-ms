@@ -96,7 +96,7 @@ export const translations = {
       rateLabel: "Agreed Price per Litre (KSh) *",
       phoneLabel: "Phone Number (M-Pesa notifications)",
       cycleLabel: "Payment Terms",
-      initialBalanceLabel: "Opening Balance (KSh, if already owed)",
+      initialBalanceLabel: "Opening Balance (KSh, before Mylkio)",
       notesLabel: "Notes (Route, Collection Point)"
     },
     settings: {
@@ -224,7 +224,7 @@ export const translations = {
       rateLabel: "Bei Iliyokubaliwa kwa Lita (KSh) *",
       phoneLabel: "Nambari ya Simu (Ujumbe wa M-Pesa)",
       cycleLabel: "Utaratibu wa Malipo",
-      initialBalanceLabel: "Baki ya Awali (KSh, iwapo anadaiwa)",
+      initialBalanceLabel: "Deni la Awali (KSh, kabla ya Mylkio)",
       notesLabel: "Maelezo (Njia ya Usambazaji, Kituo cha Ukusanyaji)"
     },
     settings: {

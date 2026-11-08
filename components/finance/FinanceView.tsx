@@ -3,6 +3,8 @@
 import React, { useState } from 'react';
 import { ExpenseRecord, Delivery, PaymentRecord, ExpenseCategory, Language } from '@/types';
 import { translations } from '@/lib/translations';
+import { farmToday, inRange, monthRange, previousMonthRange, type DateRange } from '@/lib/dates';
+import { cashReceived, expensesInRange, salesInRange } from '@/lib/ledger';
 import { 
   Plus, 
   TrendingUp, 
@@ -36,11 +38,21 @@ export const FinanceView: React.FC<FinanceViewProps> = ({
 }) => {
   const t = translations[lang];
   const [filterCategory, setFilterCategory] = useState<string>('all');
+  const [period, setPeriod] = useState<'this_month' | 'last_month' | 'all'>('this_month');
+  const sw = lang === 'sw';
 
-  const totalBilled = deliveries.reduce((acc, d) => acc + d.expectedAmount, 0);
-  const totalPaid = payments.reduce((acc, p) => acc + p.amount, 0);
-  const totalExpenses = expenses.reduce((acc, e) => acc + e.amount, 0);
+  const todayStr = farmToday();
+  const range: DateRange =
+    period === 'this_month' ? monthRange(todayStr) : period === 'last_month' ? previousMonthRange(todayStr) : { from: '0000-01-01', to: '9999-12-31' };
+  const periodExpenses = expenses.filter((e) => inRange(e.date, range));
+
+  // Billed = accepted milk charges (rejected litres excluded, voided records excluded).
+  const totalBilled = salesInRange(deliveries, range).billed;
+  const totalPaid = cashReceived(payments, range).amount;
+  const totalExpenses = expensesInRange(expenses, range).amount;
   const netMargin = totalBilled - totalExpenses;
+  const periodLabel =
+    period === 'this_month' ? (sw ? 'Mwezi huu' : 'This month') : period === 'last_month' ? (sw ? 'Mwezi uliopita' : 'Last month') : (sw ? 'Tangu mwanzo' : 'All time');
 
   // Breakdown by category
   const categoryTotals: Record<ExpenseCategory, number> = {
@@ -52,13 +64,13 @@ export const FinanceView: React.FC<FinanceViewProps> = ({
     other: 0,
   };
 
-  expenses.forEach((e) => {
+  periodExpenses.forEach((e) => {
     if (categoryTotals[e.category] !== undefined) {
       categoryTotals[e.category] += e.amount;
     }
   });
 
-  const filteredExpenses = expenses.filter((e) => {
+  const filteredExpenses = periodExpenses.filter((e) => {
     if (filterCategory === 'all') return true;
     return e.category === filterCategory;
   });
@@ -87,13 +99,28 @@ export const FinanceView: React.FC<FinanceViewProps> = ({
         </button>
       </div>
 
+      {/* Reporting period */}
+      <div className="flex items-center gap-1.5 bg-gray-100 p-1 rounded-xl w-fit" role="group" aria-label={sw ? 'Kipindi' : 'Reporting period'}>
+        {(['this_month', 'last_month', 'all'] as const).map((p) => (
+          <button
+            key={p}
+            type="button"
+            onClick={() => setPeriod(p)}
+            aria-pressed={period === p}
+            className={`px-3 py-1.5 text-sm font-bold rounded-lg transition-all ${period === p ? 'bg-white text-dairy-800 shadow-xs' : 'text-gray-600 hover:text-gray-900'}`}
+          >
+            {p === 'this_month' ? (sw ? 'Mwezi huu' : 'This month') : p === 'last_month' ? (sw ? 'Mwezi uliopita' : 'Last month') : (sw ? 'Zote' : 'All time')}
+          </button>
+        ))}
+      </div>
+
       {/* KPI Cards: Revenue, Expenses, Net Profit */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         {/* Total Billed Revenue */}
         <div className="bg-white rounded-3xl p-5 border border-gray-200 shadow-xs flex flex-col justify-between">
           <div className="flex items-center justify-between">
             <span className="text-xs font-semibold text-gray-500 uppercase tracking-wider">
-              {lang === 'sw' ? 'Mauzo Yaliyorekodiwa' : 'Total Milk Revenue'}
+              {sw ? 'Mauzo Yaliyodaiwa' : 'Milk Billed'}
             </span>
             <div className="p-2 bg-[#FAF5EB] text-[#C6A76A] rounded-xl border border-[#E5D5B5]">
               <DollarSign className="w-4 h-4" />
@@ -103,8 +130,8 @@ export const FinanceView: React.FC<FinanceViewProps> = ({
             <div className="text-2xl font-black text-gray-900">
               KSh {totalBilled.toLocaleString()}
             </div>
-            <div className="text-[11px] text-gray-400 mt-0.5">
-              Across all deliveries
+            <div className="text-xs text-gray-600 mt-0.5">
+              {periodLabel} · {sw ? 'lita zilizokubaliwa tu' : 'accepted litres only'}
             </div>
           </div>
         </div>
@@ -123,8 +150,8 @@ export const FinanceView: React.FC<FinanceViewProps> = ({
             <div className="text-2xl font-black text-[#345C4A]">
               KSh {totalPaid.toLocaleString()}
             </div>
-            <div className="text-[11px] text-[#5D7368] mt-0.5">
-              Settlements & cash
+            <div className="text-xs text-[#5D7368] mt-0.5">
+              {periodLabel} · {sw ? 'pesa halisi iliyopokelewa' : 'money actually received'}
             </div>
           </div>
         </div>
@@ -143,8 +170,8 @@ export const FinanceView: React.FC<FinanceViewProps> = ({
             <div className="text-2xl font-black text-[#26332D]">
               KSh {totalExpenses.toLocaleString()}
             </div>
-            <div className="text-[11px] text-[#5D7368] mt-0.5">
-              {expenses.length} expense items
+            <div className="text-xs text-[#5D7368] mt-0.5">
+              {periodLabel} · {periodExpenses.length} {sw ? 'gharama' : 'expense items'}
             </div>
           </div>
         </div>
@@ -171,8 +198,8 @@ export const FinanceView: React.FC<FinanceViewProps> = ({
             <div className="text-2xl font-black">
               KSh {netMargin.toLocaleString()}
             </div>
-            <div className="text-[11px] text-[#FAF5EB]/70 mt-0.5">
-              {netMargin >= 0 ? 'Billed revenue less operating costs' : 'Deficit: operating costs exceed billed revenue'}
+            <div className="text-xs text-[#FAF5EB]/80 mt-0.5">
+              {periodLabel} · {netMargin >= 0 ? (sw ? 'mauzo yaliyodaiwa ukiondoa gharama' : 'billed milk less expenses') : (sw ? 'gharama zimezidi mauzo' : 'expenses exceed billed milk')}
             </div>
           </div>
         </div>

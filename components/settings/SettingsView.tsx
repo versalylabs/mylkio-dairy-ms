@@ -4,6 +4,7 @@ import React, { useState } from 'react';
 import { Farm, Language, UserAccount } from '@/types';
 import { translations } from '@/lib/translations';
 import { AppStorage } from '@/lib/storage';
+import { LegacyDataImport } from './LegacyDataImport';
 import { Globe, Building, Database, RefreshCw, Check, Smartphone, CreditCard, LogOut } from 'lucide-react';
 
 interface SettingsViewProps {
@@ -50,12 +51,14 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
   };
 
   const handleLoadDemo = () => {
+    if (user?.id !== 'usr-demo-01') return;
     if (confirm(lang === 'sw' ? 'Je, ungependa kupakia data ya mfano ya Nakuru (ng\'ombe 8, wanunuzi 3)?' : 'Load sample Nakuru demo farm records (8 cattle, 3 buyers)?')) {
       AppStorage.resetToDemo();
     }
   };
 
   const handleClearData = () => {
+    if (user?.id !== 'usr-demo-01') return;
     if (confirm(lang === 'sw' ? 'Una uhakika unataka kufuta taarifa zote za shamba hili?' : 'Are you sure you want to clear all data for this farm?')) {
       AppStorage.clearCurrentTenant();
     }
@@ -296,6 +299,10 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
           </div>
         </form>
       </div>
+
+      {user && user.role !== 'super_admin' && user.id !== 'usr-demo-01' && (
+        <LegacyDataImport targetFarmId={user.farmId} language={lang} />
+      )}
 
       {/* Offline Status & Demo Data Control */}
       <div className="bg-white rounded-2xl border border-gray-200/90 p-5 shadow-sm space-y-4">

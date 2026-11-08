@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react';
 import { Cow, HealthEvent, HealthEventType, Language } from '@/types';
+import { addDays, farmToday } from '@/lib/dates';
 import { translations } from '@/lib/translations';
 import { X, Check, Stethoscope, AlertTriangle, ShieldAlert } from 'lucide-react';
 
@@ -21,7 +22,7 @@ export const HealthModal: React.FC<HealthModalProps> = ({
   lang,
 }) => {
   const t = translations[lang];
-  const todayStr = new Date().toISOString().split('T')[0];
+  const todayStr = farmToday();
 
   const [cowId, setCowId] = useState(cows[0]?.id || '');
   const [date, setDate] = useState(todayStr);
@@ -43,9 +44,7 @@ export const HealthModal: React.FC<HealthModalProps> = ({
   // Calculate withdrawal end date
   let computedWithdrawalEndDate = '';
   if (hasWithdrawal && parseInt(withdrawalDays) > 0) {
-    const d = new Date(date);
-    d.setDate(d.getDate() + parseInt(withdrawalDays));
-    computedWithdrawalEndDate = d.toISOString().split('T')[0];
+    computedWithdrawalEndDate = addDays(date, parseInt(withdrawalDays));
   }
 
   const handleSubmit = (e: React.FormEvent) => {

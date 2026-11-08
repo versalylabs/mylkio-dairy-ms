@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { SyncEngine } from '@/lib/sync';
+import { CloudStore } from '@/lib/cloud-store';
 import { Language } from '@/types';
 import { Wifi, WifiOff, RefreshCw, CheckCircle2, CloudUpload } from 'lucide-react';
 
@@ -18,6 +19,7 @@ export const SyncStatusBar: React.FC<SyncStatusBarProps> = ({
   const [pendingCount, setPendingCount] = useState(0);
   const [isSyncing, setIsSyncing] = useState(false);
   const [lastSyncTime, setLastSyncTime] = useState<string | null>(null);
+  const [cloudConfigured, setCloudConfigured] = useState(false);
 
   const updateState = () => {
     if (typeof navigator !== 'undefined') {
@@ -25,6 +27,7 @@ export const SyncStatusBar: React.FC<SyncStatusBarProps> = ({
     }
     setPendingCount(SyncEngine.getPendingCount());
     setLastSyncTime(SyncEngine.getLastSyncTime());
+    setCloudConfigured(CloudStore.status().configured);
   };
 
   useEffect(() => {
@@ -50,12 +53,14 @@ export const SyncStatusBar: React.FC<SyncStatusBarProps> = ({
     window.addEventListener('online', handleOnline);
     window.addEventListener('offline', handleOffline);
     window.addEventListener('mylkio_sync_updated', handleSyncUpdated);
+    window.addEventListener('mylkio_cloud_changed', handleSyncUpdated);
     window.addEventListener('mylkio_syncing_state', handleSyncingState);
 
     return () => {
       window.removeEventListener('online', handleOnline);
       window.removeEventListener('offline', handleOffline);
       window.removeEventListener('mylkio_sync_updated', handleSyncUpdated);
+      window.removeEventListener('mylkio_cloud_changed', handleSyncUpdated);
       window.removeEventListener('mylkio_syncing_state', handleSyncingState);
     };
   }, []);
@@ -90,7 +95,11 @@ export const SyncStatusBar: React.FC<SyncStatusBarProps> = ({
         <div className="inline-flex items-center space-x-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-[#A8BFA5]/20 text-[#26332D] border border-[#A8BFA5]/40">
           <CheckCircle2 className="w-3.5 h-3.5 text-[#345C4A]" />
           <span>
-            {lang === 'sw' ? 'Imehifadhiwa na Kusawazishwa' : 'Synced on device'}
+            {!cloudConfigured
+              ? (lang === 'sw' ? 'Imehifadhiwa kwenye kifaa hiki' : 'Demo saved on this device')
+              : pendingCount === 0 && !isOnline
+              ? (lang === 'sw' ? 'Imehifadhiwa kwenye kifaa' : 'Saved on this device')
+              : (lang === 'sw' ? 'Hakuna mabadiliko yanayosubiri' : 'No pending cloud changes')}
             {lastSyncTime ? ` (${lastSyncTime})` : ''}
           </span>
         </div>

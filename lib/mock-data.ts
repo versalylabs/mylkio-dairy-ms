@@ -14,6 +14,7 @@ import {
   ContactLead,
   PlatformSettings
 } from '@/types';
+import { addDays, farmToday } from './dates';
 
 export const initialFarm: Farm = {
   id: 'farm-green-hills',
@@ -175,6 +176,9 @@ export const initialBuyers: Buyer[] = [
     deliverySchedule: 'daily',
     paymentCycle: 'monthly',
     currentBalance: 32640,
+    openingBalance: 75580, // unpaid September/October milk before the ledger started
+    openingBalanceDate: '2026-10-01',
+    ledgerVersion: 1,
     notes: 'Collection at Rongai Centre, 07:00 AM daily. Feed & transport deductions applied monthly.',
     createdAt: '2026-10-01T08:00:00Z',
   },
@@ -188,6 +192,9 @@ export const initialBuyers: Buyer[] = [
     deliverySchedule: 'daily',
     paymentCycle: 'monthly',
     currentBalance: 1800,
+    openingBalance: 1680,
+    openingBalanceDate: '2026-10-01',
+    ledgerVersion: 1,
     notes: 'Takes 2 Litres daily. Pays at the end of the month via M-Pesa.',
     createdAt: '2026-10-01T08:00:00Z',
   },
@@ -201,16 +208,17 @@ export const initialBuyers: Buyer[] = [
     deliverySchedule: 'daily',
     paymentCycle: 'weekly',
     currentBalance: 3850,
+    openingBalance: 3850,
+    openingBalanceDate: '2026-10-01',
+    ledgerVersion: 1,
     notes: 'Takes 10 Litres daily for tea and coffee. Weekly bank transfer / M-Pesa till.',
     createdAt: '2026-10-01T08:00:00Z',
   },
 ];
 
-const todayDate = new Date();
-const todayStr = todayDate.toISOString().split('T')[0];
-const yesterdayDate = new Date();
-yesterdayDate.setDate(yesterdayDate.getDate() - 1);
-const yesterdayStr = yesterdayDate.toISOString().split('T')[0];
+// Demo dates follow the farm calendar (Africa/Nairobi), relative to today.
+const todayStr = farmToday();
+const yesterdayStr = addDays(todayStr, -1);
 
 export const initialMilkEntries: MilkEntry[] = [
   {
@@ -340,9 +348,11 @@ export const initialPayments: PaymentRecord[] = [
     amount: 440,
     paymentMethod: 'mpesa',
     referenceNo: 'TKR729910Q',
-    notes: 'Daily milk payment',
+    notes: 'Paid at delivery',
     synced: true,
     createdAt: `${todayStr}T08:20:00Z`,
+    source: 'delivery',
+    deliveryId: 'del-today-cafe',
   },
   {
     id: 'pay-002',
@@ -571,7 +581,7 @@ export const initialAccounts: UserAccount[] = [
   {
     id: 'usr-admin-01',
     email: 'versalylabs@gmail.com',
-    password: 'labversaly-16',
+
     role: 'super_admin',
     farmId: 'farm-platform-admin',
     name: 'Versaly Platform Admin',
@@ -588,7 +598,7 @@ export const initialAccounts: UserAccount[] = [
   {
     id: 'usr-demo-01',
     email: 'demo@mylkio.co.ke',
-    password: 'demo-password',
+
     role: 'farmer',
     farmId: 'farm-green-hills',
     name: 'James Kariuki',
@@ -605,7 +615,7 @@ export const initialAccounts: UserAccount[] = [
   {
     id: 'usr-farmer-02',
     email: 'peter.kaptagat@dairy.co.ke',
-    password: 'secure-pwd-02',
+
     role: 'farmer',
     farmId: 'farm-kaptagat-pride',
     name: 'Peter Chepkwony',
@@ -623,7 +633,7 @@ export const initialAccounts: UserAccount[] = [
   {
     id: 'usr-farmer-03',
     email: 'mary.limuru@gmail.com',
-    password: 'secure-pwd-03',
+
     role: 'farmer',
     farmId: 'farm-limuru-highlands',
     name: 'Mary Wanjiku',
@@ -640,7 +650,7 @@ export const initialAccounts: UserAccount[] = [
   {
     id: 'usr-farmer-04',
     email: 'bomet.sunrise@gmail.com',
-    password: 'secure-pwd-04',
+
     role: 'farmer',
     farmId: 'farm-bomet-sunrise',
     name: 'Geoffrey Rotich',
