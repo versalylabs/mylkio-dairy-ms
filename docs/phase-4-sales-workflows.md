@@ -1,6 +1,6 @@
 # Phase 4: cooperative and household sales workflows
 
-Status: implemented and tested locally on `codex/phase-1-release-foundation` (8 November 2026). Checked in demo mode only; not yet run against a hosted Supabase project.
+Status: implemented and tested locally on `codex/phase-1-release-foundation` (8 November 2026). Checked in demo mode only; not yet run against a hosted Neon project.
 
 ## Cooperatives
 
@@ -41,7 +41,7 @@ Each buyer card has **Account statement**. For any month it shows:
 
 It can be printed.
 
-## Server rules (`supabase/migrations/202611080002_settlements.sql`)
+## Server rules (`db/migrations/0002_record_sync.sql`)
 
 - Adds `statements`, `bills` and `allocations` to per-record sync. All three are append-only: they can only be voided.
 - `apply_farm_operations` refuses, as conflicts:

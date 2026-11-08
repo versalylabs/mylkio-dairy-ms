@@ -1,22 +1,34 @@
 'use client';
 
+import { createAuthClient } from '@neon/auth/next';
 import type { UserAccount, SubscriptionPlan } from '@/types';
 import { initialAccounts } from './mock-data';
 import { CloudStore } from './cloud-store';
+
+// Identity (sign-up, sign-in, sign-out, session cookie) is handled by Neon Auth through
+// this site's /api/auth route. The farm, plan and permissions come from /api/account/*,
+// which the server answers only for a verified session.
 
 let activeUser: UserAccount | null = null;
 const demoKey = 'mylkio_demo_session_v2';
 const cachedAccountKey = 'mylkio_last_secure_account_v2';
 const backendKey = 'mylkio_secure_backend_enabled_v1';
+const pendingKey = 'mylkio_pending_onboarding_v1';
 let secureBackend = false;
-export type AuthResult = { success: boolean; user?: UserAccount; error?: string; confirmationRequired?: boolean };
-async function post(action: string, data: unknown): Promise<AuthResult> {
-  const response = await fetch(`/api/auth/${action}`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(data) });
-  const result = await response.json();
-  if (!response.ok) return { success: false, error: result.error || 'Account service unavailable.' };
-  if (result.user) await activate(result.user);
-  return result;
-}
+let client: ReturnType<typeof createAuthClient> | null = null;
+// Created on first use: this module is also evaluated while the page is server-rendered.
+const neonClient = () => (client ??= createAuthClient());
+
+export type AuthResult = { success: boolean; user?: UserAccount; error?: string; confirmationRequired?: boolean; needsOnboarding?: boolean };
+
+type SignUpDetails = { name: string; email: string; password: string; phone: string; farmName: string; county: string; subCounty?: string; plan?: SubscriptionPlan; language?: string };
+type Onboarding = Omit<SignUpDetails, 'email' | 'password'>;
+type AccountResponse =
+  | { state: 'account'; user: UserAccount }
+  | { state: 'onboarding' }
+  | { state: 'signed_out' }
+  | { state: 'unavailable' };
+
 async function activate(user: UserAccount) {
   if (user.role !== 'super_admin') await CloudStore.load(user.id, user.farmId);
   else CloudStore.clear();
@@ -25,6 +37,59 @@ async function activate(user: UserAccount) {
   activeUser = user;
   window.dispatchEvent(new Event('mylkio_auth_changed'));
 }
+
+async function fetchAccount(): Promise<AccountResponse> {
+  const response = await fetch('/api/account/session', { cache: 'no-store' });
+  if (response.status === 401) return { state: 'signed_out' };
+  if (!response.ok) return { state: 'unavailable' };
+  const result = await response.json();
+  return result.needsOnboarding ? { state: 'onboarding' } : { state: 'account', user: result.user };
+}
+
+function readPending(): Onboarding | null {
+  try {
+    const raw = localStorage.getItem(pendingKey);
+    return raw ? (JSON.parse(raw) as Onboarding) : null;
+  } catch {
+    return null;
+  }
+}
+
+async function completeOnboarding(details: Onboarding): Promise<AuthResult> {
+  const response = await fetch('/api/account/onboard', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      name: details.name, phone: details.phone, farmName: details.farmName, county: details.county,
+      subCounty: details.subCounty || undefined, plan: details.plan ?? 'farmer', language: details.language === 'sw' ? 'sw' : 'en',
+    }),
+  });
+  const result = await response.json().catch(() => ({}));
+  if (!response.ok) return { success: false, error: result.error || 'Your farm could not be set up. Please try again.' };
+  localStorage.removeItem(pendingKey);
+  await activate(result.user);
+  return { success: true, user: result.user };
+}
+
+/** After Neon Auth has signed the user in: load their farm, or create it if this is their first sign-in. */
+async function finishSession(): Promise<AuthResult> {
+  const account = await fetchAccount();
+  if (account.state === 'account') { localStorage.removeItem(pendingKey); await activate(account.user); return { success: true, user: account.user }; }
+  if (account.state === 'onboarding') {
+    const pending = readPending();
+    if (pending) return completeOnboarding(pending);
+    return {
+      success: false,
+      needsOnboarding: true,
+      error: 'Your account does not have a farm yet. Choose "Create account", enter your farm details and use the same email and password to finish setting up.',
+    };
+  }
+  if (account.state === 'signed_out') return { success: false, confirmationRequired: true };
+  return { success: false, error: 'Account service unavailable. Please try again.' };
+}
+
+const friendly = (error: { message?: string; status?: number } | null | undefined, fallback: string) =>
+  error?.status === 429 ? 'Too many attempts. Please wait a few minutes and try again.' : fallback;
 
 export const SecureAuth = {
   user: () => activeUser,
@@ -56,8 +121,8 @@ export const SecureAuth = {
     }
     // Only the demo session is local. A saved farmer/admin object is never trusted.
     localStorage.removeItem('mylkio_active_user');
-    let response: Response;
-    try { response = await fetch('/api/auth/session', { cache: 'no-store' }); }
+    let account: AccountResponse;
+    try { account = await fetchAccount(); }
     catch {
       const cached = localStorage.getItem(cachedAccountKey);
       if (!cached) throw new Error('Connect once to confirm your account on this device.');
@@ -73,18 +138,39 @@ export const SecureAuth = {
         throw new Error('Could not open the saved offline farm.');
       }
     }
-    if (response.ok) { await activate((await response.json()).user); return; }
-    if (response.status !== 401 && response.status !== 503) throw new Error('Could not check your session. Please retry.');
+    if (account.state === 'account') { await activate(account.user); return; }
+    if (account.state === 'onboarding') {
+      const pending = readPending();
+      if (pending) { const done = await completeOnboarding(pending); if (done.success) return; }
+    } else if (account.state === 'unavailable') {
+      throw new Error('Could not check your session. Please retry.');
+    }
     activeUser = null;
     if (sessionStorage.getItem(demoKey) === 'true') this.demo();
   },
-  async login(email: string, password: string) {
+  async login(email: string, password: string): Promise<AuthResult> {
     if (!secureBackend) return { success: false, error: 'Farmer accounts are not set up yet. Explore the demo farm while cloud accounts are configured.' };
-    return post('login', { email, password });
+    const { error } = await neonClient().signIn.email({ email, password });
+    if (error) return { success: false, error: friendly(error, 'Sign-in failed. Check your email and password.') };
+    const result = await finishSession();
+    if (result.confirmationRequired) return { success: false, error: 'Please confirm your email address first, then sign in.' };
+    return result;
   },
-  async register(input: { name: string; email: string; password: string; phone: string; farmName: string; county: string; subCounty?: string; plan?: SubscriptionPlan; language?: string }) {
+  async register(input: SignUpDetails): Promise<AuthResult> {
     if (!secureBackend) return { success: false, error: 'Farmer accounts are not set up yet. Explore the demo farm while cloud accounts are configured.' };
-    return post('signup', input);
+    const { email, password, ...details } = input;
+    // Kept on this device (no password) so the farm is created as soon as the account has a session.
+    localStorage.setItem(pendingKey, JSON.stringify(details));
+    const created = await neonClient().signUp.email({ email, password, name: input.name });
+    if (created.error) {
+      // The account may already exist from an earlier attempt that never finished setting up its farm.
+      const resumed = await neonClient().signIn.email({ email, password });
+      if (resumed.error) {
+        localStorage.removeItem(pendingKey);
+        return { success: false, error: friendly(created.error, 'Could not create the account. If you already have one, sign in instead.') };
+      }
+    }
+    return finishSession();
   },
   demo() {
     CloudStore.clear();
@@ -96,8 +182,10 @@ export const SecureAuth = {
   },
   async logout() {
     // A demo may have been opened while a real server session still exists.
-    const result = secureBackend ? await post('logout', {}) : { success: true };
-    if (!result.success && activeUser?.id !== 'usr-demo-01') throw new Error(result.error || 'Could not sign out.');
+    if (secureBackend) {
+      const { error } = await neonClient().signOut();
+      if (error && activeUser?.id !== 'usr-demo-01') throw new Error('Could not sign out. Please retry.');
+    }
     sessionStorage.removeItem(demoKey);
     localStorage.removeItem(cachedAccountKey);
     activeUser = null; CloudStore.clear();

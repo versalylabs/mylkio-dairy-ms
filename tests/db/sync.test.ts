@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, it } from 'vitest';
 import type { PGlite } from '@electric-sql/pglite';
 import { randomUUID } from 'node:crypto';
-import { apply, asUser, freshDatabase, signUp } from './harness';
+import { apply, asUser, changesSince, freshDatabase, signUp } from './harness';
 
 const OWNER = '11111111-1111-4111-8111-111111111111';
 const OTHER = '22222222-2222-4222-8222-222222222222';
@@ -130,17 +130,21 @@ describe('farm isolation', () => {
     await expect(apply(db, farm, [op({ bucket: 'milk', recordId: 'x', data: { id: 'x', farmId: otherFarm } })])).rejects.toThrow(/another farm/);
   });
 
-  it('row-level security hides another farm\'s records from direct reads', async () => {
+  it('does not let a member of another farm download these records', async () => {
     await apply(db, farm, [op({ bucket: 'milk', recordId: 'secret', data: milk('secret') })]);
     await signUp(db, OTHER, 'Other Farm');
-    await asUser(db, OTHER);
-    await db.exec('set role authenticated');
-    const { rows } = await db.query('select count(*)::int as n from public.farm_records where farm_id=$1', [farm]);
+    await expect(changesSince(db, farm)).rejects.toThrow(/Farm access denied/);
     await asUser(db, OWNER);
-    const own = await db.query('select count(*)::int as n from public.farm_records where farm_id=$1', [farm]);
-    await db.exec('reset role');
-    expect(rows[0]).toEqual({ n: 0 });
-    expect(own.rows[0]).toEqual({ n: 2 }); // farm profile + milk record
+    const own = await changesSince(db, farm);
+    expect(own.map((r) => r.id).sort()).toEqual([farm, 'secret'].sort()); // farm profile + milk record
+  });
+
+  it('only returns changes after the given change number, in order', async () => {
+    const [a] = await apply(db, farm, [op({ bucket: 'milk', recordId: 'm1', data: milk('m1') })]);
+    await apply(db, farm, [op({ bucket: 'milk', recordId: 'm2', data: milk('m2') })]);
+    const later = await changesSince(db, farm, a.ops![0].seq);
+    expect(later.map((r) => r.id)).toEqual(['m2']);
+    expect(await changesSince(db, farm, 0, 1)).toHaveLength(1);
   });
 
   it('refuses anonymous callers', async () => {

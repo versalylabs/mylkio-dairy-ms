@@ -1,39 +1,20 @@
--- Per-record synchronisation.
+-- Per-record synchronisation, cooperative statements, bills and payment allocations.
 --
--- Replaces whole-bucket writes (delete every row, re-insert the array) with
--- record-level operations:
--- * one versioned row per record in public.farm_records, with tombstones for deletes;
--- * a per-farm change sequence so devices download only what changed;
--- * idempotent operations (public.sync_operations), so a retried upload is never
---   applied twice;
--- * groups of operations (e.g. a delivery and the receipt taken with it) that are
---   applied all-or-nothing;
--- * append-only milk, delivery and payment records: after creation they may only be
---   voided, never edited or deleted;
--- * one audit entry per changed record.
+-- Operations are recorded in public.sync_operations; records live in public.farm_records
+-- (created in 0001) with tombstones for deletes and a
+-- per-farm change sequence so devices download only what changed. Operations are
+-- idempotent (public.sync_operations), applied in groups that succeed or fail together,
+-- and milk, delivery, payment, statement, bill and allocation records are append-only:
+-- after creation they may only be voided.
 --
--- Existing rows from the per-bucket tables are copied before those tables are dropped.
-
-create table public.farm_records (
-  farm_id uuid not null references public.farms(id) on delete cascade,
-  bucket text not null check (bucket in ('farm','cows','buyers','milk','deliveries','payments','health','breeding','expenses','reminders')),
-  id text not null check (length(id) between 1 and 160),
-  version bigint not null default 1 check (version >= 1),
-  change_seq bigint not null,
-  deleted boolean not null default false,
-  data jsonb not null,
-  updated_at timestamptz not null default now(),
-  updated_by uuid references public.profiles(id),
-  primary key (farm_id, bucket, id)
-);
-create index farm_records_changes_idx on public.farm_records(farm_id, change_seq);
-create sequence public.farm_record_change_seq;
+-- `p_actor` is the Neon Auth user id, verified by the Next.js server before it calls
+-- these functions. Both functions refuse anyone who is not an owner of the farm.
 
 create table public.sync_operations (
   farm_id uuid not null references public.farms(id) on delete cascade,
   op_id uuid not null,
   group_id uuid not null,
-  actor_id uuid not null references public.profiles(id),
+  actor_id text not null references public.profiles(id),
   bucket text not null,
   record_id text not null,
   version bigint not null,
@@ -42,78 +23,35 @@ create table public.sync_operations (
   primary key (farm_id, op_id)
 );
 
-alter table public.audit_logs add column record_id text;
-
--- Carry over anything written by the bucket-level implementation.
-do $$
-declare t record;
+-- Records changed after `p_since`, in change order. Writers are serialised per farm, so
+-- a page never skips a change that commits later.
+create function public.farm_changes(p_farm uuid, p_actor text, p_since bigint, p_limit integer)
+returns table(bucket text, id text, version bigint, change_seq bigint, deleted boolean, data jsonb)
+language plpgsql stable as $$
 begin
-  for t in select * from (values
-    ('cows','cows'),('buyers','buyers'),('milk','milk_entries'),('deliveries','deliveries'),('payments','payments'),
-    ('health','health_events'),('breeding','breeding_events'),('expenses','expenses'),('reminders','reminders')) as v(bucket, tbl)
-  loop
-    execute format(
-      'insert into public.farm_records(farm_id,bucket,id,version,change_seq,data) select farm_id,%L,id,1,nextval(''public.farm_record_change_seq''),data from public.%I',
-      t.bucket, t.tbl);
-  end loop;
-  insert into public.farm_records(farm_id,bucket,id,version,change_seq,data)
-    select id,'farm',id::text,greatest(revision,1),nextval('public.farm_record_change_seq'),data from public.farms;
-end $$;
-
-drop function public.write_farm_bucket(uuid,text,jsonb,bigint);
-drop table public.farm_sync_state;
-drop table public.cows, public.buyers, public.milk_entries, public.deliveries, public.payments,
-  public.health_events, public.breeding_events, public.expenses, public.reminders;
-
-alter table public.farm_records enable row level security;
-alter table public.sync_operations enable row level security;
-create policy farm_records_read on public.farm_records for select to authenticated
-  using (exists(select 1 from public.farm_memberships m where m.farm_id = farm_records.farm_id and m.user_id = (select auth.uid())));
-revoke all on public.farm_records, public.sync_operations from anon, authenticated;
-grant select on public.farm_records to authenticated;
-revoke all on sequence public.farm_record_change_seq from anon, authenticated;
-
--- New farms start with their profile as a farm record.
-create or replace function public.provision_my_farm() returns void
-language plpgsql security definer set search_path = '' as $$
-declare actor uuid:=auth.uid(); meta jsonb; email_address text; farm uuid; selected_plan text; price integer;
-begin
-  if actor is null then raise exception 'Authentication required' using errcode='42501'; end if;
-  perform pg_advisory_xact_lock(hashtextextended(actor::text,0));
-  if exists(select 1 from public.profiles where id=actor) then return; end if;
-  select raw_user_meta_data,email into meta,email_address from auth.users where id=actor;
-  if coalesce(length(btrim(meta->>'name')),0) not between 1 and 120
-    or coalesce(length(btrim(meta->>'farmName')),0) not between 1 and 160
-    or coalesce(length(btrim(meta->>'county')),0) not between 1 and 80
-    or coalesce(length(meta->>'phone'),0)>32 or coalesce(length(meta->>'subCounty'),0)>80 then
-    raise exception 'Valid farm onboarding information required' using errcode='22023';
+  if p_actor is null or not exists(select 1 from public.farm_memberships where farm_id = p_farm and user_id = p_actor) then
+    raise exception 'Farm access denied' using errcode = '42501';
   end if;
-  selected_plan:=coalesce(meta->>'plan','farmer');
-  if selected_plan not in ('starter','farmer','farm_pro') then selected_plan:='farmer'; end if;
-  price:=case selected_plan when 'starter' then 500 when 'farm_pro' then 2500 else 1000 end;
-  insert into public.profiles(id,email,name,phone) values(actor,email_address,btrim(meta->>'name'),coalesce(meta->>'phone',''));
-  insert into public.farms(data) values(jsonb_build_object('name',btrim(meta->>'farmName'),'county',btrim(meta->>'county'),'subCounty',meta->>'subCounty',
-    'ownerName',btrim(meta->>'name'),'phone',coalesce(meta->>'phone',''),'operatingStyle','individual','preferredLanguage',case when meta->>'language'='sw' then 'sw' else 'en' end,'currency','KSh','createdAt',now())) returning id into farm;
-  update public.farms f set data=f.data||jsonb_build_object('id',farm) where f.id=farm;
-  insert into public.farm_memberships(farm_id,user_id,role) values(farm,actor,'owner');
-  insert into public.subscriptions values(farm,jsonb_build_object('plan',selected_plan,'status','trial','monthlyPriceKsh',price,'startDate',now(),'renewsAt',now()+interval '14 days'));
-  insert into public.farm_records(farm_id,bucket,id,version,change_seq,data,updated_by)
-    select farm,'farm',farm::text,1,nextval('public.farm_record_change_seq'),f.data,actor from public.farms f where f.id=farm;
+  return query
+    select r.bucket, r.id, r.version, r.change_seq, r.deleted, r.data
+    from public.farm_records r
+    where r.farm_id = p_farm and r.change_seq > greatest(p_since, 0)
+    order by r.change_seq
+    limit least(greatest(p_limit, 1), 1000);
 end $$;
-revoke all on function public.provision_my_farm() from public,anon;
-grant execute on function public.provision_my_farm() to authenticated;
 
 -- Apply a batch of record operations.
 --
 -- p_ops: [{opId, groupId, bucket, recordId, action: 'upsert'|'delete', baseVersion, data?}]
 -- Returns: [{groupId, status: 'applied', ops: [{opId, version, seq}]}
 --          | {groupId, status: 'conflict', conflicts: [{opId, bucket, recordId, reason, server}]}]
--- A group is applied completely or not at all. reason is 'changed' (the record
--- moved on since baseVersion) or 'immutable' (an edit/delete of an append-only record).
-create function public.apply_farm_operations(p_farm uuid, p_ops jsonb)
-returns jsonb language plpgsql security definer set search_path = '' as $$
+-- reason is 'changed' (the record moved on since baseVersion), 'immutable' (an edit or
+-- delete of an append-only record), 'duplicate' (a delivery already on another bill, or
+-- an overlapping co-op statement) or 'invalid_allocation'.
+create function public.apply_farm_operations(p_farm uuid, p_actor text, p_ops jsonb)
+returns jsonb language plpgsql as $$
 declare
-  actor uuid := auth.uid();
+  actor text := p_actor;
   results jsonb := '[]'::jsonb;
   grp record;
   op jsonb;
@@ -149,7 +87,7 @@ begin
       loop
         b := op->>'bucket'; r := op->>'recordId'; act := op->>'action';
         base := (op->>'baseVersion')::bigint; payload := op->'data';
-        if b is null or b not in ('farm','cows','buyers','milk','deliveries','payments','health','breeding','expenses','reminders')
+        if b is null or b not in ('farm','cows','buyers','milk','deliveries','payments','health','breeding','expenses','reminders','statements','bills','allocations')
           or r is null or length(r) not between 1 and 160 or act not in ('upsert','delete') or base is null or base < 0
           or (op->>'opId') is null or (op->>'groupId') is null then
           raise exception 'Invalid operation' using errcode='22023';
@@ -183,13 +121,56 @@ begin
           continue;
         end if;
 
-        if b in ('milk','deliveries','payments') and (act = 'delete' or (found_cur and (
+        if b in ('milk','deliveries','payments','statements','bills','allocations') and (act = 'delete' or (found_cur and (
              cur.deleted
              or (cur.data - void_keys) is distinct from (payload - void_keys)
              or (cur.data ? 'voidedAt' and payload->>'voidedAt' is null)))) then
           conflicts := conflicts || jsonb_build_object('opId', op->>'opId', 'bucket', b, 'recordId', r, 'reason', 'immutable',
             'server', case when found_cur then jsonb_build_object('version', cur.version, 'deleted', cur.deleted, 'data', cur.data) end);
           continue;
+        end if;
+
+        -- A delivery may be on only one active bill.
+        if b = 'bills' and act = 'upsert' and payload->>'voidedAt' is null and exists(
+             select 1 from public.farm_records o
+             where o.farm_id = p_farm and o.bucket = 'bills' and o.id <> r and not o.deleted
+               and o.data->>'voidedAt' is null
+               and o.data->'deliveryIds' ?| array(select jsonb_array_elements_text(coalesce(payload->'deliveryIds', '[]'::jsonb)))) then
+          conflicts := conflicts || jsonb_build_object('opId', op->>'opId', 'bucket', b, 'recordId', r, 'reason', 'duplicate', 'server', null);
+          continue;
+        end if;
+
+        -- One active statement per cooperative per period.
+        if b = 'statements' and act = 'upsert' and payload->>'voidedAt' is null and exists(
+             select 1 from public.farm_records o
+             where o.farm_id = p_farm and o.bucket = 'statements' and o.id <> r and not o.deleted
+               and o.data->>'voidedAt' is null
+               and o.data->>'buyerId' = payload->>'buyerId'
+               and o.data->>'periodFrom' <= payload->>'periodTo'
+               and o.data->>'periodTo' >= payload->>'periodFrom') then
+          conflicts := conflicts || jsonb_build_object('opId', op->>'opId', 'bucket', b, 'recordId', r, 'reason', 'duplicate', 'server', null);
+          continue;
+        end if;
+
+        -- An allocation needs a live payment of the same buyer with enough left.
+        if b = 'allocations' and act = 'upsert' and not found_cur and payload->>'voidedAt' is null then
+          declare
+            pay public.farm_records%rowtype;
+            used numeric;
+          begin
+            select * into pay from public.farm_records
+              where farm_id = p_farm and bucket = 'payments' and id = payload->>'paymentId' and not deleted;
+            select coalesce(sum((o.data->>'amount')::numeric), 0) into used from public.farm_records o
+              where o.farm_id = p_farm and o.bucket = 'allocations' and not o.deleted
+                and o.data->>'voidedAt' is null and o.data->>'paymentId' = payload->>'paymentId';
+            if pay.id is null or pay.data->>'voidedAt' is not null
+               or pay.data->>'buyerId' is distinct from payload->>'buyerId'
+               or coalesce((payload->>'amount')::numeric, 0) <= 0
+               or used + (payload->>'amount')::numeric > (pay.data->>'amount')::numeric + 0.005 then
+              conflicts := conflicts || jsonb_build_object('opId', op->>'opId', 'bucket', b, 'recordId', r, 'reason', 'invalid_allocation', 'server', null);
+              continue;
+            end if;
+          end;
         end if;
 
         seq := nextval('public.farm_record_change_seq');
@@ -227,5 +208,3 @@ begin
   end loop;
   return results;
 end $$;
-revoke all on function public.apply_farm_operations(uuid,jsonb) from public,anon;
-grant execute on function public.apply_farm_operations(uuid,jsonb) to authenticated;

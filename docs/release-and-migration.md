@@ -65,16 +65,14 @@ Database and browser migrations are separate from application rollback. Use addi
 
 ## Phase 2 status — backend and security foundation
 
-Phase 2 is implemented on the upgrade branch. It adds Supabase Auth routes, RLS-protected farm membership and operational tables, revision-checked writes, and account-scoped local caches. The Vercel project had no environment variables at inspection, so this backend is not active in production.
+Phase 2 is implemented. It was first built on Supabase and moved to Neon on 8 November 2026 ([neon-backend.md](neon-backend.md)): Neon Auth for sign-in, farm-scoped Postgres tables, per-record writes with an audit entry for each change, and account-scoped local caches. The Vercel project has no environment variables, so this backend is not active in production.
 
-Before connecting the production domain, apply the schema migration to the intended Supabase project, configure `SUPABASE_URL`, `SUPABASE_PUBLISHABLE_KEY`, and `APP_URL` in private Vercel settings, and confirm Supabase Auth email redirect settings. Use a separate Supabase project and callback origin for preview deployments. Never set a service-role key in the app; this implementation uses the user's cookie-authenticated client and RLS.
-
-The first platform administrator must be promoted out-of-band by a trusted project owner after registering and confirming their account, with a narrowly scoped SQL update to `profiles.role`. Public signup cannot create administrators.
+Before connecting the production domain, create the Neon project, run `npm run db:migrate`, set `DATABASE_URL`, `NEON_AUTH_BASE_URL` and `NEON_AUTH_COOKIE_SECRET` in Vercel's private settings, and add the site as a trusted domain in Neon Auth. Use a separate Neon branch for previews. The first platform administrator is promoted with a narrowly scoped SQL update on `profiles.role`; public sign-up cannot create administrators.
 
 ## Phase 2b status — local legacy import and sync preparation
 
 The signed-in farm settings detect legacy tenant keys in the current browser and accept the versioned JSON export. A farmer sees a dry-run summary, basic relationship checks, likely buyer-balance gaps, attachment/request-size warnings, and cloud ID collisions before confirming an ID-based merge. The JSON export includes reminders. The old local copy is retained. Balance differences require human review, and large embedded attachments must be handled separately.
 
-No Supabase migration, cloud import, or production deployment has been performed. The import UI can only exercise real cloud reconciliation after the project schema and Vercel environment are configured. Do not ask farmers to switch accounts or treat the importer as production-ready until a private copy of a real farm export has passed count, relationship, milk-total, delivery, payment, and balance checks.
+No Neon migration, cloud import, or production deployment has been performed. The import UI can only exercise real cloud reconciliation after the project schema and Vercel environment are configured. Do not ask farmers to switch accounts or treat the importer as production-ready until a private copy of a real farm export has passed count, relationship, milk-total, delivery, payment, and balance checks.
 
-**Recommended next phase:** configure an isolated Supabase preview project and Vercel preview environment, then rehearse multi-device duplicate review, financial reconciliation, and offline/conflict scenarios with representative farm data. Only after those checks pass should production activation be planned.
+**Recommended next phase:** configure a Neon preview branch and a Vercel preview environment, then rehearse multi-device duplicate review, financial reconciliation, and offline/conflict scenarios with representative farm data. Only after those checks pass should production activation be planned.

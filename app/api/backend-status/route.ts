@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
+import { authConfigured } from '@/lib/server/neon-auth';
 
 export const dynamic = 'force-dynamic';
 export function GET() {
-  return NextResponse.json({ configured: Boolean(process.env.SUPABASE_URL && process.env.SUPABASE_PUBLISHABLE_KEY) },
-    { headers: { 'Cache-Control': 'no-store' } });
+  return NextResponse.json({ configured: authConfigured() }, { headers: { 'Cache-Control': 'no-store' } });
 }

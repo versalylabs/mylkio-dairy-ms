@@ -137,9 +137,15 @@ export default function Home() {
       if (!cancelled) setAccountError(error instanceof Error ? error.message : 'Could not load account.');
     }).finally(() => { if (!cancelled) setMounted(true); });
 
-    // Register Service Worker for PWA offline readiness
+    // Service worker for PWA offline readiness. Not used in development, where chunk names
+    // change on every start; any worker left over from an earlier session is removed.
     if (typeof window !== 'undefined' && 'serviceWorker' in navigator) {
-      navigator.serviceWorker.register('/sw.js').catch(() => {});
+      if (process.env.NODE_ENV === 'production') {
+        navigator.serviceWorker.register('/sw.js').catch(() => {});
+      } else {
+        void navigator.serviceWorker.getRegistrations().then((list) => list.forEach((r) => void r.unregister()));
+        void caches.keys().then((keys) => keys.filter((k) => k.startsWith('mylkio-cache-')).forEach((k) => void caches.delete(k)));
+      }
     }
 
     const handleStorageChange = () => refreshData();
