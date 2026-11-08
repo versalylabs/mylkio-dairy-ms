@@ -147,6 +147,7 @@ export default function Home() {
     window.addEventListener('mylkio_reminders_changed', handleStorageChange);
     window.addEventListener('mylkio_testimonials_changed', handleStorageChange);
     window.addEventListener('mylkio_settings_changed', handleStorageChange);
+    window.addEventListener('mylkio_farm_data_synced', handleStorageChange);
 
     return () => {
       cancelled = true;
@@ -164,6 +165,7 @@ export default function Home() {
       window.removeEventListener('mylkio_reminders_changed', handleStorageChange);
       window.removeEventListener('mylkio_testimonials_changed', handleStorageChange);
       window.removeEventListener('mylkio_settings_changed', handleStorageChange);
+      window.removeEventListener('mylkio_farm_data_synced', handleStorageChange);
     };
   }, [impersonatedFarmId]);
 

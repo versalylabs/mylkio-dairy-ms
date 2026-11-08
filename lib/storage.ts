@@ -830,3 +830,16 @@ export const AppStorage = {
     this.clearCurrentTenant();
   }
 };
+
+// Actions that change several kinds of record at once are uploaded as one group, so
+// the cloud never holds half of them (e.g. a delivery without the receipt taken with
+// it, or migrated buyer balances without their payments).
+function groupInCloud<T extends object>(target: T, names: (keyof T)[]) {
+  for (const name of names) {
+    const original = target[name] as unknown as (...args: unknown[]) => unknown;
+    (target as Record<keyof T, unknown>)[name] = function (this: T, ...args: unknown[]) {
+      return CloudStore.group(() => original.apply(this, args));
+    };
+  }
+}
+groupInCloud(AppStorage, ['getBuyers', 'addDelivery', 'voidDelivery', 'addHealthEvent', 'addBreedingEvent']);
