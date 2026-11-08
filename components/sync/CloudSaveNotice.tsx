@@ -7,6 +7,7 @@ import type { BucketName } from '@/lib/backend-contract';
 const kind: Record<BucketName, string> = {
   farm: 'Farm profile', cows: 'Cow', buyers: 'Buyer', milk: 'Milk record', deliveries: 'Delivery', payments: 'Payment',
   health: 'Health record', breeding: 'Breeding record', expenses: 'Expense', reminders: 'Reminder',
+  statements: 'Co-op statement', bills: 'Customer bill', allocations: 'Payment allocation',
 };
 
 function describe(op: PendingOp): string {

@@ -33,6 +33,8 @@ export const RecordDeliveryModal: React.FC<RecordDeliveryModalProps> = ({
   const [adjustmentKSh, setAdjustmentKSh] = useState<string>('0');
   const [amountPaid, setAmountPaid] = useState<string>('0');
   const [notes, setNotes] = useState('');
+  const [slipReference, setSlipReference] = useState('');
+  const [rejectionReason, setRejectionReason] = useState('');
   const [error, setError] = useState('');
 
   const selectedBuyer = buyers.find((b) => b.id === buyerId);
@@ -96,6 +98,8 @@ export const RecordDeliveryModal: React.FC<RecordDeliveryModalProps> = ({
       amountPaid: numPaid,
       balance: netBalance,
       notes: notes.trim() || undefined,
+      slipReference: slipReference.trim() || undefined,
+      rejectionReason: numRejected > 0 ? rejectionReason.trim() || undefined : undefined,
     }, paymentMethod);
 
     // Reset
@@ -104,6 +108,8 @@ export const RecordDeliveryModal: React.FC<RecordDeliveryModalProps> = ({
     setAdjustmentKSh('0');
     setAmountPaid('0');
     setNotes('');
+    setSlipReference('');
+    setRejectionReason('');
     setError('');
     onClose();
   };
@@ -252,6 +258,29 @@ export const RecordDeliveryModal: React.FC<RecordDeliveryModalProps> = ({
               </div>
             </div>
           </div>
+
+          {(selectedBuyer?.type === 'cooperative' || numRejected > 0) && (
+            <div className="grid grid-cols-2 gap-3">
+              {selectedBuyer?.type === 'cooperative' && (
+                <div>
+                  <label htmlFor="delivery-slip" className="block text-xs font-semibold uppercase tracking-wider text-gray-700 mb-1">
+                    {lang === 'sw' ? 'Nambari ya risiti ya kituo' : 'Delivery slip no.'}
+                  </label>
+                  <input id="delivery-slip" type="text" value={slipReference} onChange={(e) => setSlipReference(e.target.value)}
+                    placeholder="e.g. RG-1108" className="w-full px-3 py-2.5 rounded-xl border border-gray-300 focus:ring-2 focus:ring-dairy-500 text-sm" />
+                </div>
+              )}
+              {numRejected > 0 && (
+                <div>
+                  <label htmlFor="delivery-reject-reason" className="block text-xs font-semibold uppercase tracking-wider text-gray-700 mb-1">
+                    {lang === 'sw' ? 'Sababu ya kukataliwa' : 'Rejection reason'}
+                  </label>
+                  <input id="delivery-reject-reason" type="text" value={rejectionReason} onChange={(e) => setRejectionReason(e.target.value)}
+                    placeholder={lang === 'sw' ? 'mfano Kipimo cha alkoholi' : 'e.g. Failed alcohol test'} className="w-full px-3 py-2.5 rounded-xl border border-gray-300 focus:ring-2 focus:ring-dairy-500 text-sm" />
+                </div>
+              )}
+            </div>
+          )}
 
           {/* Real-time Calculation Summary */}
           <div className="p-3.5 bg-[#FAF9F5] border border-[#E8E4D8] rounded-2xl space-y-2 text-xs">

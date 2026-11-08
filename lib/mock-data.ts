@@ -12,9 +12,12 @@ import {
   UserAccount,
   Testimonial,
   ContactLead,
-  PlatformSettings
+  PlatformSettings,
+  CoopStatement,
+  CustomerBill,
+  PaymentAllocation,
 } from '@/types';
-import { addDays, farmToday } from './dates';
+import { addDays, farmToday, monthRange, previousMonthRange } from './dates';
 
 export const initialFarm: Farm = {
   id: 'farm-green-hills',
@@ -165,6 +168,14 @@ export const initialCows: Cow[] = [
   },
 ];
 
+// Demo dates follow the farm calendar (Africa/Nairobi), relative to today.
+const todayStr = farmToday();
+const yesterdayStr = addDays(todayStr, -1);
+// "Last month" drives the demo's cooperative statement and household bill.
+const lastMonth = previousMonthRange(todayStr);
+const ledgerStart = addDays(lastMonth.from, -1);
+const lastMonthDay = (day: number) => addDays(lastMonth.from, day - 1);
+
 export const initialBuyers: Buyer[] = [
   {
     id: 'buyer-baraka-coop',
@@ -175,10 +186,12 @@ export const initialBuyers: Buyer[] = [
     ratePerLitre: 48,
     deliverySchedule: 'daily',
     paymentCycle: 'monthly',
-    currentBalance: 32640,
-    openingBalance: 75580, // unpaid September/October milk before the ledger started
-    openingBalanceDate: '2026-10-01',
+    currentBalance: 0,
+    openingBalance: 45000, // the month before last, still unpaid when the ledger started
+    openingBalanceDate: ledgerStart,
     ledgerVersion: 1,
+    memberNumber: 'BDF-0417',
+    collectionCentre: 'Rongai Collection Centre',
     notes: 'Collection at Rongai Centre, 07:00 AM daily. Feed & transport deductions applied monthly.',
     createdAt: '2026-10-01T08:00:00Z',
   },
@@ -191,9 +204,9 @@ export const initialBuyers: Buyer[] = [
     ratePerLitre: 60,
     deliverySchedule: 'daily',
     paymentCycle: 'monthly',
-    currentBalance: 1800,
-    openingBalance: 1680,
-    openingBalanceDate: '2026-10-01',
+    currentBalance: 0,
+    openingBalance: 0,
+    openingBalanceDate: ledgerStart,
     ledgerVersion: 1,
     notes: 'Takes 2 Litres daily. Pays at the end of the month via M-Pesa.',
     createdAt: '2026-10-01T08:00:00Z',
@@ -209,7 +222,7 @@ export const initialBuyers: Buyer[] = [
     paymentCycle: 'weekly',
     currentBalance: 3850,
     openingBalance: 3850,
-    openingBalanceDate: '2026-10-01',
+    openingBalanceDate: ledgerStart,
     ledgerVersion: 1,
     notes: 'Takes 10 Litres daily for tea and coffee. Weekly bank transfer / M-Pesa till.',
     createdAt: '2026-10-01T08:00:00Z',
@@ -217,8 +230,6 @@ export const initialBuyers: Buyer[] = [
 ];
 
 // Demo dates follow the farm calendar (Africa/Nairobi), relative to today.
-const todayStr = farmToday();
-const yesterdayStr = addDays(todayStr, -1);
 
 export const initialMilkEntries: MilkEntry[] = [
   {
@@ -281,7 +292,7 @@ export const initialMilkEntries: MilkEntry[] = [
   },
 ];
 
-export const initialDeliveries: Delivery[] = [
+const todayDeliveries: Delivery[] = [
   {
     id: 'del-today-coop',
     farmId: 'farm-green-hills',
@@ -338,6 +349,91 @@ export const initialDeliveries: Delivery[] = [
   },
 ];
 
+// A month of cooperative and household deliveries for last month.
+const lastMonthDays = Number(lastMonth.to.slice(8, 10));
+const coopRejections: Record<number, { litres: number; reason: string }> = {
+  12: { litres: 4, reason: 'Failed alcohol test' },
+  23: { litres: 3, reason: 'Arrived warm after collection time' },
+};
+const lastMonthDeliveries: Delivery[] = Array.from({ length: lastMonthDays }, (_, i) => i + 1).flatMap((day) => {
+  const date = lastMonthDay(day);
+  const litres = 30 + ((day * 7) % 5);
+  const rejected = coopRejections[day]?.litres ?? 0;
+  const coop: Delivery = {
+    id: `del-lm-coop-${day}`,
+    farmId: 'farm-green-hills',
+    buyerId: 'buyer-baraka-coop',
+    buyerName: 'Baraka Dairy Farmers Co-op',
+    buyerType: 'cooperative',
+    date,
+    litres,
+    ratePerLitre: 48,
+    rejectedLitres: rejected,
+    rejectionReason: coopRejections[day]?.reason,
+    slipReference: `RG-${date.slice(5, 7)}${date.slice(8, 10)}`,
+    adjustmentKSh: 0,
+    expectedAmount: (litres - rejected) * 48,
+    amountPaid: 0,
+    balance: (litres - rejected) * 48,
+    synced: true,
+    createdAt: `${date}T07:30:00Z`,
+  };
+  const household: Delivery = {
+    id: `del-lm-mama-${day}`,
+    farmId: 'farm-green-hills',
+    buyerId: 'buyer-mama-wanjiku',
+    buyerName: 'Mama Wanjiku (Household)',
+    buyerType: 'household',
+    date,
+    litres: 2,
+    ratePerLitre: 60,
+    rejectedLitres: 0,
+    adjustmentKSh: 0,
+    expectedAmount: 120,
+    amountPaid: 0,
+    balance: 120,
+    synced: true,
+    createdAt: `${date}T07:45:00Z`,
+  };
+  return [coop, household];
+}).reverse();
+
+export const initialDeliveries: Delivery[] = [...todayDeliveries, ...lastMonthDeliveries];
+
+const lastMonthAccepted = lastMonthDeliveries
+  .filter((d) => d.buyerType === 'cooperative')
+  .reduce((sum, d) => sum + d.litres - d.rejectedLitres, 0);
+
+// The cooperative's own statement for last month: it credits 15 L less than the
+// farm recorded, and itemises its deductions.
+export const initialStatements: CoopStatement[] = [
+  {
+    id: 'stmt-last-month',
+    farmId: 'farm-green-hills',
+    buyerId: 'buyer-baraka-coop',
+    buyerName: 'Baraka Dairy Farmers Co-op',
+    periodFrom: lastMonth.from,
+    periodTo: lastMonth.to,
+    statementRef: `BDF/${lastMonth.from.slice(0, 7)}/0417`,
+    statementLitres: lastMonthAccepted - 15,
+    ratePerLitre: 48,
+    bonusKSh: 0,
+    deductions: [
+      { id: 'ded-transport', label: 'Transport', amount: 900 },
+      { id: 'ded-feed', label: 'Dairy meal advance (2 bags)', amount: 4600 },
+      { id: 'ded-ai', label: 'AI service', amount: 1200 },
+      { id: 'ded-shares', label: 'Share contribution', amount: 500 },
+    ],
+    expectedPaymentDate: addDays(monthRange(todayStr).from, 14),
+    notes: 'Statement collected from the Rongai office.',
+    synced: true,
+    createdAt: `${lastMonth.to}T16:00:00Z`,
+  },
+];
+
+export const initialBills: CustomerBill[] = [];
+export const initialAllocations: PaymentAllocation[] = [];
+
 export const initialPayments: PaymentRecord[] = [
   {
     id: 'pay-001',
@@ -359,13 +455,26 @@ export const initialPayments: PaymentRecord[] = [
     farmId: 'farm-green-hills',
     buyerId: 'buyer-baraka-coop',
     buyerName: 'Baraka Dairy Farmers Co-op',
-    date: '2026-10-15',
+    date: lastMonthDay(15),
     amount: 45000,
     paymentMethod: 'bank',
-    referenceNo: 'COOP-SEP-PAYOUT',
-    notes: 'September cooperative milk payout credited to Co-op Bank account.',
+    referenceNo: 'COOP-PAYOUT-0417',
+    notes: 'Cooperative payout for the month before last, credited to Co-op Bank account.',
     synced: true,
-    createdAt: '2026-10-15T11:00:00Z',
+    createdAt: `${lastMonthDay(15)}T11:00:00Z`,
+  },
+  {
+    id: 'pay-003',
+    farmId: 'farm-green-hills',
+    buyerId: 'buyer-mama-wanjiku',
+    buyerName: 'Mama Wanjiku (Household)',
+    date: lastMonthDay(20),
+    amount: 2000,
+    paymentMethod: 'mpesa',
+    referenceNo: 'TJK4M2Q8LP',
+    notes: 'Part payment for milk',
+    synced: true,
+    createdAt: `${lastMonthDay(20)}T18:10:00Z`,
   },
 ];
 

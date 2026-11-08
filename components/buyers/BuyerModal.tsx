@@ -29,6 +29,8 @@ export const BuyerModal: React.FC<BuyerModalProps> = ({
   const [deliverySchedule, setDeliverySchedule] = useState<'daily' | 'twice_daily' | 'on_demand'>('daily');
   const [paymentCycle, setPaymentCycle] = useState<'monthly' | 'weekly' | 'daily' | 'advance'>('monthly');
   const [openingBalance, setOpeningBalance] = useState<number>(0);
+  const [memberNumber, setMemberNumber] = useState('');
+  const [collectionCentre, setCollectionCentre] = useState('');
   const [notes, setNotes] = useState('');
   const [error, setError] = useState('');
 
@@ -41,6 +43,8 @@ export const BuyerModal: React.FC<BuyerModalProps> = ({
       setDeliverySchedule(buyerToEdit.deliverySchedule || 'daily');
       setPaymentCycle(buyerToEdit.paymentCycle || 'monthly');
       setOpeningBalance(buyerToEdit.openingBalance ?? 0);
+      setMemberNumber(buyerToEdit.memberNumber || '');
+      setCollectionCentre(buyerToEdit.collectionCentre || '');
       setNotes(buyerToEdit.notes || '');
     } else {
       setName('');
@@ -50,6 +54,8 @@ export const BuyerModal: React.FC<BuyerModalProps> = ({
       setDeliverySchedule('daily');
       setPaymentCycle('monthly');
       setOpeningBalance(0);
+      setMemberNumber('');
+      setCollectionCentre('');
       setNotes('');
     }
     setError('');
@@ -77,6 +83,8 @@ export const BuyerModal: React.FC<BuyerModalProps> = ({
       paymentCycle,
       currentBalance: Number(openingBalance) || 0,
       openingBalance: Number(openingBalance) || 0,
+      memberNumber: type === 'cooperative' ? memberNumber.trim() || undefined : undefined,
+      collectionCentre: type === 'cooperative' ? collectionCentre.trim() || undefined : undefined,
       notes: notes.trim() || undefined,
     });
 
@@ -197,6 +205,25 @@ export const BuyerModal: React.FC<BuyerModalProps> = ({
               </select>
             </div>
           </div>
+
+          {type === 'cooperative' && (
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <label htmlFor="buyer-member" className="block text-xs font-semibold uppercase tracking-wider text-gray-700 mb-1">
+                  {lang === 'sw' ? 'Nambari ya mwanachama' : 'Member / supplier no.'}
+                </label>
+                <input id="buyer-member" type="text" value={memberNumber} onChange={(e) => setMemberNumber(e.target.value)}
+                  placeholder="e.g. BDF-0417" className="w-full px-3.5 py-2.5 rounded-xl border border-gray-300 focus:ring-2 focus:ring-dairy-500 text-sm" />
+              </div>
+              <div>
+                <label htmlFor="buyer-centre" className="block text-xs font-semibold uppercase tracking-wider text-gray-700 mb-1">
+                  {lang === 'sw' ? 'Kituo cha kukusanya' : 'Collection centre'}
+                </label>
+                <input id="buyer-centre" type="text" value={collectionCentre} onChange={(e) => setCollectionCentre(e.target.value)}
+                  placeholder="e.g. Rongai" className="w-full px-3.5 py-2.5 rounded-xl border border-gray-300 focus:ring-2 focus:ring-dairy-500 text-sm" />
+              </div>
+            </div>
+          )}
 
           <div>
             <label className="block text-xs font-semibold uppercase tracking-wider text-gray-700 mb-1">

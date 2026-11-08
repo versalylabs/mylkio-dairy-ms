@@ -5,12 +5,14 @@ import { Buyer, PaymentRecord, Language } from '@/types';
 import { translations } from '@/lib/translations';
 import { farmToday, formatFarmDate } from '@/lib/dates';
 import { paymentsWithReference, roundMoney } from '@/lib/ledger';
+import type { OpenTarget } from '@/lib/settlements';
 import { X, Check, DollarSign, Smartphone, CreditCard, Banknote } from 'lucide-react';
 
 interface RecordPaymentModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onSave: (payment: Omit<PaymentRecord, 'id' | 'createdAt' | 'farmId' | 'synced'>) => void;
+  onSave: (payment: Omit<PaymentRecord, 'id' | 'createdAt' | 'farmId' | 'synced'>, allocateTo?: { kind: 'statement' | 'bill'; id: string }) => void;
+  openTargetsFor: (buyerId: string) => OpenTarget[];
   buyers: Buyer[];
   payments: PaymentRecord[];
   lang: Language;
@@ -22,8 +24,10 @@ export const RecordPaymentModal: React.FC<RecordPaymentModalProps> = ({
   onSave,
   buyers,
   payments,
+  openTargetsFor,
   lang,
 }) => {
+  const [applyTo, setApplyTo] = useState('');
   const t = translations[lang];
   const [duplicateConfirmed, setDuplicateConfirmed] = useState(false);
 
@@ -52,6 +56,7 @@ export const RecordPaymentModal: React.FC<RecordPaymentModalProps> = ({
   if (!isOpen) return null;
 
   const sameReference = paymentsWithReference(payments, referenceNo);
+  const targets = selectedBuyer ? openTargetsFor(selectedBuyer.id) : [];
   const enteredAmount = parseFloat(amount) || 0;
   const balanceAfter = selectedBuyer ? roundMoney(selectedBuyer.currentBalance - enteredAmount) : 0;
 
@@ -79,12 +84,16 @@ export const RecordPaymentModal: React.FC<RecordPaymentModalProps> = ({
       paymentMethod,
       referenceNo: referenceNo.trim() || undefined,
       notes: notes.trim() || undefined,
-    });
+    }, (() => {
+      const t = targets.find((x) => `${x.kind}:${x.id}` === applyTo);
+      return t ? { kind: t.kind, id: t.id } : undefined;
+    })());
 
     // Reset
     setAmount('');
     setReferenceNo('');
     setDuplicateConfirmed(false);
+    setApplyTo('');
     setNotes('');
     setError('');
     onClose();
@@ -267,6 +276,23 @@ export const RecordPaymentModal: React.FC<RecordPaymentModalProps> = ({
               />
             </div>
           </div>
+
+          {targets.length > 0 && (
+            <div>
+              <label htmlFor="pay-apply" className="block text-xs font-semibold uppercase tracking-wider text-gray-700 mb-1">
+                {lang === 'sw' ? 'Lipia (si lazima)' : 'Apply to (optional)'}
+              </label>
+              <select id="pay-apply" value={applyTo} onChange={(e) => setApplyTo(e.target.value)}
+                className="w-full px-3.5 py-2.5 rounded-xl border border-gray-300 focus:ring-2 focus:ring-dairy-500 text-sm bg-white">
+                <option value="">{lang === 'sw' ? 'Usiunganishe sasa' : 'Not linked to a statement or bill'}</option>
+                {targets.map((t) => (
+                  <option key={`${t.kind}:${t.id}`} value={`${t.kind}:${t.id}`}>
+                    {t.label} · KSh {t.outstanding.toLocaleString()} {lang === 'sw' ? 'imebaki' : 'outstanding'}
+                  </option>
+                ))}
+              </select>
+            </div>
+          )}
 
           {sameReference.length > 0 && (
             <div className="p-3.5 rounded-2xl border-2 border-amber-300 bg-amber-50 text-amber-950 space-y-2" role="alert">

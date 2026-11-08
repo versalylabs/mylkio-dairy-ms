@@ -16,7 +16,10 @@ import {
   Testimonial,
   ContactLead,
   PlatformSettings,
-  SubscriptionPlan
+  SubscriptionPlan,
+  CoopStatement,
+  CustomerBill,
+  PaymentAllocation,
 } from '@/types';
 import { 
   initialFarm, 
@@ -29,6 +32,9 @@ import {
   initialBreedingEvents, 
   initialExpenses, 
   initialReminders,
+  initialStatements,
+  initialBills,
+  initialAllocations,
   initialAccounts,
   initialTestimonials,
   initialLeads,
@@ -41,11 +47,14 @@ import type { BucketName } from './backend-contract';
 import { farmToday } from './dates';
 import { findMilkOverlaps } from './milk';
 import { LEDGER_VERSION, deliveryCharge, migrateLegacyLedger, receiptForDelivery, roundMoney } from './ledger';
+import type { DateRange } from './dates';
+import { allowedAllocation, assertBillable, billedDeliveryIds, draftBill, openTargets, overlappingStatement, type OpenTarget } from './settlements';
 
 const bucketForPrefix: Record<string, BucketName> = {
   mylkio_farm_: 'farm', mylkio_cows_: 'cows', mylkio_buyers_: 'buyers', mylkio_milk_: 'milk',
   mylkio_deliv_: 'deliveries', mylkio_pay_: 'payments', mylkio_health_: 'health',
   mylkio_breed_: 'breeding', mylkio_exp_: 'expenses', mylkio_rem_: 'reminders',
+  mylkio_stmt_: 'statements', mylkio_bill_: 'bills', mylkio_alloc_: 'allocations',
 };
 
 const STORAGE_KEYS = {
@@ -67,6 +76,9 @@ const STORAGE_KEYS = {
   BREEDING_PREFIX: 'mylkio_breed_',
   EXPENSES_PREFIX: 'mylkio_exp_',
   REMINDERS_PREFIX: 'mylkio_rem_',
+  STATEMENTS_PREFIX: 'mylkio_stmt_',
+  BILLS_PREFIX: 'mylkio_bill_',
+  ALLOCATIONS_PREFIX: 'mylkio_alloc_',
 };
 
 export const AppStorage = {
@@ -106,8 +118,8 @@ export const AppStorage = {
     if (targetFarmId !== 'farm-green-hills') {
       return CloudStore.read(targetFarmId, bucketForPrefix[prefix], fallback);
     }
-    // Demo writes use a new namespace; never read or overwrite legacy farmer records.
-    const data = localStorage.getItem(`mylkio_demo_v2_${prefix}`);
+    // Demo writes use their own namespace (v3: Phase 4 demo data); never read or overwrite legacy farmer records.
+    const data = localStorage.getItem(`mylkio_demo_v3_${prefix}`);
     if (!data) return structuredClone(fallback);
     try { return JSON.parse(data); } catch { return structuredClone(fallback); }
   },
@@ -117,7 +129,7 @@ export const AppStorage = {
     const targetFarmId = farmId || this.getActiveFarmId();
     if (targetFarmId === 'farm-green-hills') {
       if (SecureAuth.user()?.id !== 'usr-demo-01') throw new Error('Open the demo before changing demo records.');
-      localStorage.setItem(`mylkio_demo_v2_${prefix}`, JSON.stringify(data));
+      localStorage.setItem(`mylkio_demo_v3_${prefix}`, JSON.stringify(data));
       return;
     }
     CloudStore.write(targetFarmId, bucketForPrefix[prefix], data);
@@ -395,6 +407,9 @@ export const AppStorage = {
   /** Voids a delivery and the receipt taken with it. Both remain in history. */
   voidDelivery(id: string, reason: string, customFarmId?: string) {
     const targetFarmId = customFarmId || this.getActiveFarmId();
+    if (billedDeliveryIds(this.getBills(targetFarmId)).has(id)) {
+      throw new Error('This delivery is on a customer bill. Void the bill first, then void the delivery.');
+    }
     const now = new Date().toISOString();
     const deliveries = this.getDeliveries(targetFarmId);
     this.saveTenantData(
@@ -425,7 +440,11 @@ export const AppStorage = {
     return this.getTenantData<PaymentRecord[]>(STORAGE_KEYS.PAYMENTS_PREFIX, targetFarmId, fallback);
   },
 
-  addPayment(paymentData: Omit<PaymentRecord, 'id' | 'createdAt' | 'farmId' | 'synced'>, customFarmId?: string): PaymentRecord {
+  addPayment(
+    paymentData: Omit<PaymentRecord, 'id' | 'createdAt' | 'farmId' | 'synced'>,
+    customFarmId?: string,
+    allocateTo?: { kind: 'statement' | 'bill'; id: string },
+  ): PaymentRecord {
     const targetFarmId = customFarmId || this.getActiveFarmId();
     this.getBuyers(targetFarmId); // the ledger migration must run before new records
     const payments = this.getPayments(targetFarmId);
@@ -439,6 +458,10 @@ export const AppStorage = {
       createdAt: new Date().toISOString(),
     };
     this.saveTenantData(STORAGE_KEYS.PAYMENTS_PREFIX, targetFarmId, [newPayment, ...payments]);
+    if (allocateTo) {
+      const target = this.getOpenTargets(newPayment.buyerId, targetFarmId).find((t) => t.kind === allocateTo.kind && t.id === allocateTo.id);
+      if (target) this.allocatePayment(newPayment.id, target, newPayment.amount, targetFarmId);
+    }
     SyncEngine.enqueue('payment', 'create', newPayment);
     window.dispatchEvent(new Event('mylkio_payments_changed'));
     return newPayment;
@@ -454,6 +477,115 @@ export const AppStorage = {
     );
     SyncEngine.enqueue('payment', 'update', { id });
     window.dispatchEvent(new Event('mylkio_payments_changed'));
+  },
+
+  // ==========================================
+  // CO-OP STATEMENTS, CUSTOMER BILLS, ALLOCATIONS (Tenant Scoped)
+  // ==========================================
+
+  getStatements(customFarmId?: string): CoopStatement[] {
+    const targetFarmId = customFarmId || this.getActiveFarmId();
+    const fallback = targetFarmId === 'farm-green-hills' ? initialStatements : [];
+    return this.getTenantData<CoopStatement[]>(STORAGE_KEYS.STATEMENTS_PREFIX, targetFarmId, fallback);
+  },
+
+  addStatement(data: Omit<CoopStatement, 'id' | 'farmId' | 'synced' | 'createdAt'>, customFarmId?: string): CoopStatement {
+    const targetFarmId = customFarmId || this.getActiveFarmId();
+    const statements = this.getStatements(targetFarmId);
+    if (data.periodFrom > data.periodTo) throw new Error('The statement period ends before it starts.');
+    if (data.statementLitres < 0 || data.ratePerLitre <= 0) throw new Error('Enter the statement litres and rate per litre.');
+    const clash = overlappingStatement(statements, data.buyerId, { from: data.periodFrom, to: data.periodTo });
+    if (clash) throw new Error(`${data.buyerName} already has a statement for ${clash.periodFrom} to ${clash.periodTo}. Void it first if it was wrong.`);
+    const statement: CoopStatement = { ...data, id: crypto.randomUUID(), farmId: targetFarmId, synced: false, createdAt: new Date().toISOString() };
+    this.saveTenantData(STORAGE_KEYS.STATEMENTS_PREFIX, targetFarmId, [statement, ...statements]);
+    window.dispatchEvent(new Event('mylkio_settlements_changed'));
+    return statement;
+  },
+
+  voidStatement(id: string, reason: string, customFarmId?: string) {
+    const targetFarmId = customFarmId || this.getActiveFarmId();
+    const now = new Date().toISOString();
+    this.saveTenantData(STORAGE_KEYS.STATEMENTS_PREFIX, targetFarmId,
+      this.getStatements(targetFarmId).map((s) => (s.id === id && !s.voidedAt ? { ...s, voidedAt: now, voidReason: reason } : s)));
+    window.dispatchEvent(new Event('mylkio_settlements_changed'));
+  },
+
+  getBills(customFarmId?: string): CustomerBill[] {
+    const targetFarmId = customFarmId || this.getActiveFarmId();
+    const fallback = targetFarmId === 'farm-green-hills' ? initialBills : [];
+    return this.getTenantData<CustomerBill[]>(STORAGE_KEYS.BILLS_PREFIX, targetFarmId, fallback);
+  },
+
+  /** Bills every unbilled delivery of a buyer in the period. A delivery can only be billed once. */
+  createBill(buyerId: string, range: DateRange, dueDate?: string, customFarmId?: string): CustomerBill {
+    const targetFarmId = customFarmId || this.getActiveFarmId();
+    const buyer = this.getBuyers(targetFarmId).find((b) => b.id === buyerId);
+    if (!buyer) throw new Error('Choose a customer to bill.');
+    const bills = this.getBills(targetFarmId);
+    const draft = draftBill(buyer, this.getDeliveries(targetFarmId), bills, range, dueDate);
+    assertBillable(draft, bills);
+    const bill: CustomerBill = { ...draft, id: crypto.randomUUID(), farmId: targetFarmId, synced: false, createdAt: new Date().toISOString() };
+    this.saveTenantData(STORAGE_KEYS.BILLS_PREFIX, targetFarmId, [bill, ...bills]);
+    window.dispatchEvent(new Event('mylkio_settlements_changed'));
+    return bill;
+  },
+
+  voidBill(id: string, reason: string, customFarmId?: string) {
+    const targetFarmId = customFarmId || this.getActiveFarmId();
+    const now = new Date().toISOString();
+    this.saveTenantData(STORAGE_KEYS.BILLS_PREFIX, targetFarmId,
+      this.getBills(targetFarmId).map((b) => (b.id === id && !b.voidedAt ? { ...b, voidedAt: now, voidReason: reason } : b)));
+    window.dispatchEvent(new Event('mylkio_settlements_changed'));
+  },
+
+  getAllocations(customFarmId?: string): PaymentAllocation[] {
+    const targetFarmId = customFarmId || this.getActiveFarmId();
+    const fallback = targetFarmId === 'farm-green-hills' ? initialAllocations : [];
+    return this.getTenantData<PaymentAllocation[]>(STORAGE_KEYS.ALLOCATIONS_PREFIX, targetFarmId, fallback);
+  },
+
+  allocationContext(customFarmId?: string) {
+    const targetFarmId = customFarmId || this.getActiveFarmId();
+    return {
+      payments: this.getPayments(targetFarmId),
+      allocations: this.getAllocations(targetFarmId),
+      statements: this.getStatements(targetFarmId),
+      bills: this.getBills(targetFarmId),
+    };
+  },
+
+  getOpenTargets(buyerId: string, customFarmId?: string): OpenTarget[] {
+    return openTargets(buyerId, this.allocationContext(customFarmId));
+  },
+
+  /** Applies up to `amount` of a payment to a statement or bill (never more than either has left). */
+  allocatePayment(paymentId: string, target: OpenTarget, amount: number, customFarmId?: string): PaymentAllocation {
+    const targetFarmId = customFarmId || this.getActiveFarmId();
+    const ctx = this.allocationContext(targetFarmId);
+    const payment = ctx.payments.find((p) => p.id === paymentId);
+    if (!payment) throw new Error('Payment not found.');
+    const allocation: PaymentAllocation = {
+      id: crypto.randomUUID(),
+      farmId: targetFarmId,
+      paymentId,
+      buyerId: payment.buyerId,
+      targetKind: target.kind,
+      targetId: target.id,
+      amount: allowedAllocation(payment, target, amount, ctx),
+      synced: false,
+      createdAt: new Date().toISOString(),
+    };
+    this.saveTenantData(STORAGE_KEYS.ALLOCATIONS_PREFIX, targetFarmId, [allocation, ...ctx.allocations]);
+    window.dispatchEvent(new Event('mylkio_settlements_changed'));
+    return allocation;
+  },
+
+  voidAllocation(id: string, reason: string, customFarmId?: string) {
+    const targetFarmId = customFarmId || this.getActiveFarmId();
+    const now = new Date().toISOString();
+    this.saveTenantData(STORAGE_KEYS.ALLOCATIONS_PREFIX, targetFarmId,
+      this.getAllocations(targetFarmId).map((a) => (a.id === id && !a.voidedAt ? { ...a, voidedAt: now, voidReason: reason } : a)));
+    window.dispatchEvent(new Event('mylkio_settlements_changed'));
   },
 
   // ==========================================
@@ -789,6 +921,10 @@ export const AppStorage = {
     this.saveTenantData(STORAGE_KEYS.BREEDING_PREFIX, demoFarmId, initialBreedingEvents);
     this.saveTenantData(STORAGE_KEYS.EXPENSES_PREFIX, demoFarmId, initialExpenses);
     this.saveTenantData(STORAGE_KEYS.REMINDERS_PREFIX, demoFarmId, initialReminders);
+    this.saveTenantData(STORAGE_KEYS.STATEMENTS_PREFIX, demoFarmId, initialStatements);
+    this.saveTenantData(STORAGE_KEYS.BILLS_PREFIX, demoFarmId, initialBills);
+    this.saveTenantData(STORAGE_KEYS.ALLOCATIONS_PREFIX, demoFarmId, initialAllocations);
+    window.dispatchEvent(new Event('mylkio_settlements_changed'));
 
     window.dispatchEvent(new Event('mylkio_farm_changed'));
     window.dispatchEvent(new Event('mylkio_cows_changed'));
@@ -814,6 +950,10 @@ export const AppStorage = {
     this.saveTenantData(STORAGE_KEYS.BREEDING_PREFIX, targetFarmId, []);
     this.saveTenantData(STORAGE_KEYS.EXPENSES_PREFIX, targetFarmId, []);
     this.saveTenantData(STORAGE_KEYS.REMINDERS_PREFIX, targetFarmId, []);
+    this.saveTenantData(STORAGE_KEYS.STATEMENTS_PREFIX, targetFarmId, []);
+    this.saveTenantData(STORAGE_KEYS.BILLS_PREFIX, targetFarmId, []);
+    this.saveTenantData(STORAGE_KEYS.ALLOCATIONS_PREFIX, targetFarmId, []);
+    window.dispatchEvent(new Event('mylkio_settlements_changed'));
 
     window.dispatchEvent(new Event('mylkio_cows_changed'));
     window.dispatchEvent(new Event('mylkio_buyers_changed'));
@@ -842,4 +982,4 @@ function groupInCloud<T extends object>(target: T, names: (keyof T)[]) {
     };
   }
 }
-groupInCloud(AppStorage, ['getBuyers', 'addDelivery', 'voidDelivery', 'addHealthEvent', 'addBreedingEvent']);
+groupInCloud(AppStorage, ['getBuyers', 'addDelivery', 'voidDelivery', 'addPayment', 'addHealthEvent', 'addBreedingEvent']);

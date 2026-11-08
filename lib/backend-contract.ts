@@ -1,11 +1,11 @@
 import { z } from 'zod';
 
-export const bucketNames = ['farm','cows','buyers','milk','deliveries','payments','health','breeding','expenses','reminders'] as const;
+export const bucketNames = ['farm','cows','buyers','milk','deliveries','payments','health','breeding','expenses','reminders','statements','bills','allocations'] as const;
 export type BucketName = typeof bucketNames[number];
 export const bucketName = z.enum(bucketNames);
 
 /** Records that may only be created and then voided (see the per-record sync migration). */
-export const appendOnlyBuckets: readonly BucketName[] = ['milk', 'deliveries', 'payments'];
+export const appendOnlyBuckets: readonly BucketName[] = ['milk', 'deliveries', 'payments', 'statements', 'bills', 'allocations'];
 
 export const MAX_OPERATIONS_PER_REQUEST = 500;
 export const MAX_REQUEST_BYTES = 4 * 1024 * 1024;
@@ -43,7 +43,7 @@ export interface ServerRecord {
 
 export type GroupResult =
   | { groupId: string; status: 'applied'; ops: { opId: string; version: number; seq: number; replayed?: boolean }[] }
-  | { groupId: string; status: 'conflict'; conflicts: { opId: string; bucket: BucketName; recordId: string; reason: 'changed' | 'immutable'; server: ServerRecord | null }[] };
+  | { groupId: string; status: 'conflict'; conflicts: { opId: string; bucket: BucketName; recordId: string; reason: 'changed' | 'immutable' | 'duplicate' | 'invalid_allocation'; server: ServerRecord | null }[] };
 
 export interface RecordChange {
   bucket: BucketName;

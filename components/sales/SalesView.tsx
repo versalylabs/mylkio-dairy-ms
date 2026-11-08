@@ -1,27 +1,36 @@
 'use client';
 
 import React, { useState } from 'react';
-import { Buyer, Delivery, PaymentRecord, Language } from '@/types';
+import { Buyer, Delivery, PaymentRecord, Language, CoopStatement, CustomerBill, PaymentAllocation, Farm } from '@/types';
+import { effectiveAllocations, openTargets, unallocatedAmount, type AllocationContext, type OpenTarget } from '@/lib/settlements';
+import { CoopStatementModal } from './CoopStatementModal';
+import { StatementsPanel } from './StatementsPanel';
+import { BillsPanel } from './BillsPanel';
+import { AccountStatementDialog, BillDialog } from './PrintableDocuments';
+import { AllocatePaymentDialog } from './AllocatePaymentDialog';
 import { translations } from '@/lib/translations';
 import { farmToday, formatFarmDate, monthRange } from '@/lib/dates';
 import { acceptedLitres, cashReceived, deliveryCharge, possibleDuplicatePayments, salesInRange, summariseBalances } from '@/lib/ledger';
-import { 
-  Plus, 
-  Truck, 
-  DollarSign, 
-  Users, 
-  Building2, 
-  User, 
-  Phone, 
-  Edit2, 
-  Trash2, 
+import {
+  Plus,
+  Truck,
+  DollarSign,
+  Users,
+  Building2,
+  User,
+  Phone,
+  Edit2,
+  Trash2,
   Ban,
   AlertTriangle,
   Wallet,
   Calendar,
   Smartphone,
   Banknote,
-  CreditCard
+  CreditCard,
+  FileText,
+  Receipt,
+  Link2,
 } from 'lucide-react';
 
 interface SalesViewProps {
@@ -35,6 +44,15 @@ interface SalesViewProps {
   onVoidDelivery: (id: string, reason: string) => void;
   onOpenRecordPayment: () => void;
   onVoidPayment: (id: string, reason: string) => void;
+  statements: CoopStatement[];
+  bills: CustomerBill[];
+  allocations: PaymentAllocation[];
+  farm: Farm;
+  onSaveStatement: (statement: Omit<CoopStatement, 'id' | 'farmId' | 'synced' | 'createdAt'>) => boolean;
+  onVoidStatement: (id: string, reason: string) => void;
+  onCreateBill: (buyerId: string, range: { from: string; to: string }, dueDate?: string) => void;
+  onVoidBill: (id: string, reason: string) => void;
+  onAllocate: (paymentId: string, target: OpenTarget, amount: number) => boolean;
   lang: Language;
 }
 
@@ -49,10 +67,31 @@ export const SalesView: React.FC<SalesViewProps> = ({
   onVoidDelivery,
   onOpenRecordPayment,
   onVoidPayment,
+  statements,
+  bills,
+  allocations,
+  farm,
+  onSaveStatement,
+  onVoidStatement,
+  onCreateBill,
+  onVoidBill,
+  onAllocate,
   lang,
 }) => {
   const t = translations[lang];
-  const [activeTab, setActiveTab] = useState<'deliveries' | 'payments' | 'buyers'>('deliveries');
+  const [activeTab, setActiveTab] = useState<'deliveries' | 'payments' | 'statements' | 'bills' | 'buyers'>('deliveries');
+  const [statementOpen, setStatementOpen] = useState(false);
+  const [accountBuyer, setAccountBuyer] = useState<Buyer | null>(null);
+  const [printBill, setPrintBill] = useState<CustomerBill | null>(null);
+  const [allocating, setAllocating] = useState<PaymentRecord | null>(null);
+  const ctx: AllocationContext = { payments, allocations, statements, bills };
+  const liveAllocations = effectiveAllocations(ctx);
+  const targetLabel = (a: PaymentAllocation) => {
+    if (a.targetKind === 'bill') return `${sw ? 'Bili' : 'Bill'} ${bills.find((b) => b.id === a.targetId)?.billNumber ?? ''}`;
+    const st = statements.find((x) => x.id === a.targetId);
+    return `${sw ? 'Taarifa' : 'Statement'} ${st?.statementRef || (st ? `${st.periodFrom} – ${st.periodTo}` : '')}`;
+  };
+  const totalUnallocated = payments.filter((p) => !p.voidedAt).reduce((sum, p) => sum + unallocatedAmount(p, ctx), 0);
 
   const sw = lang === 'sw';
   const month = monthRange(farmToday());
@@ -178,7 +217,7 @@ export const SalesView: React.FC<SalesViewProps> = ({
       </div>
 
       {/* Navigation Sub-Tabs */}
-      <div className="flex items-center gap-2 border-b border-gray-200 pb-2">
+      <div className="flex items-center gap-2 border-b border-gray-200 pb-2 overflow-x-auto">
         <button
           onClick={() => setActiveTab('deliveries')}
           className={`flex items-center space-x-2 px-4 py-2 rounded-xl text-xs font-bold transition-all ${
@@ -208,6 +247,21 @@ export const SalesView: React.FC<SalesViewProps> = ({
             {payments.filter((p) => !p.voidedAt).length}
           </span>
         </button>
+
+        {(['statements', 'bills'] as const).map((tab) => (
+          <button
+            key={tab}
+            onClick={() => setActiveTab(tab)}
+            className={`flex items-center space-x-2 px-4 py-2 rounded-xl text-xs font-bold transition-all ${
+              activeTab === tab ? 'bg-dairy-600 text-white shadow-sm' : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'
+            }`}
+          >
+            {tab === 'statements' ? <FileText className="w-4 h-4" /> : <Receipt className="w-4 h-4" />}
+            <span>
+              {tab === 'statements' ? (sw ? 'Taarifa za Ushirika' : 'Co-op Statements') : (sw ? 'Bili za Wateja' : 'Household Bills')}
+            </span>
+          </button>
+        ))}
 
         <button
           onClick={() => setActiveTab('buyers')}
@@ -386,6 +440,28 @@ export const SalesView: React.FC<SalesViewProps> = ({
                     {pay.voidedAt && pay.voidReason && (
                       <p className="text-sm text-gray-600">{sw ? 'Sababu' : 'Reason'}: {pay.voidReason}</p>
                     )}
+                    {!pay.voidedAt && (
+                      <div className="flex flex-wrap items-center gap-2 text-sm">
+                        {liveAllocations.filter((a) => a.paymentId === pay.id).map((a) => (
+                          <span key={a.id} className="px-2 py-0.5 rounded-md bg-[#A8BFA5]/20 text-[#26332D]">
+                            {sw ? 'Imelipia' : 'Applied to'} {targetLabel(a)}: <strong>KSh {a.amount.toLocaleString()}</strong>
+                          </span>
+                        ))}
+                        {unallocatedAmount(pay, ctx) > 0 && (
+                          <>
+                            <span className="text-gray-600">
+                              {sw ? `KSh ${unallocatedAmount(pay, ctx).toLocaleString()} haijaunganishwa` : `KSh ${unallocatedAmount(pay, ctx).toLocaleString()} not linked to a statement or bill`}
+                            </span>
+                            {openTargets(pay.buyerId, ctx).length > 0 && (
+                              <button type="button" onClick={() => setAllocating(pay)}
+                                className="inline-flex items-center gap-1 font-semibold text-dairy-700 underline">
+                                <Link2 className="w-3.5 h-3.5" /> {sw ? 'Unganisha' : 'Allocate'}
+                              </button>
+                            )}
+                          </>
+                        )}
+                      </div>
+                    )}
 
                     {pay.referenceNo && (
                       <div className="text-xs font-mono text-gray-600">
@@ -431,6 +507,42 @@ export const SalesView: React.FC<SalesViewProps> = ({
           )}
         </div>
       )}
+
+      {activeTab === 'payments' && totalUnallocated > 0.004 && (
+        <p className="text-sm text-gray-700 -mt-3">
+          {sw
+            ? `KSh ${totalUnallocated.toLocaleString()} ya malipo haijaunganishwa na taarifa au bili. Bado inapunguza salio la mnunuzi.`
+            : `KSh ${totalUnallocated.toLocaleString()} of payments is not linked to a statement or bill. It still reduces each buyer's balance.`}
+        </p>
+      )}
+
+      {activeTab === 'statements' && (
+        <StatementsPanel statements={statements} deliveries={deliveries} ctx={ctx} onRecord={() => setStatementOpen(true)} onVoid={onVoidStatement} lang={lang} />
+      )}
+
+      {activeTab === 'bills' && (
+        <BillsPanel buyers={buyers} deliveries={deliveries} bills={bills} ctx={ctx} onCreate={onCreateBill} onVoid={onVoidBill} onPrint={setPrintBill} lang={lang} />
+      )}
+
+      <CoopStatementModal
+        open={statementOpen}
+        onClose={() => setStatementOpen(false)}
+        onSave={(st) => { if (onSaveStatement(st)) setStatementOpen(false); }}
+        buyers={buyers}
+        deliveries={deliveries}
+        lang={lang}
+      />
+      <AccountStatementDialog open={Boolean(accountBuyer)} onClose={() => setAccountBuyer(null)} buyer={accountBuyer} farm={farm}
+        deliveries={deliveries} payments={payments} statements={statements} lang={lang} />
+      <BillDialog bill={printBill} onClose={() => setPrintBill(null)} farm={farm} deliveries={deliveries} ctx={ctx} lang={lang} />
+      <AllocatePaymentDialog
+        payment={allocating}
+        unallocated={allocating ? unallocatedAmount(allocating, ctx) : 0}
+        targets={allocating ? openTargets(allocating.buyerId, ctx) : []}
+        onClose={() => setAllocating(null)}
+        onAllocate={(paymentId, target, amount) => { if (onAllocate(paymentId, target, amount)) setAllocating(null); }}
+        lang={lang}
+      />
 
       {/* TAB 3: BUYERS & TERMS */}
       {activeTab === 'buyers' && (
@@ -495,6 +607,13 @@ export const SalesView: React.FC<SalesViewProps> = ({
                       <span>{buyer.phone}</span>
                     </a>
                   )}
+                  {buyer.type === 'cooperative' && (buyer.memberNumber || buyer.collectionCentre) && (
+                    <p className="text-sm text-gray-600">
+                      {buyer.memberNumber && <>{sw ? 'Nambari' : 'Member no.'} <span className="font-semibold text-gray-800">{buyer.memberNumber}</span></>}
+                      {buyer.memberNumber && buyer.collectionCentre && ' · '}
+                      {buyer.collectionCentre}
+                    </p>
+                  )}
                   {buyer.paymentCycle && (
                     <p className="text-[11px] text-gray-500">
                       Cycle: <span className="font-medium text-gray-700 capitalize">{buyer.paymentCycle}</span>
@@ -504,6 +623,13 @@ export const SalesView: React.FC<SalesViewProps> = ({
               </div>
 
               <div className="mt-4 pt-3 border-t border-gray-100 flex items-center justify-end space-x-2">
+                <button
+                  type="button"
+                  onClick={() => setAccountBuyer(buyer)}
+                  className="mr-auto inline-flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-semibold text-dairy-700 hover:bg-dairy-50"
+                >
+                  <FileText className="w-4 h-4" /> {sw ? 'Taarifa ya akaunti' : 'Account statement'}
+                </button>
                 <button
                   onClick={() => onEditBuyer(buyer)}
                   className="p-2 rounded-lg text-gray-500 hover:text-dairy-700 hover:bg-dairy-50 transition-colors"

@@ -12,7 +12,7 @@ Without Supabase configuration, registration and sign-in remain unavailable and 
 
 The connected Vercel project had no environment variables when checked. No project URL or key was provided, and no migration has been applied to a Supabase project. Therefore secure signup, production cloud sync, cross-device sync, server farm authorization, and administration are not active on the public site yet.
 
-Configure `SUPABASE_URL`, `SUPABASE_PUBLISHABLE_KEY`, and `APP_URL` using the private Vercel environment settings. Apply every file in `supabase/migrations/` to the chosen Supabase project, in filename order (`202610270001_security_foundation.sql`, then `202611080001_per_record_sync.sql`). Enable email confirmation and set the callback URL to `/auth/callback` on each intended app origin. Keep preview data and Auth projects separate from production. Never put a service role/secret key in the app environment.
+Configure `SUPABASE_URL`, `SUPABASE_PUBLISHABLE_KEY`, and `APP_URL` using the private Vercel environment settings. Apply every file in `supabase/migrations/` to the chosen Supabase project, in filename order (`202610270001_security_foundation.sql`, `202611080001_per_record_sync.sql`, then `202611080002_settlements.sql`). Enable email confirmation and set the callback URL to `/auth/callback` on each intended app origin. Keep preview data and Auth projects separate from production. Never put a service role/secret key in the app environment.
 
 After the first administrator signs up and confirms their email, a trusted Supabase project owner must grant that account `super_admin` in `profiles` through a private administrative channel. No public API creates or elevates administrators.
 

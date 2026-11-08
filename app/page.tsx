@@ -16,8 +16,12 @@ import {
   UserAccount,
   SubscriptionPlan,
   Testimonial,
-  PlatformSettings
+  PlatformSettings,
+  CoopStatement,
+  CustomerBill,
+  PaymentAllocation,
 } from '@/types';
+import type { OpenTarget } from '@/lib/settlements';
 import { AppStorage } from '@/lib/storage';
 import { SecureAuth } from '@/lib/auth-client';
 import { withLedgerBalances } from '@/lib/ledger';
@@ -70,6 +74,9 @@ export default function Home() {
   const [breedingEvents, setBreedingEvents] = useState<BreedingEvent[]>([]);
   const [expenses, setExpenses] = useState<ExpenseRecord[]>([]);
   const [reminders, setReminders] = useState<FarmReminder[]>([]);
+  const [statements, setStatements] = useState<CoopStatement[]>([]);
+  const [bills, setBills] = useState<CustomerBill[]>([]);
+  const [allocations, setAllocations] = useState<PaymentAllocation[]>([]);
 
   // Modals state
   const [isCowModalOpen, setIsCowModalOpen] = useState(false);
@@ -94,7 +101,7 @@ export default function Home() {
   }, [notice]);
 
   // Buyer balances are always derived from the ledger, never from a stored total.
-  const ledgerBuyers = useMemo(() => withLedgerBalances(buyers, deliveries, payments), [buyers, deliveries, payments]);
+  const ledgerBuyers = useMemo(() => withLedgerBalances(buyers, deliveries, payments, statements), [buyers, deliveries, payments, statements]);
 
   const currentTargetFarmId = impersonatedFarmId || (currentUser?.farmId) || 'farm-green-hills';
 
@@ -114,6 +121,9 @@ export default function Home() {
     setBreedingEvents(AppStorage.getBreedingEvents(activeFarmId));
     setExpenses(AppStorage.getExpenses(activeFarmId));
     setReminders(AppStorage.getReminders(activeFarmId));
+    setStatements(AppStorage.getStatements(activeFarmId));
+    setBills(AppStorage.getBills(activeFarmId));
+    setAllocations(AppStorage.getAllocations(activeFarmId));
     setLang(AppStorage.getLanguage());
     setTestimonials(AppStorage.getTestimonials());
     setPlatformSettings(AppStorage.getPlatformSettings());
@@ -148,6 +158,7 @@ export default function Home() {
     window.addEventListener('mylkio_testimonials_changed', handleStorageChange);
     window.addEventListener('mylkio_settings_changed', handleStorageChange);
     window.addEventListener('mylkio_farm_data_synced', handleStorageChange);
+    window.addEventListener('mylkio_settlements_changed', handleStorageChange);
 
     return () => {
       cancelled = true;
@@ -166,6 +177,7 @@ export default function Home() {
       window.removeEventListener('mylkio_testimonials_changed', handleStorageChange);
       window.removeEventListener('mylkio_settings_changed', handleStorageChange);
       window.removeEventListener('mylkio_farm_data_synced', handleStorageChange);
+      window.removeEventListener('mylkio_settlements_changed', handleStorageChange);
     };
   }, [impersonatedFarmId]);
 
@@ -293,8 +305,8 @@ export default function Home() {
   };
 
   // Payment actions
-  const handleSavePayment = (pay: Omit<PaymentRecord, 'id' | 'createdAt' | 'farmId' | 'synced'>) => {
-    run(() => AppStorage.addPayment(pay, currentTargetFarmId), lang === 'sw'
+  const handleSavePayment = (pay: Omit<PaymentRecord, 'id' | 'createdAt' | 'farmId' | 'synced'>, allocateTo?: { kind: 'statement' | 'bill'; id: string }) => {
+    run(() => AppStorage.addPayment(pay, currentTargetFarmId, allocateTo), lang === 'sw'
       ? `Malipo ya KSh ${pay.amount.toLocaleString()} kutoka kwa ${pay.buyerName} yamehifadhiwa`
       : `Saved KSh ${pay.amount.toLocaleString()} received from ${pay.buyerName}`);
   };
@@ -302,6 +314,30 @@ export default function Home() {
   const handleVoidPayment = (id: string, reason: string) => {
     run(() => AppStorage.voidPayment(id, reason, currentTargetFarmId), lang === 'sw' ? 'Malipo yamebatilishwa. Yanabaki kwenye historia lakini hayahesabiwi.' : 'Payment voided. It stays in history but is no longer counted.');
   };
+
+  // Settlements: co-op statements, customer bills, payment allocations
+  const tryRun = (action: () => void, success: string) => {
+    try {
+      action();
+      setNotice({ kind: 'success', text: success });
+      return true;
+    } catch (error) {
+      setNotice({ kind: 'error', text: error instanceof Error ? error.message : 'Could not save this record.' });
+      return false;
+    }
+  };
+
+  const handleSaveStatement = (st: Omit<CoopStatement, 'id' | 'farmId' | 'synced' | 'createdAt'>) =>
+    tryRun(() => AppStorage.addStatement(st, currentTargetFarmId),
+      lang === 'sw' ? `Taarifa ya ${st.buyerName} imehifadhiwa` : `Saved ${st.buyerName} statement for ${st.periodFrom} to ${st.periodTo}`);
+
+  const handleCreateBill = (buyerId: string, range: { from: string; to: string }, dueDate?: string) =>
+    tryRun(() => { AppStorage.createBill(buyerId, range, dueDate, currentTargetFarmId); },
+      lang === 'sw' ? 'Bili imetengenezwa' : 'Bill created. Its deliveries cannot be billed again.');
+
+  const handleAllocate = (paymentId: string, target: OpenTarget, amount: number) =>
+    tryRun(() => { AppStorage.allocatePayment(paymentId, target, amount, currentTargetFarmId); },
+      lang === 'sw' ? `KSh ${amount.toLocaleString()} imeunganishwa` : `Applied KSh ${amount.toLocaleString()} to ${target.label}`);
 
   // Health actions
   const handleSaveHealth = (event: Omit<HealthEvent, 'id' | 'createdAt' | 'farmId'>) => {
@@ -466,6 +502,15 @@ export default function Home() {
           onVoidDelivery={handleVoidDelivery}
           onOpenRecordPayment={() => setIsRecordPaymentModalOpen(true)}
           onVoidPayment={handleVoidPayment}
+          statements={statements}
+          bills={bills}
+          allocations={allocations}
+          farm={farm}
+          onSaveStatement={handleSaveStatement}
+          onVoidStatement={(id, reason) => run(() => AppStorage.voidStatement(id, reason, currentTargetFarmId), lang === 'sw' ? 'Taarifa imebatilishwa' : 'Statement voided.')}
+          onCreateBill={handleCreateBill}
+          onVoidBill={(id, reason) => run(() => AppStorage.voidBill(id, reason, currentTargetFarmId), lang === 'sw' ? 'Bili imebatilishwa' : 'Bill voided. Its deliveries can be billed again.')}
+          onAllocate={handleAllocate}
           lang={lang}
         />
       )}
@@ -542,6 +587,7 @@ export default function Home() {
         onSave={handleSavePayment}
         buyers={ledgerBuyers}
         payments={payments}
+        openTargetsFor={(buyerId) => AppStorage.getOpenTargets(buyerId, currentTargetFarmId)}
         lang={lang}
       />
 
@@ -581,6 +627,9 @@ export default function Home() {
         breeding={breedingEvents}
         expenses={expenses}
         reminders={reminders}
+        statements={statements}
+        bills={bills}
+        allocations={allocations}
         lang={lang}
       />
     </Shell>

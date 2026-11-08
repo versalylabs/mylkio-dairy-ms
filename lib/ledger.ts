@@ -1,11 +1,15 @@
-import type { Buyer, Delivery, ExpenseRecord, PaymentRecord } from '@/types';
+import type { Buyer, CoopStatement, Delivery, ExpenseRecord, PaymentRecord } from '@/types';
 import { type DateRange, inRange } from './dates';
 
 // Buyer ledger rules:
-// - balance = opening balance + charges for accepted milk − receipts.
+// - balance = opening balance + charges for accepted milk ± statement adjustments − receipts.
 //   Positive = the buyer owes the farm; negative = advance held for the buyer.
 // - A charge is accepted litres × rate ± explicit adjustments. Rejected litres are
 //   never billed.
+// - A cooperative statement is the authority for its period: an adjustment line
+//   brings the farmer's recorded charges for that period to the statement's net
+//   payout (gross − itemised deductions + bonus). The farmer's own delivery lines
+//   stay visible for comparison.
 // - Money received when a delivery is recorded is stored once, as a receipt linked
 //   to that delivery. `Delivery.amountPaid` is never counted on its own.
 // - Voided records stay visible but are excluded from every total.
@@ -23,54 +27,85 @@ export function deliveryCharge(d: Pick<Delivery, 'litres' | 'rejectedLitres' | '
   return roundMoney(Math.max(0, acceptedLitres(d) * d.ratePerLitre + (d.adjustmentKSh || 0)));
 }
 
+export function statementGross(s: Pick<CoopStatement, 'statementLitres' | 'ratePerLitre'>): number {
+  return roundMoney(s.statementLitres * s.ratePerLitre);
+}
+
+export function statementDeductions(s: Pick<CoopStatement, 'deductions'>): number {
+  return roundMoney(s.deductions.reduce((sum, d) => sum + d.amount, 0));
+}
+
+/** What the cooperative says it will pay for the period. */
+export function statementNet(s: Pick<CoopStatement, 'statementLitres' | 'ratePerLitre' | 'bonusKSh' | 'deductions'>): number {
+  return roundMoney(statementGross(s) + (s.bonusKSh || 0) - statementDeductions(s));
+}
+
+/** Active deliveries to the statement's cooperative within its period. */
+export function statementDeliveries(s: Pick<CoopStatement, 'buyerId' | 'periodFrom' | 'periodTo'>, deliveries: Delivery[]): Delivery[] {
+  return deliveries.filter((d) => active(d) && d.buyerId === s.buyerId && inRange(d.date, { from: s.periodFrom, to: s.periodTo }));
+}
+
 export type LedgerLine =
   | { kind: 'opening'; date: string; amount: number; balance: number }
   | { kind: 'charge'; date: string; amount: number; balance: number; delivery: Delivery }
+  | { kind: 'statement'; date: string; amount: number; balance: number; statement: CoopStatement; net: number; recordedCharges: number }
   | { kind: 'receipt'; date: string; amount: number; balance: number; payment: PaymentRecord };
 
 export interface BuyerAccount {
   buyerId: string;
   opening: number;
+  /** Charges for milk, after statement adjustments. */
   charged: number;
   received: number;
   balance: number;
   lines: LedgerLine[]; // chronological
 }
 
-export function buyerAccount(buyer: Buyer, deliveries: Delivery[], payments: PaymentRecord[]): BuyerAccount {
+export function buyerAccount(
+  buyer: Buyer,
+  deliveries: Delivery[],
+  payments: PaymentRecord[],
+  statements: CoopStatement[] = [],
+): BuyerAccount {
   const opening = roundMoney(buyer.openingBalance ?? 0);
-  type Item = { date: string; createdAt: string; amount: number; line: (balance: number) => LedgerLine };
+  type Item = { date: string; order: string; charge: number; receipt: number; line: (balance: number) => LedgerLine };
   const items: Item[] = [
     ...deliveries
       .filter((d) => d.buyerId === buyer.id && active(d))
-      .map((d) => {
+      .map((d): Item => {
         const amount = deliveryCharge(d);
-        return { date: d.date, createdAt: d.createdAt, amount, line: (balance: number): LedgerLine => ({ kind: 'charge', date: d.date, amount, balance, delivery: d }) };
+        return { date: d.date, order: `0${d.createdAt}`, charge: amount, receipt: 0, line: (balance) => ({ kind: 'charge', date: d.date, amount, balance, delivery: d }) };
+      }),
+    ...statements
+      .filter((s) => s.buyerId === buyer.id && active(s))
+      .map((s): Item => {
+        const net = statementNet(s);
+        const recordedCharges = roundMoney(statementDeliveries(s, deliveries).reduce((sum, d) => sum + deliveryCharge(d), 0));
+        const amount = roundMoney(net - recordedCharges);
+        // Placed after every delivery of the period it settles.
+        return { date: s.periodTo, order: `1${s.createdAt}`, charge: amount, receipt: 0, line: (balance) => ({ kind: 'statement', date: s.periodTo, amount, balance, statement: s, net, recordedCharges }) };
       }),
     ...payments
       .filter((p) => p.buyerId === buyer.id && active(p))
-      .map((p) => {
-        const amount = roundMoney(-p.amount);
-        return { date: p.date, createdAt: p.createdAt, amount, line: (balance: number): LedgerLine => ({ kind: 'receipt', date: p.date, amount: p.amount, balance, payment: p }) };
-      }),
-  ].sort((a, b) => a.date.localeCompare(b.date) || a.createdAt.localeCompare(b.createdAt));
+      .map((p): Item => ({ date: p.date, order: `2${p.createdAt}`, charge: 0, receipt: p.amount, line: (balance) => ({ kind: 'receipt', date: p.date, amount: p.amount, balance, payment: p }) })),
+  ].sort((a, b) => a.date.localeCompare(b.date) || a.order.localeCompare(b.order));
 
   let balance = opening;
   const lines: LedgerLine[] = [{ kind: 'opening', date: buyer.openingBalanceDate ?? buyer.createdAt.slice(0, 10), amount: opening, balance }];
   let charged = 0;
   let received = 0;
   for (const item of items) {
-    balance = roundMoney(balance + item.amount);
-    if (item.amount >= 0) charged += item.amount;
-    else received -= item.amount;
+    balance = roundMoney(balance + item.charge - item.receipt);
+    charged += item.charge;
+    received += item.receipt;
     lines.push(item.line(balance));
   }
   return { buyerId: buyer.id, opening, charged: roundMoney(charged), received: roundMoney(received), balance, lines };
 }
 
 /** Buyers with `currentBalance` replaced by the ledger balance, for display. */
-export function withLedgerBalances(buyers: Buyer[], deliveries: Delivery[], payments: PaymentRecord[]): Buyer[] {
-  return buyers.map((b) => ({ ...b, currentBalance: buyerAccount(b, deliveries, payments).balance }));
+export function withLedgerBalances(buyers: Buyer[], deliveries: Delivery[], payments: PaymentRecord[], statements: CoopStatement[] = []): Buyer[] {
+  return buyers.map((b) => ({ ...b, currentBalance: buyerAccount(b, deliveries, payments, statements).balance }));
 }
 
 export interface ReceivablesSummary {
@@ -80,8 +115,8 @@ export interface ReceivablesSummary {
   buyersInAdvance: number;
 }
 
-export function receivables(buyers: Buyer[], deliveries: Delivery[], payments: PaymentRecord[]): ReceivablesSummary {
-  return summariseBalances(buyers.map((b) => buyerAccount(b, deliveries, payments).balance));
+export function receivables(buyers: Buyer[], deliveries: Delivery[], payments: PaymentRecord[], statements: CoopStatement[] = []): ReceivablesSummary {
+  return summariseBalances(buyers.map((b) => buyerAccount(b, deliveries, payments, statements).balance));
 }
 
 /** Totals for balances already derived from the ledger (e.g. `withLedgerBalances`). */

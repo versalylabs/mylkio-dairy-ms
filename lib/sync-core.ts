@@ -17,7 +17,7 @@ export interface PendingOp extends RecordOperation {
   /** Sent at least once: the server may already have applied it, so its opId is fixed. */
   sent: boolean;
   state: 'queued' | 'conflict' | 'rejected';
-  reason?: 'changed' | 'immutable' | 'invalid';
+  reason?: 'changed' | 'immutable' | 'invalid' | 'duplicate' | 'invalid_allocation';
   message?: string;
   server?: ServerRecord | null;
 }
@@ -116,6 +116,12 @@ function setVersion(state: SyncState, bucket: BucketName, id: string, version: n
   state.versions[bucket] = { ...(state.versions[bucket] ?? {}), [id]: version };
 }
 
+const REFUSAL_MESSAGES: Record<string, string> = {
+  immutable: 'The cloud did not accept this change. Milk, delivery, payment, statement and bill records can only be voided, not edited.',
+  duplicate: 'Another device already recorded this: a delivery can only be on one active bill, and a co-op can have only one statement for a period.',
+  invalid_allocation: 'This allocation is more than the payment has left, or the payment was voided on another device.',
+};
+
 /** Applies the server's answer for a batch. Returns a new state. */
 export function applyResults(input: SyncState, results: GroupResult[]): SyncState {
   const state: SyncState = structuredClone(input);
@@ -136,13 +142,15 @@ export function applyResults(input: SyncState, results: GroupResult[]): SyncStat
       }
     } else {
       const detail = new Map(result.conflicts.map((c) => [c.opId, c]));
+      // Only 'changed' can be resolved by re-sending; the others are refused outright.
+      const refused = result.conflicts.find((x) => x.reason !== 'changed');
       for (const op of state.outbox) {
         if (op.groupId !== result.groupId) continue;
         const c = detail.get(op.opId);
-        const immutable = result.conflicts.some((x) => x.reason === 'immutable');
-        op.state = immutable ? 'rejected' : 'conflict';
+        op.state = refused ? 'rejected' : 'conflict';
         op.reason = c?.reason;
         op.server = c ? c.server : undefined;
+        if (refused) op.message = REFUSAL_MESSAGES[refused.reason];
       }
     }
   }
