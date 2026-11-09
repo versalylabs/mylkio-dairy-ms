@@ -1,4 +1,5 @@
-const CACHE_NAME = 'mylkio-cache-v2';
+// Bumped when the framework or asset layout changes: activating the new worker deletes older caches.
+const CACHE_NAME = 'mylkio-cache-v3';
 
 const STATIC_ASSETS = [
   '/',

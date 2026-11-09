@@ -1,7 +1,9 @@
 import { NextResponse } from 'next/server';
+import { missingConfig } from '@/lib/server/neon-auth';
+import { inviteRequired } from '@/lib/server/invites';
 
 export const dynamic = 'force-dynamic';
 export function GET() {
-  return NextResponse.json({ configured: Boolean(process.env.SUPABASE_URL && process.env.SUPABASE_PUBLISHABLE_KEY) },
-    { headers: { 'Cache-Control': 'no-store' } });
+  const missing = missingConfig();
+  return NextResponse.json({ configured: missing.length === 0, inviteRequired: inviteRequired(), ...(missing.length ? { missing } : {}) }, { headers: { 'Cache-Control': 'no-store' } });
 }

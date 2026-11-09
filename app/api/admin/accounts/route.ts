@@ -1,23 +1,28 @@
 import { z } from 'zod';
-import { adminAccess } from '@/lib/server/supabase';
 import { body, endpoint, json, sameOrigin } from '@/lib/server/http';
+import { signedIn } from '@/lib/server/neon-auth';
+import { adminListAccounts, adminUpdateSubscription } from '@/lib/server/farm-api';
 
 export const dynamic = 'force-dynamic';
+
+// The database functions confirm the caller is a platform administrator.
 export async function GET() {
   return endpoint(async () => {
-    const { db } = await adminAccess();
-    const { data, error } = await db.rpc('admin_list_accounts');
-    if (error) throw error;
-    return json({ accounts: data });
+    const { db, user } = await signedIn();
+    return json({ accounts: await adminListAccounts(db, user.id) });
   });
 }
+
 export async function PATCH(request: Request) {
   return endpoint(async () => {
     sameOrigin(request);
-    const { db } = await adminAccess();
-    const input = z.object({ farmId: z.uuid(), plan: z.enum(['starter','farmer','farm_pro']), status: z.enum(['trial','active','past_due','cancelled']) }).strict().parse(await body(request));
-    const { error } = await db.rpc('admin_update_subscription', { p_farm: input.farmId, p_plan: input.plan, p_status: input.status });
-    if (error) throw error;
+    const { db, user } = await signedIn();
+    const input = z.object({
+      farmId: z.uuid(),
+      plan: z.enum(['starter', 'farmer', 'farm_pro']),
+      status: z.enum(['trial', 'active', 'past_due', 'cancelled']),
+    }).strict().parse(await body(request));
+    await adminUpdateSubscription(db, user.id, input.farmId, input.plan, input.status);
     return json({ success: true });
   });
 }
