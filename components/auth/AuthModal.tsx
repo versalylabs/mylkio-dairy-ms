@@ -127,7 +127,8 @@ export const AuthModal: React.FC<AuthModalProps> = ({
       } else {
         setError(res.error || 'Failed to create your farm account.');
       }
-    } catch {
+    } catch (error) {
+      console.error('Account creation failed unexpectedly', error);
       setError('An error occurred while creating your account.');
     } finally {
       setLoading(false);

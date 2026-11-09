@@ -4,6 +4,7 @@ import { createAuthClient } from '@neon/auth/next';
 import type { UserAccount, SubscriptionPlan } from '@/types';
 import { initialAccounts } from './mock-data';
 import { CloudStore } from './cloud-store';
+import { attempt } from './auth-call';
 
 // Identity (sign-up, sign-in, sign-out, session cookie) is handled by Neon Auth through
 // this site's /api/auth route. The farm, plan and permissions come from /api/account/*,
@@ -167,7 +168,7 @@ export const SecureAuth = {
   },
   async login(email: string, password: string): Promise<AuthResult> {
     if (!secureBackend) return { success: false, error: unavailable() };
-    const { error } = await neonClient().signIn.email({ email, password });
+    const { error } = await attempt(() => neonClient().signIn.email({ email, password }));
     if (error) return { success: false, error: friendly(error, 'Sign-in failed. Check your email and password.') };
     const result = await finishSession();
     if (result.confirmationRequired) return { success: false, error: 'Please confirm your email address first, then sign in.' };
@@ -179,10 +180,10 @@ export const SecureAuth = {
     if (inviteNeeded && !details.inviteCode?.trim()) return { success: false, error: 'Enter the invitation code you were given.' };
     // Kept on this device (no password) so the farm is created as soon as the account has a session.
     localStorage.setItem(pendingKey, JSON.stringify(details));
-    const created = await neonClient().signUp.email({ email, password, name: input.name });
+    const created = await attempt(() => neonClient().signUp.email({ email, password, name: input.name }));
     if (created.error) {
       // The account may already exist from an earlier attempt that never finished setting up its farm.
-      const resumed = await neonClient().signIn.email({ email, password });
+      const resumed = await attempt(() => neonClient().signIn.email({ email, password }));
       if (resumed.error) {
         localStorage.removeItem(pendingKey);
         return { success: false, error: friendly(created.error, 'Could not create the account. If you already have one, sign in instead.') };
@@ -201,7 +202,7 @@ export const SecureAuth = {
   async logout() {
     // A demo may have been opened while a real server session still exists.
     if (secureBackend) {
-      const { error } = await neonClient().signOut();
+      const { error } = await attempt(() => neonClient().signOut());
       if (error && activeUser?.id !== 'usr-demo-01') throw new Error('Could not sign out. Please retry.');
     }
     sessionStorage.removeItem(demoKey);
