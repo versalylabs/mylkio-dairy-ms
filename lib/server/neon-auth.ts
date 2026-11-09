@@ -4,12 +4,19 @@ import { ApiError } from './errors';
 import { database } from './db';
 import type { Db, SessionUser } from './farm-api';
 
+/** Names (never values) of the settings this deployment cannot see or finds unusable. */
+export function missingConfig(): string[] {
+  const missing: string[] = [];
+  if (!process.env.DATABASE_URL) missing.push('DATABASE_URL');
+  if (!process.env.NEON_AUTH_BASE_URL) missing.push('NEON_AUTH_BASE_URL');
+  const secret = process.env.NEON_AUTH_COOKIE_SECRET;
+  if (!secret) missing.push('NEON_AUTH_COOKIE_SECRET');
+  else if (secret.length < 32) missing.push('NEON_AUTH_COOKIE_SECRET (shorter than 32 characters)');
+  return missing;
+}
+
 export function authConfigured(): boolean {
-  return Boolean(
-    process.env.DATABASE_URL &&
-    process.env.NEON_AUTH_BASE_URL &&
-    (process.env.NEON_AUTH_COOKIE_SECRET?.length ?? 0) >= 32,
-  );
+  return missingConfig().length === 0;
 }
 
 let instance: ReturnType<typeof createNeonAuth> | null = null;

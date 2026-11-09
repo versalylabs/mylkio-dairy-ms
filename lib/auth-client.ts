@@ -15,6 +15,9 @@ const cachedAccountKey = 'mylkio_last_secure_account_v2';
 const backendKey = 'mylkio_secure_backend_enabled_v1';
 const pendingKey = 'mylkio_pending_onboarding_v1';
 let secureBackend = false;
+let backendProblem = 'not checked yet';
+const unavailable = () =>
+  `Farmer accounts are not available on this site yet (${location.host}: ${backendProblem}). Explore the demo farm meanwhile.`;
 let client: ReturnType<typeof createAuthClient> | null = null;
 // Created on first use: this module is also evaluated while the page is server-rendered.
 const neonClient = () => (client ??= createAuthClient());
@@ -98,11 +101,16 @@ export const SecureAuth = {
     let backendStatus: { configured: boolean };
     try {
       const response = await fetch('/api/backend-status', { cache: 'no-store' });
-      backendStatus = response.ok ? await response.json() : { configured: false };
+      const body = response.ok ? await response.json() : null;
+      backendStatus = body ?? { configured: false };
+      backendProblem = !response.ok
+        ? `the status check returned HTTP ${response.status}`
+        : body?.configured ? 'configured' : `the server reports it is not configured${body?.missing?.length ? `, missing ${body.missing.join(', ')}` : ''}`;
       if (backendStatus.configured) localStorage.setItem(backendKey, 'true');
       else localStorage.removeItem(backendKey);
     } catch {
       backendStatus = { configured: localStorage.getItem(backendKey) === 'true' };
+      backendProblem = 'the status check could not reach the server';
     }
     secureBackend = backendStatus.configured;
     CloudStore.configure(secureBackend);
@@ -149,7 +157,7 @@ export const SecureAuth = {
     if (sessionStorage.getItem(demoKey) === 'true') this.demo();
   },
   async login(email: string, password: string): Promise<AuthResult> {
-    if (!secureBackend) return { success: false, error: 'Farmer accounts are not set up yet. Explore the demo farm while cloud accounts are configured.' };
+    if (!secureBackend) return { success: false, error: unavailable() };
     const { error } = await neonClient().signIn.email({ email, password });
     if (error) return { success: false, error: friendly(error, 'Sign-in failed. Check your email and password.') };
     const result = await finishSession();
@@ -157,7 +165,7 @@ export const SecureAuth = {
     return result;
   },
   async register(input: SignUpDetails): Promise<AuthResult> {
-    if (!secureBackend) return { success: false, error: 'Farmer accounts are not set up yet. Explore the demo farm while cloud accounts are configured.' };
+    if (!secureBackend) return { success: false, error: unavailable() };
     const { email, password, ...details } = input;
     // Kept on this device (no password) so the farm is created as soon as the account has a session.
     localStorage.setItem(pendingKey, JSON.stringify(details));
