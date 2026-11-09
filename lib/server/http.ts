@@ -7,13 +7,20 @@ export function json(value: unknown, status = 200) {
   return NextResponse.json(value, { status, headers: { 'Cache-Control': 'private, no-store', Vary: 'Cookie' } });
 }
 
+function describeError(error: unknown): string {
+  const e = error as { name?: string; code?: string; message?: string } | null;
+  const message = String(e?.message ?? error).replace(/postgres(ql)?:\/\/\S+/gi, '[connection string removed]').slice(0, 300);
+  return [e?.name, e?.code, message].filter(Boolean).join(' | ');
+}
+
 export async function endpoint(action: () => Promise<NextResponse>) {
   try { return await action(); }
   catch (error) {
     if (error instanceof ApiError) return json({ error: error.message }, error.status);
     if (error instanceof z.ZodError) return json({ error: 'Please check the submitted fields.' }, 400);
-    // Do not echo database errors, tokens, credentials, or submitted records.
-    console.error('Mylkio API operation failed');
+    // Never echo database errors, tokens, credentials or submitted records to the client.
+    // The server log gets the error type, code and a short message, with connection strings removed.
+    console.error('Mylkio API operation failed:', describeError(error));
     return json({ error: 'The operation could not be completed. Please try again.' }, 500);
   }
 }
