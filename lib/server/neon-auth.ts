@@ -3,11 +3,13 @@ import { createNeonAuth } from '@neon/auth/next/server';
 import { ApiError } from './errors';
 import { database } from './db';
 import type { Db, SessionUser } from './farm-api';
+import { connectionProblem } from './connection';
 
 /** Names (never values) of the settings this deployment cannot see or finds unusable. */
 export function missingConfig(): string[] {
   const missing: string[] = [];
-  if (!process.env.DATABASE_URL) missing.push('DATABASE_URL');
+  const databaseProblem = connectionProblem(process.env.DATABASE_URL);
+  if (databaseProblem) missing.push(databaseProblem === 'not set' ? 'DATABASE_URL' : `DATABASE_URL (${databaseProblem})`);
   if (!process.env.NEON_AUTH_BASE_URL) missing.push('NEON_AUTH_BASE_URL');
   const secret = process.env.NEON_AUTH_COOKIE_SECRET;
   if (!secret) missing.push('NEON_AUTH_COOKIE_SECRET');

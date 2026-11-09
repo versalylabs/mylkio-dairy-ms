@@ -7,7 +7,7 @@ export function json(value: unknown, status = 200) {
   return NextResponse.json(value, { status, headers: { 'Cache-Control': 'private, no-store', Vary: 'Cookie' } });
 }
 
-function describeError(error: unknown): string {
+export function describeError(error: unknown): string {
   const e = error as { name?: string; code?: string; message?: string } | null;
   const message = String(e?.message ?? error).replace(/postgres(ql)?:\/\/\S+/gi, '[connection string removed]').slice(0, 300);
   return [e?.name, e?.code, message].filter(Boolean).join(' | ');

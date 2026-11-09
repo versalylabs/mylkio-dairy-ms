@@ -41,6 +41,22 @@ You need a Neon account. **Use one Neon project for production and a separate br
    - `NEON_AUTH_COOKIE_SECRET`: at least 32 random characters (`openssl rand -base64 32`). Generate it yourself; do not reuse one across environments.
 5. **Redeploy.** Until all three variables are set, the app stays in demo mode and `/api/backend-status` reports `{"configured": false}`.
 
+## Checking a deployment: `/api/health`
+
+Open `https://<your-site>/api/health`. It checks, in one go, the three settings, the database connection, whether the schema is installed on that Neon branch and whether Neon Auth responds, and says which one failed. It returns HTTP 200 only when everything is fine. It never returns a value from the environment, and the technical detail of a failure is left out in production. `/api/backend-status` is the simpler public flag the app itself uses.
+
+## Mistakes seen during the first setup
+
+| Symptom | Cause | Fix |
+| --- | --- | --- |
+| "Farmer accounts are not available on this site yet" | Wrong address (the live site has no Neon setup), a tab opened before the redeploy, or variables missing | Use the branch address; the message names the host and the reason |
+| `configured: false` after adding the variables | They were saved for **Production** only; a preview only sees **Preview** variables | Edit each variable: Preview, limited to the branch |
+| Still `configured: false` after "Redeploy" | The redeploy was of a Production deployment, or of a build older than the variable change | Redeploy the **Preview** deployment, or push a commit to the branch |
+| "Account service unavailable" after sign-up works | `DATABASE_URL` is not a usable connection string, for example the whole `psql '...'` command from **Copy snippet**, or a masked password | Copy the connection string with **Show password** on. The app now extracts the URL from a `psql` command and names a masked password in `/api/health` |
+| `Wrong URL scheme or missing user, host or database` in the Vercel log | Same as above | Same as above |
+
+Neon's **Connect** panel masks the password until you turn on "Show password", and **Copy snippet** copies a `psql '...'` command rather than the bare string. Use the pooled string (hostname contains `-pooler`) of the branch the deployment should use: `preview` for previews, `production` for production.
+
 ## First administrator
 
 No public route can create an administrator. After the person has signed up and created their farm, promote them directly in the Neon SQL editor:
