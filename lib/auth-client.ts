@@ -15,6 +15,7 @@ const cachedAccountKey = 'mylkio_last_secure_account_v2';
 const backendKey = 'mylkio_secure_backend_enabled_v1';
 const pendingKey = 'mylkio_pending_onboarding_v1';
 let secureBackend = false;
+let inviteNeeded = false;
 let backendProblem = 'not checked yet';
 const unavailable = () =>
   `Farmer accounts are not available on this site yet (${location.host}: ${backendProblem}). Explore the demo farm meanwhile.`;
@@ -24,7 +25,7 @@ const neonClient = () => (client ??= createAuthClient());
 
 export type AuthResult = { success: boolean; user?: UserAccount; error?: string; confirmationRequired?: boolean; needsOnboarding?: boolean };
 
-type SignUpDetails = { name: string; email: string; password: string; phone: string; farmName: string; county: string; subCounty?: string; plan?: SubscriptionPlan; language?: string };
+type SignUpDetails = { name: string; email: string; password: string; phone: string; farmName: string; county: string; subCounty?: string; plan?: SubscriptionPlan; language?: string; inviteCode?: string };
 type Onboarding = Omit<SignUpDetails, 'email' | 'password'>;
 type AccountResponse =
   | { state: 'account'; user: UserAccount }
@@ -65,9 +66,15 @@ async function completeOnboarding(details: Onboarding): Promise<AuthResult> {
     body: JSON.stringify({
       name: details.name, phone: details.phone, farmName: details.farmName, county: details.county,
       subCounty: details.subCounty || undefined, plan: details.plan ?? 'farmer', language: details.language === 'sw' ? 'sw' : 'en',
+      inviteCode: details.inviteCode?.trim() || undefined,
     }),
   });
   const result = await response.json().catch(() => ({}));
+  if (response.status === 403) {
+    // A wrong code: forget it so the next attempt asks again, but keep the rest of the form details.
+    localStorage.setItem(pendingKey, JSON.stringify({ ...details, inviteCode: undefined }));
+    return { success: false, error: result.error || 'That invitation code is not valid.' };
+  }
   if (!response.ok) return { success: false, error: result.error || 'Your farm could not be set up. Please try again.' };
   localStorage.removeItem(pendingKey);
   await activate(result.user);
@@ -96,6 +103,7 @@ const friendly = (error: { message?: string; status?: number } | null | undefine
 
 export const SecureAuth = {
   user: () => activeUser,
+  inviteRequired: () => inviteNeeded,
   async initialize() {
     // Preserve the legacy profile mapping for import; never keep its plaintext passwords.
     let backendStatus: { configured: boolean };
@@ -103,6 +111,7 @@ export const SecureAuth = {
       const response = await fetch('/api/backend-status', { cache: 'no-store' });
       const body = response.ok ? await response.json() : null;
       backendStatus = body ?? { configured: false };
+      inviteNeeded = Boolean(body?.inviteRequired);
       backendProblem = !response.ok
         ? `the status check returned HTTP ${response.status}`
         : body?.configured ? 'configured' : `the server reports it is not configured${body?.missing?.length ? `, missing ${body.missing.join(', ')}` : ''}`;
@@ -167,6 +176,7 @@ export const SecureAuth = {
   async register(input: SignUpDetails): Promise<AuthResult> {
     if (!secureBackend) return { success: false, error: unavailable() };
     const { email, password, ...details } = input;
+    if (inviteNeeded && !details.inviteCode?.trim()) return { success: false, error: 'Enter the invitation code you were given.' };
     // Kept on this device (no password) so the farm is created as soon as the account has a session.
     localStorage.setItem(pendingKey, JSON.stringify(details));
     const created = await neonClient().signUp.email({ email, password, name: input.name });

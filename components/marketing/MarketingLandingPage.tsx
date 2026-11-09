@@ -78,17 +78,32 @@ export const MarketingLandingPage: React.FC<MarketingLandingPageProps> = ({
   const [contactCows, setContactCows] = useState('6-15');
   const [contactMessage, setContactMessage] = useState('');
   const [contactSubmitted, setContactSubmitted] = useState(false);
+  const [contactSending, setContactSending] = useState(false);
+  const [contactError, setContactError] = useState('');
 
   const approvedTestimonials = testimonials.filter((t) => t.isApproved);
 
   const cleanPhone = (settings.supportWhatsApp || '+254184129145').replace(/[^0-9]/g, '');
-  const whatsappUrl = `https://wa.me/254184129145?text=Hello%20Versaly,%20I'm%20interested%20in%20Mylkio%20Dairy%20Management%20System%20for%20my%20farm.`;
+  const whatsappUrl = `https://wa.me/${cleanPhone}?text=Hello%20Versaly,%20I'm%20interested%20in%20Mylkio%20Dairy%20Management%20System%20for%20my%20farm.`;
 
-  const handleContactSubmit = (e: React.FormEvent) => {
+  // Enquiries are stored on the server. The visitor is only told "received" once that has happened.
+  const sendLead = async (payload: Record<string, unknown>): Promise<{ ok: true } | { ok: false; error: string }> => {
+    try {
+      const response = await fetch('/api/leads', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
+      if (response.ok) return { ok: true };
+      const result = await response.json().catch(() => ({}));
+      return { ok: false, error: result.error || 'We could not send your message. Please try again, or contact us on WhatsApp.' };
+    } catch {
+      return { ok: false, error: 'We could not reach the server. Check your connection and try again, or contact us on WhatsApp.' };
+    }
+  };
+
+  const handleContactSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!contactName.trim() || !contactPhone.trim()) return;
-
-    AppStorage.addLead({
+    if (!contactName.trim() || !contactPhone.trim() || contactSending) return;
+    setContactSending(true);
+    setContactError('');
+    const result = await sendLead({
       name: contactName.trim(),
       phone: contactPhone.trim(),
       county: contactCounty.trim() || undefined,
@@ -96,9 +111,13 @@ export const MarketingLandingPage: React.FC<MarketingLandingPageProps> = ({
       preferredContact: 'call',
       message: contactMessage.trim() || 'Inquiry from Website Contact Form',
       source: 'Website Contact Section',
-      status: 'new',
     });
-
+    setContactSending(false);
+    if (!result.ok) {
+      setContactSubmitted(false);
+      setContactError(result.error);
+      return;
+    }
     setContactSubmitted(true);
     setContactName('');
     setContactPhone('');
@@ -106,11 +125,11 @@ export const MarketingLandingPage: React.FC<MarketingLandingPageProps> = ({
     setContactMessage('');
   };
 
-  const handleLeadSubmit = (e: React.FormEvent) => {
+  const handleLeadSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!leadName.trim() || !leadPhone.trim()) return;
-
-    AppStorage.addLead({
+    // The visitor asked for the checklist, so they get it even if recording their details fails.
+    void sendLead({
       name: leadName.trim(),
       phone: leadPhone.trim(),
       county: leadCounty.trim() || undefined,
@@ -118,9 +137,7 @@ export const MarketingLandingPage: React.FC<MarketingLandingPageProps> = ({
       preferredContact: 'whatsapp',
       message: 'Downloaded Free Dairy Farm Record-Keeping Checklist',
       source: 'Lead Magnet Modal',
-      status: 'new',
     });
-
     setLeadSubmitted(true);
   };
 
@@ -170,7 +187,7 @@ Support Email: versalylabs@gmail.com`;
     },
     {
       q: 'Can I record farm milk totals without entering each cow individually?',
-      a: 'Yes. Most Kenyan farmers record a single morning and evening farm total. Mylkio defaults to farm-total entry for speed (<20s), while also giving you a one-click toggle to log individual cows when you want to see top performers.',
+      a: 'Yes. Most Kenyan farmers record a single morning and evening farm total. Mylkio defaults to farm-total entry for speed, while also giving you a one-click toggle to log individual cows when you want to see top performers.',
     },
     {
       q: 'How does Mylkio prevent cooperative payment disputes?',
@@ -420,8 +437,8 @@ Support Email: versalylabs@gmail.com`;
                 <Smartphone className="w-6 h-6" />
               </div>
               <div>
-                <div className="text-2xl sm:text-3xl font-black text-[#26332D]">100%</div>
-                <div className="text-xs text-[#5D7368] font-medium mt-0.5">Offline Capability</div>
+                <div className="text-2xl sm:text-3xl font-black text-[#26332D]">Offline</div>
+                <div className="text-xs text-[#5D7368] font-medium mt-0.5">Saves records without signal</div>
               </div>
             </div>
 
@@ -431,8 +448,8 @@ Support Email: versalylabs@gmail.com`;
                 <Milk className="w-6 h-6" />
               </div>
               <div>
-                <div className="text-2xl sm:text-3xl font-black text-[#26332D]">&lt;20s</div>
-                <div className="text-xs text-[#5D7368] font-medium mt-0.5">Daily Milk Logging</div>
+                <div className="text-2xl sm:text-3xl font-black text-[#26332D]">1 entry</div>
+                <div className="text-xs text-[#5D7368] font-medium mt-0.5">Logs the day's milk total</div>
               </div>
             </div>
 
@@ -442,8 +459,8 @@ Support Email: versalylabs@gmail.com`;
                 <ShieldCheck className="w-6 h-6" />
               </div>
               <div>
-                <div className="text-2xl sm:text-3xl font-black text-[#26332D]">100%</div>
-                <div className="text-xs text-[#5D7368] font-medium mt-0.5">Reconciled Co-op Sales</div>
+                <div className="text-2xl sm:text-3xl font-black text-[#26332D]">Co-op</div>
+                <div className="text-xs text-[#5D7368] font-medium mt-0.5">Statements checked against your records</div>
               </div>
             </div>
 
@@ -1210,7 +1227,7 @@ Support Email: versalylabs@gmail.com`;
                   </li>
                   <li className="flex items-center gap-2">
                     <span className="w-1.5 h-1.5 rounded-full bg-[#345C4A]"></span>
-                    <span>100% Offline smartphone capability</span>
+                    <span>Works offline on your smartphone</span>
                   </li>
                 </ul>
               </div>
@@ -1473,7 +1490,7 @@ Support Email: versalylabs@gmail.com`;
             {/* Direct Contact Cards */}
             <div className="lg:col-span-5 space-y-4">
               <a 
-                href="tel:+254184129145"
+                href={`tel:+${cleanPhone}`}
                 className="p-5 rounded-2xl bg-white border border-[#E8E4D8] hover:border-[#345C4A]/50 transition-all shadow-xs flex items-center space-x-4 group block"
               >
                 <div className="w-12 h-12 rounded-2xl bg-[#A8BFA5]/20 text-[#345C4A] flex items-center justify-center shrink-0 group-hover:bg-[#345C4A] group-hover:text-white transition-colors">
@@ -1487,7 +1504,7 @@ Support Email: versalylabs@gmail.com`;
               </a>
 
               <a 
-                href="https://wa.me/254184129145?text=Hello%20Mylkio,%20I%20would%20like%20to%20inquire%20about%20the%20dairy%20management%20system."
+                href={`https://wa.me/${cleanPhone}?text=Hello%20Mylkio,%20I%20would%20like%20to%20inquire%20about%20the%20dairy%20management%20system.`}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="p-5 rounded-2xl bg-white border border-[#E8E4D8] hover:border-[#345C4A]/50 transition-all shadow-xs flex items-center space-x-4 group block"
@@ -1525,8 +1542,14 @@ Support Email: versalylabs@gmail.com`;
               </p>
 
               <form onSubmit={handleContactSubmit} className="space-y-4">
+                {contactError && (
+                  <div role="alert" className="p-4 bg-red-50 border border-red-200 text-red-800 rounded-2xl text-xs font-semibold">
+                    {contactError}{' '}
+                    <a href={whatsappUrl} target="_blank" rel="noopener noreferrer" className="underline font-bold">Message us on WhatsApp</a>
+                  </div>
+                )}
                 {contactSubmitted && (
-                  <div className="p-4 bg-[#A8BFA5]/20 border border-[#A8BFA5]/40 text-[#26332D] rounded-2xl text-xs font-semibold flex items-center gap-2">
+                  <div role="status" className="p-4 bg-[#A8BFA5]/20 border border-[#A8BFA5]/40 text-[#26332D] rounded-2xl text-xs font-semibold flex items-center gap-2">
                     <CheckCircle2 className="w-4 h-4 text-[#345C4A] shrink-0" />
                     <span>Thank you! Your message has been received. Our team will contact you shortly via phone or WhatsApp.</span>
                   </div>
@@ -1599,9 +1622,10 @@ Support Email: versalylabs@gmail.com`;
 
                 <button
                   type="submit"
-                  className="btn-premium w-full sm:w-auto px-7 py-3 rounded-full bg-[#345C4A] hover:bg-[#274537] text-white font-medium text-xs shadow-sm transition-all flex items-center justify-center gap-2"
+                  disabled={contactSending}
+                  className="btn-premium w-full sm:w-auto px-7 py-3 rounded-full bg-[#345C4A] hover:bg-[#274537] disabled:opacity-60 disabled:cursor-wait text-white font-medium text-xs shadow-sm transition-all flex items-center justify-center gap-2"
                 >
-                  <span>Submit Message</span>
+                  <span>{contactSending ? 'Sending…' : 'Submit Message'}</span>
                   <ArrowRight className="w-3.5 h-3.5" />
                 </button>
               </form>
@@ -1634,7 +1658,7 @@ Support Email: versalylabs@gmail.com`;
             </button>
 
             <a
-              href="https://wa.me/254184129145?text=Hello%20Mylkio,%20I%20would%20like%20to%20inquire%20about%20the%20dairy%20management%20system."
+              href={`https://wa.me/${cleanPhone}?text=Hello%20Mylkio,%20I%20would%20like%20to%20inquire%20about%20the%20dairy%20management%20system.`}
               target="_blank"
               rel="noreferrer"
               className="btn-fill-sage w-full sm:w-auto px-6 py-3.5 rounded-full bg-white text-[#26332D] font-medium text-sm border border-[#E8E4D8] transition-all flex items-center justify-center gap-2 shadow-sm"
@@ -1678,7 +1702,7 @@ Support Email: versalylabs@gmail.com`;
 
           <div className="flex flex-col sm:flex-row items-center justify-between gap-4 text-[11px] text-[#A8BFA5]">
             <div className="flex flex-wrap items-center gap-4">
-              <span>Phone: <a href="tel:+254184129145" className="text-white font-bold hover:text-[#C6A76A] transition-colors">+254 184 129145</a></span>
+              <span>Phone: <a href={`tel:+${cleanPhone}`} className="text-white font-bold hover:text-[#C6A76A] transition-colors">+254 184 129145</a></span>
               <span>•</span>
               <span>Email: <a href="mailto:versalylabs@gmail.com" className="text-white font-bold hover:text-[#C6A76A] transition-colors">versalylabs@gmail.com</a></span>
             </div>

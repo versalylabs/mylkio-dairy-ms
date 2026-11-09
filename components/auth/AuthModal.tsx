@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react';
 import { AppStorage } from '@/lib/storage';
+import { SecureAuth } from '@/lib/auth-client';
 import { SubscriptionPlan, UserAccount } from '@/types';
 import { 
   X, 
@@ -51,6 +52,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
   const [county, setCounty] = useState('');
   const [subCounty, setSubCounty] = useState('');
   const [plan, setPlan] = useState<SubscriptionPlan>(initialPlan);
+  const [inviteCode, setInviteCode] = useState('');
 
   React.useEffect(() => {
     setMode(initialMode);
@@ -113,6 +115,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
         county,
         subCounty,
         plan,
+        inviteCode,
       });
 
       if (res.confirmationRequired) {
@@ -377,6 +380,26 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                   />
                 </div>
               </div>
+
+              {SecureAuth.inviteRequired() && (
+                <div>
+                  <label htmlFor="signup-invite" className="block text-[11px] font-bold uppercase text-slate-700 mb-1">
+                    Invitation Code *
+                  </label>
+                  <input
+                    id="signup-invite"
+                    type="text"
+                    required
+                    autoComplete="off"
+                    autoCapitalize="characters"
+                    value={inviteCode}
+                    onChange={(e) => setInviteCode(e.target.value)}
+                    placeholder="The code you were given"
+                    className="w-full px-3 py-2 text-xs rounded-xl border border-slate-200 focus:ring-2 focus:ring-dairy-100 font-medium uppercase tracking-wide"
+                  />
+                  <p className="text-[11px] text-slate-500 mt-1">Mylkio is invitation-only during the pilot. No code? Use the contact form to request one.</p>
+                </div>
+              )}
 
               {/* Plan Picker */}
               <div>

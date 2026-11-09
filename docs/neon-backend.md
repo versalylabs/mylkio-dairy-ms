@@ -23,6 +23,7 @@ Set up on 9 November 2026: the Neon project (Frankfurt, Postgres 18) has a `prod
 The database schema is in `db/migrations/`:
 - `0001_accounts_and_farms.sql`: profiles, farms, memberships, subscriptions, audit log, the record store, farm creation, account lookup and admin functions.
 - `0002_record_sync.sql`: idempotent operations and downloads. Milk, delivery, payment, statement, bill and allocation records are append-only.
+- `0003_leads.sql`: website enquiries, with flood protection and administrator-only access.
 
 ## Setting it up
 
@@ -78,6 +79,7 @@ update public.profiles set role = 'super_admin' where email = 'person@example.co
 - **Email confirmation.** Neon's shared email sender supports confirmation *codes*, not confirmation *links*, and production needs your own SMTP provider. This app has no screen for entering a code, so keep "Verify email at signup" off for the pilot. Add custom SMTP and a code screen before opening sign-up widely. Password reset needs email too.
 - **Phone sign-up.** Neon Auth has no phone-first sign-up: a user links a phone number after signing up. Sign-up stays email and password. The phone number is collected as a contact detail.
 - **Farm setup after sign-up.** Sign-up details are kept on the device until the account has a session, then the farm is created. If someone signs up on one device and signs in on another before that happens, the app asks them to repeat "Create account" with the same email and password to finish. That path resumes setup rather than failing.
-- **Sign-up is open to anyone.** Neon Auth currently has no restricted-sign-up option, so anyone who finds the site can create an account and a trial farm. Fine for a pilot with a few farms; plan a gate (invite code or admin approval) before promoting the site widely.
+- **Neon Auth itself is open to anyone**, so anyone can create an identity. An identity with no farm can read and write nothing. Creating a farm is gated by `SIGNUP_INVITE_CODES` (see `docs/go-live.md`): while it is set, the server refuses to create a farm without a valid code, and the sign-up form asks for one.
+- **Website enquiries** are stored in `public.leads` (migration `0003_leads.sql`) through `POST /api/leads`, rate-limited in SQL, and shown to administrators on the admin screen.
 - **Owner-only writes.** Manager and worker roles are in the schema but not yet permitted to write.
 - **Local storage.** Records are still cached in `localStorage` (about 5 MB). IndexedDB is the next offline step.

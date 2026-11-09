@@ -36,6 +36,7 @@ async function run<T>(db: Db, text: string, params: unknown[], denied = 'You do 
     const code = (error as { code?: string } | null)?.code;
     if (code === '42501') throw new ApiError(403, denied);
     if (code === '22023') throw new ApiError(400, 'Some records or fields could not be accepted.');
+    if (code === 'MY429') throw new ApiError(429, 'Too many messages in a short time. Please try again later, or contact us on WhatsApp.');
     throw error;
   }
 }
@@ -98,4 +99,29 @@ export async function adminListAccounts(db: Db, actor: string) {
 
 export async function adminUpdateSubscription(db: Db, actor: string, farmId: string, plan: string, status: string) {
   await run(db, 'select public.admin_update_subscription($1, $2, $3, $4)', [actor, farmId, plan, status], 'Administrator access required.');
+}
+
+export interface LeadInput {
+  name: string;
+  phone: string;
+  county?: string;
+  cowsCount?: number;
+  preferredContact: 'whatsapp' | 'call' | 'sms';
+  message?: string;
+  source: string;
+}
+
+/** A website enquiry from a visitor who is not signed in. Rate-limited in SQL. */
+export async function submitLead(db: Db, lead: LeadInput): Promise<void> {
+  await run(db, 'select public.submit_lead($1, $2, $3, $4, $5, $6, $7)', [
+    lead.name, lead.phone, lead.county ?? null, lead.cowsCount ?? null, lead.preferredContact, lead.message ?? null, lead.source,
+  ]);
+}
+
+export async function adminListLeads(db: Db, actor: string) {
+  return run(db, 'select * from public.admin_list_leads($1)', [actor], 'Administrator access required.');
+}
+
+export async function adminSetLeadStatus(db: Db, actor: string, leadId: string, status: string) {
+  await run(db, 'select public.admin_set_lead_status($1, $2, $3)', [actor, leadId, status], 'Administrator access required.');
 }

@@ -93,7 +93,7 @@ export const AppStorage = {
   login: SecureAuth.login,
   loginDemoUser: () => SecureAuth.demo(),
   logout: () => SecureAuth.logout(),
-  registerFarmer(data: { name: string; email: string; password: string; phone: string; farmName: string; county: string; subCounty?: string; plan?: SubscriptionPlan }) {
+  registerFarmer(data: { name: string; email: string; password: string; phone: string; farmName: string; county: string; subCounty?: string; plan?: SubscriptionPlan; inviteCode?: string }) {
     return SecureAuth.register({ ...data, language: this.getLanguage() });
   },
   updateAccountSubscription(_accountId: string, _updates: unknown) {
