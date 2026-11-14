@@ -156,3 +156,45 @@ body {
   .print-area .no-print, .no-print-backdrop > .print-area > .no-print { display: none !important; }
   .no-print-backdrop { background: none !important; backdrop-filter: none !important; position: static !important; }
 }
+
+/* Mylkio design system: shared by the website, sign-in and administration so they look like one product.
+   Buttons and labels never wrap onto a second line (whitespace-nowrap); long text goes in paragraphs. */
+@layer components {
+  .container-page { @apply mx-auto w-full max-w-[1200px] px-4 sm:px-6 lg:px-8; }
+  .section { @apply py-16 sm:py-20 lg:py-28; }
+
+  .eyebrow {
+    @apply inline-flex items-center gap-2.5 whitespace-nowrap text-xs font-semibold uppercase tracking-[0.16em] text-sage;
+  }
+  .eyebrow::before { content: ''; @apply h-px w-6 bg-gold; }
+  .eyebrow-light { @apply text-gold; }
+
+  .btn {
+    @apply inline-flex min-h-11 items-center justify-center gap-2 whitespace-nowrap rounded-full px-5 text-sm font-semibold
+      transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sage focus-visible:ring-offset-2
+      disabled:cursor-not-allowed disabled:opacity-60 active:scale-[0.98];
+  }
+  .btn-lg { @apply min-h-[52px] px-7 text-base; }
+  .btn-primary { @apply bg-sage text-white shadow-soft hover:bg-sage-hover hover:shadow-glow; }
+  .btn-secondary { @apply border border-ivory-border bg-white text-charcoal shadow-soft hover:border-sage hover:text-sage; }
+  .btn-ghost { @apply text-sage hover:bg-sage/10; }
+  .btn-gold { @apply bg-gold text-charcoal hover:bg-gold-hover hover:text-white; }
+  .btn-on-dark { @apply border border-white/25 bg-white/10 text-white hover:bg-white/20; }
+
+  .card { @apply rounded-2xl border border-ivory-border bg-white shadow-soft; }
+  .card-hover { @apply transition-all duration-300 hover:-translate-y-1 hover:border-sage-300 hover:shadow-lift; }
+
+  /* 16px text stops phones zooming into a field when it is tapped. */
+  .field {
+    @apply block min-h-11 w-full rounded-xl border border-ivory-border bg-white px-3.5 py-2.5 text-base text-charcoal
+      placeholder:text-charcoal-subtle focus:border-sage focus:outline-none focus:ring-2 focus:ring-sage/25;
+  }
+  .field-label { @apply mb-1.5 block text-sm font-semibold text-charcoal; }
+
+  .icon-tile { @apply flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-sage/10 text-sage; }
+  .icon-tile-gold { @apply bg-gold/15 text-gold-600; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important; scroll-behavior: auto !important; }
+}
