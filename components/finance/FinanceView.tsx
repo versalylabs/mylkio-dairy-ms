@@ -222,7 +222,7 @@ export const FinanceView: React.FC<FinanceViewProps> = ({
             { key: 'other', label: 'Other Ops', amount: categoryTotals.other },
           ].map((cat) => (
             <div key={cat.key} className="bg-[#FAF9F5] border border-[#E8E4D8] hover:border-[#345C4A]/40 transition-all p-3 rounded-2xl flex flex-col justify-between">
-              <span className="text-[11px] font-semibold text-[#5D7368]">{cat.label}</span>
+              <span className="text-xs font-semibold text-[#5D7368]">{cat.label}</span>
               <span className="text-base font-extrabold text-[#26332D] mt-1">
                 KSh {cat.amount.toLocaleString()}
               </span>
@@ -281,7 +281,7 @@ export const FinanceView: React.FC<FinanceViewProps> = ({
                     <span className="font-bold text-sm text-gray-900">
                       {exp.description}
                     </span>
-                    <span className="px-2 py-0.5 rounded-md text-[10px] font-bold uppercase tracking-wider bg-gray-100 text-gray-700">
+                    <span className="px-2 py-0.5 rounded-md text-xs font-bold uppercase tracking-wider bg-gray-100 text-gray-700">
                       {exp.category}
                     </span>
                     <span className="text-xs text-gray-400 font-medium">

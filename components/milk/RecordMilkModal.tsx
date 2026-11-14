@@ -346,7 +346,7 @@ export const RecordMilkModal: React.FC<RecordMilkModalProps> = ({
 
               {/* Fast Presets for under 30s logging */}
               <div className="flex items-center gap-2 pt-1">
-                <span className="text-[11px] font-medium text-gray-400">Quick add:</span>
+                <span className="text-xs font-medium text-gray-400">Quick add:</span>
                 {[5, 10, 20, 30].map((amt) => (
                   <button
                     key={amt}
@@ -402,11 +402,11 @@ export const RecordMilkModal: React.FC<RecordMilkModalProps> = ({
                           <div className="font-bold text-xs text-gray-900 truncate">
                             {cow.name || cow.tag}
                           </div>
-                          <div className="text-[11px] text-gray-500 font-mono">
+                          <div className="text-xs text-gray-500 font-mono">
                             {cow.tag} • {cow.breed}
                           </div>
                           {withdrawalByCow.has(cow.id) && (
-                            <div className="mt-0.5 inline-flex items-center gap-1 text-[11px] font-bold text-rose-700">
+                            <div className="mt-0.5 inline-flex items-center gap-1 text-xs font-bold text-rose-700">
                               <ShieldAlert className="w-3 h-3" />
                               {lang === 'sw'
                                 ? `Kizuizi hadi ${formatFarmDate(withdrawalByCow.get(cow.id)!, lang)} — usiuze`
@@ -426,7 +426,7 @@ export const RecordMilkModal: React.FC<RecordMilkModalProps> = ({
                           placeholder="0.0"
                           className="w-full text-right font-bold text-sm px-2.5 py-1.5 rounded-lg border border-gray-300 focus:ring-2 focus:ring-dairy-500 pr-7"
                         />
-                        <span className="absolute right-2 top-2 text-[10px] text-gray-400 font-bold">
+                        <span className="absolute right-2 top-2 text-xs text-gray-400 font-bold">
                           L
                         </span>
                       </div>
@@ -456,7 +456,7 @@ export const RecordMilkModal: React.FC<RecordMilkModalProps> = ({
               <div className="p-4 space-y-3 bg-white">
                 <div className="grid grid-cols-2 gap-3 text-xs">
                   <div>
-                    <label className="block text-[11px] font-semibold text-gray-600 mb-1">
+                    <label className="block text-xs font-semibold text-gray-600 mb-1">
                       {lang === 'sw' ? 'Maziwa ya Kuuza (L)' : 'Sold to Co-op / Buyers (L)'}
                     </label>
                     <input
@@ -471,7 +471,7 @@ export const RecordMilkModal: React.FC<RecordMilkModalProps> = ({
                   </div>
 
                   <div>
-                    <label className="block text-[11px] font-semibold text-gray-600 mb-1">
+                    <label className="block text-xs font-semibold text-gray-600 mb-1">
                       {lang === 'sw' ? 'Matumizi ya Nyumbani (L)' : 'Household Use (L)'}
                     </label>
                     <input
@@ -486,7 +486,7 @@ export const RecordMilkModal: React.FC<RecordMilkModalProps> = ({
                   </div>
 
                   <div>
-                    <label className="block text-[11px] font-semibold text-gray-600 mb-1">
+                    <label className="block text-xs font-semibold text-gray-600 mb-1">
                       {lang === 'sw' ? 'Maziwa ya Ndama (L)' : 'Calves Fed (L)'}
                     </label>
                     <input
@@ -501,7 +501,7 @@ export const RecordMilkModal: React.FC<RecordMilkModalProps> = ({
                   </div>
 
                   <div>
-                    <label className="block text-[11px] font-semibold text-gray-600 mb-1">
+                    <label className="block text-xs font-semibold text-gray-600 mb-1">
                       {lang === 'sw' ? 'Iliyomwagika / Hasara (L)' : 'Spillage / Rejected (L)'}
                     </label>
                     <input

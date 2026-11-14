@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { useState } from 'react';
 import { Cow, Buyer, MilkEntry, Delivery, PaymentRecord, FarmReminder, ExpenseRecord, Language, Farm, UserAccount } from '@/types';
 import { translations } from '@/lib/translations';
 import { farmToday, monthRange } from '@/lib/dates';
@@ -43,6 +43,15 @@ interface DashboardViewProps {
   user?: UserAccount | null;
 }
 
+const REMINDERS_SHOWN = 4;
+
+/** "20 Nov 2026" from a YYYY-MM-DD date; anything else is shown as it was stored. */
+function friendlyDate(value: string, sw: boolean) {
+  if (!/^\d{4}-\d{2}-\d{2}/.test(value)) return value;
+  return new Intl.DateTimeFormat(sw ? 'sw-KE' : 'en-KE', { day: 'numeric', month: 'short', year: 'numeric', timeZone: 'UTC' })
+    .format(new Date(`${value.slice(0, 10)}T00:00:00Z`));
+}
+
 export const DashboardView: React.FC<DashboardViewProps> = ({
   cows,
   buyers,
@@ -64,6 +73,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
 }) => {
   const t = translations[lang];
   const sw = lang === 'sw';
+  const [showAllReminders, setShowAllReminders] = useState(false);
   const todayStr = farmToday();
   const today = { from: todayStr, to: todayStr };
   const month = monthRange(todayStr);
@@ -98,56 +108,50 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
   // Active withdrawal reminders
   const withdrawalReminders = reminders.filter((r) => r.type === 'withdrawal' && !r.completed);
 
+  // Open items first, the most severe first among them.
+  const openReminders = reminders.filter((r) => !r.completed);
+  const sortedReminders = [...reminders].sort((a, b) => Number(a.completed) - Number(b.completed) || Number(b.severity === 'high') - Number(a.severity === 'high'));
+  const shownReminders = showAllReminders ? sortedReminders : sortedReminders.slice(0, REMINDERS_SHOWN);
+
   return (
     <div className="space-y-6 pb-20 md:pb-8">
-      {/* Welcome Banner */}
-      <div className="bg-gradient-to-r from-[#345C4A] via-[#274537] to-[#26332D] rounded-3xl p-6 text-white shadow-lg relative overflow-hidden">
-        <div className="relative z-10 max-w-xl">
-          <div className="inline-flex items-center space-x-1.5 px-3 py-1 bg-white/15 backdrop-blur-md rounded-full text-xs font-semibold text-[#FAF9F5] mb-3 border border-white/20">
-            <span className="w-2 h-2 rounded-full bg-[#C6A76A] animate-pulse"></span>
-            <span>{farmLocation}</span>
-          </div>
-          <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight">
-            {lang === 'sw' ? `Habari, ${displayName}!` : `Welcome Back, ${displayName}!`}
-          </h1>
-          <p className="text-sm text-[#e4ede7] mt-2 font-normal leading-relaxed">
-            {lang === 'sw'
-              ? 'Simamia maziwa, ng\'ombe wako, na malipo ya ushirika kwa urahisi.'
-              : 'Know your cows, your milk production, and who owes you without complicated software.'}
-          </p>
+      {/* Greeting and the everyday actions come first: this is what a farmer opens the app to do. */}
+      <header>
+        <p className="text-sm font-medium text-[#4B5A52]">{farmLocation}</p>
+        <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-[#26332D]">
+          {sw ? `Habari, ${displayName}!` : `Hello, ${displayName}`}
+        </h1>
+      </header>
 
-          <div className="mt-5 flex items-center gap-3">
-            <button
-              onClick={onOpenRecordMilk}
-              className="px-4 py-2.5 bg-[#FAF9F5] text-[#26332D] hover:bg-white rounded-xl font-bold text-xs shadow-sm transition-all flex items-center space-x-2"
-            >
-              <Milk className="w-4 h-4 text-[#345C4A]" />
-              <span>{t.quickActions.recordMilk}</span>
-            </button>
-            <button
-              onClick={() => onNavigate('sales')}
-              className="px-4 py-2.5 bg-[#345C4A]/80 hover:bg-[#345C4A] text-white border border-[#A8BFA5]/30 rounded-xl font-semibold text-xs transition-all flex items-center space-x-1.5"
-            >
-              <Truck className="w-3.5 h-3.5" />
-              <span>{lang === 'sw' ? 'Rekodi Mauzo' : 'Log Delivery'}</span>
-            </button>
-          </div>
-        </div>
-
-        {/* Decorative background blob */}
-        <div className="absolute -right-12 -bottom-12 w-64 h-64 bg-white/5 rounded-full blur-2xl pointer-events-none"></div>
-      </div>
+      <section aria-label={sw ? 'Vitendo vya haraka' : 'Quick actions'} className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+        <button onClick={onOpenRecordMilk} className="min-h-[88px] flex flex-col items-center justify-center gap-2 rounded-2xl bg-[#345C4A] px-3 py-4 text-white shadow-sm hover:bg-[#274537] transition-colors">
+          <Milk className="w-6 h-6" />
+          <span className="text-base font-bold">{t.quickActions.recordMilk}</span>
+        </button>
+        <button onClick={onOpenRecordDelivery} className="min-h-[88px] flex flex-col items-center justify-center gap-2 rounded-2xl border border-gray-200 bg-white px-3 py-4 text-[#26332D] shadow-sm hover:border-[#345C4A] transition-colors">
+          <Truck className="w-6 h-6 text-[#345C4A]" />
+          <span className="text-base font-bold">{sw ? 'Rekodi Utoaji' : 'Log Delivery'}</span>
+        </button>
+        <button onClick={onOpenRecordPayment} className="min-h-[88px] flex flex-col items-center justify-center gap-2 rounded-2xl border border-gray-200 bg-white px-3 py-4 text-[#26332D] shadow-sm hover:border-[#C6A76A] transition-colors">
+          <DollarSign className="w-6 h-6 text-[#9A7B35]" />
+          <span className="text-base font-bold">{t.quickActions.receivePayment}</span>
+        </button>
+        <button onClick={onOpenAddCow} className="min-h-[88px] flex flex-col items-center justify-center gap-2 rounded-2xl border border-gray-200 bg-white px-3 py-4 text-[#26332D] shadow-sm hover:border-[#345C4A] transition-colors">
+          <Plus className="w-6 h-6 text-[#345C4A]" />
+          <span className="text-base font-bold">{t.quickActions.addCow}</span>
+        </button>
+      </section>
 
       {/* Critical Milk Withdrawal Safety Banner */}
       {withdrawalReminders.length > 0 && (
         <div className="p-4 bg-rose-50 border-2 border-rose-400 rounded-3xl shadow-sm space-y-2 animate-fade-in">
           <div className="flex items-center space-x-2 text-rose-900 font-bold text-sm">
             <ShieldAlert className="w-5 h-5 text-rose-600 shrink-0" />
-            <span>{lang === 'sw' ? 'Kizuizi cha Dawa Kinafanya Kazi (Milk Withdrawal Active)' : 'Active Milk Treatment Withdrawal Notice'}</span>
+            <span>{sw ? 'Maziwa ya ng\'ombe aliyetibiwa hayafai kuuzwa' : 'Treated cow: do not sell this milk yet'}</span>
           </div>
-          <p className="text-xs text-rose-800 leading-relaxed">
-            {withdrawalReminders.map((w) => w.title).join(' • ')}.
-            Do <strong>NOT</strong> mix this milk with saleable milk destined for cooperatives or customers.
+          <p className="text-sm text-rose-800 leading-relaxed">
+            {withdrawalReminders.map((w) => w.title).join(' • ')}.{' '}
+            {sw ? <>Usichanganye maziwa haya na maziwa ya kuuza kwa ushirika au wateja. <strong>USIUZE</strong>.</> : <>Do <strong>NOT</strong> mix this milk with saleable milk destined for cooperatives or customers.</>}
           </p>
         </div>
       )}
@@ -157,7 +161,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
         {/* Today's Milk */}
         <div className="bg-white p-4 rounded-2xl border border-gray-200/90 shadow-sm flex flex-col justify-between">
           <div className="flex items-center justify-between">
-            <span className="text-xs font-semibold text-gray-500 uppercase tracking-wider">
+            <span className="text-xs font-semibold text-gray-600 uppercase tracking-wider">
               {t.dashboard.todayMilk}
             </span>
             <div className="p-2 bg-[#A8BFA5]/20 rounded-xl text-[#345C4A]">
@@ -168,7 +172,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
             <div className="text-2xl font-black text-gray-900 tracking-tight">
               {todayLitres.toFixed(1)} <span className="text-sm font-normal text-gray-500">{t.common.lShort}</span>
             </div>
-            <div className="text-[11px] font-medium text-[#345C4A] flex items-center gap-1 mt-0.5">
+            <div className="text-sm font-medium text-[#345C4A] flex items-center gap-1 mt-0.5">
               <TrendingUp className="w-3 h-3" />
               <span>{sessionsText}{todayMilk.needsReview ? (sw ? ' · kagua' : ' · needs review') : ''}</span>
             </div>
@@ -178,7 +182,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
         {/* Milk Sold */}
         <div className="bg-white p-4 rounded-2xl border border-gray-200/90 shadow-xs flex flex-col justify-between">
           <div className="flex items-center justify-between">
-            <span className="text-xs font-semibold text-gray-500 uppercase tracking-wider">
+            <span className="text-xs font-semibold text-gray-600 uppercase tracking-wider">
               {t.dashboard.milkSold}
             </span>
             <div className="p-2 bg-[#A8BFA5]/20 rounded-xl text-[#345C4A]">
@@ -189,7 +193,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
             <div className="text-2xl font-black text-gray-900 tracking-tight">
               {todaySales.acceptedLitres.toFixed(1)} <span className="text-sm font-normal text-gray-500">{t.common.lShort}</span>
             </div>
-            <div className="text-xs font-medium text-gray-600 mt-0.5">
+            <div className="text-sm font-medium text-gray-600 mt-0.5">
               {sw ? 'Zilizokubaliwa leo' : 'Accepted today'} · KSh {todaySales.billed.toLocaleString()}
               {todaySales.rejectedLitres > 0 && (sw ? ` · ${todaySales.rejectedLitres} L zilikataliwa` : ` · ${todaySales.rejectedLitres} L rejected`)}
             </div>
@@ -199,7 +203,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
         {/* Cash Received */}
         <div className="bg-white p-4 rounded-2xl border border-gray-200/90 shadow-xs flex flex-col justify-between">
           <div className="flex items-center justify-between">
-            <span className="text-xs font-semibold text-gray-500 uppercase tracking-wider">
+            <span className="text-xs font-semibold text-gray-600 uppercase tracking-wider">
               {t.dashboard.cashReceived}
             </span>
             <div className="p-2 bg-[#FAF5EB] rounded-xl text-[#C6A76A] border border-[#E5D5B5]">
@@ -210,7 +214,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
             <div className="text-2xl font-black text-gray-900 tracking-tight">
               KSh {cashToday.amount.toLocaleString()}
             </div>
-            <div className="text-xs font-medium text-[#5D7368] mt-0.5">
+            <div className="text-sm font-medium text-[#5D7368] mt-0.5">
               {sw ? 'Leo' : 'Today'} · {sw ? `${monthName}: KSh ${cashMonth.amount.toLocaleString()}` : `${monthName}: KSh ${cashMonth.amount.toLocaleString()}`}
             </div>
           </div>
@@ -219,7 +223,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
         {/* Outstanding Receivables */}
         <div className="bg-white p-4 rounded-2xl border border-gray-200/90 shadow-sm flex flex-col justify-between">
           <div className="flex items-center justify-between">
-            <span className="text-xs font-semibold text-gray-500 uppercase tracking-wider">
+            <span className="text-xs font-semibold text-gray-600 uppercase tracking-wider">
               {t.dashboard.outstandingBalances}
             </span>
             <div className="p-2 bg-[#FAF5EB] rounded-xl text-[#b39252] border border-[#E5D5B5]">
@@ -230,7 +234,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
             <div className="text-2xl font-black text-[#b39252] tracking-tight">
               KSh {owed.owedToFarm.toLocaleString()}
             </div>
-            <div className="text-xs font-medium text-gray-600 mt-0.5">
+            <div className="text-sm font-medium text-gray-600 mt-0.5">
               {sw ? `Wanunuzi ${owed.buyersOwing} wanadaiwa` : `${owed.buyersOwing} buyer${owed.buyersOwing === 1 ? '' : 's'} owing`}
               {owed.advancesHeld > 0 && (sw ? ` · mapema KSh ${owed.advancesHeld.toLocaleString()}` : ` · KSh ${owed.advancesHeld.toLocaleString()} advances`)}
             </div>
@@ -238,74 +242,94 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
         </div>
       </div>
 
-      {/* Date-Based Alerts / Reminders (Consequential MVP Digest) */}
-      <div className="bg-white rounded-3xl border border-gray-200 p-5 shadow-sm space-y-3">
-        <div className="flex items-center justify-between">
+      {/* What needs attention: open items first, a short list by default. */}
+      <section aria-labelledby="attention-heading" className="bg-white rounded-3xl border border-gray-200 p-5 shadow-sm space-y-3">
+        <div className="flex items-center justify-between gap-3">
           <div className="flex items-center space-x-2">
             <div className="p-2 bg-amber-50 text-amber-700 rounded-xl">
-              <Calendar className="w-4 h-4" />
+              <Calendar className="w-5 h-5" />
             </div>
             <div>
-              <h2 className="text-base font-bold text-gray-900">
-                {lang === 'sw' ? 'Vikumbusho vya Leo (Daily Action Feed)' : 'Consequential Action Reminders'}
+              <h2 id="attention-heading" className="text-base font-bold text-gray-900">
+                {sw ? 'Vinavyohitaji Umakini' : 'Needs your attention'}
               </h2>
-              <p className="text-xs text-gray-500">
-                Calving countdowns, veterinary dates & settlement deadlines
+              <p className="text-sm text-gray-600">
+                {sw ? 'Tarehe za ndama, daktari wa mifugo na malipo' : 'Calving dates, vet visits and payment deadlines'}
               </p>
             </div>
           </div>
-          <span className="text-xs font-bold px-2 py-0.5 rounded-full bg-amber-100 text-amber-800">
-            {reminders.filter((r) => !r.completed).length} active
+          <span className="shrink-0 text-sm font-bold px-2.5 py-0.5 rounded-full bg-amber-100 text-amber-900">
+            {openReminders.length} {sw ? 'wazi' : 'open'}
           </span>
         </div>
 
+        {openReminders.length === 0 && (
+          <p className="rounded-2xl bg-[#EEF4EC] p-4 text-sm font-medium text-[#2B4A3B]">
+            {sw ? 'Hakuna kinachohitaji umakini leo.' : 'Nothing needs your attention today.'}
+          </p>
+        )}
+
         <div className="space-y-2 pt-1">
-          {reminders.map((rem) => (
+          {shownReminders.map((rem) => (
             <div
               key={rem.id}
-              className={`p-3.5 rounded-2xl border transition-all flex items-start justify-between gap-3 ${
+              className={`p-3 rounded-2xl border transition-all flex items-start justify-between gap-3 ${
                 rem.completed
-                  ? 'bg-gray-50 border-gray-200 opacity-60'
+                  ? 'bg-gray-50 border-gray-200 opacity-70'
                   : rem.severity === 'high'
                   ? 'bg-rose-50/60 border-rose-200'
                   : 'bg-amber-50/50 border-amber-200/70'
               }`}
             >
-              <div className="flex items-start space-x-3">
+              <div className="flex items-start gap-1">
                 <button
                   onClick={() => onToggleReminder(rem.id)}
-                  className={`mt-0.5 w-5 h-5 rounded-lg border flex items-center justify-center transition-colors ${
+                  aria-label={`${rem.completed ? (sw ? 'Weka wazi tena' : 'Mark as not done') : (sw ? 'Weka kama imefanywa' : 'Mark as done')}: ${rem.title}`}
+                  aria-pressed={rem.completed}
+                  className="-ml-1 -mt-1 flex h-11 w-11 shrink-0 items-center justify-center"
+                >
+                  <span className={`w-6 h-6 rounded-lg border-2 flex items-center justify-center transition-colors ${
                     rem.completed
                       ? 'bg-[#345C4A] border-[#345C4A] text-white'
-                      : 'border-gray-300 bg-white hover:border-dairy-500'
-                  }`}
-                >
-                  {rem.completed && <Check className="w-3.5 h-3.5" />}
+                      : 'border-gray-400 bg-white'
+                  }`}>
+                    {rem.completed && <Check className="w-4 h-4" />}
+                  </span>
                 </button>
-                <div>
-                  <div className={`text-xs font-bold ${rem.completed ? 'line-through text-gray-500' : 'text-gray-900'}`}>
+                <div className="min-w-0">
+                  <span className={`mb-1 inline-block text-xs font-bold px-2 py-0.5 rounded-full ${
+                    rem.severity === 'high'
+                      ? 'bg-rose-100 text-rose-900'
+                      : 'bg-amber-100 text-amber-900'
+                  }`}>
+                    {rem.type.replace(/_/g, ' ').toUpperCase()}
+                  </span>
+                  <div className={`text-sm font-bold ${rem.completed ? 'line-through text-gray-500' : 'text-gray-900'}`}>
                     {rem.title}
                   </div>
-                  <p className="text-[11px] text-gray-600 mt-0.5">
+                  <p className="text-sm text-gray-700 mt-0.5">
                     {rem.description}
                   </p>
-                  <span className="text-[10px] font-semibold text-gray-400 mt-1 block">
-                    Due: {rem.dueDate}
+                  <span className="text-sm font-semibold text-gray-600 mt-1 block">
+                    {sw ? 'Tarehe' : 'Due'}: {friendlyDate(rem.dueDate, sw)}
                   </span>
                 </div>
               </div>
-
-              <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full shrink-0 ${
-                rem.severity === 'high'
-                  ? 'bg-rose-100 text-rose-800'
-                  : 'bg-amber-100 text-amber-800'
-              }`}>
-                {rem.type.toUpperCase()}
-              </span>
             </div>
           ))}
         </div>
-      </div>
+
+        {sortedReminders.length > REMINDERS_SHOWN && (
+          <button
+            onClick={() => setShowAllReminders((v) => !v)}
+            className="min-h-11 w-full rounded-xl border border-gray-200 text-sm font-semibold text-[#345C4A] hover:bg-[#FAF9F5]"
+          >
+            {showAllReminders
+              ? (sw ? 'Onyesha chache' : 'Show fewer')
+              : (sw ? `Onyesha zote (${sortedReminders.length})` : `Show all (${sortedReminders.length})`)}
+          </button>
+        )}
+      </section>
 
       {/* Financial Health Snapshot */}
       <div className="bg-[#26332D] text-white rounded-3xl p-5 shadow-sm space-y-3 border border-[#345C4A]/40">
@@ -318,7 +342,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
           </div>
           <button
             onClick={() => onNavigate('finance')}
-            className="text-xs font-semibold text-[#C6A76A] hover:text-[#d8be85] flex items-center gap-1"
+            className="text-sm font-semibold text-[#C6A76A] hover:text-[#d8be85] flex items-center gap-1"
           >
             <span>{lang === 'sw' ? 'Tazama Leja ya Fedha' : 'Open Finance Ledger'}</span>
             <ArrowRight className="w-3.5 h-3.5" />
@@ -327,20 +351,20 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
 
         <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 pt-1">
           <div className="p-3 bg-white/10 rounded-2xl">
-            <span className="text-xs text-[#cbdbcf] block">{sw ? 'Mauzo yaliyodaiwa' : 'Milk billed'}</span>
+            <span className="text-sm text-[#cbdbcf] block">{sw ? 'Mauzo yaliyodaiwa' : 'Milk billed'}</span>
             <span className="text-lg font-black text-[#C6A76A]">KSh {monthSales.billed.toLocaleString()}</span>
           </div>
           <div className="p-3 bg-white/10 rounded-2xl">
-            <span className="text-xs text-[#cbdbcf] block">{sw ? 'Gharama' : 'Expenses'}</span>
+            <span className="text-sm text-[#cbdbcf] block">{sw ? 'Gharama' : 'Expenses'}</span>
             <span className="text-lg font-black text-rose-300">KSh {monthExpenses.amount.toLocaleString()}</span>
           </div>
           <div className="p-3 bg-white/10 rounded-2xl col-span-2 sm:col-span-1">
-            <span className="text-xs text-[#cbdbcf] block">{sw ? 'Ziada (mauzo − gharama)' : 'Surplus (billed − expenses)'}</span>
+            <span className="text-sm text-[#cbdbcf] block">{sw ? 'Ziada (mauzo − gharama)' : 'Surplus (billed − expenses)'}</span>
             <span className={`text-lg font-black ${monthSurplus >= 0 ? 'text-[#A8BFA5]' : 'text-rose-300'}`}>
               {monthSurplus >= 0 ? '+' : '−'}KSh {Math.abs(monthSurplus).toLocaleString()}
             </span>
           </div>
-          <p className="col-span-2 sm:col-span-3 text-xs text-[#cbdbcf]">
+          <p className="col-span-2 sm:col-span-3 text-sm text-[#cbdbcf]">
             {sw
               ? `Pesa iliyopokelewa mwezi huu: KSh ${cashMonth.amount.toLocaleString()}. Mauzo yaliyodaiwa si sawa na pesa iliyopokelewa.`
               : `Cash actually received this month: KSh ${cashMonth.amount.toLocaleString()}. Billed sales are not the same as cash received.`}
@@ -355,13 +379,13 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
             <h2 className="text-base font-bold text-gray-900">
               {t.dashboard.quickSummary}
             </h2>
-            <p className="text-xs text-gray-500">
+            <p className="text-sm text-gray-500">
               {cows.length} {lang === 'sw' ? 'ng\'ombe waliosajiliwa kwenye shamba' : 'total cattle on farm'}
             </p>
           </div>
           <button
             onClick={() => onNavigate('herd')}
-            className="text-xs font-bold text-dairy-600 hover:text-dairy-700 flex items-center space-x-1"
+            className="text-sm font-bold text-dairy-600 hover:text-dairy-700 flex items-center space-x-1"
           >
             <span>{lang === 'sw' ? 'Orodha Kamili' : 'See All'}</span>
             <ArrowRight className="w-3.5 h-3.5" />
@@ -371,78 +395,31 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
           <div className="p-3 bg-[#A8BFA5]/20 rounded-xl border border-[#A8BFA5]/40 flex items-center space-x-3">
             <span className="text-2xl font-black text-[#345C4A]">{lactatingCount}</span>
-            <div className="text-xs font-semibold text-[#26332D]">
+            <div className="text-sm font-semibold text-[#26332D]">
               {t.dashboard.lactating}
             </div>
           </div>
           <div className="p-3 bg-[#FAF5EB] rounded-xl border border-[#E5D5B5] flex items-center space-x-3">
             <span className="text-2xl font-black text-[#C6A76A]">{dryCount}</span>
-            <div className="text-xs font-semibold text-[#26332D]">
+            <div className="text-sm font-semibold text-[#26332D]">
               {t.dashboard.dry}
             </div>
           </div>
           <div className="p-3 bg-[#F2EFE7] rounded-xl border border-[#E8E4D8] flex items-center space-x-3">
             <span className="text-2xl font-black text-[#26332D]">{pregnantCount}</span>
-            <div className="text-xs font-semibold text-[#26332D]">
+            <div className="text-sm font-semibold text-[#26332D]">
               {t.dashboard.pregnant}
             </div>
           </div>
           <div className="p-3 bg-[#FAF9F5] rounded-xl border border-[#E8E4D8] flex items-center space-x-3">
             <span className="text-2xl font-black text-[#26332D]">{calvesCount}</span>
-            <div className="text-xs font-semibold text-[#26332D]">
+            <div className="text-sm font-semibold text-[#26332D]">
               {t.dashboard.calves}
             </div>
           </div>
         </div>
       </div>
 
-      {/* Quick Action Buttons */}
-      <div className="bg-white rounded-2xl border border-gray-200/90 p-5 shadow-xs">
-        <h2 className="text-base font-bold text-gray-900 mb-3">
-          {t.quickActions.title}
-        </h2>
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-          <button
-            onClick={onOpenRecordMilk}
-            className="flex flex-col items-center justify-center p-3.5 rounded-xl border border-gray-200 hover:border-[#345C4A] hover:bg-[#FAF9F5] transition-all text-center group"
-          >
-            <div className="p-2.5 bg-[#A8BFA5]/20 text-[#345C4A] rounded-xl group-hover:bg-[#345C4A] group-hover:text-white transition-colors">
-              <Milk className="w-5 h-5" />
-            </div>
-            <span className="text-xs font-bold text-gray-800 mt-2">{t.quickActions.recordMilk}</span>
-          </button>
-
-          <button
-            onClick={onOpenRecordDelivery}
-            className="flex flex-col items-center justify-center p-3.5 rounded-xl border border-gray-200 hover:border-[#345C4A] hover:bg-[#FAF9F5] transition-all text-center group"
-          >
-            <div className="p-2.5 bg-[#FAF9F5] text-[#345C4A] border border-gray-200 rounded-xl group-hover:bg-[#345C4A] group-hover:text-white transition-colors">
-              <Truck className="w-5 h-5" />
-            </div>
-            <span className="text-xs font-bold text-gray-800 mt-2">{lang === 'sw' ? 'Rekodi Utoaji' : 'Log Delivery'}</span>
-          </button>
-
-          <button
-            onClick={onOpenRecordPayment}
-            className="flex flex-col items-center justify-center p-3.5 rounded-xl border border-gray-200 hover:border-[#C6A76A] hover:bg-[#FAF5EB] transition-all text-center group"
-          >
-            <div className="p-2.5 bg-[#FAF5EB] text-[#C6A76A] border border-[#E5D5B5] rounded-xl group-hover:bg-[#C6A76A] group-hover:text-white transition-colors">
-              <DollarSign className="w-5 h-5" />
-            </div>
-            <span className="text-xs font-bold text-gray-800 mt-2">{t.quickActions.receivePayment}</span>
-          </button>
-
-          <button
-            onClick={onOpenAddCow}
-            className="flex flex-col items-center justify-center p-3.5 rounded-xl border border-gray-200 hover:border-[#345C4A] hover:bg-[#FAF9F5] transition-all text-center group"
-          >
-            <div className="p-2.5 bg-[#A8BFA5]/20 text-[#345C4A] rounded-xl group-hover:bg-[#345C4A] group-hover:text-white transition-colors">
-              <Plus className="w-5 h-5" />
-            </div>
-            <span className="text-xs font-bold text-gray-800 mt-2">{t.quickActions.addCow}</span>
-          </button>
-        </div>
-      </div>
     </div>
   );
 };

@@ -30,8 +30,7 @@ export const metadata: Metadata = {
 export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
-  maximumScale: 1,
-  userScalable: false,
+  // Pinch-zoom stays available: people with poor eyesight rely on it.
   themeColor: "#345C4A",
 };
 

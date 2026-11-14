@@ -98,7 +98,7 @@ export const BuyersView: React.FC<BuyersViewProps> = ({
               }`}
             >
               <span>{tab.label}</span>
-              <span className={`px-1.5 py-0.2 rounded-full text-[10px] ${isActive ? 'bg-white/20 text-white' : 'bg-gray-100 text-gray-500'}`}>
+              <span className={`px-1.5 py-0.2 rounded-full text-xs ${isActive ? 'bg-white/20 text-white' : 'bg-gray-100 text-gray-500'}`}>
                 {tab.count}
               </span>
             </button>
@@ -154,7 +154,7 @@ export const BuyersView: React.FC<BuyersViewProps> = ({
                       <h3 className="font-bold text-gray-900 text-base leading-tight">
                         {buyer.name}
                       </h3>
-                      <span className="text-[11px] font-medium text-gray-400 capitalize">
+                      <span className="text-xs font-medium text-gray-400 capitalize">
                         {buyer.type === 'cooperative'
                           ? (lang === 'sw' ? 'Chama cha Ushirika' : 'Dairy Cooperative')
                           : (lang === 'sw' ? 'Mteja wa Nyumbani' : 'Household / Direct')}
@@ -166,7 +166,7 @@ export const BuyersView: React.FC<BuyersViewProps> = ({
                 {/* Pricing & Balance Box */}
                 <div className="mt-4 grid grid-cols-2 gap-3 bg-gray-50/80 p-3 rounded-xl border border-gray-100">
                   <div>
-                    <span className="text-[11px] text-gray-400 block font-medium">
+                    <span className="text-xs text-gray-400 block font-medium">
                       {t.buyers.rate}
                     </span>
                     <span className="text-base font-extrabold text-dairy-700">
@@ -176,7 +176,7 @@ export const BuyersView: React.FC<BuyersViewProps> = ({
                   </div>
 
                   <div>
-                    <span className="text-[11px] text-gray-400 block font-medium">
+                    <span className="text-xs text-gray-400 block font-medium">
                       {t.buyers.balance}
                     </span>
                     <span className={`text-base font-extrabold ${buyer.currentBalance > 0 ? 'text-[#b39252]' : 'text-gray-700'}`}>
@@ -198,14 +198,14 @@ export const BuyersView: React.FC<BuyersViewProps> = ({
                   )}
 
                   {buyer.paymentCycle && (
-                    <p className="text-[11px] text-gray-500">
+                    <p className="text-xs text-gray-500">
                       {lang === 'sw' ? 'Malipo:' : 'Cycle:'}{' '}
                       <span className="font-medium text-gray-700 capitalize">{buyer.paymentCycle}</span>
                     </p>
                   )}
 
                   {buyer.notes && (
-                    <p className="text-[11px] text-gray-400 italic pt-1 border-t border-gray-100">
+                    <p className="text-xs text-gray-400 italic pt-1 border-t border-gray-100">
                       {buyer.notes}
                     </p>
                   )}

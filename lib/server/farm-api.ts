@@ -97,6 +97,35 @@ export async function adminListAccounts(db: Db, actor: string) {
   return run(db, 'select * from public.admin_list_accounts($1)', [actor], 'Administrator access required.');
 }
 
+/** Notes that this account just made a request. Best effort: usage figures must never break a real request. */
+export async function recordActivity(db: Db, userId: string): Promise<void> {
+  try {
+    await db.query('select public.touch_activity($1)', [userId]);
+  } catch {
+    /* Activity is informational only. */
+  }
+}
+
+export interface UsageSummary {
+  asAt: string;
+  accounts: number;
+  activeNow: number;
+  active24h: number;
+  active7d: number;
+  active30d: number;
+  activeUsers: { id: string; seenAt: string }[];
+  byStatus: Record<string, number>;
+  byPlan: Record<string, number>;
+  monthlyValueKsh: number;
+  signups: { day: string; count: number }[];
+}
+
+/** Platform usage as at a moment (default now). Administrators only. */
+export async function adminUsage(db: Db, actor: string, at?: string): Promise<UsageSummary> {
+  const [row] = await run<{ usage: UsageSummary }>(db, 'select public.admin_usage($1, $2::timestamptz) as usage', [actor, at ?? null], 'Administrator access required.');
+  return row.usage;
+}
+
 export async function adminUpdateSubscription(db: Db, actor: string, farmId: string, plan: string, status: string) {
   await run(db, 'select public.admin_update_subscription($1, $2, $3, $4)', [actor, farmId, plan, status], 'Administrator access required.');
 }

@@ -18,6 +18,7 @@ import {
   PaymentAllocation,
 } from '@/types';
 import { addDays, farmToday, monthRange, previousMonthRange } from './dates';
+import { PLANS, TRIAL_DAYS } from './plans';
 
 export const initialFarm: Farm = {
   id: 'farm-green-hills',
@@ -848,10 +849,10 @@ export const initialPlatformSettings: PlatformSettings = {
   supportPhone: '+254 184 129145',
   supportWhatsApp: '+254 184 129145',
   supportEmail: 'versalylabs@gmail.com',
-  starterPriceKsh: 500,
-  farmerPriceKsh: 1000,
-  proPriceKsh: 2500,
-  trialDays: 14,
+  starterPriceKsh: PLANS.starter.priceKsh,
+  farmerPriceKsh: PLANS.farmer.priceKsh,
+  proPriceKsh: PLANS.farm_pro.priceKsh,
+  trialDays: TRIAL_DAYS,
 };
 
 
