@@ -36,21 +36,21 @@ function localInputValue(date: Date) {
 }
 
 function Stat({ label, value, note, tone = 'plain' }: { label: string; value: string | number; note?: string; tone?: 'plain' | 'good' }) {
-  return <div className={`rounded-2xl border p-4 ${tone === 'good' ? 'border-[#A8BFA5] bg-[#EEF4EC]' : 'border-[#E4E1D6] bg-white'}`}>
-    <p className="text-sm text-[#4B5A52]">{label}</p>
-    <p className="mt-1 text-3xl font-bold tabular-nums">{value}</p>
-    {note && <p className="mt-1 text-xs text-[#5E6B64]">{note}</p>}
+  return <div className={`rounded-2xl border p-4 ${tone === 'good' ? 'border-sage-300 bg-sage/10' : 'border-ivory-border bg-white shadow-soft'}`}>
+    <p className="text-sm text-charcoal-light">{label}</p>
+    <p className="mt-1 font-display text-4xl font-medium tabular-nums">{value}</p>
+    {note && <p className="mt-1 text-xs text-charcoal-muted">{note}</p>}
   </div>;
 }
 
 function Breakdown({ title, rows }: { title: string; rows: [string, number][] }) {
   const total = rows.reduce((sum, [, n]) => sum + n, 0) || 1;
-  return <div className="rounded-2xl border border-[#E4E1D6] bg-white p-4">
+  return <div className="card p-4">
     <h3 className="text-sm font-bold">{title}</h3>
-    {rows.length === 0 ? <p className="mt-2 text-sm text-[#5E6B64]">No accounts yet.</p> : <ul className="mt-3 space-y-2">
+    {rows.length === 0 ? <p className="mt-2 text-sm text-charcoal-muted">No accounts yet.</p> : <ul className="mt-3 space-y-2">
       {rows.map(([label, n]) => <li key={label} className="text-sm">
         <div className="flex justify-between"><span>{label}</span><span className="font-semibold tabular-nums">{n}</span></div>
-        <div className="mt-1 h-2 overflow-hidden rounded-full bg-[#EDEBE2]"><div className="h-full rounded-full bg-[#345C4A]" style={{ width: `${Math.max(4, (n / total) * 100)}%` }} /></div>
+        <div className="mt-1 h-2 overflow-hidden rounded-full bg-ivory-muted"><div className="h-full rounded-full bg-sage" style={{ width: `${Math.max(4, (n / total) * 100)}%` }} /></div>
       </li>)}
     </ul>}
   </div>;
@@ -135,23 +135,23 @@ export function PlatformAdminView({ onLogout }: Props) {
   const planRows = (['starter', 'farmer', 'farm_pro'] as const).map(p => [PLAN_NAMES[p], usage?.byPlan[p] ?? 0] as [string, number]).filter(([, n]) => n > 0);
   const maxSignups = Math.max(1, ...(usage?.signups ?? []).map(s => Number(s.count)));
 
-  return <main className="mx-auto max-w-6xl space-y-8 p-4 text-[#26332D] sm:p-6">
+  return <main className="mx-auto max-w-6xl space-y-8 p-4 text-charcoal sm:p-6">
     <header className="flex flex-wrap items-start justify-between gap-4">
-      <div><h1 className="text-2xl font-bold">Mylkio Administration</h1><p className="mt-2 max-w-2xl text-sm text-[#4B5A52]">Who is using Mylkio, and on which plan. This shows account activity only: farmers&apos; milk, herd and sales records stay private.</p></div>
-      <button onClick={onLogout} className="min-h-11 rounded-xl border px-4">Sign out</button>
+      <div><h1 className="font-display text-display-md">Mylkio Administration</h1><p className="mt-2 max-w-2xl text-sm text-charcoal-light">Who is using Mylkio, and on which plan. This shows account activity only: farmers&apos; milk, herd and sales records stay private.</p></div>
+      <button onClick={onLogout} className="btn btn-secondary">Sign out</button>
     </header>
     {error && <p role="alert" className="rounded-xl bg-red-50 p-4 text-red-800">{error}</p>}
 
     <section aria-labelledby="usage-heading" className="space-y-4">
       <div className="flex flex-wrap items-end justify-between gap-4">
-        <div><h2 id="usage-heading" className="text-xl font-bold">Usage {live ? 'right now' : 'as at a chosen time'}</h2>
-          <p className="mt-1 text-sm text-[#4B5A52]">{usage ? `${live ? 'Live, as at' : 'As at'} ${dateTime(usage.asAt)} (Nairobi time)` : 'Loading…'}{live ? ' · refreshes every minute' : ''}</p></div>
+        <div><h2 id="usage-heading" className="font-display text-2xl font-medium">Usage {live ? 'right now' : 'as at a chosen time'}</h2>
+          <p className="mt-1 text-sm text-charcoal-light">{usage ? `${live ? 'Live, as at' : 'As at'} ${dateTime(usage.asAt)} (Nairobi time)` : 'Loading…'}{live ? ' · refreshes every minute' : ''}</p></div>
         <div className="flex flex-wrap items-end gap-2">
           <label className="text-sm">As at
-            <input type="datetime-local" max={localInputValue(new Date())} value={asAt} onChange={e => setAsAt(e.target.value)} className="ml-2 min-h-11 rounded-lg border p-2" />
+            <input type="datetime-local" max={localInputValue(new Date())} value={asAt} onChange={e => setAsAt(e.target.value)} className="field ml-2 !inline-block !w-auto" />
           </label>
-          <button disabled={live} onClick={() => setAsAt('')} className="min-h-11 rounded-xl border px-4 disabled:opacity-40">Now</button>
-          <button disabled={busy} onClick={() => void load()} className="min-h-11 rounded-xl bg-[#345C4A] px-4 text-white disabled:opacity-50">{busy ? 'Loading…' : 'Refresh'}</button>
+          <button disabled={live} onClick={() => setAsAt('')} className="btn btn-secondary">Now</button>
+          <button disabled={busy} onClick={() => void load()} className="btn btn-primary">{busy ? 'Loading…' : 'Refresh'}</button>
         </div>
       </div>
       {usage && <>
@@ -170,51 +170,51 @@ export function PlatformAdminView({ onLogout }: Props) {
         <div className="grid gap-3 md:grid-cols-3">
           <Breakdown title="By subscription status" rows={statusRows} />
           <Breakdown title="By plan" rows={planRows} />
-          <div className="rounded-2xl border border-[#E4E1D6] bg-white p-4">
+          <div className="card p-4">
             <h3 className="text-sm font-bold">New accounts per day (14 days)</h3>
             <div className="mt-3 flex h-24 items-end gap-1" role="img" aria-label={`New accounts per day: ${usage.signups.map(s => `${s.day} ${s.count}`).join(', ')}`}>
-              {usage.signups.map(s => <div key={s.day} title={`${s.day}: ${s.count}`} className="flex-1 rounded-t bg-[#345C4A]" style={{ height: `${Math.max(Number(s.count) === 0 ? 3 : 10, (Number(s.count) / maxSignups) * 100)}%`, opacity: Number(s.count) === 0 ? 0.25 : 1 }} />)}
+              {usage.signups.map(s => <div key={s.day} title={`${s.day}: ${s.count}`} className="flex-1 rounded-t bg-sage" style={{ height: `${Math.max(Number(s.count) === 0 ? 3 : 10, (Number(s.count) / maxSignups) * 100)}%`, opacity: Number(s.count) === 0 ? 0.25 : 1 }} />)}
             </div>
-            <p className="mt-2 text-xs text-[#5E6B64]">{usage.signups.reduce((sum, s) => sum + Number(s.count), 0)} new in this period</p>
+            <p className="mt-2 text-xs text-charcoal-muted">{usage.signups.reduce((sum, s) => sum + Number(s.count), 0)} new in this period</p>
           </div>
         </div>
-        <p className="text-xs text-[#5E6B64]">Plan and status are today&apos;s: subscription changes are not kept as history, so they are not rewound to the chosen time. Activity history is kept for about six months and starts from when this screen was introduced.</p>
+        <p className="text-xs text-charcoal-muted">Plan and status are today&apos;s: subscription changes are not kept as history, so they are not rewound to the chosen time. Activity history is kept for about six months and starts from when this screen was introduced.</p>
       </>}
     </section>
 
     <section aria-labelledby="accounts-heading" className="space-y-3">
-      <h2 id="accounts-heading" className="text-xl font-bold">Farm accounts ({visible.length}{visible.length !== farmers.length ? ` of ${farmers.length}` : ''})</h2>
+      <h2 id="accounts-heading" className="font-display text-2xl font-medium">Farm accounts ({visible.length}{visible.length !== farmers.length ? ` of ${farmers.length}` : ''})</h2>
       <div className="flex flex-wrap items-end gap-3">
-        <label className="min-w-0 flex-1 text-sm">Search<input type="search" value={search} onChange={e => setSearch(e.target.value)} placeholder="Name, farm, county, phone or email" className="mt-1 block min-h-11 w-full rounded-lg border p-2" /></label>
-        <label className="text-sm">Status<select value={statusFilter} onChange={e => setStatusFilter(e.target.value)} className="ml-2 min-h-11 rounded-lg border p-2"><option value="all">All</option>{Object.entries(STATUS_NAMES).map(([v, l]) => <option key={v} value={v}>{l}</option>)}</select></label>
+        <label className="min-w-0 flex-1 text-sm">Search<input type="search" value={search} onChange={e => setSearch(e.target.value)} placeholder="Name, farm, county, phone or email" className="field mt-1" /></label>
+        <label className="text-sm">Status<select value={statusFilter} onChange={e => setStatusFilter(e.target.value)} className="field ml-2 !inline-block !w-auto"><option value="all">All</option>{Object.entries(STATUS_NAMES).map(([v, l]) => <option key={v} value={v}>{l}</option>)}</select></label>
         <label className="flex min-h-11 items-center gap-2 text-sm"><input type="checkbox" checked={activeOnly} onChange={e => setActiveOnly(e.target.checked)} className="h-5 w-5" />Using at this time</label>
       </div>
       <div className="space-y-3">{visible.map(account => {
         const seenAtMoment = activeIds.get(account.id);
-        return <article key={account.id} className="flex flex-wrap items-center justify-between gap-4 rounded-2xl border border-[#E4E1D6] bg-white p-4">
+        return <article key={account.id} className="flex flex-wrap items-center justify-between gap-4 card p-4">
           <div className="min-w-0">
             <div className="flex flex-wrap items-center gap-2"><h3 className="font-bold">{account.farm_name || account.name}</h3>
-              {seenAtMoment && <span className="rounded-full bg-[#EEF4EC] px-2 py-0.5 text-xs font-semibold text-[#2B4A3B]">Using it at this time</span>}</div>
+              {seenAtMoment && <span className="rounded-full bg-sage/10 px-2 py-0.5 text-xs font-semibold text-sage">Using it at this time</span>}</div>
             <p className="text-sm">{account.name}{account.county ? ` · ${account.county}` : ''}</p>
-            <p className="text-sm text-[#4B5A52]">{account.phone && <><a className="underline" href={`tel:${account.phone.replace(/\s/g, '')}`}>{account.phone}</a> · </>}{account.email}</p>
-            <p className="mt-1 text-xs text-[#5E6B64]">Joined {nairobi(account.created_at, { day: 'numeric', month: 'short', year: 'numeric' })} · Last active {account.last_seen_at ? `${ago(account.last_seen_at, Date.now())} (${dateTime(account.last_seen_at)})` : 'never'}</p>
+            <p className="text-sm text-charcoal-light">{account.phone && <><a className="underline" href={`tel:${account.phone.replace(/\s/g, '')}`}>{account.phone}</a> · </>}{account.email}</p>
+            <p className="mt-1 text-xs text-charcoal-muted">Joined {nairobi(account.created_at, { day: 'numeric', month: 'short', year: 'numeric' })} · Last active {account.last_seen_at ? `${ago(account.last_seen_at, Date.now())} (${dateTime(account.last_seen_at)})` : 'never'}</p>
           </div>
-          {account.subscription && <div className="flex flex-wrap gap-3"><label className="text-sm">Plan<select aria-label={`Plan for ${account.name}`} disabled={busy} className="ml-2 min-h-11 rounded-lg border p-2" value={account.subscription.plan} onChange={e => void update(account, e.target.value as Subscription['plan'], account.subscription!.status)}>{['starter', 'farmer', 'farm_pro'].map(plan => <option key={plan} value={plan}>{PLAN_NAMES[plan]}</option>)}</select></label>
-            <label className="text-sm">Status<select aria-label={`Status for ${account.name}`} disabled={busy} className="ml-2 min-h-11 rounded-lg border p-2" value={account.subscription.status} onChange={e => void update(account, account.subscription!.plan, e.target.value as Subscription['status'])}>{['trial', 'active', 'past_due', 'cancelled'].map(status => <option key={status} value={status}>{STATUS_NAMES[status]}</option>)}</select></label></div>}
+          {account.subscription && <div className="flex flex-wrap gap-3"><label className="text-sm">Plan<select aria-label={`Plan for ${account.name}`} disabled={busy} className="field ml-2 !inline-block !w-auto" value={account.subscription.plan} onChange={e => void update(account, e.target.value as Subscription['plan'], account.subscription!.status)}>{['starter', 'farmer', 'farm_pro'].map(plan => <option key={plan} value={plan}>{PLAN_NAMES[plan]}</option>)}</select></label>
+            <label className="text-sm">Status<select aria-label={`Status for ${account.name}`} disabled={busy} className="field ml-2 !inline-block !w-auto" value={account.subscription.status} onChange={e => void update(account, account.subscription!.plan, e.target.value as Subscription['status'])}>{['trial', 'active', 'past_due', 'cancelled'].map(status => <option key={status} value={status}>{STATUS_NAMES[status]}</option>)}</select></label></div>}
         </article>;
       })}</div>
       {!busy && !error && visible.length === 0 && <p className="text-sm">{farmers.length === 0 ? 'No farm accounts had been created by this time.' : 'No accounts match these filters.'}</p>}
     </section>
 
     <section aria-labelledby="leads-heading" className="space-y-3">
-      <h2 id="leads-heading" className="text-xl font-bold">Website enquiries ({leads.filter(l => l.status === 'new').length} new)</h2>
+      <h2 id="leads-heading" className="font-display text-2xl font-medium">Website enquiries ({leads.filter(l => l.status === 'new').length} new)</h2>
       {leads.length === 0 && <p className="text-sm">No enquiries yet.</p>}
-      {leads.map(lead => <article key={lead.id} className="flex flex-wrap items-start justify-between gap-4 rounded-2xl border border-[#E4E1D6] bg-white p-4">
+      {leads.map(lead => <article key={lead.id} className="flex flex-wrap items-start justify-between gap-4 card p-4">
         <div className="min-w-0"><h3 className="font-bold">{lead.name}</h3>
           <p className="text-sm"><a className="underline" href={`tel:${lead.phone.replace(/\s/g, '')}`}>{lead.phone}</a> · prefers {lead.preferred_contact}{lead.county ? ` · ${lead.county}` : ''}{lead.cows_count ? ` · ${lead.cows_count} cows` : ''}</p>
           {lead.message && <p className="mt-1 text-sm">{lead.message}</p>}
-          <p className="mt-1 text-xs text-[#5E6B64]">{lead.source} · {dateTime(lead.created_at)}</p></div>
-        <label className="text-sm">Status<select aria-label={`Status for enquiry from ${lead.name}`} disabled={busy} className="ml-2 min-h-11 rounded-lg border p-2" value={lead.status} onChange={e => void setLeadStatus(lead, e.target.value as Lead['status'])}>{['new', 'contacted', 'converted', 'archived'].map(status => <option key={status}>{status}</option>)}</select></label>
+          <p className="mt-1 text-xs text-charcoal-muted">{lead.source} · {dateTime(lead.created_at)}</p></div>
+        <label className="text-sm">Status<select aria-label={`Status for enquiry from ${lead.name}`} disabled={busy} className="field ml-2 !inline-block !w-auto" value={lead.status} onChange={e => void setLeadStatus(lead, e.target.value as Lead['status'])}>{['new', 'contacted', 'converted', 'archived'].map(status => <option key={status}>{status}</option>)}</select></label>
       </article>)}
     </section>
   </main>;

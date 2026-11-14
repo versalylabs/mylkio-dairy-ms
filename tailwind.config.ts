@@ -112,7 +112,32 @@ const config: Config = {
           black: "#26332D",
         }
       },
+      fontFamily: {
+        sans: ["var(--font-sans)", "-apple-system", "BlinkMacSystemFont", "Segoe UI", "Roboto", "sans-serif"],
+        // Editorial serif for headlines on the website, sign-in and administration.
+        display: ["var(--font-display)", "Georgia", "Cambria", "serif"],
+      },
+      // Fluid type: headings scale smoothly between a 320px phone and a wide desktop,
+      // so they never need a different size per breakpoint or wrap awkwardly.
+      fontSize: {
+        "display-xl": ["clamp(2.25rem, 1.4rem + 4.4vw, 4.75rem)", { lineHeight: "1.04", letterSpacing: "-0.025em", fontWeight: "500" }],
+        "display-lg": ["clamp(2rem, 1.35rem + 2.8vw, 3.5rem)", { lineHeight: "1.08", letterSpacing: "-0.02em", fontWeight: "500" }],
+        "display-md": ["clamp(1.625rem, 1.3rem + 1.4vw, 2.375rem)", { lineHeight: "1.15", letterSpacing: "-0.015em", fontWeight: "500" }],
+      },
+      keyframes: {
+        rise: { "0%": { opacity: "0", transform: "translateY(14px)" }, "100%": { opacity: "1", transform: "translateY(0)" } },
+        "fade-in": { "0%": { opacity: "0" }, "100%": { opacity: "1" } },
+        float: { "0%, 100%": { transform: "translateY(0)" }, "50%": { transform: "translateY(-6px)" } },
+      },
+      animation: {
+        rise: "rise 0.7s cubic-bezier(0.22, 1, 0.36, 1) both",
+        "fade-in": "fade-in 0.35s ease-out both",
+        float: "float 7s ease-in-out infinite",
+      },
       boxShadow: {
+        soft: "0 1px 2px rgba(38, 51, 45, 0.04), 0 6px 20px -6px rgba(38, 51, 45, 0.08)",
+        lift: "0 2px 4px rgba(38, 51, 45, 0.04), 0 18px 40px -12px rgba(38, 51, 45, 0.16)",
+        glow: "0 10px 30px -8px rgba(52, 92, 74, 0.45)",
         "rc-md": "rgba(38, 51, 45, 0.06) 0px 4px 18px 0px",
         "rc-lg": "rgba(38, 51, 45, 0.08) 0px 8px 30px 0px, rgba(52, 92, 74, 0.05) 0px 20px 40px 0px",
       },

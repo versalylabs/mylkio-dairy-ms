@@ -3,7 +3,7 @@
 import React, { useState } from 'react';
 import { AppStorage } from '@/lib/storage';
 import { SecureAuth } from '@/lib/auth-client';
-import { PLANS, TRIAL_DAYS, formatKsh } from '@/lib/plans';
+import { PLANS, PLAN_ORDER, TRIAL_DAYS, formatKsh } from '@/lib/plans';
 import { SubscriptionPlan, UserAccount } from '@/types';
 import { 
   X, 
@@ -13,11 +13,11 @@ import {
   Phone, 
   MapPin, 
   Sparkles, 
-  Check, 
   AlertCircle,
   ArrowRight,
   ShieldCheck,
-  Tractor
+  Tractor,
+  type LucideIcon,
 } from 'lucide-react';
 
 interface AuthModalProps {
@@ -59,6 +59,13 @@ export const AuthModal: React.FC<AuthModalProps> = ({
     setMode(initialMode);
     if (initialPlan) setPlan(initialPlan);
   }, [initialMode, initialPlan]);
+
+  React.useEffect(() => {
+    if (!isOpen) return;
+    const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') onClose(); };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [isOpen, onClose]);
 
   if (!isOpen) return null;
 
@@ -137,340 +144,154 @@ export const AuthModal: React.FC<AuthModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-fade-in overflow-y-auto">
-      <div className="relative w-full max-w-md bg-white rounded-3xl shadow-2xl border border-slate-100 overflow-hidden my-8">
-        
-        {/* Header Ribbon */}
-        <div className="bg-dairy-800 p-6 text-white relative">
-          <button
-            onClick={onClose}
-            className="absolute top-4 right-4 p-2 rounded-full bg-white/10 hover:bg-white/20 text-white transition-colors"
-          >
-            <X className="w-5 h-5" />
-          </button>
-
-          <div className="flex items-center space-x-3 mb-2">
-            <div className="w-10 h-10 rounded-2xl bg-dairy-600 flex items-center justify-center text-white font-black text-xl shadow-inner">
-              M
-            </div>
-            <div>
-              <h2 className="text-xl font-extrabold tracking-tight">Mylkio</h2>
-              <p className="text-xs text-dairy-200">Dairy Farm Management System</p>
-            </div>
-          </div>
-
-          <div className="mt-4 flex bg-dairy-950/40 p-1 rounded-xl">
+    <div className="fixed inset-0 z-50 animate-fade-in overflow-y-auto bg-charcoal/60 backdrop-blur-sm" onClick={onClose}>
+      <div className="flex min-h-full items-end justify-center sm:items-center sm:p-4">
+        <div
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="auth-title"
+          onClick={(e) => e.stopPropagation()}
+          className="relative my-0 w-full max-w-lg overflow-hidden rounded-t-3xl bg-white shadow-lift sm:my-8 sm:rounded-3xl"
+        >
+          {/* Header */}
+          <div className="relative bg-sage px-6 pb-6 pt-7 text-white sm:px-8">
+            <div aria-hidden className="pointer-events-none absolute -right-16 -top-16 h-44 w-44 rounded-full bg-white/10 blur-2xl" />
             <button
-              onClick={() => {
-                setMode('login');
-                setError(null);
-              }}
-              className={`flex-1 py-2 text-xs font-bold rounded-lg transition-all ${
-                mode === 'login'
-                  ? 'bg-white text-dairy-900 shadow-sm'
-                  : 'text-dairy-200 hover:text-white'
-              }`}
+              onClick={onClose}
+              aria-label="Close"
+              className="absolute right-3 top-3 flex h-11 w-11 items-center justify-center rounded-full bg-white/10 text-white transition-colors hover:bg-white/20"
             >
-              Sign In
+              <X className="h-5 w-5" />
             </button>
-            <button
-              onClick={() => {
-                setMode('signup');
-                setError(null);
-              }}
-              className={`flex-1 py-2 text-xs font-bold rounded-lg transition-all ${
-                mode === 'signup'
-                  ? 'bg-white text-dairy-900 shadow-sm'
-                  : 'text-dairy-200 hover:text-white'
-              }`}
-            >
-              Create Farm Account
-            </button>
+
+            <div className="relative flex items-center gap-3">
+              <span className="flex h-11 w-11 items-center justify-center rounded-full bg-white font-display text-xl font-medium text-sage">M</span>
+              <div>
+                <h2 id="auth-title" className="font-display text-2xl font-medium leading-tight">Mylkio</h2>
+                <p className="text-sm text-sage-200">Dairy farm management</p>
+              </div>
+            </div>
+
+            <div role="tablist" aria-label="Sign in or create an account" className="relative mt-6 flex rounded-full bg-sage-900/40 p-1">
+              {([['login', 'Sign in'], ['signup', 'Create account']] as const).map(([key, label]) => (
+                <button
+                  key={key}
+                  role="tab"
+                  aria-selected={mode === key}
+                  onClick={() => { setMode(key); setError(null); }}
+                  className={`min-h-11 flex-1 whitespace-nowrap rounded-full px-3 text-sm font-semibold transition-all ${mode === key ? 'bg-white text-sage shadow-soft' : 'text-sage-200 hover:text-white'}`}
+                >
+                  {label}
+                </button>
+              ))}
+            </div>
           </div>
-        </div>
 
-        {/* Error Notification */}
-        {error && (
-          <div className="mx-6 mt-4 p-3 bg-red-50 border border-red-200 rounded-xl flex items-center gap-2 text-xs text-red-700 font-medium animate-shake">
-            <AlertCircle className="w-4 h-4 text-red-600 shrink-0" />
-            <span>{error}</span>
-          </div>
-        )}
-
-        {notice && <p role="status" className="mx-6 mt-4 rounded-xl bg-green-50 p-3 text-sm text-green-900">{notice}</p>}
-        {/* Body Form */}
-        <div className="p-6">
-          {mode === 'login' ? (
-            <form onSubmit={handleLogin} className="space-y-4">
-              <div>
-                <label className="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1.5">
-                  Email Address
-                </label>
-                <div className="relative">
-                  <Mail className="w-4 h-4 text-slate-400 absolute left-3.5 top-3" />
-                  <input
-                    type="email"
-                    required
-                    value={loginEmail}
-                    onChange={(e) => setLoginEmail(e.target.value)}
-                    placeholder="farmer@dairy.co.ke"
-                    className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-slate-200 focus:border-dairy-500 focus:ring-2 focus:ring-dairy-100 text-sm font-medium transition-all"
-                  />
-                </div>
-              </div>
-
-              <div>
-                <label className="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1.5">
-                  Password
-                </label>
-                <div className="relative">
-                  <Lock className="w-4 h-4 text-slate-400 absolute left-3.5 top-3" />
-                  <input
-                    type="password"
-                    required
-                    value={loginPassword}
-                    onChange={(e) => setLoginPassword(e.target.value)}
-                    placeholder="••••••••"
-                    className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-slate-200 focus:border-dairy-500 focus:ring-2 focus:ring-dairy-100 text-sm font-medium transition-all"
-                  />
-                </div>
-              </div>
-
-              <button
-                type="submit"
-                disabled={loading}
-                className="w-full py-3 rounded-xl bg-dairy-600 hover:bg-dairy-700 active:scale-[0.99] text-white font-bold text-sm shadow-md shadow-dairy-600/20 transition-all flex items-center justify-center gap-2"
-              >
-                <span>{loading ? 'Verifying...' : 'Sign In to Farm'}</span>
-                <ArrowRight className="w-4 h-4" />
-              </button>
-
-              <div className="relative my-4">
-                <div className="absolute inset-0 flex items-center">
-                  <div className="w-full border-t border-slate-200" />
-                </div>
-                <div className="relative flex justify-center text-xs uppercase">
-                  <span className="bg-white px-2 text-slate-400 font-semibold">Or Test Sample Data</span>
-                </div>
-              </div>
-
-              {/* Demo 1-Click Access Button */}
-              <button
-                type="button"
-                onClick={handleDemoLogin}
-                className="w-full py-2.5 rounded-xl border border-slate-200 hover:bg-dairy-50 hover:border-dairy-300 text-slate-700 hover:text-dairy-900 font-semibold text-xs transition-all flex items-center justify-center gap-2 shadow-2xs"
-              >
-                <Tractor className="w-4 h-4 text-dairy-600" />
-                <span>Explore Nakuru Demo Farm (Green Hills)</span>
-              </button>
-            </form>
-          ) : (
-            <form onSubmit={handleSignup} className="space-y-3.5">
-              <div className="p-3 bg-[#FAF9F5] border border-[#A8BFA5]/50 rounded-xl flex items-center gap-2 text-xs text-[#26332D] font-medium">
-                <Sparkles className="w-4 h-4 text-[#C6A76A] shrink-0" />
-                <span>Includes {TRIAL_DAYS}-Day Full Free Trial. Starts clean with no demo data.</span>
-              </div>
-
-              <div className="grid grid-cols-2 gap-2.5">
-                <div>
-                  <label className="block text-xs font-bold uppercase text-slate-700 mb-1">
-                    Your Name *
-                  </label>
-                  <div className="relative">
-                    <User className="w-3.5 h-3.5 text-slate-400 absolute left-3 top-2.5" />
-                    <input
-                      type="text"
-                      required
-                      value={name}
-                      onChange={(e) => setName(e.target.value)}
-                      placeholder="e.g. Peter Chege"
-                      className="w-full pl-9 pr-3 py-2 text-xs rounded-xl border border-slate-200 focus:ring-2 focus:ring-dairy-100 font-medium"
-                    />
-                  </div>
-                </div>
-
-                <div>
-                  <label className="block text-xs font-bold uppercase text-slate-700 mb-1">
-                    Phone (M-Pesa)
-                  </label>
-                  <div className="relative">
-                    <Phone className="w-3.5 h-3.5 text-slate-400 absolute left-3 top-2.5" />
-                    <input
-                      type="tel"
-                      value={phone}
-                      onChange={(e) => setPhone(e.target.value)}
-                      placeholder="0712 345 678"
-                      className="w-full pl-9 pr-3 py-2 text-xs rounded-xl border border-slate-200 focus:ring-2 focus:ring-dairy-100 font-medium"
-                    />
-                  </div>
-                </div>
-              </div>
-
-              <div>
-                <label className="block text-xs font-bold uppercase text-slate-700 mb-1">
-                  Farm Name *
-                </label>
-                <input
-                  type="text"
-                  required
-                  value={farmName}
-                  onChange={(e) => setFarmName(e.target.value)}
-                  placeholder="e.g. Rongai Pride Dairy"
-                  className="w-full px-3 py-2 text-xs rounded-xl border border-slate-200 focus:ring-2 focus:ring-dairy-100 font-medium"
-                />
-              </div>
-
-              <div className="grid grid-cols-2 gap-2.5">
-                <div>
-                  <label className="block text-xs font-bold uppercase text-slate-700 mb-1">
-                    County *
-                  </label>
-                  <div className="relative">
-                    <MapPin className="w-3.5 h-3.5 text-slate-400 absolute left-3 top-2.5" />
-                    <input
-                      type="text"
-                      required
-                      value={county}
-                      onChange={(e) => setCounty(e.target.value)}
-                      placeholder="e.g. Nakuru, Kiambu"
-                      className="w-full pl-9 pr-3 py-2 text-xs rounded-xl border border-slate-200 focus:ring-2 focus:ring-dairy-100 font-medium"
-                    />
-                  </div>
-                </div>
-
-                <div>
-                  <label className="block text-xs font-bold uppercase text-slate-700 mb-1">
-                    Sub-County
-                  </label>
-                  <input
-                    type="text"
-                    value={subCounty}
-                    onChange={(e) => setSubCounty(e.target.value)}
-                    placeholder="e.g. Rongai, Limuru"
-                    className="w-full px-3 py-2 text-xs rounded-xl border border-slate-200 focus:ring-2 focus:ring-dairy-100 font-medium"
-                  />
-                </div>
-              </div>
-
-              <div className="grid grid-cols-2 gap-2.5">
-                <div>
-                  <label className="block text-xs font-bold uppercase text-slate-700 mb-1">
-                    Email Address *
-                  </label>
-                  <input
-                    type="email"
-                    required
-                    value={signupEmail}
-                    onChange={(e) => setSignupEmail(e.target.value)}
-                    placeholder="you@email.com"
-                    className="w-full px-3 py-2 text-xs rounded-xl border border-slate-200 focus:ring-2 focus:ring-dairy-100 font-medium"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-xs font-bold uppercase text-slate-700 mb-1">
-                    Set Password *
-                  </label>
-                  <input
-                    type="password"
-                    required
-                    minLength={12}
-                    value={signupPassword}
-                    onChange={(e) => setSignupPassword(e.target.value)}
-                    placeholder="Min 12 chars"
-                    className="w-full px-3 py-2 text-xs rounded-xl border border-slate-200 focus:ring-2 focus:ring-dairy-100 font-medium"
-                  />
-                </div>
-              </div>
-
-              {SecureAuth.inviteRequired() && (
-                <div>
-                  <label htmlFor="signup-invite" className="block text-xs font-bold uppercase text-slate-700 mb-1">
-                    Invitation Code *
-                  </label>
-                  <input
-                    id="signup-invite"
-                    type="text"
-                    required
-                    autoComplete="off"
-                    autoCapitalize="characters"
-                    value={inviteCode}
-                    onChange={(e) => setInviteCode(e.target.value)}
-                    placeholder="The code you were given"
-                    className="w-full px-3 py-2 text-xs rounded-xl border border-slate-200 focus:ring-2 focus:ring-dairy-100 font-medium uppercase tracking-wide"
-                  />
-                  <p className="text-xs text-slate-500 mt-1">Mylkio is invitation-only during the pilot. No code? Use the contact form to request one.</p>
-                </div>
-              )}
-
-              {/* Plan Picker */}
-              <div>
-                <label className="block text-xs font-bold uppercase text-slate-700 mb-1.5">
-                  Select Monthly Plan ({TRIAL_DAYS} Days Free)
-                </label>
-                <div className="grid grid-cols-3 gap-2">
-                  <button
-                    type="button"
-                    onClick={() => setPlan('starter')}
-                    className={`p-2 rounded-xl border text-center transition-all ${
-                      plan === 'starter'
-                        ? 'border-dairy-600 bg-dairy-50 text-dairy-900 font-bold'
-                        : 'border-slate-200 text-slate-600 hover:bg-slate-50'
-                    }`}
-                  >
-                    <div className="text-xs">Starter</div>
-                    <div className="text-xs font-extrabold text-dairy-800">{formatKsh(PLANS.starter.priceKsh)}</div>
-                  </button>
-
-                  <button
-                    type="button"
-                    onClick={() => setPlan('farmer')}
-                    className={`p-2 rounded-xl border text-center transition-all relative ${
-                      plan === 'farmer'
-                        ? 'border-dairy-600 bg-dairy-50 text-dairy-900 font-bold ring-2 ring-dairy-500/20'
-                        : 'border-slate-200 text-slate-600 hover:bg-slate-50'
-                    }`}
-                  >
-                    <span className="absolute -top-2 left-1/2 -translate-x-1/2 bg-[#C6A76A] text-[#26332D] text-xs uppercase tracking-wider font-black px-1.5 py-0.5 rounded-full shadow-2xs">
-                      Popular
-                    </span>
-                    <div className="text-xs">Farmer</div>
-                    <div className="text-xs font-extrabold text-dairy-800">{formatKsh(PLANS.farmer.priceKsh)}</div>
-                  </button>
-
-                  <button
-                    type="button"
-                    onClick={() => setPlan('farm_pro')}
-                    className={`p-2 rounded-xl border text-center transition-all ${
-                      plan === 'farm_pro'
-                        ? 'border-dairy-600 bg-dairy-50 text-dairy-900 font-bold'
-                        : 'border-slate-200 text-slate-600 hover:bg-slate-50'
-                    }`}
-                  >
-                    <div className="text-xs">Farm Pro</div>
-                    <div className="text-xs font-extrabold text-dairy-800">{formatKsh(PLANS.farm_pro.priceKsh)}</div>
-                  </button>
-                </div>
-              </div>
-
-              <button
-                type="submit"
-                disabled={loading}
-                className="w-full py-3 mt-2 rounded-xl bg-dairy-600 hover:bg-dairy-700 active:scale-[0.99] text-white font-bold text-sm shadow-md shadow-dairy-600/20 transition-all flex items-center justify-center gap-2"
-              >
-                <span>{loading ? 'Setting Up Your Farm...' : `Create Account & Start ${TRIAL_DAYS}-Day Trial`}</span>
-                <ArrowRight className="w-4 h-4" />
-              </button>
-
-              <div className="flex items-center justify-center gap-1.5 text-xs text-slate-500 pt-1">
-                <ShieldCheck className="w-3.5 h-3.5 text-dairy-600" />
-                <span>No M-Pesa charge today. Cancel anytime.</span>
-              </div>
-            </form>
+          {error && (
+            <div role="alert" className="mx-6 mt-5 flex items-start gap-2 rounded-xl border border-red-200 bg-red-50 p-3.5 text-sm font-medium text-red-800 sm:mx-8">
+              <AlertCircle className="mt-0.5 h-4 w-4 shrink-0 text-red-600" />
+              <span>{error}</span>
+            </div>
           )}
-        </div>
+          {notice && <p role="status" className="mx-6 mt-5 rounded-xl border border-sage-300 bg-sage/10 p-3.5 text-sm font-medium text-charcoal sm:mx-8">{notice}</p>}
 
+          <div className="p-6 sm:p-8">
+            {mode === 'login' ? (
+              <form onSubmit={handleLogin} className="space-y-5">
+                <IconField id="login-email" label="Email address" icon={Mail} type="email" required autoComplete="email" value={loginEmail} onChange={(e) => setLoginEmail(e.target.value)} placeholder="farmer@dairy.co.ke" />
+                <IconField id="login-password" label="Password" icon={Lock} type="password" required autoComplete="current-password" value={loginPassword} onChange={(e) => setLoginPassword(e.target.value)} placeholder="Your password" />
+
+                <button type="submit" disabled={loading} className="btn btn-primary btn-lg w-full">
+                  <span>{loading ? 'Verifying…' : 'Sign in to your farm'}</span>
+                  <ArrowRight className="h-5 w-5" />
+                </button>
+
+                <div className="relative py-1">
+                  <div className="absolute inset-0 flex items-center"><div className="w-full border-t border-ivory-border" /></div>
+                  <p className="relative mx-auto w-fit bg-white px-3 text-xs font-semibold uppercase tracking-wider text-charcoal-muted">Or try sample data</p>
+                </div>
+
+                <button type="button" onClick={handleDemoLogin} className="btn btn-secondary btn-lg w-full">
+                  <Tractor className="h-5 w-5 text-sage" />
+                  <span>Explore the demo farm</span>
+                </button>
+              </form>
+            ) : (
+              <form onSubmit={handleSignup} className="space-y-5">
+                <p className="flex items-start gap-2.5 rounded-xl border border-gold-200 bg-gold-50 p-3.5 text-sm font-medium text-charcoal">
+                  <Sparkles className="mt-0.5 h-4 w-4 shrink-0 text-gold-600" />
+                  <span>Includes a {TRIAL_DAYS}-day full free trial. Your farm starts clean, with no demo data.</span>
+                </p>
+
+                <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
+                  <IconField id="su-name" label="Your name *" icon={User} type="text" required autoComplete="name" value={name} onChange={(e) => setName(e.target.value)} placeholder="e.g. Peter Chege" />
+                  <IconField id="su-phone" label="Phone (M-Pesa)" icon={Phone} type="tel" autoComplete="tel" value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="0712 345 678" />
+                </div>
+
+                <IconField id="su-farm" label="Farm name *" type="text" required value={farmName} onChange={(e) => setFarmName(e.target.value)} placeholder="e.g. Rongai Pride Dairy" />
+
+                <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
+                  <IconField id="su-county" label="County *" icon={MapPin} type="text" required value={county} onChange={(e) => setCounty(e.target.value)} placeholder="e.g. Nakuru, Kiambu" />
+                  <IconField id="su-subcounty" label="Sub-county" type="text" value={subCounty} onChange={(e) => setSubCounty(e.target.value)} placeholder="e.g. Rongai, Limuru" />
+                </div>
+
+                <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
+                  <IconField id="su-email" label="Email address *" icon={Mail} type="email" required autoComplete="email" value={signupEmail} onChange={(e) => setSignupEmail(e.target.value)} placeholder="you@email.com" />
+                  <IconField id="su-password" label="Set password *" icon={Lock} type="password" required minLength={12} autoComplete="new-password" value={signupPassword} onChange={(e) => setSignupPassword(e.target.value)} placeholder="At least 12 characters" />
+                </div>
+
+                {SecureAuth.inviteRequired() && (
+                  <div>
+                    <IconField id="signup-invite" label="Invitation code *" type="text" required autoComplete="off" autoCapitalize="characters" value={inviteCode} onChange={(e) => setInviteCode(e.target.value)} placeholder="The code you were given" className="uppercase tracking-wide" />
+                    <p className="mt-1.5 text-sm text-charcoal-muted">Mylkio is invitation-only during the pilot. No code? Use the contact form to request one.</p>
+                  </div>
+                )}
+
+                <fieldset>
+                  <legend className="field-label">Choose a monthly plan ({TRIAL_DAYS} days free)</legend>
+                  <div className="grid grid-cols-3 gap-2">
+                    {PLAN_ORDER.map((id) => (
+                      <button
+                        key={id}
+                        type="button"
+                        aria-pressed={plan === id}
+                        onClick={() => setPlan(id)}
+                        className={`min-h-16 rounded-xl border px-1.5 py-2 text-center transition-all ${plan === id ? 'border-sage bg-sage/10 ring-2 ring-sage/25' : 'border-ivory-border bg-white hover:border-sage-300'}`}
+                      >
+                        <span className="block whitespace-nowrap text-sm font-semibold text-charcoal">{PLANS[id].name}</span>
+                        <span className="block whitespace-nowrap text-sm font-bold tabular-nums text-sage">{formatKsh(PLANS[id].priceKsh)}</span>
+                      </button>
+                    ))}
+                  </div>
+                </fieldset>
+
+                <button type="submit" disabled={loading} className="btn btn-primary btn-lg w-full">
+                  <span>{loading ? 'Setting up your farm…' : `Start ${TRIAL_DAYS}-day free trial`}</span>
+                  <ArrowRight className="h-5 w-5" />
+                </button>
+
+                <p className="flex items-center justify-center gap-1.5 text-sm text-charcoal-muted">
+                  <ShieldCheck className="h-4 w-4 text-sage" />
+                  <span>No M-Pesa charge today. Cancel anytime.</span>
+                </p>
+              </form>
+            )}
+          </div>
+        </div>
       </div>
     </div>
   );
 };
+
+/** A labelled input, with an optional icon, in the shared field style (16px so phones do not zoom in). */
+function IconField({ id, label, icon: Icon, className = '', ...input }: { id: string; label: string; icon?: LucideIcon } & React.InputHTMLAttributes<HTMLInputElement>) {
+  return (
+    <div>
+      <label htmlFor={id} className="field-label">{label}</label>
+      <div className="relative">
+        {Icon && <Icon aria-hidden className="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-charcoal-subtle" />}
+        <input id={id} {...input} className={`field ${Icon ? 'pl-10' : ''} ${className}`} />
+      </div>
+    </div>
+  );
+}
