@@ -3,6 +3,8 @@
 import React, { useState } from 'react';
 import { Cow, CowStatus, HealthEvent, BreedingEvent, Language, MilkEntry } from '@/types';
 import { CowDetailModal } from './CowDetailModal';
+import { VetGuide } from './VetGuide';
+import { farmToday } from '@/lib/dates';
 import { translations } from '@/lib/translations';
 import { 
   Plus, 
@@ -50,7 +52,7 @@ export const HerdView: React.FC<HerdViewProps> = ({
   lang,
 }) => {
   const t = translations[lang];
-  const [activeSubTab, setActiveSubTab] = useState<'registry' | 'health' | 'breeding'>('registry');
+  const [activeSubTab, setActiveSubTab] = useState<'registry' | 'health' | 'breeding' | 'guide'>('registry');
   const [search, setSearch] = useState('');
   const [filter, setFilter] = useState<string>('all');
   const [selectedCowForDetail, setSelectedCowForDetail] = useState<Cow | null>(null);
@@ -151,14 +153,22 @@ export const HerdView: React.FC<HerdViewProps> = ({
             <Dna className="w-4 h-4" />
             <span>{lang === 'sw' ? 'Rekodi Uzazi' : 'Log Breeding'}</span>
           </button>
+
+          <button
+            onClick={() => setActiveSubTab('guide')}
+            className="flex items-center space-x-1.5 px-4 py-2.5 min-h-11 rounded-xl border border-rose-200 bg-white text-rose-700 hover:bg-rose-50 font-semibold text-xs shadow-xs transition-all"
+          >
+            <ShieldAlert className="w-4 h-4" />
+            <span>Emergency guide</span>
+          </button>
         </div>
       </div>
 
       {/* Sub-Navigation Tabs */}
-      <div className="flex items-center gap-2 border-b border-gray-200 pb-2">
+      <div className="flex items-center gap-2 overflow-x-auto border-b border-gray-200 pb-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
         <button
           onClick={() => setActiveSubTab('registry')}
-          className={`flex items-center space-x-2 px-4 py-2 rounded-xl text-xs font-bold transition-all ${
+          className={`flex shrink-0 items-center space-x-2 whitespace-nowrap px-4 py-2 min-h-11 rounded-xl text-xs font-bold transition-all ${
             activeSubTab === 'registry'
               ? 'bg-dairy-600 text-white shadow-sm'
               : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'
@@ -173,7 +183,7 @@ export const HerdView: React.FC<HerdViewProps> = ({
 
         <button
           onClick={() => setActiveSubTab('health')}
-          className={`flex items-center space-x-2 px-4 py-2 rounded-xl text-xs font-bold transition-all ${
+          className={`flex shrink-0 items-center space-x-2 whitespace-nowrap px-4 py-2 min-h-11 rounded-xl text-xs font-bold transition-all ${
             activeSubTab === 'health'
               ? 'bg-dairy-600 text-white shadow-sm'
               : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'
@@ -188,7 +198,7 @@ export const HerdView: React.FC<HerdViewProps> = ({
 
         <button
           onClick={() => setActiveSubTab('breeding')}
-          className={`flex items-center space-x-2 px-4 py-2 rounded-xl text-xs font-bold transition-all ${
+          className={`flex shrink-0 items-center space-x-2 whitespace-nowrap px-4 py-2 min-h-11 rounded-xl text-xs font-bold transition-all ${
             activeSubTab === 'breeding'
               ? 'bg-dairy-600 text-white shadow-sm'
               : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'
@@ -199,6 +209,18 @@ export const HerdView: React.FC<HerdViewProps> = ({
           <span className={`px-1.5 py-0.2 rounded-full text-xs ${activeSubTab === 'breeding' ? 'bg-white/20 text-white' : 'bg-gray-100 text-gray-600'}`}>
             {breedingEvents.length}
           </span>
+        </button>
+
+        <button
+          onClick={() => setActiveSubTab('guide')}
+          className={`flex shrink-0 items-center space-x-2 whitespace-nowrap px-4 py-2 min-h-11 rounded-xl text-xs font-bold transition-all ${
+            activeSubTab === 'guide'
+              ? 'bg-dairy-600 text-white shadow-sm'
+              : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'
+          }`}
+        >
+          <ShieldAlert className="w-4 h-4" />
+          <span>Vet guide</span>
         </button>
       </div>
 
@@ -615,6 +637,9 @@ export const HerdView: React.FC<HerdViewProps> = ({
           )}
         </div>
       )}
+
+      {/* SUB-TAB 4: VET GUIDE (emergency signs and seasonal risks) */}
+      {activeSubTab === 'guide' && <VetGuide today={farmToday()} />}
 
       {/* Cow Detail Information Modal */}
       <CowDetailModal

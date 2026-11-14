@@ -1,6 +1,6 @@
 # Vet and illness feature: spec
 
-Status: **proposal**, agreed in outline on 14 November 2026. Nothing is built yet. This records the decisions so we can build from them in small steps.
+Status: agreed in outline on 14 November 2026. **Step A is built** (see "Step A: what exists" below); steps B to E are not. This records the decisions so we can build from them in small steps.
 
 ## What it is
 
@@ -108,3 +108,34 @@ Each check is one image-capable model call (the model is chosen at build time an
 - The **pilot county or counties**, and who can supply real vet and animal-health contacts there.
 - An **Anthropic API key** and a monthly spend limit for the checker (kept in Vercel as a secret, never in the code).
 - Agreement on the **plain-language disclaimer** wording, ideally checked by someone who knows Kenyan consumer and veterinary rules.
+
+## Step A: what exists
+
+- **Plan features** (`lib/plans.ts`): every plan lists `illnessGuide`, `seasonalCalendar`, `healthChecker`, `healthChecksPerMonth` and `vetFinder`. `featuresFor(subscription)` is the one function that decides what an account gets: a free trial on Starter gets the Farmer features, the platform administrator gets everything, and an unknown plan gets the smallest. Tests (`tests/features.test.ts`) fail if safety information is ever put behind a paywall. The checker and vet finder have no screens yet; the flags are ready for steps B and C, and the server must check them too.
+- **Red-flag screen** (`lib/vet/red-flags.ts`): 18 signs a farmer can tick and 15 red flags (10 emergencies and 5 same-day), each with why, what to do now, what not to do, and whether it must be reported. It is plain code, needs no connection and no AI. A tick list that matches nothing says so but never says the animal is well.
+- **Seasonal calendar** (`lib/vet/seasonal.ts`): the usual Kenyan seasons (short dry, long rains, cool dry, short rains) and what to watch for in each.
+- **Screens** (`components/herd/VetGuide.tsx`): a "Vet guide" tab on the Herd screen, also reachable from an "Emergency guide" button at the top of Herd.
+- **Review gate** (`lib/vet/review.ts`): see below.
+
+### Nothing reaches live farmers until a vet approves it
+
+Every entry is currently `review: DRAFT`. On a live farm the guide therefore shows only the "call a vet now" banner and a note that the guide is being checked by a veterinarian; the seasonal card is hidden. Drafts appear (with a visible "Draft, for review only" banner and a "Draft" tag on each result) only where `NEXT_PUBLIC_SHOW_DRAFT_VET_CONTENT=true`:
+
+- In Vercel, add that variable for the **Preview** environment only, never Production. It is read at build time, so the next preview build picks it up.
+- Locally, put it in `.env.local` (not committed).
+
+**To approve an entry**, the reviewing vet reads it (on a preview, or in the content files), asks for any changes, and then the entry is changed from `DRAFT` to:
+
+```ts
+review: { status: 'approved', reviewedBy: 'Dr Full Name (KVB number)', reviewedOn: '2026-12-01' }
+```
+
+in a pull request. A test refuses an approval with no named reviewer or date, and a draft that claims one. Approved entries show on live farms; edited wording must be re-approved.
+
+### Still to decide with the vet adviser
+
+- The wording of every entry, especially the "do now" and "do not" lines, and whether any entry is missing or wrong for Kenyan conditions.
+- Which conditions are notifiable in Kenya, and the direct reporting numbers for each pilot county (the screen currently only names the sub-county or county veterinary office).
+- Whether foot-and-mouth is shown as "emergency" or "today", and the urgency of every other entry.
+- Seasons by region (coast, north, highlands), instead of one pattern for the whole country.
+- Kiswahili wording (English only for now).
