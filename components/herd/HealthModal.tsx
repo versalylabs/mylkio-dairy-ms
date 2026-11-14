@@ -267,7 +267,7 @@ export const HealthModal: React.FC<HealthModalProps> = ({
               <div className="space-y-2 pt-1 border-t border-rose-200/60">
                 <div className="flex items-center gap-3">
                   <div className="w-32">
-                    <label className="block text-[11px] font-semibold text-rose-800 mb-1">
+                    <label className="block text-xs font-semibold text-rose-800 mb-1">
                       {lang === 'sw' ? 'Idadi ya Siku' : 'Withdrawal Days'}
                     </label>
                     <input
@@ -281,7 +281,7 @@ export const HealthModal: React.FC<HealthModalProps> = ({
                   </div>
 
                   <div className="flex-1">
-                    <label className="block text-[11px] font-semibold text-rose-800 mb-1">
+                    <label className="block text-xs font-semibold text-rose-800 mb-1">
                       {lang === 'sw' ? 'Maziwa Salama Tarehe' : 'Safe to Sell After'}
                     </label>
                     <div className="px-3 py-1.5 rounded-lg border border-rose-300 bg-white text-xs font-extrabold text-rose-700">
@@ -290,7 +290,7 @@ export const HealthModal: React.FC<HealthModalProps> = ({
                   </div>
                 </div>
 
-                <p className="text-[11px] text-rose-700 italic">
+                <p className="text-xs text-rose-700 italic">
                   Warning: Milk from this animal must not be sold to cooperatives or customers during this window.
                 </p>
               </div>

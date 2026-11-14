@@ -176,7 +176,7 @@ export const CowModal: React.FC<CowModalProps> = ({
               <label className="block text-xs font-semibold uppercase tracking-wider text-gray-700">
                 {lang === 'sw' ? 'Picha za Ng\'ombe (Kamera au Faili)' : 'Cow Photos (Upload Multiple)'}
               </label>
-              <span className="text-[11px] text-[#879C91]">
+              <span className="text-xs text-[#879C91]">
                 {photoUrls.length} {photoUrls.length === 1 ? 'photo' : 'photos'}
               </span>
             </div>
@@ -209,14 +209,14 @@ export const CowModal: React.FC<CowModalProps> = ({
 
                       {/* Primary Badge */}
                       {idx === 0 ? (
-                        <span className="absolute top-1.5 left-1.5 bg-[#345C4A] text-white text-[9px] uppercase tracking-wider font-bold px-1.5 py-0.5 rounded-md shadow-xs">
+                        <span className="absolute top-1.5 left-1.5 bg-[#345C4A] text-white text-xs uppercase tracking-wider font-bold px-1.5 py-0.5 rounded-md shadow-xs">
                           {lang === 'sw' ? 'Kuu' : 'Primary'}
                         </span>
                       ) : (
                         <button
                           type="button"
                           onClick={() => handleSetPrimary(idx)}
-                          className="absolute top-1.5 left-1.5 bg-black/60 hover:bg-[#345C4A] text-white text-[9px] font-semibold px-1.5 py-0.5 rounded-md opacity-0 group-hover:opacity-100 transition-opacity"
+                          className="absolute top-1.5 left-1.5 bg-black/60 hover:bg-[#345C4A] text-white text-xs font-semibold px-1.5 py-0.5 rounded-md opacity-0 group-hover:opacity-100 transition-opacity"
                         >
                           Make Primary
                         </button>
@@ -241,13 +241,13 @@ export const CowModal: React.FC<CowModalProps> = ({
                     className="h-28 rounded-xl border-2 border-dashed border-[#cbdbcf] hover:border-[#345C4A] bg-[#f3f7f4]/60 hover:bg-[#e4ede7]/50 text-[#345C4A] flex flex-col items-center justify-center gap-1 transition-all"
                   >
                     <Camera className="w-5 h-5" />
-                    <span className="text-[11px] font-bold">
+                    <span className="text-xs font-bold">
                       {lang === 'sw' ? '+ Picha Zaidi' : '+ Add More'}
                     </span>
                   </button>
                 </div>
 
-                <p className="text-[11px] text-[#5D7368]">
+                <p className="text-xs text-[#5D7368]">
                   {lang === 'sw'
                     ? 'Kidokezo: Picha ya kwanza ndiyo itaonekana kwenye kadi ya ng\'ombe.'
                     : 'Tip: The first photo is the primary image shown on cow cards.'}
@@ -266,7 +266,7 @@ export const CowModal: React.FC<CowModalProps> = ({
                   <span className="text-xs font-bold text-[#26332D] block">
                     {lang === 'sw' ? 'Piga picha au pakia (picha moja au zaidi)' : 'Take photo or upload (one or more)'}
                   </span>
-                  <span className="text-[10px] text-[#879C91]">Select multiple images from phone or camera</span>
+                  <span className="text-xs text-[#879C91]">Select multiple images from phone or camera</span>
                 </div>
               </button>
             )}

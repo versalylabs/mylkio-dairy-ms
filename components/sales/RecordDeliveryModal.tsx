@@ -229,7 +229,7 @@ export const RecordDeliveryModal: React.FC<RecordDeliveryModalProps> = ({
             {/* Deductions / Rejection if cooperative */}
             <div className="grid grid-cols-2 gap-3 pt-1">
               <div>
-                <label className="block text-[11px] font-semibold text-gray-600 mb-1">
+                <label className="block text-xs font-semibold text-gray-600 mb-1">
                   {lang === 'sw' ? 'Lita Zilizokataliwa (L)' : 'Rejected Litres (L)'}
                 </label>
                 <input
@@ -244,7 +244,7 @@ export const RecordDeliveryModal: React.FC<RecordDeliveryModalProps> = ({
               </div>
 
               <div>
-                <label className="block text-[11px] font-semibold text-gray-600 mb-1">
+                <label className="block text-xs font-semibold text-gray-600 mb-1">
                   {lang === 'sw' ? 'Makato (KSh, weka kama hasi: -100)' : 'Deductions (KSh, enter as negative: -100)'}
                 </label>
                 <input

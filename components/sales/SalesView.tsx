@@ -228,7 +228,7 @@ export const SalesView: React.FC<SalesViewProps> = ({
         >
           <Truck className="w-4 h-4" />
           <span>{lang === 'sw' ? 'Leja ya Utoaji (Deliveries)' : 'Deliveries Ledger'}</span>
-          <span className={`px-1.5 py-0.2 rounded-full text-[10px] ${activeTab === 'deliveries' ? 'bg-white/20 text-white' : 'bg-gray-100 text-gray-600'}`}>
+          <span className={`px-1.5 py-0.2 rounded-full text-xs ${activeTab === 'deliveries' ? 'bg-white/20 text-white' : 'bg-gray-100 text-gray-600'}`}>
             {deliveries.filter((d) => !d.voidedAt).length}
           </span>
         </button>
@@ -243,7 +243,7 @@ export const SalesView: React.FC<SalesViewProps> = ({
         >
           <DollarSign className="w-4 h-4" />
           <span>{lang === 'sw' ? 'Risiti za Malipo (Payments)' : 'Payments Ledger'}</span>
-          <span className={`px-1.5 py-0.2 rounded-full text-[10px] ${activeTab === 'payments' ? 'bg-white/20 text-white' : 'bg-gray-100 text-gray-600'}`}>
+          <span className={`px-1.5 py-0.2 rounded-full text-xs ${activeTab === 'payments' ? 'bg-white/20 text-white' : 'bg-gray-100 text-gray-600'}`}>
             {payments.filter((p) => !p.voidedAt).length}
           </span>
         </button>
@@ -273,7 +273,7 @@ export const SalesView: React.FC<SalesViewProps> = ({
         >
           <Users className="w-4 h-4" />
           <span>{lang === 'sw' ? 'Orodha ya Wanunuzi (Buyers)' : 'Buyers & Terms'}</span>
-          <span className={`px-1.5 py-0.2 rounded-full text-[10px] ${activeTab === 'buyers' ? 'bg-white/20 text-white' : 'bg-gray-100 text-gray-600'}`}>
+          <span className={`px-1.5 py-0.2 rounded-full text-xs ${activeTab === 'buyers' ? 'bg-white/20 text-white' : 'bg-gray-100 text-gray-600'}`}>
             {buyers.length}
           </span>
         </button>
@@ -309,7 +309,7 @@ export const SalesView: React.FC<SalesViewProps> = ({
                       <span className="font-bold text-sm text-gray-900">
                         {del.buyerName}
                       </span>
-                      <span className={`px-2 py-0.5 rounded-md text-[10px] font-semibold ${
+                      <span className={`px-2 py-0.5 rounded-md text-xs font-semibold ${
                         del.buyerType === 'cooperative'
                           ? 'bg-[#A8BFA5]/25 text-[#345C4A]'
                           : 'bg-[#FAF5EB] text-[#26332D] border border-[#E5D5B5]'
@@ -415,7 +415,7 @@ export const SalesView: React.FC<SalesViewProps> = ({
                       <span className="font-bold text-sm text-gray-900">
                         {pay.buyerName}
                       </span>
-                      <span className="px-2 py-0.5 rounded-md text-[10px] font-bold uppercase tracking-wider bg-[#FAF5EB] text-[#26332D] border border-[#E5D5B5] flex items-center gap-1">
+                      <span className="px-2 py-0.5 rounded-md text-xs font-bold uppercase tracking-wider bg-[#FAF5EB] text-[#26332D] border border-[#E5D5B5] flex items-center gap-1">
                         {pay.paymentMethod === 'mpesa' && <Smartphone className="w-3 h-3" />}
                         {pay.paymentMethod === 'cash' && <Banknote className="w-3 h-3" />}
                         {pay.paymentMethod === 'bank' && <CreditCard className="w-3 h-3" />}
@@ -566,7 +566,7 @@ export const SalesView: React.FC<SalesViewProps> = ({
                       <h3 className="font-bold text-gray-900 text-base leading-tight">
                         {buyer.name}
                       </h3>
-                      <span className="text-[11px] font-medium text-gray-400 capitalize">
+                      <span className="text-xs font-medium text-gray-400 capitalize">
                         {buyer.type === 'cooperative' ? 'Dairy Cooperative' : 'Household / Direct'}
                       </span>
                     </div>
@@ -575,7 +575,7 @@ export const SalesView: React.FC<SalesViewProps> = ({
 
                 <div className="mt-4 grid grid-cols-2 gap-3 bg-gray-50/80 p-3 rounded-xl border border-gray-100">
                   <div>
-                    <span className="text-[11px] text-gray-400 block font-medium">
+                    <span className="text-xs text-gray-400 block font-medium">
                       {t.buyers.rate}
                     </span>
                     <span className="text-base font-extrabold text-dairy-700">
@@ -585,7 +585,7 @@ export const SalesView: React.FC<SalesViewProps> = ({
                   </div>
 
                   <div>
-                    <span className="text-[11px] text-gray-400 block font-medium">
+                    <span className="text-xs text-gray-400 block font-medium">
                       {t.buyers.balance}
                     </span>
                     <span className={`text-base font-extrabold ${buyer.currentBalance > 0 ? 'text-amber-700' : buyer.currentBalance < 0 ? 'text-emerald-700' : 'text-gray-700'}`}>
@@ -615,7 +615,7 @@ export const SalesView: React.FC<SalesViewProps> = ({
                     </p>
                   )}
                   {buyer.paymentCycle && (
-                    <p className="text-[11px] text-gray-500">
+                    <p className="text-xs text-gray-500">
                       Cycle: <span className="font-medium text-gray-700 capitalize">{buyer.paymentCycle}</span>
                     </p>
                   )}

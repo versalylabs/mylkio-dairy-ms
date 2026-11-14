@@ -144,7 +144,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
                 <span className="font-extrabold text-sm text-[#26332D] uppercase">
                   {user.subscription.plan.replace('_', ' ')} Plan
                 </span>
-                <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${
+                <span className={`px-2 py-0.5 rounded-full text-xs font-bold ${
                   user.subscription.status === 'active'
                     ? 'bg-[#A8BFA5]/25 text-[#26332D] border border-[#A8BFA5]/40'
                     : 'bg-[#FAF5EB] text-[#8e7238] border border-[#E5D5B5]'
@@ -161,7 +161,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
               <div className="text-lg font-black text-[#345C4A]">
                 KSh {user.subscription.monthlyPriceKsh?.toLocaleString()}/mo
               </div>
-              <span className="text-[10px] text-slate-400 font-semibold">Billed monthly via M-Pesa</span>
+              <span className="text-xs text-slate-400 font-semibold">Billed monthly</span>
             </div>
           </div>
 

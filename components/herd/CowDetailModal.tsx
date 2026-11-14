@@ -132,7 +132,7 @@ export const CowDetailModal: React.FC<CowDetailModalProps> = ({
                   {cow.breed}
                 </span>
               </div>
-              <p className="text-[11px] text-[#879C91]">
+              <p className="text-xs text-[#879C91]">
                 {cow.sex === 'male' ? 'Bull' : 'Cow'} • ID: {cow.id}
               </p>
             </div>
@@ -170,7 +170,7 @@ export const CowDetailModal: React.FC<CowDetailModalProps> = ({
               <div className="space-y-1">
                 <div className="font-bold text-sm text-rose-900 flex items-center gap-2">
                   <span>{lang === 'sw' ? 'Kizuizi cha Dawa Kinafanya Kazi' : 'Active Antibiotic Milk Withdrawal'}</span>
-                  <span className="text-[10px] bg-rose-200 text-rose-900 font-bold px-2 py-0.2 rounded-full">
+                  <span className="text-xs bg-rose-200 text-rose-900 font-bold px-2 py-0.2 rounded-full">
                     DO NOT SELL MILK
                   </span>
                 </div>
@@ -266,7 +266,7 @@ export const CowDetailModal: React.FC<CowDetailModalProps> = ({
           {/* Quick Metrics Bar */}
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
             <div className="bg-white p-3.5 rounded-2xl border border-[#E8E4D8] space-y-1">
-              <span className="text-[11px] font-semibold text-[#879C91] uppercase tracking-wider block">
+              <span className="text-xs font-semibold text-[#879C91] uppercase tracking-wider block">
                 Status
               </span>
               <span className={`inline-flex items-center px-2 py-0.5 rounded-md text-xs font-bold border ${badge.class}`}>
@@ -275,7 +275,7 @@ export const CowDetailModal: React.FC<CowDetailModalProps> = ({
             </div>
 
             <div className="bg-white p-3.5 rounded-2xl border border-[#E8E4D8] space-y-1">
-              <span className="text-[11px] font-semibold text-[#879C91] uppercase tracking-wider block">
+              <span className="text-xs font-semibold text-[#879C91] uppercase tracking-wider block">
                 {t.herd.parity}
               </span>
               <span className="text-sm font-black text-[#26332D]">
@@ -284,7 +284,7 @@ export const CowDetailModal: React.FC<CowDetailModalProps> = ({
             </div>
 
             <div className="bg-white p-3.5 rounded-2xl border border-[#E8E4D8] space-y-1">
-              <span className="text-[11px] font-semibold text-[#879C91] uppercase tracking-wider block">
+              <span className="text-xs font-semibold text-[#879C91] uppercase tracking-wider block">
                 Age / DOB
               </span>
               <span className="text-sm font-black text-[#26332D] truncate block">
@@ -293,7 +293,7 @@ export const CowDetailModal: React.FC<CowDetailModalProps> = ({
             </div>
 
             <div className="bg-white p-3.5 rounded-2xl border border-[#E8E4D8] space-y-1">
-              <span className="text-[11px] font-semibold text-[#879C91] uppercase tracking-wider block">
+              <span className="text-xs font-semibold text-[#879C91] uppercase tracking-wider block">
                 Breeding
               </span>
               <span className={`text-xs font-bold block ${cow.isPregnant ? 'text-[#C6A76A]' : 'text-[#5D7368]'}`}>
@@ -407,7 +407,7 @@ export const CowDetailModal: React.FC<CowDetailModalProps> = ({
               <div className="space-y-3 animate-fade-in">
                 {cow.notes ? (
                   <div className="p-4 bg-white rounded-2xl border border-[#E8E4D8]">
-                    <span className="text-[10px] font-bold uppercase tracking-wider text-[#879C91] block mb-1">
+                    <span className="text-xs font-bold uppercase tracking-wider text-[#879C91] block mb-1">
                       Farmer Notes & Behavior
                     </span>
                     <p className="text-xs text-[#3D4F46] leading-relaxed italic">
@@ -422,11 +422,11 @@ export const CowDetailModal: React.FC<CowDetailModalProps> = ({
 
                 <div className="grid grid-cols-2 gap-3 text-xs">
                   <div className="p-3 bg-white rounded-xl border border-[#E8E4D8]">
-                    <span className="text-[10px] text-[#879C91] uppercase font-semibold block">Sire (Father)</span>
+                    <span className="text-xs text-[#879C91] uppercase font-semibold block">Sire (Father)</span>
                     <span className="font-bold text-[#26332D] mt-0.5 block">{cow.sire || 'Not specified'}</span>
                   </div>
                   <div className="p-3 bg-white rounded-xl border border-[#E8E4D8]">
-                    <span className="text-[10px] text-[#879C91] uppercase font-semibold block">Dam (Mother Tag)</span>
+                    <span className="text-xs text-[#879C91] uppercase font-semibold block">Dam (Mother Tag)</span>
                     <span className="font-bold text-[#26332D] mt-0.5 block">{cow.damId || 'Not specified'}</span>
                   </div>
                 </div>
@@ -447,13 +447,13 @@ export const CowDetailModal: React.FC<CowDetailModalProps> = ({
                         <span className="font-bold text-xs text-[#26332D]">
                           {item.diagnosis || item.medicineName || item.type.toUpperCase()}
                         </span>
-                        <span className="text-[11px] text-[#879C91]">{item.date}</span>
+                        <span className="text-xs text-[#879C91]">{item.date}</span>
                       </div>
                       <p className="text-xs text-[#5D7368]">
                         Medicine: {item.medicineName || 'None'} {item.costKSh ? `• Cost: KSh ${item.costKSh.toLocaleString()}` : ''}
                       </p>
                       {item.isWithdrawalActive && (
-                        <span className="inline-block text-[10px] font-bold text-rose-800 bg-rose-100 px-2 py-0.2 rounded-md">
+                        <span className="inline-block text-xs font-bold text-rose-800 bg-rose-100 px-2 py-0.2 rounded-md">
                           Withdrawal active until {item.withdrawalEndDate}
                         </span>
                       )}
@@ -477,7 +477,7 @@ export const CowDetailModal: React.FC<CowDetailModalProps> = ({
                         <span className="font-bold text-xs text-[#26332D]">
                           {item.type.replace('_', ' ').toUpperCase()} {item.sireOrProvider ? `— ${item.sireOrProvider}` : ''}
                         </span>
-                        <span className="text-[11px] text-[#879C91]">{item.date}</span>
+                        <span className="text-xs text-[#879C91]">{item.date}</span>
                       </div>
                       {item.expectedCalvingDate && (
                         <p className="text-xs text-[#b39252] font-semibold">

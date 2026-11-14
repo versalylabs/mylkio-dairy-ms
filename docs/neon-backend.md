@@ -18,12 +18,25 @@ Set up on 9 November 2026: the Neon project (Frankfurt, Postgres 18) has a `prod
 | `POST /api/account/onboard` | Creates the user's farm, trial subscription and farm profile (repeating it returns the existing farm) |
 | `POST /api/farms/:id/operations` | Uploads queued record changes (see [per-record-sync.md](per-record-sync.md)) |
 | `GET /api/farms/:id/changes?since=N` | Downloads records changed since a device's last sync |
-| `/api/admin/accounts` | Administrator account list and subscription changes |
+| `/api/admin/accounts` | Administrator account list (farm, county, phone, last active) and subscription changes |
+| `GET /api/admin/usage?at=…` | Administrator usage snapshot as at a moment: who was active, accounts by plan and status, sign-ups per day |
 
 The database schema is in `db/migrations/`:
 - `0001_accounts_and_farms.sql`: profiles, farms, memberships, subscriptions, audit log, the record store, farm creation, account lookup and admin functions.
 - `0002_record_sync.sql`: idempotent operations and downloads. Milk, delivery, payment, statement, bill and allocation records are append-only.
 - `0003_leads.sql`: website enquiries, with flood protection and administrator-only access.
+- `0004_usage.sql`: account activity for the administrator's usage screen (see below).
+
+## Usage data for the administrator
+
+`public.touch_activity` runs on every authenticated request (best effort, never blocks a request). It sets `profiles.last_seen_at` at most once a minute and adds a row to `public.account_activity` at most once every five minutes per account. It records only that the account made a request, never what it did, and rows older than about six months are pruned. `public.admin_usage(actor, at)` turns that into the figures on the administration screen:
+
+- **Using now / active in 24 hours, 7 days, 30 days** are the accounts that made a request in that window ending at the chosen time. A farmer who has the app open but is idle is not counted until it next talks to the server (opening the app, returning to it, or saving a record).
+- **Accounts, plans, status, monthly value** count farm accounts created by the chosen time. Plan and status are the *current* ones: subscription changes are not kept as history, so they are not rewound.
+- Activity history begins when migration 0004 is applied, so earlier moments show nothing.
+- Administrators are not counted. Only platform administrators can call these functions.
+
+Apply `0004_usage.sql` to a branch **before** deploying the code that reads it. Until then the app still works (activity recording fails quietly), but the administration screen cannot load its usage figures.
 
 ## Setting it up
 

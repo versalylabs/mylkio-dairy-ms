@@ -2,7 +2,7 @@ import 'server-only';
 import { createNeonAuth } from '@neon/auth/next/server';
 import { ApiError } from './errors';
 import { database } from './db';
-import type { Db, SessionUser } from './farm-api';
+import { recordActivity, type Db, type SessionUser } from './farm-api';
 import { connectionProblem } from './connection';
 
 /** Names (never values) of the settings this deployment cannot see or finds unusable. */
@@ -50,5 +50,7 @@ export async function sessionUser(): Promise<SessionUser> {
 /** Verified user plus database access, for routes that need both. */
 export async function signedIn(): Promise<{ db: Db; user: SessionUser }> {
   const db = database();
-  return { db, user: await sessionUser() };
+  const user = await sessionUser();
+  await recordActivity(db, user.id);
+  return { db, user };
 }

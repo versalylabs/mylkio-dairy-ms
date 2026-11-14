@@ -232,7 +232,7 @@ export const BreedingModal: React.FC<BreedingModalProps> = ({
                 onChange={(e) => setExpectedCalvingDate(e.target.value)}
                 className="w-full px-3 py-2 rounded-xl border border-[#E5D5B5] bg-white text-xs font-bold text-[#26332D] focus:ring-2 focus:ring-[#345C4A]"
               />
-              <p className="text-[11px] text-[#5D7368]">
+              <p className="text-xs text-[#5D7368]">
                 Calculated automatically based on standard bovine gestation. Editable as vet confirms.
               </p>
             </div>

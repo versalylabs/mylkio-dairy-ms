@@ -82,7 +82,7 @@ export const ExportModal: React.FC<ExportModalProps> = ({
                 <h3 className="font-bold text-xs text-gray-900">
                   {lang === 'sw' ? 'Ripoti ya Uzalishaji wa Maziwa' : 'Milk Production History (CSV)'}
                 </h3>
-                <span className="text-[11px] text-gray-500">
+                <span className="text-xs text-gray-500">
                   {milk.length} sessions (AM/PM yields, allocation breakdown)
                 </span>
               </div>
@@ -106,7 +106,7 @@ export const ExportModal: React.FC<ExportModalProps> = ({
                 <h3 className="font-bold text-xs text-gray-900">
                   {lang === 'sw' ? 'Leja ya Mauzo na Ushirika' : 'Deliveries & Sales Ledger (CSV)'}
                 </h3>
-                <span className="text-[11px] text-gray-500">
+                <span className="text-xs text-gray-500">
                   {deliveries.length} entries (Co-op deductions, balances)
                 </span>
               </div>
@@ -130,7 +130,7 @@ export const ExportModal: React.FC<ExportModalProps> = ({
                 <h3 className="font-bold text-xs text-gray-900">
                   {lang === 'sw' ? 'Leja ya Gharama za Shamba' : 'Operating Expenses (CSV)'}
                 </h3>
-                <span className="text-[11px] text-gray-500">
+                <span className="text-xs text-gray-500">
                   {expenses.length} expense rows (Feed, vet, labor)
                 </span>
               </div>
@@ -154,7 +154,7 @@ export const ExportModal: React.FC<ExportModalProps> = ({
                 <h3 className="font-bold text-xs text-gray-900">
                   {lang === 'sw' ? 'Usajili wa Mifugo' : 'Cattle Herd Registry (CSV)'}
                 </h3>
-                <span className="text-[11px] text-gray-500">
+                <span className="text-xs text-gray-500">
                   {cows.length} cattle (Ear tags, breeds, parity)
                 </span>
               </div>
@@ -178,7 +178,7 @@ export const ExportModal: React.FC<ExportModalProps> = ({
                 <h3 className="font-bold text-xs">
                   {lang === 'sw' ? 'Chelezo Kamili ya Shamba' : 'Full Farm Database Backup'}
                 </h3>
-                <span className="text-[11px] text-dairy-200/80">
+                <span className="text-xs text-dairy-200/80">
                   Complete offline snapshot (JSON)
                 </span>
               </div>
