@@ -42,9 +42,9 @@ export const BuyersView: React.FC<BuyersViewProps> = ({
   return (
     <div className="space-y-6 pb-20 md:pb-8">
       {/* Top Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+      <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900 tracking-tight">
+          <h1 className="page-title">
             {t.buyers.title}
           </h1>
           <p className="text-sm text-gray-500 mt-1">
@@ -54,7 +54,7 @@ export const BuyersView: React.FC<BuyersViewProps> = ({
 
         <button
           onClick={onAddBuyer}
-          className="flex items-center justify-center space-x-2 px-5 py-3 rounded-xl bg-dairy-600 hover:bg-dairy-700 text-white font-semibold text-sm shadow-sm transition-all touch-target"
+          className="btn btn-primary"
         >
           <Plus className="w-5 h-5" />
           <span>{t.buyers.addBuyerBtn}</span>
@@ -98,7 +98,7 @@ export const BuyersView: React.FC<BuyersViewProps> = ({
               }`}
             >
               <span>{tab.label}</span>
-              <span className={`px-1.5 py-0.2 rounded-full text-xs ${isActive ? 'bg-white/20 text-white' : 'bg-gray-100 text-gray-500'}`}>
+              <span className="count-badge">
                 {tab.count}
               </span>
             </button>
@@ -114,7 +114,7 @@ export const BuyersView: React.FC<BuyersViewProps> = ({
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           placeholder={lang === 'sw' ? 'Tafuta mnunuzi kwa jina au nambari...' : 'Search buyer by name or phone...'}
-          className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-gray-200 bg-white text-sm focus:outline-none focus:ring-2 focus:ring-dairy-500 focus:border-dairy-500"
+          className="field pl-10 pr-4"
         />
       </div>
 

@@ -68,7 +68,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
     <div className="space-y-6 pb-20 md:pb-8 max-w-3xl">
       {/* Header */}
       <div>
-        <h1 className="text-2xl font-bold text-gray-900 tracking-tight">
+        <h1 className="page-title">
           {t.settings.title}
         </h1>
         <p className="text-sm text-gray-500 mt-1">
@@ -148,7 +148,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
                   user.subscription.status === 'active'
                     ? 'bg-[#A8BFA5]/25 text-[#26332D] border border-[#A8BFA5]/40'
                     : 'bg-[#FAF5EB] text-[#8e7238] border border-[#E5D5B5]'
-                }`}>
+                } whitespace-nowrap`}>
                   {user.subscription.status === 'trial' ? '14-Day Free Trial' : user.subscription.status.toUpperCase()}
                 </span>
               </div>
@@ -206,20 +206,20 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
-              <label className="block text-xs font-semibold uppercase tracking-wider text-gray-700 mb-1">
+              <label className="field-label">
                 {t.settings.farmName}
               </label>
               <input
                 type="text"
                 value={farmName}
                 onChange={(e) => setFarmName(e.target.value)}
-                className="w-full px-3.5 py-2.5 rounded-xl border border-gray-300 focus:ring-2 focus:ring-dairy-500 text-sm font-medium"
+                className="field"
                 required
               />
             </div>
 
             <div>
-              <label className="block text-xs font-semibold uppercase tracking-wider text-gray-700 mb-1">
+              <label className="field-label">
                 {t.settings.county}
               </label>
               <input
@@ -227,7 +227,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
                 value={county}
                 onChange={(e) => setCounty(e.target.value)}
                 placeholder="e.g. Nakuru County, Kiambu, Uasin Gishu"
-                className="w-full px-3.5 py-2.5 rounded-xl border border-gray-300 focus:ring-2 focus:ring-dairy-500 text-sm"
+                className="field"
                 required
               />
             </div>
@@ -235,34 +235,34 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
-              <label className="block text-xs font-semibold uppercase tracking-wider text-gray-700 mb-1">
+              <label className="field-label">
                 {t.settings.owner}
               </label>
               <input
                 type="text"
                 value={ownerName}
                 onChange={(e) => setOwnerName(e.target.value)}
-                className="w-full px-3.5 py-2.5 rounded-xl border border-gray-300 focus:ring-2 focus:ring-dairy-500 text-sm font-medium"
+                className="field"
                 required
               />
             </div>
 
             <div>
-              <label className="block text-xs font-semibold uppercase tracking-wider text-gray-700 mb-1">
+              <label className="field-label">
                 Phone Number
               </label>
               <input
                 type="tel"
                 value={phone}
                 onChange={(e) => setPhone(e.target.value)}
-                className="w-full px-3.5 py-2.5 rounded-xl border border-gray-300 focus:ring-2 focus:ring-dairy-500 text-sm"
+                className="field"
               />
             </div>
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
-              <label className="block text-xs font-semibold uppercase tracking-wider text-gray-700 mb-1">
+              <label className="field-label">
                 Sub-County / Area
               </label>
               <input
@@ -270,19 +270,19 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
                 value={subCounty}
                 onChange={(e) => setSubCounty(e.target.value)}
                 placeholder="e.g. Rongai, Njoro, Limuru"
-                className="w-full px-3.5 py-2.5 rounded-xl border border-gray-300 focus:ring-2 focus:ring-dairy-500 text-sm"
+                className="field"
               />
             </div>
 
             <div>
-              <label className="block text-xs font-semibold uppercase tracking-wider text-gray-700 mb-1">
+              <label className="field-label">
                 {t.settings.currency}
               </label>
               <input
                 type="text"
                 value={currency}
                 onChange={(e) => setCurrency(e.target.value)}
-                className="w-full px-3.5 py-2.5 rounded-xl border border-gray-300 focus:ring-2 focus:ring-dairy-500 text-sm bg-gray-50"
+                className="field bg-gray-50"
                 readOnly
               />
             </div>
@@ -291,7 +291,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
           <div className="pt-2">
             <button
               type="submit"
-              className="px-5 py-2.5 rounded-xl bg-dairy-600 hover:bg-dairy-700 text-white font-semibold text-xs shadow-sm transition-all flex items-center space-x-2"
+              className="btn btn-primary"
             >
               <Check className="w-4 h-4" />
               <span>{lang === 'sw' ? 'Hifadhi Wasifu wa Shamba' : 'Save Farm Profile'}</span>

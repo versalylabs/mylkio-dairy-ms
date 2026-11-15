@@ -70,7 +70,7 @@ export function BillsPanel({ buyers, deliveries, bills, ctx, onCreate, onVoid, o
               </p>
               <button type="button" disabled={pending.length === 0}
                 onClick={() => onCreate(buyerId, range, addDays(range.to, 7))}
-                className="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-dairy-600 hover:bg-dairy-700 disabled:bg-gray-300 disabled:cursor-not-allowed text-white font-bold text-sm">
+                className="btn btn-primary disabled:bg-gray-300 disabled:cursor-not-allowed">
                 <Receipt className="w-4 h-4" /> {sw ? 'Tengeneza bili' : `Create bill for ${ksh(pendingAmount)}`}
               </button>
             </div>

@@ -78,9 +78,9 @@ export const FinanceView: React.FC<FinanceViewProps> = ({
   return (
     <div className="space-y-6 pb-20 md:pb-8">
       {/* Top Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+      <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900 tracking-tight">
+          <h1 className="page-title">
             {lang === 'sw' ? 'Fedha na Gharama za Shamba' : 'Farm Finance & Operating Profit'}
           </h1>
           <p className="text-sm text-gray-500 mt-1">
@@ -92,7 +92,7 @@ export const FinanceView: React.FC<FinanceViewProps> = ({
 
         <button
           onClick={onOpenRecordExpense}
-          className="flex items-center justify-center space-x-2 px-5 py-3 rounded-xl bg-dairy-600 hover:bg-dairy-700 text-white font-semibold text-sm shadow-sm transition-all touch-target"
+          className="btn btn-primary"
         >
           <Plus className="w-5 h-5" />
           <span>{lang === 'sw' ? 'Rekodi Gharama' : 'Record Farm Expense'}</span>
@@ -100,14 +100,14 @@ export const FinanceView: React.FC<FinanceViewProps> = ({
       </div>
 
       {/* Reporting period */}
-      <div className="flex items-center gap-1.5 bg-gray-100 p-1 rounded-xl w-fit" role="group" aria-label={sw ? 'Kipindi' : 'Reporting period'}>
+      <div className="flex w-fit max-w-full items-center gap-1 overflow-x-auto rounded-full bg-ivory-muted p-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden" role="group" aria-label={sw ? 'Kipindi' : 'Reporting period'}>
         {(['this_month', 'last_month', 'all'] as const).map((p) => (
           <button
             key={p}
             type="button"
             onClick={() => setPeriod(p)}
             aria-pressed={period === p}
-            className={`px-3 py-1.5 text-sm font-bold rounded-lg transition-all ${period === p ? 'bg-white text-dairy-800 shadow-xs' : 'text-gray-600 hover:text-gray-900'}`}
+            className={`min-h-9 shrink-0 whitespace-nowrap rounded-full px-3.5 text-sm font-semibold transition-all ${period === p ? 'bg-white text-sage shadow-soft' : 'text-charcoal-muted hover:text-charcoal'}`}
           >
             {p === 'this_month' ? (sw ? 'Mwezi huu' : 'This month') : p === 'last_month' ? (sw ? 'Mwezi uliopita' : 'Last month') : (sw ? 'Zote' : 'All time')}
           </button>
@@ -115,7 +115,7 @@ export const FinanceView: React.FC<FinanceViewProps> = ({
       </div>
 
       {/* KPI Cards: Revenue, Expenses, Net Profit */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
         {/* Total Billed Revenue */}
         <div className="bg-white rounded-3xl p-5 border border-gray-200 shadow-xs flex flex-col justify-between">
           <div className="flex items-center justify-between">
@@ -127,7 +127,7 @@ export const FinanceView: React.FC<FinanceViewProps> = ({
             </div>
           </div>
           <div className="mt-2">
-            <div className="text-2xl font-black text-gray-900">
+            <div className="text-2xl font-black text-gray-900 whitespace-nowrap">
               KSh {totalBilled.toLocaleString()}
             </div>
             <div className="text-xs text-gray-600 mt-0.5">
@@ -147,7 +147,7 @@ export const FinanceView: React.FC<FinanceViewProps> = ({
             </div>
           </div>
           <div className="mt-2">
-            <div className="text-2xl font-black text-[#345C4A]">
+            <div className="text-2xl font-black text-[#345C4A] whitespace-nowrap">
               KSh {totalPaid.toLocaleString()}
             </div>
             <div className="text-xs text-[#5D7368] mt-0.5">
@@ -167,7 +167,7 @@ export const FinanceView: React.FC<FinanceViewProps> = ({
             </div>
           </div>
           <div className="mt-2">
-            <div className="text-2xl font-black text-[#26332D]">
+            <div className="text-2xl font-black text-[#26332D] whitespace-nowrap">
               KSh {totalExpenses.toLocaleString()}
             </div>
             <div className="text-xs text-[#5D7368] mt-0.5">
@@ -195,7 +195,7 @@ export const FinanceView: React.FC<FinanceViewProps> = ({
             </div>
           </div>
           <div className="mt-2">
-            <div className="text-2xl font-black">
+            <div className="text-2xl font-black whitespace-nowrap">
               KSh {netMargin.toLocaleString()}
             </div>
             <div className="text-xs text-[#FAF5EB]/80 mt-0.5">
@@ -253,11 +253,7 @@ export const FinanceView: React.FC<FinanceViewProps> = ({
               <button
                 key={f.key}
                 onClick={() => setFilterCategory(f.key)}
-                className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all ${
-                  filterCategory === f.key
-                    ? 'bg-dairy-600 text-white shadow-xs'
-                    : 'bg-gray-100 text-gray-600 hover:text-gray-900'
-                }`}
+                className={`tab-btn ${filterCategory === f.key ? 'tab-btn-active' : 'bg-ivory-muted'}`}
               >
                 {f.label}
               </button>
@@ -277,11 +273,11 @@ export const FinanceView: React.FC<FinanceViewProps> = ({
                 className="p-4 sm:p-5 hover:bg-gray-50/70 transition-colors flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3"
               >
                 <div className="space-y-1">
-                  <div className="flex items-center space-x-2">
+                  <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
                     <span className="font-bold text-sm text-gray-900">
                       {exp.description}
                     </span>
-                    <span className="px-2 py-0.5 rounded-md text-xs font-bold uppercase tracking-wider bg-gray-100 text-gray-700">
+                    <span className="px-2 py-0.5 rounded-md text-xs font-bold uppercase tracking-wider bg-gray-100 text-gray-700 whitespace-nowrap">
                       {exp.category}
                     </span>
                     <span className="text-xs text-gray-400 font-medium">

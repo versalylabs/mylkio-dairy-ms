@@ -85,6 +85,34 @@ const config: Config = {
           900: "#26332D", // Charcoal
           950: "#121915",
         },
+        // The app screens were written with Tailwind's cold grey and slate. Remapping both scales to the
+        // warm ivory / charcoal family makes every screen match the website without editing each class.
+        gray: {
+          50: "#fbfaf6",
+          100: "#f4f1e9",
+          200: "#e8e4d8",
+          300: "#d9d2c2",
+          400: "#7a9086",
+          500: "#5D7368",
+          600: "#4b6158",
+          700: "#3D4F46",
+          800: "#2d3b35",
+          900: "#26332D",
+          950: "#121915",
+        },
+        slate: {
+          50: "#fbfaf6",
+          100: "#f4f1e9",
+          200: "#e8e4d8",
+          300: "#d9d2c2",
+          400: "#7a9086",
+          500: "#5D7368",
+          600: "#4b6158",
+          700: "#3D4F46",
+          800: "#2d3b35",
+          900: "#26332D",
+          950: "#121915",
+        },
         rc: {
           periwinkle: "#345C4A", // Deep Sage
           "deep-indigo": "#26332D", // Charcoal

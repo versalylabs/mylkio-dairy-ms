@@ -118,9 +118,9 @@ export const SalesView: React.FC<SalesViewProps> = ({
   return (
     <div className="space-y-6 pb-20 md:pb-8">
       {/* Top Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+      <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900 tracking-tight">
+          <h1 className="page-title">
             {lang === 'sw' ? 'Mauzo na Malipo ya Maziwa' : 'Sales, Deliveries & Payments'}
           </h1>
           <p className="text-sm text-gray-500 mt-1">
@@ -133,7 +133,7 @@ export const SalesView: React.FC<SalesViewProps> = ({
         <div className="flex items-center gap-2 flex-wrap">
           <button
             onClick={onOpenRecordDelivery}
-            className="flex items-center space-x-1.5 px-4 py-2.5 rounded-xl bg-dairy-600 hover:bg-dairy-700 text-white font-semibold text-xs shadow-sm transition-all"
+            className="btn btn-primary"
           >
             <Truck className="w-4 h-4" />
             <span>{lang === 'sw' ? 'Rekodi Utoaji' : 'Log Delivery'}</span>
@@ -141,7 +141,7 @@ export const SalesView: React.FC<SalesViewProps> = ({
 
           <button
             onClick={onOpenRecordPayment}
-            className="flex items-center space-x-1.5 px-4 py-2.5 rounded-xl bg-[#C6A76A] hover:bg-[#b39252] text-white font-semibold text-xs shadow-xs transition-all"
+            className="btn btn-gold"
           >
             <DollarSign className="w-4 h-4" />
             <span>{lang === 'sw' ? 'Pokea Malipo' : 'Receive Payment'}</span>
@@ -149,7 +149,7 @@ export const SalesView: React.FC<SalesViewProps> = ({
 
           <button
             onClick={onOpenAddBuyer}
-            className="flex items-center space-x-1.5 px-4 py-2.5 rounded-xl border border-gray-300 bg-white hover:bg-gray-50 text-gray-800 font-semibold text-xs shadow-2xs transition-all"
+            className="btn btn-secondary"
           >
             <Plus className="w-4 h-4" />
             <span>{t.buyers.addBuyerBtn}</span>
@@ -158,14 +158,14 @@ export const SalesView: React.FC<SalesViewProps> = ({
       </div>
 
       {/* Summary KPI Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 [&>:last-child:nth-child(odd)]:col-span-2 lg:[&>:last-child:nth-child(odd)]:col-span-1">
         {/* Outstanding Receivables */}
-        <div className="bg-[#FAF5EB] rounded-3xl p-5 border border-[#E5D5B5] shadow-xs flex items-center justify-between text-[#26332D]">
+        <div className="bg-[#FAF5EB] rounded-3xl p-5 border border-[#E5D5B5] shadow-xs flex items-center justify-between gap-3 text-[#26332D]">
           <div>
             <span className="text-xs font-bold uppercase tracking-wider text-[#b39252]">
               {lang === 'sw' ? 'Deni Linalodaiwa' : 'Outstanding Receivables'}
             </span>
-            <div className="text-2xl sm:text-3xl font-extrabold text-[#26332D] mt-2">
+            <div className="text-2xl sm:text-3xl font-extrabold text-[#26332D] mt-2 whitespace-nowrap">
               KSh {owed.owedToFarm.toLocaleString()}
             </div>
             <p className="text-sm text-[#5D7368] mt-1">
@@ -179,12 +179,12 @@ export const SalesView: React.FC<SalesViewProps> = ({
         </div>
 
         {/* Milk Delivered */}
-        <div className="bg-white rounded-3xl p-5 border border-gray-200 shadow-xs flex items-center justify-between">
+        <div className="bg-white rounded-3xl p-5 border border-gray-200 shadow-xs flex items-center justify-between gap-3">
           <div>
             <span className="text-xs font-semibold uppercase tracking-wider text-gray-500">
               {sw ? `Yaliyokubaliwa — ${monthName}` : `Accepted in ${monthName}`}
             </span>
-            <div className="text-2xl sm:text-3xl font-extrabold text-gray-900 mt-2">
+            <div className="text-2xl sm:text-3xl font-extrabold text-gray-900 mt-2 whitespace-nowrap">
               {monthSales.acceptedLitres.toFixed(1)} <span className="text-sm font-normal text-gray-500">L</span>
             </div>
             <p className="text-sm text-gray-600 mt-1">
@@ -203,7 +203,7 @@ export const SalesView: React.FC<SalesViewProps> = ({
             <span className="text-xs font-semibold uppercase tracking-wider text-gray-500">
               {sw ? `Pesa iliyopokelewa — ${monthName}` : `Received in ${monthName}`}
             </span>
-            <div className="text-2xl sm:text-3xl font-extrabold text-dairy-800 mt-2">
+            <div className="text-2xl sm:text-3xl font-extrabold text-dairy-800 mt-2 whitespace-nowrap">
               KSh {monthCash.amount.toLocaleString()}
             </div>
             <p className="text-sm text-gray-600 mt-1">
@@ -217,33 +217,25 @@ export const SalesView: React.FC<SalesViewProps> = ({
       </div>
 
       {/* Navigation Sub-Tabs */}
-      <div className="flex items-center gap-2 border-b border-gray-200 pb-2 overflow-x-auto">
+      <div className="tab-strip">
         <button
           onClick={() => setActiveTab('deliveries')}
-          className={`flex items-center space-x-2 px-4 py-2 rounded-xl text-xs font-bold transition-all ${
-            activeTab === 'deliveries'
-              ? 'bg-dairy-600 text-white shadow-sm'
-              : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'
-          }`}
+          className={`tab-btn ${activeTab === 'deliveries' ? 'tab-btn-active' : ''}`}
         >
           <Truck className="w-4 h-4" />
           <span>{lang === 'sw' ? 'Leja ya Utoaji (Deliveries)' : 'Deliveries Ledger'}</span>
-          <span className={`px-1.5 py-0.2 rounded-full text-xs ${activeTab === 'deliveries' ? 'bg-white/20 text-white' : 'bg-gray-100 text-gray-600'}`}>
+          <span className="count-badge">
             {deliveries.filter((d) => !d.voidedAt).length}
           </span>
         </button>
 
         <button
           onClick={() => setActiveTab('payments')}
-          className={`flex items-center space-x-2 px-4 py-2 rounded-xl text-xs font-bold transition-all ${
-            activeTab === 'payments'
-              ? 'bg-dairy-600 text-white shadow-sm'
-              : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'
-          }`}
+          className={`tab-btn ${activeTab === 'payments' ? 'tab-btn-active' : ''}`}
         >
           <DollarSign className="w-4 h-4" />
           <span>{lang === 'sw' ? 'Risiti za Malipo (Payments)' : 'Payments Ledger'}</span>
-          <span className={`px-1.5 py-0.2 rounded-full text-xs ${activeTab === 'payments' ? 'bg-white/20 text-white' : 'bg-gray-100 text-gray-600'}`}>
+          <span className="count-badge">
             {payments.filter((p) => !p.voidedAt).length}
           </span>
         </button>
@@ -252,9 +244,7 @@ export const SalesView: React.FC<SalesViewProps> = ({
           <button
             key={tab}
             onClick={() => setActiveTab(tab)}
-            className={`flex items-center space-x-2 px-4 py-2 rounded-xl text-xs font-bold transition-all ${
-              activeTab === tab ? 'bg-dairy-600 text-white shadow-sm' : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'
-            }`}
+            className={`tab-btn ${activeTab === tab ? 'tab-btn-active' : ''}`}
           >
             {tab === 'statements' ? <FileText className="w-4 h-4" /> : <Receipt className="w-4 h-4" />}
             <span>
@@ -265,15 +255,11 @@ export const SalesView: React.FC<SalesViewProps> = ({
 
         <button
           onClick={() => setActiveTab('buyers')}
-          className={`flex items-center space-x-2 px-4 py-2 rounded-xl text-xs font-bold transition-all ${
-            activeTab === 'buyers'
-              ? 'bg-dairy-600 text-white shadow-sm'
-              : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'
-          }`}
+          className={`tab-btn ${activeTab === 'buyers' ? 'tab-btn-active' : ''}`}
         >
           <Users className="w-4 h-4" />
           <span>{lang === 'sw' ? 'Orodha ya Wanunuzi (Buyers)' : 'Buyers & Terms'}</span>
-          <span className={`px-1.5 py-0.2 rounded-full text-xs ${activeTab === 'buyers' ? 'bg-white/20 text-white' : 'bg-gray-100 text-gray-600'}`}>
+          <span className="count-badge">
             {buyers.length}
           </span>
         </button>
@@ -282,7 +268,7 @@ export const SalesView: React.FC<SalesViewProps> = ({
       {/* TAB 1: DELIVERIES LEDGER */}
       {activeTab === 'deliveries' && (
         <div className="bg-white rounded-3xl border border-gray-200 shadow-sm overflow-hidden">
-          <div className="p-5 border-b border-gray-100 flex items-center justify-between">
+          <div className="flex flex-wrap items-center justify-between gap-3 border-b border-gray-100 p-5">
             <h2 className="text-base font-bold text-gray-900">
               {lang === 'sw' ? 'Kumbukumbu za Utoaji wa Maziwa' : 'Milk Deliveries & Billing Ledger'}
             </h2>
@@ -305,7 +291,7 @@ export const SalesView: React.FC<SalesViewProps> = ({
                   className={`p-4 sm:p-5 transition-colors flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 ${del.voidedAt ? 'bg-gray-50 opacity-70' : 'hover:bg-gray-50/70'}`}
                 >
                   <div className="space-y-1">
-                    <div className="flex items-center space-x-2">
+                    <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
                       <span className="font-bold text-sm text-gray-900">
                         {del.buyerName}
                       </span>
@@ -313,14 +299,14 @@ export const SalesView: React.FC<SalesViewProps> = ({
                         del.buyerType === 'cooperative'
                           ? 'bg-[#A8BFA5]/25 text-[#345C4A]'
                           : 'bg-[#FAF5EB] text-[#26332D] border border-[#E5D5B5]'
-                      }`}>
+                      } whitespace-nowrap`}>
                         {del.buyerType === 'cooperative' ? 'Co-op' : 'Household'}
                       </span>
-                      <span className="text-sm text-gray-500 font-medium">
+                      <span className="whitespace-nowrap text-sm text-gray-500 font-medium">
                         {formatFarmDate(del.date, lang)}
                       </span>
                       {del.voidedAt && (
-                        <span className="px-2 py-0.5 rounded-md text-xs font-bold bg-gray-200 text-gray-700">{sw ? 'Imebatilishwa' : 'Voided'}</span>
+                        <span className="px-2 py-0.5 rounded-md text-xs font-bold bg-gray-200 text-gray-700 whitespace-nowrap">{sw ? 'Imebatilishwa' : 'Voided'}</span>
                       )}
                     </div>
 
@@ -388,7 +374,7 @@ export const SalesView: React.FC<SalesViewProps> = ({
       {/* TAB 2: PAYMENTS LEDGER */}
       {activeTab === 'payments' && (
         <div className="bg-white rounded-3xl border border-gray-200 shadow-sm overflow-hidden">
-          <div className="p-5 border-b border-gray-100 flex items-center justify-between">
+          <div className="flex flex-wrap items-center justify-between gap-3 border-b border-gray-100 p-5">
             <h2 className="text-base font-bold text-gray-900">
               {lang === 'sw' ? 'Risiti za Malipo Yaliyopokelewa' : 'Payment Receipts & Settlement Ledger'}
             </h2>
@@ -411,27 +397,27 @@ export const SalesView: React.FC<SalesViewProps> = ({
                   className={`p-4 sm:p-5 transition-colors flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 ${pay.voidedAt ? 'bg-gray-50 opacity-70' : 'hover:bg-gray-50/70'}`}
                 >
                   <div className="space-y-1">
-                    <div className="flex items-center space-x-2">
+                    <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
                       <span className="font-bold text-sm text-gray-900">
                         {pay.buyerName}
                       </span>
-                      <span className="px-2 py-0.5 rounded-md text-xs font-bold uppercase tracking-wider bg-[#FAF5EB] text-[#26332D] border border-[#E5D5B5] flex items-center gap-1">
+                      <span className="px-2 py-0.5 rounded-md text-xs font-bold uppercase tracking-wider bg-[#FAF5EB] text-[#26332D] border border-[#E5D5B5] flex items-center gap-1 whitespace-nowrap">
                         {pay.paymentMethod === 'mpesa' && <Smartphone className="w-3 h-3" />}
                         {pay.paymentMethod === 'cash' && <Banknote className="w-3 h-3" />}
                         {pay.paymentMethod === 'bank' && <CreditCard className="w-3 h-3" />}
                         <span>{pay.paymentMethod}</span>
                       </span>
-                      <span className="text-sm text-gray-500 font-medium">
+                      <span className="whitespace-nowrap text-sm text-gray-500 font-medium">
                         {formatFarmDate(pay.date, lang)}
                       </span>
                       {pay.source === 'delivery' && (
-                        <span className="px-2 py-0.5 rounded-md text-xs font-semibold bg-[#A8BFA5]/25 text-[#345C4A]">{sw ? 'Wakati wa utoaji' : 'At delivery'}</span>
+                        <span className="px-2 py-0.5 rounded-md text-xs font-semibold bg-[#A8BFA5]/25 text-[#345C4A] whitespace-nowrap">{sw ? 'Wakati wa utoaji' : 'At delivery'}</span>
                       )}
                       {pay.voidedAt && (
-                        <span className="px-2 py-0.5 rounded-md text-xs font-bold bg-gray-200 text-gray-700">{sw ? 'Imebatilishwa' : 'Voided'}</span>
+                        <span className="px-2 py-0.5 rounded-md text-xs font-bold bg-gray-200 text-gray-700 whitespace-nowrap">{sw ? 'Imebatilishwa' : 'Voided'}</span>
                       )}
                       {!pay.voidedAt && duplicates.has(pay.id) && (
-                        <span className="px-2 py-0.5 rounded-md text-xs font-bold bg-amber-100 text-amber-900 inline-flex items-center gap-1">
+                        <span className="px-2 py-0.5 rounded-md text-xs font-bold bg-amber-100 text-amber-900 inline-flex items-center gap-1 whitespace-nowrap">
                           <AlertTriangle className="w-3 h-3" />
                           {sw ? 'Huenda imerudiwa' : 'Possible duplicate'}
                         </span>

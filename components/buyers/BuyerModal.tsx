@@ -92,12 +92,12 @@ export const BuyerModal: React.FC<BuyerModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-fade-in">
-      <div className="bg-white rounded-2xl w-full max-w-lg max-h-[90vh] overflow-y-auto shadow-2xl border border-gray-100 flex flex-col">
+    <div className="fixed inset-0 z-50 flex items-end justify-center bg-charcoal/60 p-0 backdrop-blur-sm animate-fade-in sm:items-center sm:p-4">
+      <div className="flex max-h-[94dvh] w-full max-w-lg flex-col overflow-y-auto rounded-t-3xl border border-ivory-border bg-white shadow-2xl sm:rounded-3xl">
         {/* Header */}
         <div className="flex items-center justify-between p-5 border-b border-gray-100 sticky top-0 bg-white z-10">
           <div>
-            <h2 className="text-xl font-bold text-gray-900">
+            <h2 className="font-display text-xl font-medium text-charcoal">
               {buyerToEdit ? (lang === 'sw' ? 'Badilisha Mnunuzi' : 'Edit Buyer Details') : t.buyerModal.titleNew}
             </h2>
             <p className="text-xs text-gray-500 mt-0.5">
@@ -121,7 +121,7 @@ export const BuyerModal: React.FC<BuyerModalProps> = ({
           )}
 
           <div>
-            <label className="block text-xs font-semibold uppercase tracking-wider text-gray-700 mb-1">
+            <label className="field-label">
               {t.buyerModal.nameLabel}
             </label>
             <input
@@ -129,14 +129,14 @@ export const BuyerModal: React.FC<BuyerModalProps> = ({
               value={name}
               onChange={(e) => setName(e.target.value)}
               placeholder={type === 'cooperative' ? 'e.g. Baraka Dairy Cooperative' : 'e.g. Mama Wanjiku'}
-              className="w-full px-3.5 py-2.5 rounded-xl border border-gray-300 focus:ring-2 focus:ring-dairy-500 focus:border-dairy-500 text-sm font-medium"
+              className="field"
               required
             />
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
-              <label className="block text-xs font-semibold uppercase tracking-wider text-gray-700 mb-1">
+              <label className="field-label">
                 {t.buyerModal.typeLabel}
               </label>
               <select
@@ -148,7 +148,7 @@ export const BuyerModal: React.FC<BuyerModalProps> = ({
                     setRatePerLitre(60); // typical retail price in Kenya
                   }
                 }}
-                className="w-full px-3.5 py-2.5 rounded-xl border border-gray-300 focus:ring-2 focus:ring-dairy-500 text-sm bg-white font-medium"
+                className="field"
               >
                 <option value="cooperative">{lang === 'sw' ? 'Chama cha Ushirika (Co-op)' : 'Dairy Cooperative'}</option>
                 <option value="household">{lang === 'sw' ? 'Mteja wa Nyumbani' : 'Household / Direct Customer'}</option>
@@ -157,7 +157,7 @@ export const BuyerModal: React.FC<BuyerModalProps> = ({
             </div>
 
             <div>
-              <label className="block text-xs font-semibold uppercase tracking-wider text-gray-700 mb-1">
+              <label className="field-label">
                 {t.buyerModal.rateLabel}
               </label>
               <div className="relative">
@@ -168,7 +168,7 @@ export const BuyerModal: React.FC<BuyerModalProps> = ({
                   min="1"
                   value={ratePerLitre}
                   onChange={(e) => setRatePerLitre(parseFloat(e.target.value) || 0)}
-                  className="w-full pl-12 pr-4 py-2.5 rounded-xl border border-gray-300 focus:ring-2 focus:ring-dairy-500 text-sm font-semibold"
+                  className="field pl-12 pr-4"
                   required
                 />
               </div>
@@ -177,7 +177,7 @@ export const BuyerModal: React.FC<BuyerModalProps> = ({
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
-              <label className="block text-xs font-semibold uppercase tracking-wider text-gray-700 mb-1">
+              <label className="field-label">
                 {t.buyerModal.phoneLabel}
               </label>
               <input
@@ -185,18 +185,18 @@ export const BuyerModal: React.FC<BuyerModalProps> = ({
                 value={phone}
                 onChange={(e) => setPhone(e.target.value)}
                 placeholder="e.g. +254 712 345 678"
-                className="w-full px-3.5 py-2.5 rounded-xl border border-gray-300 focus:ring-2 focus:ring-dairy-500 text-sm"
+                className="field"
               />
             </div>
 
             <div>
-              <label className="block text-xs font-semibold uppercase tracking-wider text-gray-700 mb-1">
+              <label className="field-label">
                 {t.buyerModal.cycleLabel}
               </label>
               <select
                 value={paymentCycle}
                 onChange={(e) => setPaymentCycle(e.target.value as any)}
-                className="w-full px-3.5 py-2.5 rounded-xl border border-gray-300 focus:ring-2 focus:ring-dairy-500 text-sm bg-white"
+                className="field"
               >
                 <option value="monthly">{lang === 'sw' ? 'Mwisho wa Mwezi (Monthly)' : 'Monthly Settlement'}</option>
                 <option value="weekly">{lang === 'sw' ? 'Kila Wiki (Weekly)' : 'Weekly'}</option>
@@ -209,24 +209,24 @@ export const BuyerModal: React.FC<BuyerModalProps> = ({
           {type === 'cooperative' && (
             <div className="grid grid-cols-2 gap-3">
               <div>
-                <label htmlFor="buyer-member" className="block text-xs font-semibold uppercase tracking-wider text-gray-700 mb-1">
+                <label htmlFor="buyer-member" className="field-label">
                   {lang === 'sw' ? 'Nambari ya mwanachama' : 'Member / supplier no.'}
                 </label>
                 <input id="buyer-member" type="text" value={memberNumber} onChange={(e) => setMemberNumber(e.target.value)}
-                  placeholder="e.g. BDF-0417" className="w-full px-3.5 py-2.5 rounded-xl border border-gray-300 focus:ring-2 focus:ring-dairy-500 text-sm" />
+                  placeholder="e.g. BDF-0417" className="field" />
               </div>
               <div>
-                <label htmlFor="buyer-centre" className="block text-xs font-semibold uppercase tracking-wider text-gray-700 mb-1">
+                <label htmlFor="buyer-centre" className="field-label">
                   {lang === 'sw' ? 'Kituo cha kukusanya' : 'Collection centre'}
                 </label>
                 <input id="buyer-centre" type="text" value={collectionCentre} onChange={(e) => setCollectionCentre(e.target.value)}
-                  placeholder="e.g. Rongai" className="w-full px-3.5 py-2.5 rounded-xl border border-gray-300 focus:ring-2 focus:ring-dairy-500 text-sm" />
+                  placeholder="e.g. Rongai" className="field" />
               </div>
             </div>
           )}
 
           <div>
-            <label className="block text-xs font-semibold uppercase tracking-wider text-gray-700 mb-1">
+            <label className="field-label">
               {t.buyerModal.initialBalanceLabel}
             </label>
             <div className="relative">
@@ -236,7 +236,7 @@ export const BuyerModal: React.FC<BuyerModalProps> = ({
                 value={openingBalance}
                 onChange={(e) => setOpeningBalance(parseFloat(e.target.value) || 0)}
                 placeholder="0"
-                className="w-full pl-12 pr-4 py-2.5 rounded-xl border border-gray-300 focus:ring-2 focus:ring-dairy-500 text-sm"
+                className="field pl-12 pr-4"
               />
             </div>
             <p className="text-sm text-gray-600 mt-1">
@@ -252,7 +252,7 @@ export const BuyerModal: React.FC<BuyerModalProps> = ({
           </div>
 
           <div>
-            <label className="block text-xs font-semibold uppercase tracking-wider text-gray-700 mb-1">
+            <label className="field-label">
               {t.buyerModal.notesLabel}
             </label>
             <textarea
@@ -260,7 +260,7 @@ export const BuyerModal: React.FC<BuyerModalProps> = ({
               value={notes}
               onChange={(e) => setNotes(e.target.value)}
               placeholder="e.g. Rongai chilling plant, clerk name Mr. Mwangi"
-              className="w-full px-3.5 py-2.5 rounded-xl border border-gray-300 focus:ring-2 focus:ring-dairy-500 text-sm"
+              className="field"
             />
           </div>
 
@@ -269,13 +269,13 @@ export const BuyerModal: React.FC<BuyerModalProps> = ({
             <button
               type="button"
               onClick={onClose}
-              className="px-4 py-2.5 rounded-xl border border-gray-300 text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors"
+              className="btn btn-secondary"
             >
               {t.herd.cancel}
             </button>
             <button
               type="submit"
-              className="flex items-center space-x-2 px-5 py-2.5 rounded-xl bg-dairy-600 hover:bg-dairy-700 text-white font-medium text-sm shadow-sm transition-all"
+              className="btn btn-primary"
             >
               <Check className="w-4 h-4" />
               <span>{t.buyers.saveBuyer}</span>

@@ -88,8 +88,8 @@ export const HealthModal: React.FC<HealthModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/60 backdrop-blur-sm animate-fade-in">
-      <div className="bg-white rounded-3xl w-full max-w-lg max-h-[92vh] overflow-y-auto shadow-2xl border border-gray-100 flex flex-col">
+    <div className="fixed inset-0 z-50 flex items-end justify-center bg-charcoal/60 p-0 backdrop-blur-sm animate-fade-in sm:items-center sm:p-4">
+      <div className="flex max-h-[94dvh] w-full max-w-lg flex-col overflow-y-auto rounded-t-3xl border border-ivory-border bg-white shadow-2xl sm:rounded-3xl">
         {/* Header */}
         <div className="flex items-center justify-between p-5 border-b border-gray-100 sticky top-0 bg-white z-10">
           <div className="flex items-center space-x-2.5">
@@ -97,7 +97,7 @@ export const HealthModal: React.FC<HealthModalProps> = ({
               <Stethoscope className="w-5 h-5" />
             </div>
             <div>
-              <h2 className="text-xl font-bold text-gray-900">
+              <h2 className="font-display text-xl font-medium text-charcoal">
                 {lang === 'sw' ? 'Rekodi Afya na Chanjo' : 'Log Health & Medication'}
               </h2>
               <p className="text-xs text-gray-500">
@@ -123,13 +123,13 @@ export const HealthModal: React.FC<HealthModalProps> = ({
 
           {/* Select Cow */}
           <div>
-            <label className="block text-xs font-semibold uppercase tracking-wider text-gray-700 mb-1">
+            <label className="field-label">
               {lang === 'sw' ? 'Chagua Ng\'ombe *' : 'Select Animal *'}
             </label>
             <select
               value={cowId}
               onChange={(e) => setCowId(e.target.value)}
-              className="w-full px-3.5 py-2.5 rounded-xl border border-gray-300 focus:ring-2 focus:ring-dairy-500 text-sm font-semibold bg-white"
+              className="field"
               required
             >
               {cows.map((c) => (
@@ -142,20 +142,20 @@ export const HealthModal: React.FC<HealthModalProps> = ({
 
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="block text-xs font-semibold uppercase tracking-wider text-gray-700 mb-1">
+              <label className="field-label">
                 {lang === 'sw' ? 'Tarehe' : 'Date Administered'}
               </label>
               <input
                 type="date"
                 value={date}
                 onChange={(e) => setDate(e.target.value)}
-                className="w-full px-3 py-2 rounded-xl border border-gray-300 focus:ring-2 focus:ring-dairy-500 text-xs font-medium"
+                className="field"
                 required
               />
             </div>
 
             <div>
-              <label className="block text-xs font-semibold uppercase tracking-wider text-gray-700 mb-1">
+              <label className="field-label">
                 {lang === 'sw' ? 'Aina ya Tukio' : 'Event Type'}
               </label>
               <select
@@ -169,7 +169,7 @@ export const HealthModal: React.FC<HealthModalProps> = ({
                     setMedicineName('Albendazole 10%');
                   }
                 }}
-                className="w-full px-3 py-2 rounded-xl border border-gray-300 focus:ring-2 focus:ring-dairy-500 text-xs font-medium bg-white"
+                className="field"
               >
                 <option value="treatment">{lang === 'sw' ? 'Matibabu (Treatment)' : 'Treatment / Illness'}</option>
                 <option value="vaccination">{lang === 'sw' ? 'Chanjo (Vaccination)' : 'Vaccination'}</option>
@@ -180,7 +180,7 @@ export const HealthModal: React.FC<HealthModalProps> = ({
           </div>
 
           <div>
-            <label className="block text-xs font-semibold uppercase tracking-wider text-gray-700 mb-1">
+            <label className="field-label">
               {lang === 'sw' ? 'Jina la Dawa au Chanjo *' : 'Medicine / Vaccine Name *'}
             </label>
             <input
@@ -188,14 +188,14 @@ export const HealthModal: React.FC<HealthModalProps> = ({
               value={medicineName}
               onChange={(e) => setMedicineName(e.target.value)}
               placeholder="e.g. PenStrep, Mastritech, FMD Vaccine, Albendazole"
-              className="w-full px-3.5 py-2.5 rounded-xl border border-gray-300 focus:ring-2 focus:ring-dairy-500 text-sm font-semibold"
+              className="field"
               required
             />
           </div>
 
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="block text-xs font-semibold uppercase tracking-wider text-gray-700 mb-1">
+              <label className="field-label">
                 {lang === 'sw' ? 'Uchunguzi / Dalili' : 'Diagnosis / Symptoms'}
               </label>
               <input
@@ -203,12 +203,12 @@ export const HealthModal: React.FC<HealthModalProps> = ({
                 value={diagnosis}
                 onChange={(e) => setDiagnosis(e.target.value)}
                 placeholder="e.g. Mastitis, Tick fever, Loss of appetite"
-                className="w-full px-3 py-2 rounded-xl border border-gray-300 focus:ring-2 focus:ring-dairy-500 text-xs font-medium"
+                className="field"
               />
             </div>
 
             <div>
-              <label className="block text-xs font-semibold uppercase tracking-wider text-gray-700 mb-1">
+              <label className="field-label">
                 {lang === 'sw' ? 'Mhudumu / Daktari' : 'Administered By'}
               </label>
               <input
@@ -216,14 +216,14 @@ export const HealthModal: React.FC<HealthModalProps> = ({
                 value={administeredBy}
                 onChange={(e) => setAdministeredBy(e.target.value)}
                 placeholder="e.g. Dr. Otieno, County Vet"
-                className="w-full px-3 py-2 rounded-xl border border-gray-300 focus:ring-2 focus:ring-dairy-500 text-xs font-medium"
+                className="field"
               />
             </div>
           </div>
 
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="block text-xs font-semibold uppercase tracking-wider text-gray-700 mb-1">
+              <label className="field-label">
                 {lang === 'sw' ? 'Gharama (KSh)' : 'Cost (KSh)'}
               </label>
               <input
@@ -231,19 +231,19 @@ export const HealthModal: React.FC<HealthModalProps> = ({
                 value={costKSh}
                 onChange={(e) => setCostKSh(e.target.value)}
                 placeholder="e.g. 1500"
-                className="w-full px-3 py-2 rounded-xl border border-gray-300 focus:ring-2 focus:ring-dairy-500 text-xs font-medium"
+                className="field"
               />
             </div>
 
             <div>
-              <label className="block text-xs font-semibold uppercase tracking-wider text-gray-700 mb-1">
+              <label className="field-label">
                 {lang === 'sw' ? 'Tarehe ya Marudio (Next Due)' : 'Next Due Date (Booster)'}
               </label>
               <input
                 type="date"
                 value={nextDueDate}
                 onChange={(e) => setNextDueDate(e.target.value)}
-                className="w-full px-3 py-2 rounded-xl border border-gray-300 focus:ring-2 focus:ring-dairy-500 text-xs font-medium"
+                className="field"
               />
             </div>
           </div>
@@ -298,7 +298,7 @@ export const HealthModal: React.FC<HealthModalProps> = ({
           </div>
 
           <div>
-            <label className="block text-xs font-semibold uppercase tracking-wider text-gray-700 mb-1">
+            <label className="field-label">
               {lang === 'sw' ? 'Maelezo ya Ziada' : 'Notes'}
             </label>
             <input
@@ -306,7 +306,7 @@ export const HealthModal: React.FC<HealthModalProps> = ({
               value={notes}
               onChange={(e) => setNotes(e.target.value)}
               placeholder="e.g. Prescribed by Dr. Otieno, 3-day intramuscular course"
-              className="w-full px-3.5 py-2 rounded-xl border border-gray-300 focus:ring-2 focus:ring-dairy-500 text-xs"
+              className="field"
             />
           </div>
 
@@ -315,13 +315,13 @@ export const HealthModal: React.FC<HealthModalProps> = ({
             <button
               type="button"
               onClick={onClose}
-              className="px-4 py-2.5 rounded-xl border border-gray-300 text-xs font-semibold text-gray-700 hover:bg-gray-50 transition-colors"
+              className="btn btn-secondary"
             >
               {t.herd.cancel}
             </button>
             <button
               type="submit"
-              className="flex items-center space-x-2 px-6 py-2.5 rounded-xl bg-dairy-600 hover:bg-dairy-700 text-white font-bold text-xs shadow-sm transition-all"
+              className="btn btn-primary"
             >
               <Check className="w-4 h-4" />
               <span>{lang === 'sw' ? 'Hifadhi Tukio la Afya' : 'Save Health Record'}</span>

@@ -100,8 +100,8 @@ export const RecordPaymentModal: React.FC<RecordPaymentModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/60 backdrop-blur-sm animate-fade-in">
-      <div className="bg-white rounded-3xl w-full max-w-lg max-h-[92vh] overflow-y-auto shadow-2xl border border-gray-100 flex flex-col">
+    <div className="fixed inset-0 z-50 flex items-end justify-center bg-charcoal/60 p-0 backdrop-blur-sm animate-fade-in sm:items-center sm:p-4">
+      <div className="flex max-h-[94dvh] w-full max-w-lg flex-col overflow-y-auto rounded-t-3xl border border-ivory-border bg-white shadow-2xl sm:rounded-3xl">
         {/* Header */}
         <div className="flex items-center justify-between p-5 border-b border-gray-100 sticky top-0 bg-white z-10">
           <div className="flex items-center space-x-2.5">
@@ -109,7 +109,7 @@ export const RecordPaymentModal: React.FC<RecordPaymentModalProps> = ({
               <DollarSign className="w-5 h-5" />
             </div>
             <div>
-              <h2 className="text-xl font-bold text-gray-900">
+              <h2 className="font-display text-xl font-medium text-charcoal">
                 {lang === 'sw' ? 'Rekodi Malipo Yaliyopokelewa' : 'Record Payment Receipt'}
               </h2>
               <p className="text-xs text-gray-500">
@@ -141,13 +141,13 @@ export const RecordPaymentModal: React.FC<RecordPaymentModalProps> = ({
 
           {/* Select Buyer */}
           <div>
-            <label className="block text-xs font-semibold uppercase tracking-wider text-gray-700 mb-1">
+            <label className="field-label">
               {lang === 'sw' ? 'Mnunuzi / Mlipaji *' : 'Paying Buyer / Cooperative *'}
             </label>
             <select
               value={buyerId}
               onChange={(e) => setBuyerId(e.target.value)}
-              className="w-full px-3.5 py-2.5 rounded-xl border border-gray-300 focus:ring-2 focus:ring-dairy-500 text-sm font-semibold bg-white"
+              className="field"
               required
             >
               {buyers.map((b) => (
@@ -160,7 +160,7 @@ export const RecordPaymentModal: React.FC<RecordPaymentModalProps> = ({
 
           {/* Payment Method Selector */}
           <div>
-            <label className="block text-xs font-semibold uppercase tracking-wider text-gray-700 mb-1.5">
+            <label className="field-label">
               {lang === 'sw' ? 'Njia ya Malipo' : 'Payment Method'}
             </label>
             <div className="grid grid-cols-3 gap-2">
@@ -221,7 +221,7 @@ export const RecordPaymentModal: React.FC<RecordPaymentModalProps> = ({
                 value={amount}
                 onChange={(e) => setAmount(e.target.value)}
                 placeholder="e.g. 1500"
-                className="w-full text-2xl font-black text-slate-900 pl-16 pr-4 py-2.5 rounded-xl border border-gray-300 focus:ring-2 focus:ring-dairy-500 bg-white"
+                className="field text-2xl font-black text-slate-900 pl-16 pr-4"
                 autoFocus
                 required
               />
@@ -251,20 +251,20 @@ export const RecordPaymentModal: React.FC<RecordPaymentModalProps> = ({
 
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="block text-xs font-semibold uppercase tracking-wider text-gray-700 mb-1">
+              <label className="field-label">
                 {lang === 'sw' ? 'Tarehe' : 'Date Received'}
               </label>
               <input
                 type="date"
                 value={date}
                 onChange={(e) => setDate(e.target.value)}
-                className="w-full px-3 py-2.5 rounded-xl border border-gray-300 focus:ring-2 focus:ring-dairy-500 text-sm font-medium"
+                className="field"
                 required
               />
             </div>
 
             <div>
-              <label className="block text-xs font-semibold uppercase tracking-wider text-gray-700 mb-1">
+              <label className="field-label">
                 {paymentMethod === 'mpesa' ? 'M-Pesa Ref / Code' : 'Ref / Receipt No.'}
               </label>
               <input
@@ -272,18 +272,18 @@ export const RecordPaymentModal: React.FC<RecordPaymentModalProps> = ({
                 value={referenceNo}
                 onChange={(e) => setReferenceNo(e.target.value)}
                 placeholder={paymentMethod === 'mpesa' ? 'e.g. TKR729910Q' : 'e.g. REC-042'}
-                className="w-full px-3 py-2.5 rounded-xl border border-gray-300 focus:ring-2 focus:ring-dairy-500 text-sm uppercase font-mono"
+                className="field uppercase font-mono"
               />
             </div>
           </div>
 
           {targets.length > 0 && (
             <div>
-              <label htmlFor="pay-apply" className="block text-xs font-semibold uppercase tracking-wider text-gray-700 mb-1">
+              <label htmlFor="pay-apply" className="field-label">
                 {lang === 'sw' ? 'Lipia (si lazima)' : 'Apply to (optional)'}
               </label>
               <select id="pay-apply" value={applyTo} onChange={(e) => setApplyTo(e.target.value)}
-                className="w-full px-3.5 py-2.5 rounded-xl border border-gray-300 focus:ring-2 focus:ring-dairy-500 text-sm bg-white">
+                className="field">
                 <option value="">{lang === 'sw' ? 'Usiunganishe sasa' : 'Not linked to a statement or bill'}</option>
                 {targets.map((t) => (
                   <option key={`${t.kind}:${t.id}`} value={`${t.kind}:${t.id}`}>
@@ -319,7 +319,7 @@ export const RecordPaymentModal: React.FC<RecordPaymentModalProps> = ({
           )}
 
           <div>
-            <label className="block text-xs font-semibold uppercase tracking-wider text-gray-700 mb-1">
+            <label className="field-label">
               {lang === 'sw' ? 'Maelezo' : 'Notes'}
             </label>
             <input
@@ -327,7 +327,7 @@ export const RecordPaymentModal: React.FC<RecordPaymentModalProps> = ({
               value={notes}
               onChange={(e) => setNotes(e.target.value)}
               placeholder="e.g. September cooperative settlement payout"
-              className="w-full px-3.5 py-2 rounded-xl border border-gray-300 focus:ring-2 focus:ring-dairy-500 text-xs"
+              className="field"
             />
           </div>
 
@@ -336,13 +336,13 @@ export const RecordPaymentModal: React.FC<RecordPaymentModalProps> = ({
             <button
               type="button"
               onClick={onClose}
-              className="px-4 py-2.5 rounded-xl border border-gray-300 text-xs font-semibold text-gray-700 hover:bg-gray-50 transition-colors"
+              className="btn btn-secondary"
             >
               {t.herd.cancel}
             </button>
             <button
               type="submit"
-              className="flex items-center space-x-2 px-6 py-2.5 rounded-xl bg-dairy-600 hover:bg-dairy-700 text-white font-bold text-xs shadow-sm transition-all"
+              className="btn btn-primary"
             >
               <Check className="w-4 h-4" />
               <span>{lang === 'sw' ? 'Hifadhi Malipo' : 'Save Payment'}</span>

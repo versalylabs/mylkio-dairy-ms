@@ -119,7 +119,7 @@ export const Shell: React.FC<ShellProps> = ({
                 user.subscription.status === 'active'
                   ? 'bg-[#A8BFA5]/25 text-[#26332D] border border-[#A8BFA5]/40'
                   : 'bg-[#FAF5EB] text-[#8e7238] border border-[#E5D5B5]'
-              }`}>
+              } whitespace-nowrap`}>
                 {user.subscription.status === 'trial' ? '14-Day Free Trial' : `${user.subscription.plan.toUpperCase()} Plan`}
               </span>
               <span className="font-extrabold text-[#26332D]">

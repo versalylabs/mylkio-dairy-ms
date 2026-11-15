@@ -120,11 +120,11 @@ export const HerdView: React.FC<HerdViewProps> = ({
 
     return (
       <div className="flex items-center gap-1.5 flex-wrap">
-        <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold border ${bg}`}>
+        <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold border ${bg} whitespace-nowrap`}>
           {label}
         </span>
         {isPregnant && status !== 'pregnant_heifer' && (
-          <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-purple-50 text-purple-700 border border-purple-200">
+          <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-purple-50 text-purple-700 border border-purple-200 whitespace-nowrap">
             {lang === 'sw' ? 'Mimba' : 'Pregnant'}
           </span>
         )}
@@ -135,9 +135,9 @@ export const HerdView: React.FC<HerdViewProps> = ({
   return (
     <div className="space-y-6 pb-20 md:pb-8">
       {/* Top Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+      <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900 tracking-tight">
+          <h1 className="page-title">
             {t.herd.title}
           </h1>
           <p className="text-sm text-gray-500 mt-1">
@@ -150,7 +150,7 @@ export const HerdView: React.FC<HerdViewProps> = ({
         <div className="flex items-center gap-2 flex-wrap">
           <button
             onClick={onAddCow}
-            className="flex items-center space-x-1.5 px-4 py-2.5 rounded-xl bg-dairy-600 hover:bg-dairy-700 text-white font-semibold text-xs shadow-sm transition-all"
+            className="btn btn-primary"
           >
             <Plus className="w-4 h-4" />
             <span>{t.herd.addCowBtn}</span>
@@ -166,7 +166,7 @@ export const HerdView: React.FC<HerdViewProps> = ({
 
           <button
             onClick={onOpenRecordBreeding}
-            className="flex items-center space-x-1.5 px-4 py-2.5 rounded-xl bg-[#C6A76A] hover:bg-[#b39252] text-white font-semibold text-xs shadow-xs transition-all"
+            className="btn btn-gold"
           >
             <Dna className="w-4 h-4" />
             <span>{lang === 'sw' ? 'Rekodi Uzazi' : 'Log Breeding'}</span>
@@ -183,59 +183,43 @@ export const HerdView: React.FC<HerdViewProps> = ({
       </div>
 
       {/* Sub-Navigation Tabs */}
-      <div className="flex items-center gap-2 overflow-x-auto border-b border-gray-200 pb-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+      <div className="tab-strip">
         <button
           onClick={() => setActiveSubTab('registry')}
-          className={`flex shrink-0 items-center space-x-2 whitespace-nowrap px-4 py-2 min-h-11 rounded-xl text-xs font-bold transition-all ${
-            activeSubTab === 'registry'
-              ? 'bg-dairy-600 text-white shadow-sm'
-              : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'
-          }`}
+          className={`tab-btn ${activeSubTab === 'registry' ? 'tab-btn-active' : ''}`}
         >
           <Users className="w-4 h-4" />
           <span>{lang === 'sw' ? 'Orodha ya Ng\'ombe' : 'Cattle Registry'}</span>
-          <span className={`px-1.5 py-0.2 rounded-full text-xs ${activeSubTab === 'registry' ? 'bg-white/20 text-white' : 'bg-gray-100 text-gray-600'}`}>
+          <span className="count-badge">
             {cows.length}
           </span>
         </button>
 
         <button
           onClick={() => setActiveSubTab('health')}
-          className={`flex shrink-0 items-center space-x-2 whitespace-nowrap px-4 py-2 min-h-11 rounded-xl text-xs font-bold transition-all ${
-            activeSubTab === 'health'
-              ? 'bg-dairy-600 text-white shadow-sm'
-              : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'
-          }`}
+          className={`tab-btn ${activeSubTab === 'health' ? 'tab-btn-active' : ''}`}
         >
           <Stethoscope className="w-4 h-4" />
           <span>{lang === 'sw' ? 'Afya na Chanjo' : 'Health & Treatments'}</span>
-          <span className={`px-1.5 py-0.2 rounded-full text-xs ${activeSubTab === 'health' ? 'bg-white/20 text-white' : 'bg-gray-100 text-gray-600'}`}>
+          <span className="count-badge">
             {healthEvents.length}
           </span>
         </button>
 
         <button
           onClick={() => setActiveSubTab('breeding')}
-          className={`flex shrink-0 items-center space-x-2 whitespace-nowrap px-4 py-2 min-h-11 rounded-xl text-xs font-bold transition-all ${
-            activeSubTab === 'breeding'
-              ? 'bg-dairy-600 text-white shadow-sm'
-              : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'
-          }`}
+          className={`tab-btn ${activeSubTab === 'breeding' ? 'tab-btn-active' : ''}`}
         >
           <Dna className="w-4 h-4" />
           <span>{lang === 'sw' ? 'Uzazi na Upandishaji' : 'Breeding & Calving'}</span>
-          <span className={`px-1.5 py-0.2 rounded-full text-xs ${activeSubTab === 'breeding' ? 'bg-white/20 text-white' : 'bg-gray-100 text-gray-600'}`}>
+          <span className="count-badge">
             {breedingEvents.length}
           </span>
         </button>
 
         <button
           onClick={() => setActiveSubTab('guide')}
-          className={`flex shrink-0 items-center space-x-2 whitespace-nowrap px-4 py-2 min-h-11 rounded-xl text-xs font-bold transition-all ${
-            activeSubTab === 'guide'
-              ? 'bg-dairy-600 text-white shadow-sm'
-              : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'
-          }`}
+          className={`tab-btn ${activeSubTab === 'guide' ? 'tab-btn-active' : ''}`}
         >
           <ShieldAlert className="w-4 h-4" />
           <span>Vet guide</span>
@@ -267,7 +251,7 @@ export const HerdView: React.FC<HerdViewProps> = ({
                   }`}
                 >
                   <span>{tab.label}</span>
-                  <span className={`px-1.5 py-0.2 rounded-full text-xs ${isActive ? 'bg-white/20 text-white' : 'bg-gray-100 text-gray-500'}`}>
+                  <span className="count-badge">
                     {tab.count}
                   </span>
                 </button>
@@ -283,7 +267,7 @@ export const HerdView: React.FC<HerdViewProps> = ({
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               placeholder={t.herd.searchPlaceholder}
-              className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-gray-200 bg-white text-sm focus:outline-none focus:ring-2 focus:ring-dairy-500 focus:border-dairy-500"
+              className="field pl-10 pr-4"
             />
           </div>
 
@@ -459,7 +443,7 @@ export const HerdView: React.FC<HerdViewProps> = ({
                 {activeWithdrawals.map((w) => (
                   <div key={w.id} className="p-2.5 bg-white rounded-xl border border-rose-200 text-xs text-rose-900 font-semibold flex items-center justify-between">
                     <span>• <strong>{w.cowTag} ({w.cowName})</strong>: Treated with {w.medicineName}</span>
-                    <span className="bg-rose-100 px-2 py-0.5 rounded-full text-xs font-bold">
+                    <span className="bg-rose-100 px-2 py-0.5 rounded-full text-xs font-bold whitespace-nowrap">
                       Safe after: {w.withdrawalEndDate}
                     </span>
                   </div>
@@ -470,7 +454,7 @@ export const HerdView: React.FC<HerdViewProps> = ({
 
           {/* Health Records Ledger */}
           <div className="bg-white rounded-3xl border border-gray-200 shadow-sm overflow-hidden">
-            <div className="p-5 border-b border-gray-100 flex items-center justify-between">
+            <div className="flex flex-wrap items-center justify-between gap-3 border-b border-gray-100 p-5">
               <div>
                 <h2 className="text-base font-bold text-gray-900">
                   {lang === 'sw' ? 'Kumbukumbu za Dawa na Chanjo' : 'Veterinary & Medication History'}
@@ -481,7 +465,7 @@ export const HerdView: React.FC<HerdViewProps> = ({
               </div>
               <button
                 onClick={onOpenRecordHealth}
-                className="px-4 py-2 bg-rose-50 text-rose-700 hover:bg-rose-100 rounded-xl text-xs font-bold transition-colors"
+                className="btn btn-secondary shrink-0"
               >
                 + Log Health Event
               </button>
@@ -499,11 +483,11 @@ export const HerdView: React.FC<HerdViewProps> = ({
                     className="p-4 sm:p-5 hover:bg-gray-50/70 transition-colors flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3"
                   >
                     <div className="space-y-1">
-                      <div className="flex items-center space-x-2">
+                      <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
                         <span className="font-bold text-sm text-gray-900">
                           {h.cowTag} {h.cowName ? `(${h.cowName})` : ''}
                         </span>
-                        <span className="px-2 py-0.5 rounded-md text-xs font-bold uppercase tracking-wider bg-rose-100 text-rose-800">
+                        <span className="px-2 py-0.5 rounded-md text-xs font-bold uppercase tracking-wider bg-rose-100 text-rose-800 whitespace-nowrap">
                           {healthTypeLabel(h.type)}
                         </span>
                         <span className="text-xs text-gray-400 font-medium">
@@ -570,7 +554,7 @@ export const HerdView: React.FC<HerdViewProps> = ({
       {/* SUB-TAB 3: BREEDING & REPRODUCTION */}
       {activeSubTab === 'breeding' && (
         <div className="bg-white rounded-3xl border border-gray-200 shadow-sm overflow-hidden">
-          <div className="p-5 border-b border-gray-100 flex items-center justify-between">
+          <div className="flex flex-wrap items-center justify-between gap-3 border-b border-gray-100 p-5">
             <div>
               <h2 className="text-base font-bold text-gray-900">
                 {lang === 'sw' ? 'Kumbukumbu za Upandishaji na Kuzaa' : 'Insemination, Pregnancy & Calving Registry'}
@@ -581,7 +565,7 @@ export const HerdView: React.FC<HerdViewProps> = ({
             </div>
             <button
               onClick={onOpenRecordBreeding}
-              className="px-4 py-2 bg-[#FAF5EB] text-[#C6A76A] border border-[#E5D5B5] hover:bg-[#FAF5EB]/80 rounded-xl text-xs font-bold transition-colors"
+              className="btn btn-secondary shrink-0"
             >
               + Log Breeding Event
             </button>
@@ -599,11 +583,11 @@ export const HerdView: React.FC<HerdViewProps> = ({
                   className="p-4 sm:p-5 hover:bg-gray-50/70 transition-colors flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3"
                 >
                   <div className="space-y-1">
-                    <div className="flex items-center space-x-2">
+                    <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
                       <span className="font-bold text-sm text-gray-900">
                         {b.cowTag} {b.cowName ? `(${b.cowName})` : ''}
                       </span>
-                      <span className="px-2 py-0.5 rounded-md text-xs font-bold uppercase tracking-wider bg-[#FAF5EB] text-[#26332D] border border-[#E5D5B5]">
+                      <span className="px-2 py-0.5 rounded-md text-xs font-bold uppercase tracking-wider bg-[#FAF5EB] text-[#26332D] border border-[#E5D5B5] whitespace-nowrap">
                         {b.type.replace('_', ' ')}
                       </span>
                       <span className="text-xs text-gray-400 font-medium">

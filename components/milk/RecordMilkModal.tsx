@@ -166,8 +166,8 @@ export const RecordMilkModal: React.FC<RecordMilkModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/60 backdrop-blur-sm animate-fade-in">
-      <div className="bg-white rounded-3xl w-full max-w-lg max-h-[92vh] overflow-y-auto shadow-2xl border border-gray-100 flex flex-col">
+    <div className="fixed inset-0 z-50 flex items-end justify-center bg-charcoal/60 p-0 backdrop-blur-sm animate-fade-in sm:items-center sm:p-4">
+      <div className="flex max-h-[94dvh] w-full max-w-lg flex-col overflow-y-auto rounded-t-3xl border border-ivory-border bg-white shadow-2xl sm:rounded-3xl">
         {/* Header */}
         <div className="flex items-center justify-between p-5 border-b border-gray-100 sticky top-0 bg-white z-10">
           <div className="flex items-center space-x-2.5">
@@ -175,7 +175,7 @@ export const RecordMilkModal: React.FC<RecordMilkModalProps> = ({
               <Milk className="w-5 h-5" />
             </div>
             <div>
-              <h2 className="text-xl font-bold text-gray-900">
+              <h2 className="font-display text-xl font-medium text-charcoal">
                 {lang === 'sw' ? 'Rekodi Maziwa' : 'Record Milk Yield'}
               </h2>
               <p className="text-xs text-gray-500">
@@ -203,20 +203,20 @@ export const RecordMilkModal: React.FC<RecordMilkModalProps> = ({
           {/* Date & Session Selector */}
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="block text-xs font-semibold uppercase tracking-wider text-gray-700 mb-1">
+              <label className="field-label">
                 {lang === 'sw' ? 'Tarehe' : 'Date'}
               </label>
               <input
                 type="date"
                 value={date}
                 onChange={(e) => setDate(e.target.value)}
-                className="w-full px-3 py-2.5 rounded-xl border border-gray-300 focus:ring-2 focus:ring-dairy-500 text-sm font-medium"
+                className="field"
                 required
               />
             </div>
 
             <div>
-              <label className="block text-xs font-semibold uppercase tracking-wider text-gray-700 mb-1">
+              <label className="field-label">
                 {lang === 'sw' ? 'Zamu (Session)' : 'Milking Session'}
               </label>
               <div className="grid grid-cols-3 gap-1 bg-gray-100 p-1 rounded-xl">
@@ -334,7 +334,7 @@ export const RecordMilkModal: React.FC<RecordMilkModalProps> = ({
                   value={totalLitres}
                   onChange={(e) => setTotalLitres(e.target.value)}
                   placeholder="e.g. 42.5"
-                  className="w-full text-3xl font-extrabold text-slate-900 pl-4 pr-16 py-3.5 rounded-2xl border border-gray-300 focus:ring-2 focus:ring-dairy-500 bg-white"
+                  className="field text-3xl font-extrabold text-slate-900 pl-4 pr-16 rounded-2xl"
                   autoFocus
                   required
                 />
@@ -344,14 +344,14 @@ export const RecordMilkModal: React.FC<RecordMilkModalProps> = ({
               </div>
 
               {/* Fast Presets for under 30s logging */}
-              <div className="flex items-center gap-2 pt-1">
-                <span className="text-xs font-medium text-gray-400">Quick add:</span>
+              <div className="flex flex-wrap items-center gap-2 pt-1">
+                <span className="text-sm font-medium text-charcoal-muted">Quick add:</span>
                 {[5, 10, 20, 30].map((amt) => (
                   <button
                     key={amt}
                     type="button"
                     onClick={() => handleQuickAdd(amt)}
-                    className="px-2.5 py-1 text-xs font-semibold bg-white border border-gray-200 rounded-lg hover:bg-gray-100 text-gray-700 transition-colors shadow-2xs"
+                    className="chip-btn"
                   >
                     +{amt}L
                   </button>
@@ -423,7 +423,7 @@ export const RecordMilkModal: React.FC<RecordMilkModalProps> = ({
                           value={cowYields[cow.id] || ''}
                           onChange={(e) => handleCowYieldChange(cow.id, e.target.value)}
                           placeholder="0.0"
-                          className="w-full text-right font-bold text-sm px-2.5 py-1.5 rounded-lg border border-gray-300 focus:ring-2 focus:ring-dairy-500 pr-7"
+                          className="field text-right pr-7"
                         />
                         <span className="absolute right-2 top-2 text-xs text-gray-400 font-bold">
                           L
@@ -465,7 +465,7 @@ export const RecordMilkModal: React.FC<RecordMilkModalProps> = ({
                       value={soldLitres}
                       onChange={(e) => setSoldLitres(e.target.value)}
                       placeholder="0"
-                      className="w-full px-3 py-2 rounded-xl border border-gray-300 focus:ring-2 focus:ring-dairy-500 font-medium"
+                      className="field"
                     />
                   </div>
 
@@ -480,7 +480,7 @@ export const RecordMilkModal: React.FC<RecordMilkModalProps> = ({
                       value={householdLitres}
                       onChange={(e) => setHouseholdLitres(e.target.value)}
                       placeholder="0"
-                      className="w-full px-3 py-2 rounded-xl border border-gray-300 focus:ring-2 focus:ring-dairy-500 font-medium"
+                      className="field"
                     />
                   </div>
 
@@ -495,7 +495,7 @@ export const RecordMilkModal: React.FC<RecordMilkModalProps> = ({
                       value={calvesLitres}
                       onChange={(e) => setCalvesLitres(e.target.value)}
                       placeholder="0"
-                      className="w-full px-3 py-2 rounded-xl border border-gray-300 focus:ring-2 focus:ring-dairy-500 font-medium"
+                      className="field"
                     />
                   </div>
 
@@ -510,7 +510,7 @@ export const RecordMilkModal: React.FC<RecordMilkModalProps> = ({
                       value={wasteLitres}
                       onChange={(e) => setWasteLitres(e.target.value)}
                       placeholder="0"
-                      className="w-full px-3 py-2 rounded-xl border border-gray-300 focus:ring-2 focus:ring-dairy-500 font-medium"
+                      className="field"
                     />
                   </div>
                 </div>
@@ -519,7 +519,7 @@ export const RecordMilkModal: React.FC<RecordMilkModalProps> = ({
           </div>
 
           <div>
-            <label className="block text-xs font-semibold uppercase tracking-wider text-gray-700 mb-1">
+            <label className="field-label">
               {lang === 'sw' ? 'Maelezo ya Ziada' : 'Milking Notes'}
             </label>
             <input
@@ -527,7 +527,7 @@ export const RecordMilkModal: React.FC<RecordMilkModalProps> = ({
               value={notes}
               onChange={(e) => setNotes(e.target.value)}
               placeholder={lang === 'sw' ? 'mfano Maziwa yalipozwa vizuri, asubuhi mapema' : 'e.g. Morning milking went smoothly, cooled to 4°C'}
-              className="w-full px-3.5 py-2 rounded-xl border border-gray-300 focus:ring-2 focus:ring-dairy-500 text-xs"
+              className="field"
             />
           </div>
 
@@ -536,14 +536,14 @@ export const RecordMilkModal: React.FC<RecordMilkModalProps> = ({
             <button
               type="button"
               onClick={onClose}
-              className="px-4 py-2.5 rounded-xl border border-gray-300 text-xs font-semibold text-gray-700 hover:bg-gray-50 transition-colors"
+              className="btn btn-secondary"
             >
               {t.herd.cancel}
             </button>
             <button
               type="submit"
               disabled={overlaps.length > 0 && !replaceConfirmed}
-              className="flex items-center space-x-2 px-6 py-2.5 rounded-xl bg-dairy-600 hover:bg-dairy-700 disabled:bg-gray-300 disabled:cursor-not-allowed text-white font-bold text-sm shadow-sm transition-all"
+              className="btn btn-primary disabled:bg-gray-300 disabled:cursor-not-allowed"
             >
               <Check className="w-4 h-4" />
               <span>
