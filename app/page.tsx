@@ -357,7 +357,12 @@ export default function Home() {
 
   // Breeding actions
   const handleSaveBreeding = (event: Omit<BreedingEvent, 'id' | 'createdAt' | 'farmId'>) => {
-    AppStorage.addBreedingEvent(event, currentTargetFarmId);
+    // A calving also updates the cow and adds the calf, so it can be refused (for example a tag already in use).
+    const done = tryRun(() => { AppStorage.addBreedingEvent(event, currentTargetFarmId); },
+      event.type === 'calving'
+        ? (lang === 'sw' ? 'Kuzaa kumerekodiwa' : 'Calving recorded. The herd and reminders are updated.')
+        : (lang === 'sw' ? 'Rekodi ya uzazi imehifadhiwa' : 'Breeding record saved.'));
+    return done;
   };
 
   const handleDeleteBreeding = (id: string) => {
@@ -497,6 +502,7 @@ export default function Home() {
           subscription={currentUser?.subscription}
           county={farm.county}
           farmName={farm.name}
+          onSaveHealthEvent={handleSaveHealth}
           farmId={currentUser?.farmId || farm.id}
           serverBacked={CloudStore.status().configured && currentUser?.id !== 'usr-demo-01'}
         />
@@ -616,6 +622,8 @@ export default function Home() {
         onClose={() => setIsBreedingModalOpen(false)}
         onSave={handleSaveBreeding}
         cows={cows}
+        breedingEvents={breedingEvents}
+        reminders={reminders}
         lang={lang}
       />
 

@@ -1,16 +1,21 @@
 'use client';
 
 import React, { useState } from 'react';
-import { Cow, BreedingEvent, BreedingEventType, Language } from '@/types';
+import { Cow, BreedingEvent, BreedingEventType, FarmReminder, Language } from '@/types';
 import { addDays, farmToday } from '@/lib/dates';
 import { translations } from '@/lib/translations';
-import { X, Check, Dna, Calendar, AlertCircle } from 'lucide-react';
+import { autoCalfTag, describeCalving, liveCalves, planCalving, type CalfSex } from '@/lib/herd-care';
+import { X, Check, Dna, Calendar, AlertCircle, Info } from 'lucide-react';
 
 interface BreedingModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onSave: (event: Omit<BreedingEvent, 'id' | 'createdAt' | 'farmId'>) => void;
+  /** Returns false when the record was refused (for example a calf tag already in use): the form then stays open. */
+  onSave: (event: Omit<BreedingEvent, 'id' | 'createdAt' | 'farmId'>) => boolean | void;
   cows: Cow[];
+  /** Used to show what a calving will change before it is saved. */
+  breedingEvents?: BreedingEvent[];
+  reminders?: FarmReminder[];
   lang: Language;
 }
 
@@ -19,6 +24,8 @@ export const BreedingModal: React.FC<BreedingModalProps> = ({
   onClose,
   onSave,
   cows,
+  breedingEvents = [],
+  reminders = [],
   lang,
 }) => {
   const t = translations[lang];
@@ -33,12 +40,29 @@ export const BreedingModal: React.FC<BreedingModalProps> = ({
   const [pregnancyResult, setPregnancyResult] = useState<'positive' | 'negative' | 'pending'>('pending');
   const [expectedCalvingDate, setExpectedCalvingDate] = useState('');
   const [calvingOutcome, setCalvingOutcome] = useState<'heifer_calf' | 'bull_calf' | 'twins' | 'stillborn' | 'aborted'>('heifer_calf');
+  const [calfTag, setCalfTag] = useState('');
+  const [calfSex, setCalfSex] = useState<CalfSex>('female');
+  const [calfTag2, setCalfTag2] = useState('');
+  const [calfSex2, setCalfSex2] = useState<CalfSex>('male');
   const [notes, setNotes] = useState('');
   const [error, setError] = useState('');
 
   const selectedCow = femaleCows.find((c) => c.id === cowId) || femaleCows[0];
 
   if (!isOpen) return null;
+
+  // What a calving would change, worked out the same way the save does it.
+  const calvingEvent = {
+    date,
+    calvingOutcome,
+    calfTag: calfTag.trim() || undefined,
+    calfSex: calvingOutcome === 'twins' ? calfSex : undefined,
+    calfTag2: calfTag2.trim() || undefined,
+    calfSex2: calvingOutcome === 'twins' ? calfSex2 : undefined,
+  };
+  const calvingPlan = type === 'calving' && selectedCow ? planCalving({ cow: selectedCow, cows, event: calvingEvent, breedingEvents, reminders }) : null;
+  const calvingLines = calvingPlan && selectedCow ? describeCalving(selectedCow, calvingPlan, calvingOutcome) : [];
+  const nextTag = selectedCow ? autoCalfTag(selectedCow.tag, cows.map((c) => c.tag)) : '';
 
   // Auto-calculate expected calving date (~283 days average gestation) if insemination
   const calculateCalvingDate = (insemDate: string) => {
@@ -60,7 +84,12 @@ export const BreedingModal: React.FC<BreedingModalProps> = ({
       return;
     }
 
-    onSave({
+    if (calvingPlan?.problems.length) {
+      setError(calvingPlan.problems[0]);
+      return;
+    }
+
+    const saved = onSave({
       cowId: selectedCow.id,
       cowTag: selectedCow.tag,
       cowName: selectedCow.name,
@@ -70,12 +99,16 @@ export const BreedingModal: React.FC<BreedingModalProps> = ({
       pregnancyResult: type === 'pregnancy_check' || type === 'insemination' ? pregnancyResult : undefined,
       expectedCalvingDate: expectedCalvingDate || undefined,
       calvingOutcome: type === 'calving' ? calvingOutcome : undefined,
+      ...(type === 'calving' && liveCalves(calvingOutcome) > 0 ? calvingEvent : {}),
       notes: notes.trim() || undefined,
     });
+    if (saved === false) return; // refused: keep the form open so nothing typed is lost
 
     // Reset
     setSireOrProvider('');
     setExpectedCalvingDate('');
+    setCalfTag('');
+    setCalfTag2('');
     setNotes('');
     setError('');
     onClose();
@@ -254,6 +287,51 @@ export const BreedingModal: React.FC<BreedingModalProps> = ({
                 <option value="stillborn">{lang === 'sw' ? 'Amezaliwa Akiwa Amekufa (Stillborn)' : 'Stillborn'}</option>
                 <option value="aborted">{lang === 'sw' ? 'Mimba Imeharibika (Aborted)' : 'Aborted'}</option>
               </select>
+
+              {liveCalves(calvingOutcome) > 0 && (
+                <div className="space-y-2.5">
+                  {(calvingOutcome === 'twins' ? [1, 2] : [1]).map((n) => (
+                    <div key={n} className="grid grid-cols-[1fr_auto] gap-2">
+                      <div>
+                        <label htmlFor={`calf-tag-${n}`} className="block text-xs font-semibold uppercase tracking-wider text-gray-700 mb-1">
+                          {calvingOutcome === 'twins' ? `Calf ${n} ear tag` : 'Calf ear tag'} (optional)
+                        </label>
+                        <input
+                          id={`calf-tag-${n}`}
+                          type="text"
+                          value={n === 1 ? calfTag : calfTag2}
+                          onChange={(e) => (n === 1 ? setCalfTag(e.target.value) : setCalfTag2(e.target.value))}
+                          placeholder={`Automatic: ${n === 1 ? nextTag : `${selectedCow?.tag ?? ''}-C${calfTag.trim() ? 1 : 2}`}`}
+                          className="w-full px-3.5 py-2 rounded-xl border border-gray-200 bg-white text-sm"
+                        />
+                      </div>
+                      {calvingOutcome === 'twins' && (
+                        <div>
+                          <label htmlFor={`calf-sex-${n}`} className="block text-xs font-semibold uppercase tracking-wider text-gray-700 mb-1">Sex</label>
+                          <select
+                            id={`calf-sex-${n}`}
+                            value={n === 1 ? calfSex : calfSex2}
+                            onChange={(e) => (n === 1 ? setCalfSex(e.target.value as CalfSex) : setCalfSex2(e.target.value as CalfSex))}
+                            className="px-3 py-2 rounded-xl border border-gray-200 bg-white text-sm"
+                          >
+                            <option value="female">Heifer</option>
+                            <option value="male">Bull</option>
+                          </select>
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              {calvingLines.length > 0 && (
+                <div className="rounded-xl border border-[#A8BFA5]/60 bg-[#EEF4EC] p-3">
+                  <p className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-[#2B4A3B]"><Info className="w-3.5 h-3.5" />When you save</p>
+                  <ul className="mt-1.5 space-y-1 text-sm text-[#26332D]">
+                    {calvingLines.map((line) => <li key={line}>• {line}</li>)}
+                  </ul>
+                </div>
+              )}
             </div>
           )}
 
