@@ -493,6 +493,9 @@ export default function Home() {
           onOpenRecordBreeding={() => setIsBreedingModalOpen(true)}
           onDeleteBreeding={handleDeleteBreeding}
           lang={lang}
+          subscription={currentUser?.subscription}
+          county={farm.county}
+          farmName={farm.name}
         />
       )}
 

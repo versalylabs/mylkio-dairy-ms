@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import { Cow, CowStatus, HealthEvent, BreedingEvent, Language, MilkEntry } from '@/types';
+import { Cow, CowStatus, HealthEvent, BreedingEvent, Language, MilkEntry, Subscription } from '@/types';
 import { CowDetailModal } from './CowDetailModal';
 import { VetGuide } from './VetGuide';
 import { farmToday } from '@/lib/dates';
@@ -35,6 +35,10 @@ interface HerdViewProps {
   onOpenRecordBreeding: () => void;
   onDeleteBreeding: (id: string) => void;
   lang: Language;
+  /** For the vet guide: what the plan includes, and where the farm is. */
+  subscription?: Subscription | null;
+  county?: string;
+  farmName?: string;
 }
 
 export const HerdView: React.FC<HerdViewProps> = ({
@@ -50,6 +54,9 @@ export const HerdView: React.FC<HerdViewProps> = ({
   onOpenRecordBreeding,
   onDeleteBreeding,
   lang,
+  subscription,
+  county,
+  farmName,
 }) => {
   const t = translations[lang];
   const [activeSubTab, setActiveSubTab] = useState<'registry' | 'health' | 'breeding' | 'guide'>('registry');
@@ -639,7 +646,7 @@ export const HerdView: React.FC<HerdViewProps> = ({
       )}
 
       {/* SUB-TAB 4: VET GUIDE (emergency signs and seasonal risks) */}
-      {activeSubTab === 'guide' && <VetGuide today={farmToday()} />}
+      {activeSubTab === 'guide' && <VetGuide today={farmToday()} subscription={subscription} county={county} farmName={farmName} cows={cows} />}
 
       {/* Cow Detail Information Modal */}
       <CowDetailModal

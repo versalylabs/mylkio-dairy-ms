@@ -1,6 +1,6 @@
 # Vet and illness feature: spec
 
-Status: agreed in outline on 14 November 2026. **Step A is built** (see "Step A: what exists" below); steps B to E are not. This records the decisions so we can build from them in small steps.
+Status: agreed in outline on 14 November 2026. **Steps A and B are built** (see "Step A: what exists" and "Step B: what was built, and why it differs from the plan" below); steps C to E are not. Step B changed the original plan: read that section first. This records the decisions so we can build from them in small steps.
 
 ## What it is
 
@@ -139,3 +139,28 @@ in a pull request. A test refuses an approval with no named reviewer or date, an
 - Whether foot-and-mouth is shown as "emergency" or "today", and the urgency of every other entry.
 - Seasons by region (coast, north, highlands), instead of one pattern for the whole country.
 - Kiswahili wording (English only for now).
+
+## Step B: what was built, and why it differs from the plan
+
+The plan was "photo in, AI analysis out", limited to about 10 checks a month on Farmer. While preparing step B three facts changed the design, so the first version is different, and better suited to the situation:
+
+1. **There is no vet adviser yet.** An AI that names causes from a photo cannot be checked without vet-confirmed cases, and a wrong answer on a sick animal is costly. A rules engine built from published veterinary sources can be read, checked and corrected line by line, which is what a vet adviser can do in an hour.
+2. **Free AI photo reading has a privacy cost.** Google's free Gemini tier states that free-tier prompts and uploaded files are used to improve its products and may be read by human reviewers, and its limits are not fixed (checked 15 November 2026; see the sources in the pull request). Sending farmers' photos there for free is not a good default.
+3. **A photo cannot reliably identify a disease on its own.** What it is good for is showing a vet what you see.
+
+So step B is a **free, private, offline symptom checker**, and the photo is for the vet:
+
+- **Checker** (`lib/vet/checker.ts`, `lib/vet/conditions.ts`): the farmer says whether it is a cow or a calf, whether she calved recently, and ticks the signs she can see (30 signs, grouped, collapsible). The engine matches them against 11 sourced descriptions: mastitis, East Coast fever, foot-and-mouth disease, lumpy skin disease, milk fever, bloat, foot rot, calf scours, pneumonia, retained afterbirth or womb infection, and abortion (including brucellosis). Results say **"Fits closely" or "Fits partly"**: how well the ticked signs match a description, never a probability and never "your cow has X". At most three are shown. Red flags still come first and set the urgency. When several signs match nothing, the guide says so, never says "all clear", and advises seeing a vet in the next day or two.
+- **Every entry cites its sources** (Merck Veterinary Manual, WOAH, and the Animal Diseases Act summary), with the date each page was read, behind a "Where this comes from" link on the result. Entries say only what the sources support; one tip from the step A draft ("keep her walking" for bloat) was removed because the sources do not back it.
+- **Photo (optional)**: taken or chosen on the phone, kept in memory, never uploaded or analysed. **"Send summary"** shares a short written summary with the photo through the phone's share sheet (WhatsApp and others), or opens WhatsApp with the text, or copies it. Nothing is sent unless the farmer chooses.
+- **Plan gating**: emergency guidance and the season calendar are on every plan. The full "what the signs could fit" results need the Farmer plan or a trial; a Starter farm sees the red flags and a note about Farmer. There is no monthly limit, because a check costs nothing to run. The server-side check (`featuresFor`) will matter when AI photo reading or the vet finder is added; the symptom checker runs on the device, so a determined user could bypass this limit, which is acceptable because it costs us nothing.
+- **Nairobi** is the pilot county (`lib/vet/contacts.ts`). The only official number found is Nairobi City County's general help line, which is **not** a direct veterinary line, so the screen labels it that way and marks it unconfirmed. Direct numbers for the county's Director of Veterinary Services and the Kabete veterinary teaching hospital are still to be added once someone has rung and confirmed them. The Kenya Veterinary Board registers link is shown so a farmer can check that anyone they hire is registered.
+- **Disclaimer** (`lib/vet/disclaimer.ts`): a short line on the screen and a "read the full notice" section with four plain-language points (not a diagnosis; can be wrong; never delay calling a vet and never give or hold back treatment because of it alone; where the information comes from and that it has not been reviewed by a vet unless the entry says so). This is the product team's recommendation, not legal advice. Have a lawyer who knows Kenyan consumer and veterinary rules check it before the guide is shown to farmers.
+
+### What is still not done, and what it needs
+
+- **A veterinarian's review.** Every condition is still `DRAFT`, so the checker is hidden on live farms exactly like the red flags (see step A). Because every entry lists its sources, a vet can review the whole set in about an hour: ask a vet registered with the Kenya Veterinary Board, a lecturer at a veterinary faculty, or the county veterinary office. Give them the preview link (see step A for the Vercel setting), ask for corrections to wording, urgency and missing conditions, then record their name and date in a pull request.
+- **A check against real cases.** Once a vet is involved, collect about 50 vet-confirmed cases (signs ticked and the vet's assessment) and run them through `assess` to see how often an emergency is missed. Add them as tests so the pass bar in "Before launch" is measured, not assumed.
+- **Direct Nairobi veterinary contacts**, confirmed by phone.
+- **AI photo reading** is deliberately left for later. If it is added, it should only read visible signs off a photo and tick them for the farmer to confirm (never name a disease), use a paid or privacy-respecting provider rather than a free tier that trains on the photos, and carry the per-month limit already defined in `lib/plans.ts`.
+- **Kiswahili**, the vet finder (step C) and a "save to the cow's health record" button.

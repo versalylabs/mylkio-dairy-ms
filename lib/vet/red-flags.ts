@@ -11,12 +11,15 @@ export const CALL_A_VET_NOW = 'If you are worried about an animal, call a vet no
 export const REPORTING_NOTE =
   'Report suspected notifiable diseases to your sub-county veterinary officer or the county veterinary office (County Director of Veterinary Services). A vet can help you do this. Direct phone numbers for pilot counties are to be added.';
 
-export type Urgency = 'emergency' | 'today';
+/** emergency: act now. today: see a vet today. soon: see a vet in the next day or two. */
+export type Urgency = 'emergency' | 'today' | 'soon';
 
 export interface Sign {
   id: string;
   label: string;
-  group: 'General' | 'Mouth and feet' | 'Skin' | 'Belly and breathing' | 'Udder and milk' | 'Calving' | 'Behaviour and nerves';
+  group:
+    | 'General' | 'Head' | 'Mouth and feet' | 'Legs and hooves' | 'Skin' | 'Belly and breathing'
+    | 'Udder and milk' | 'Calving' | 'Calves' | 'Behaviour and nerves';
 }
 
 export const SIGNS: Sign[] = [
@@ -44,6 +47,20 @@ export const SIGNS: Sign[] = [
 
   { id: 'convulsions', label: 'Staggering, collapsing or fits', group: 'Behaviour and nerves' },
   { id: 'aggressive_drooling', label: 'Unusually aggressive or frightened, drooling heavily, cannot swallow', group: 'Behaviour and nerves' },
+
+  // Signs used by the symptom checker (lib/vet/conditions.ts) as well as the red flags above.
+  { id: 'stopped_chewing_cud', label: 'Has stopped chewing the cud', group: 'General' },
+  { id: 'eye_nose_discharge', label: 'Discharge from the eyes or nose', group: 'Head' },
+  { id: 'cough', label: 'Coughing', group: 'Belly and breathing' },
+  { id: 'lameness', label: 'Limping, or does not want to put weight on a leg', group: 'Legs and hooves' },
+  { id: 'swelling_above_hoof', label: 'Swelling of the lower leg just above the hoof', group: 'Legs and hooves' },
+  { id: 'ticks_many', label: 'Many ticks on the animal', group: 'Skin' },
+  { id: 'abnormal_milk', label: 'Milk is watery, or has clots, flakes or blood', group: 'Udder and milk' },
+  { id: 'afterbirth_retained', label: 'Afterbirth not passed 24 hours after calving', group: 'Calving' },
+  { id: 'foul_discharge', label: 'Foul-smelling discharge from the vagina', group: 'Calving' },
+  { id: 'aborted', label: 'Aborted, or the calf was born dead or very weak', group: 'Calving' },
+  { id: 'calf_diarrhoea', label: 'Calf has watery diarrhoea', group: 'Calves' },
+  { id: 'calf_weak', label: 'Calf is weak, will not suck, or has sunken eyes', group: 'Calves' },
 ];
 
 export interface RedFlag {
@@ -69,8 +86,8 @@ export const RED_FLAGS: RedFlag[] = [
   {
     id: 'bloat', title: 'Possible bloat', urgency: 'emergency', triggers: [['swollen_left_flank']],
     why: 'A tight swollen left side can mean gas is trapped in the stomach. It can kill within hours.',
-    doNow: ['Call a vet immediately.', 'Keep her on her feet and walking gently if she can.', 'Take her off wet, lush pasture, legumes and grain.'],
-    doNot: ['Do not drench her with oil, milk or herbal mixtures unless a vet tells you to. A bloated cow can choke on liquid.'],
+    doNow: ['Call a vet immediately. Relieving the gas needs a vet, who will use a tube or a trocar.', 'Take her off wet, lush pasture, legumes and grain.'],
+    doNot: ['Do not push a tube or a sharp object into her side yourself.', 'Do not drench her with oil, milk or herbal mixtures unless a vet tells you to. A bloated cow can choke on liquid.'],
     notifiable: false, review: DRAFT,
   },
   {
@@ -180,7 +197,7 @@ export interface RedFlagMatch {
   flag: RedFlag;
 }
 
-const URGENCY_ORDER: Record<Urgency, number> = { emergency: 0, today: 1 };
+export const URGENCY_ORDER: Record<Urgency, number> = { emergency: 0, today: 1, soon: 2 };
 
 /**
  * The red flags matching the signs the farmer ticked: emergencies first, and notifiable ones before the
@@ -197,5 +214,5 @@ export function screenRedFlags(selected: readonly string[], flags: readonly RedF
 /** The most urgent level among the matches, or null when nothing matched. */
 export function overallUrgency(matches: readonly RedFlag[]): Urgency | null {
   if (matches.length === 0) return null;
-  return matches.some((m) => m.urgency === 'emergency') ? 'emergency' : 'today';
+  return matches.reduce<Urgency>((worst, m) => (URGENCY_ORDER[m.urgency] < URGENCY_ORDER[worst] ? m.urgency : worst), 'soon');
 }

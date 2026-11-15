@@ -2,6 +2,7 @@ import { afterEach, describe, expect, it, vi } from 'vitest';
 import { RED_FLAGS, SIGNS, overallUrgency, screenRedFlags } from '@/lib/vet/red-flags';
 import { SEASONS, seasonForDate, seasonForMonth } from '@/lib/vet/seasonal';
 import { draftContentAllowed, reviewProblem, visibleEntries } from '@/lib/vet/review';
+import { CONDITIONS } from '@/lib/vet/conditions';
 
 afterEach(() => vi.unstubAllEnvs());
 
@@ -24,7 +25,7 @@ describe('red-flag content', () => {
   });
 
   it('shows no sign that can never lead to guidance', () => {
-    const used = new Set(RED_FLAGS.flatMap((f) => f.triggers.flat()));
+    const used = new Set([...RED_FLAGS.flatMap((f) => f.triggers.flat()), ...CONDITIONS.flatMap((c) => Object.keys(c.signs))]);
     for (const sign of SIGNS) expect(used.has(sign.id), sign.id).toBe(true);
   });
 
@@ -142,6 +143,8 @@ describe('seasonal calendar', () => {
 describe('veterinary review gate', () => {
   it('currently contains only drafts, so nothing reaches live farms', () => {
     expect(RED_FLAGS.every((f) => f.review.status === 'draft')).toBe(true);
+    expect(CONDITIONS.every((c) => c.review.status === 'draft')).toBe(true);
+    expect(visibleEntries(CONDITIONS, false)).toEqual([]);
     expect(SEASONS.every((s) => s.review.status === 'draft')).toBe(true);
     expect(visibleEntries(RED_FLAGS, false)).toEqual([]);
     expect(visibleEntries(SEASONS, false)).toEqual([]);
@@ -175,6 +178,6 @@ describe('veterinary review gate', () => {
   });
 
   it('holds every entry in the content files to that rule', () => {
-    for (const entry of [...RED_FLAGS, ...SEASONS]) expect(reviewProblem(entry.review), entry.id).toBeNull();
+    for (const entry of [...RED_FLAGS, ...SEASONS, ...CONDITIONS]) expect(reviewProblem(entry.review), entry.id).toBeNull();
   });
 });

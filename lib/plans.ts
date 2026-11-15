@@ -10,9 +10,12 @@ export interface PlanFeatures {
   illnessGuide: boolean;
   /** Seasonal risk calendar. On every plan. */
   seasonalCalendar: boolean;
-  /** Photo and symptom health check (step B). */
+  /** The symptom checker ("what the signs could fit", with reasons and sources). Free to run, so no usage limit. */
   healthChecker: boolean;
-  /** How many health checks a farm may run each month. */
+  /**
+   * How many AI photo readings a farm may run each month. The AI photo reading is not built (see
+   * docs/vet-and-illness-feature.md); the symptom checker itself costs nothing per use and is not limited.
+   */
   healthChecksPerMonth: number;
   /** Vet finder and send-case-to-vet (step C). */
   vetFinder: boolean;
