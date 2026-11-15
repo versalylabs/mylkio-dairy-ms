@@ -205,6 +205,10 @@ export interface BreedingEvent {
   expectedCalvingDate?: string;
   calvingOutcome?: 'heifer_calf' | 'bull_calf' | 'twins' | 'stillborn' | 'aborted';
   calfTag?: string;
+  calfSex?: 'female' | 'male';
+  /** Twins: the second calf. */
+  calfTag2?: string;
+  calfSex2?: 'female' | 'male';
   notes?: string;
   createdAt: string;
 }

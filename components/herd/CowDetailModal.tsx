@@ -5,6 +5,7 @@ import { Cow, HealthEvent, BreedingEvent, MilkEntry, Language } from '@/types';
 import { translations } from '@/lib/translations';
 import { cowYields } from '@/lib/milk';
 import { daysBetween, farmToday, formatFarmDate } from '@/lib/dates';
+import { healthTypeLabel, withdrawalState } from '@/lib/herd-care';
 import { 
   X, 
   Calendar, 
@@ -65,7 +66,7 @@ export const CowDetailModal: React.FC<CowDetailModalProps> = ({
   const cowBreeding = breedingEvents.filter((b) => b.cowId === cow.id);
 
   // Active withdrawal
-  const activeWithdrawal = cowHealth.find((h) => h.isWithdrawalActive);
+  const activeWithdrawal = cowHealth.find((h) => withdrawalState(h, farmToday()) === 'active');
 
   // Recent milk production breakdown
   // Per-day yields from counted cow-level records only (voided/overlapping entries excluded).
@@ -445,14 +446,17 @@ export const CowDetailModal: React.FC<CowDetailModalProps> = ({
                     <div key={item.id} className="p-3.5 bg-white rounded-xl border border-[#E8E4D8] space-y-1">
                       <div className="flex items-center justify-between">
                         <span className="font-bold text-xs text-[#26332D]">
-                          {item.diagnosis || item.medicineName || item.type.toUpperCase()}
+                          {item.diagnosis || item.medicineName || healthTypeLabel(item.type)}
                         </span>
                         <span className="text-xs text-[#879C91]">{item.date}</span>
                       </div>
-                      <p className="text-xs text-[#5D7368]">
-                        Medicine: {item.medicineName || 'None'} {item.costKSh ? `• Cost: KSh ${item.costKSh.toLocaleString()}` : ''}
-                      </p>
-                      {item.isWithdrawalActive && (
+                      {(item.type !== 'routine_check' || item.medicineName) && (
+                        <p className="text-xs text-[#5D7368]">
+                          Medicine: {item.medicineName || 'None'} {item.costKSh ? `• Cost: KSh ${item.costKSh.toLocaleString()}` : ''}
+                        </p>
+                      )}
+                      {item.type === 'routine_check' && item.notes && <p className="text-xs text-[#5D7368]">{item.notes}</p>}
+                      {withdrawalState(item, farmToday()) === 'active' && (
                         <span className="inline-block text-xs font-bold text-rose-800 bg-rose-100 px-2 py-0.2 rounded-md">
                           Withdrawal active until {item.withdrawalEndDate}
                         </span>

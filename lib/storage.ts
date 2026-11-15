@@ -46,6 +46,7 @@ import { CloudStore } from './cloud-store';
 import type { BucketName } from './backend-contract';
 import { farmToday } from './dates';
 import { findMilkOverlaps } from './milk';
+import { healthTypeLabel, planCalving, planProjection } from './herd-care';
 import { LEDGER_VERSION, deliveryCharge, migrateLegacyLedger, receiptForDelivery, roundMoney } from './ledger';
 import type { DateRange } from './dates';
 import { allowedAllocation, assertBillable, billedDeliveryIds, draftBill, openTargets, overlappingStatement, type OpenTarget } from './settlements';
@@ -627,7 +628,7 @@ export const AppStorage = {
     if (newEvent.nextDueDate) {
       this.addReminder({
         type: 'vaccination',
-        title: `${newEvent.cowTag} Follow-up: ${newEvent.diagnosis || newEvent.medicineName || newEvent.type}`,
+        title: `${newEvent.cowTag} Follow-up: ${newEvent.diagnosis || newEvent.medicineName || healthTypeLabel(newEvent.type).toLowerCase()}`,
         description: `Next booster or examination due on ${newEvent.nextDueDate}.`,
         dueDate: newEvent.nextDueDate,
         cowId: newEvent.cowId,
@@ -670,26 +671,42 @@ export const AppStorage = {
       farmId: targetFarmId,
       createdAt: new Date().toISOString(),
     };
+    const cow = this.getCows(targetFarmId).find((c) => c.id === newEvent.cowId);
+
+    // A calving changes the herd (see lib/herd-care.ts). Check it first, so a calving that cannot be
+    // recorded (for example a calf tag already in use) changes nothing at all.
+    const calving = newEvent.type === 'calving' && cow
+      ? planCalving({ cow, cows: this.getCows(targetFarmId), event: newEvent, breedingEvents: events, reminders: this.getReminders(targetFarmId) })
+      : null;
+    if (calving?.problems.length) throw new Error(calving.problems[0]);
+
     const updated = [newEvent, ...events];
     this.saveTenantData(STORAGE_KEYS.BREEDING_PREFIX, targetFarmId, updated);
 
-    // If pregnancy confirmed positive or AI recorded with expected date, update Cow & create Reminder
+    if (calving && cow) {
+      this.updateCow(cow.id, calving.dam, targetFarmId);
+      calving.calves.forEach((calf) => this.addCow(calf, targetFarmId));
+      this.completeReminders(calving.completeReminderIds, targetFarmId);
+      calving.reminders.forEach((reminder) => this.addReminder(reminder, targetFarmId));
+    }
+
+    // If pregnancy confirmed positive or AI recorded with expected date, update Cow & create Reminders
     if (newEvent.expectedCalvingDate) {
       this.updateCow(newEvent.cowId, {
         isPregnant: newEvent.pregnancyResult !== 'negative',
         expectedCalvingDate: newEvent.expectedCalvingDate,
       }, targetFarmId);
 
-      this.addReminder({
-        type: 'calving',
-        title: `${newEvent.cowTag} Projected Calving Date`,
-        description: `Projected delivery date: ${newEvent.expectedCalvingDate}. Prepare clean maternity pen and transition feed.`,
-        dueDate: newEvent.expectedCalvingDate,
-        cowId: newEvent.cowId,
-        cowTag: newEvent.cowTag,
-        severity: 'high',
-        completed: false,
-      }, targetFarmId);
+      if (newEvent.pregnancyResult !== 'negative') {
+        const projection = planProjection({
+          cow: { id: newEvent.cowId, tag: newEvent.cowTag },
+          expectedCalvingDate: newEvent.expectedCalvingDate,
+          today: farmToday(),
+          reminders: this.getReminders(targetFarmId),
+        });
+        this.completeReminders(projection.completeReminderIds, targetFarmId);
+        projection.reminders.forEach((reminder) => this.addReminder(reminder, targetFarmId));
+      }
     }
 
     SyncEngine.enqueue('breeding_event', 'create', newEvent);
@@ -772,6 +789,16 @@ export const AppStorage = {
     const index = reminders.findIndex((r) => r.id === id);
     if (index === -1) return;
     reminders[index].completed = !reminders[index].completed;
+    this.saveTenantData(STORAGE_KEYS.REMINDERS_PREFIX, targetFarmId, reminders);
+    window.dispatchEvent(new Event('mylkio_reminders_changed'));
+  },
+
+  /** Marks reminders done (used when a calving makes a "calving due" reminder obsolete). */
+  completeReminders(ids: readonly string[], customFarmId?: string) {
+    if (ids.length === 0) return;
+    const targetFarmId = customFarmId || this.getActiveFarmId();
+    const wanted = new Set(ids);
+    const reminders = this.getReminders(targetFarmId).map((r) => (wanted.has(r.id) ? { ...r, completed: true } : r));
     this.saveTenantData(STORAGE_KEYS.REMINDERS_PREFIX, targetFarmId, reminders);
     window.dispatchEvent(new Event('mylkio_reminders_changed'));
   },

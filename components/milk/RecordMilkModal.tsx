@@ -5,6 +5,7 @@ import { Cow, MilkEntry, MilkAllocation, Language, HealthEvent } from '@/types';
 import { translations } from '@/lib/translations';
 import { farmToday, formatFarmDate } from '@/lib/dates';
 import { findMilkOverlaps } from '@/lib/milk';
+import { withdrawalEndFor } from '@/lib/herd-care';
 import { X, Check, Milk, Sparkles, AlertCircle, ChevronDown, ChevronUp, ShieldAlert } from 'lucide-react';
 
 interface RecordMilkModalProps {
@@ -71,10 +72,8 @@ export const RecordMilkModal: React.FC<RecordMilkModalProps> = ({
   // Cows with a recorded treatment withdrawal covering this date.
   const withdrawalByCow = new Map<string, string>();
   for (const h of healthEvents) {
-    if (h.withdrawalEndDate && h.date <= date && h.withdrawalEndDate >= date) {
-      const current = withdrawalByCow.get(h.cowId);
-      if (!current || h.withdrawalEndDate > current) withdrawalByCow.set(h.cowId, h.withdrawalEndDate);
-    }
+    const end = withdrawalEndFor(healthEvents, h.cowId, date);
+    if (end) withdrawalByCow.set(h.cowId, end);
   }
 
   // Calculate live sum if cow_level

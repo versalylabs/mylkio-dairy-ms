@@ -2,9 +2,10 @@
 
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import {
-  AlertTriangle, Camera, CalendarDays, CheckCircle2, ChevronDown, ExternalLink, Info, Lock, PhoneCall, Send, ShieldAlert, Stethoscope, X,
+  AlertTriangle, Camera, CalendarDays, CheckCircle2, ClipboardCheck, ChevronDown, ExternalLink, Info, Lock, PhoneCall, Send, ShieldAlert, Stethoscope, X,
 } from 'lucide-react';
-import type { Cow } from '@/types';
+import type { Cow, HealthEvent } from '@/types';
+import { followUpDate, healthEventFromCheck } from '@/lib/vet/record';
 import {
   CALL_A_VET_NOW, REPORTING_NOTE, RED_FLAGS, SIGNS, type RedFlag, type Sign, type Urgency,
 } from '@/lib/vet/red-flags';
@@ -29,6 +30,8 @@ interface VetGuideProps {
   farmId?: string;
   /** A real signed-in account (not the demo), so saved vets and the directory use the server. */
   serverBacked?: boolean;
+  /** Saves a health record on the chosen animal, with a follow-up reminder. */
+  onSaveHealthEvent?: (event: Omit<HealthEvent, 'id' | 'createdAt' | 'farmId'>) => void;
 }
 
 const URGENCY_STYLE: Record<Urgency, { box: string; chip: string }> = {
@@ -39,6 +42,8 @@ const URGENCY_STYLE: Record<Urgency, { box: string; chip: string }> = {
 
 const CALF_HIDES: Sign['group'][] = ['Udder and milk', 'Calving'];
 const ADULT_HIDES: Sign['group'][] = ['Calves'];
+
+const niceFollowUp = (iso: string) => new Date(`${iso}T00:00:00Z`).toLocaleDateString('en-KE', { weekday: 'long', day: 'numeric', month: 'short', timeZone: 'UTC' });
 
 const signLabel = (id: string) => SIGNS.find((sign) => sign.id === id)?.label ?? id;
 
@@ -132,7 +137,7 @@ function ConditionCard({ match }: { match: ConditionMatch }) {
  * banner on previews (lib/vet/review.ts). A photo is optional and never leaves the phone unless the farmer
  * shares it.
  */
-export function VetGuide({ today, subscription, county, farmName, cows = [], farmId, serverBacked }: VetGuideProps) {
+export function VetGuide({ today, subscription, county, farmName, cows = [], farmId, serverBacked, onSaveHealthEvent }: VetGuideProps) {
   const [animal, setAnimal] = useState<AnimalKind>('adult');
   const [calved, setCalved] = useState<Calved>('no');
   const [cowId, setCowId] = useState('');
@@ -140,6 +145,7 @@ export function VetGuide({ today, subscription, county, farmName, cows = [], far
   const [photo, setPhoto] = useState<File | null>(null);
   const [photoUrl, setPhotoUrl] = useState<string | null>(null);
   const [shareNote, setShareNote] = useState('');
+  const [savedKey, setSavedKey] = useState('');
   const resultsRef = useRef<HTMLDivElement>(null);
 
   const showDrafts = draftContentAllowed();
@@ -204,6 +210,17 @@ export function VetGuide({ today, subscription, county, farmName, cows = [], far
     }
     window.open(`https://wa.me/?text=${encodeURIComponent(message)}`, '_blank', 'noopener');
     setShareNote(photo ? 'Opened WhatsApp with the summary. Add the photo yourself.' : 'Opened WhatsApp with the summary.');
+  }
+
+  // One save per check: ticking something else makes it a new check that can be saved again.
+  const checkKey = `${cowId}|${animal}|${calved}|${activeSigns.join(',')}`;
+  const alreadySaved = savedKey === checkKey;
+  const followUp = followUpDate(today, result.urgency);
+
+  function saveToRecord() {
+    if (!cow || !onSaveHealthEvent || alreadySaved) return;
+    onSaveHealthEvent(healthEventFromCheck({ cow, date: today, signs: activeSigns, assessment: result }));
+    setSavedKey(checkKey);
   }
 
   async function copy() {
@@ -376,6 +393,21 @@ export function VetGuide({ today, subscription, county, farmName, cows = [], far
                       <p className="mt-1 text-sm text-charcoal-muted">{contact.note}{contact.confirmedOn ? '' : ' This number has not been confirmed by phone yet.'}</p>
                     </div>
                   ))}
+                </div>
+              )}
+
+              {hasResult && onSaveHealthEvent && (
+                <div className="rounded-2xl border border-ivory-border bg-white p-4">
+                  <h3 className="font-semibold text-charcoal">Save to the health record</h3>
+                  {cow ? (
+                    <>
+                      <p className="mt-1 text-sm text-charcoal-muted">Adds a health check to {cowLabel}&apos;s history, with the signs and what the guide said, and a reminder to look again on {niceFollowUp(followUp)}. It is saved as a check, not a diagnosis.</p>
+                      <button type="button" disabled={alreadySaved} onClick={saveToRecord} className="btn btn-primary mt-3"><ClipboardCheck className="h-4 w-4" />{alreadySaved ? 'Saved to the record' : 'Save to health record'}</button>
+                      {alreadySaved && <p role="status" className="mt-2 text-sm font-medium text-sage">Saved. We will remind you on {niceFollowUp(followUp)}.</p>}
+                    </>
+                  ) : (
+                    <p className="mt-1 text-sm text-charcoal-muted">Choose which animal this is, near the top, to save this check on her record.</p>
+                  )}
                 </div>
               )}
 

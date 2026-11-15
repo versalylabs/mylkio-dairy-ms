@@ -5,6 +5,7 @@ import { Cow, CowStatus, HealthEvent, BreedingEvent, Language, MilkEntry, Subscr
 import { CowDetailModal } from './CowDetailModal';
 import { VetGuide } from './VetGuide';
 import { farmToday } from '@/lib/dates';
+import { activeWithdrawals as findActiveWithdrawals, healthTypeLabel, withdrawalState } from '@/lib/herd-care';
 import { translations } from '@/lib/translations';
 import { 
   Plus, 
@@ -42,6 +43,8 @@ interface HerdViewProps {
   farmId?: string;
   /** A real signed-in account (not the demo). */
   serverBacked?: boolean;
+  /** Saves a health record, for "save this symptom check to the cow's record". */
+  onSaveHealthEvent?: (event: Omit<HealthEvent, 'id' | 'createdAt' | 'farmId'>) => void;
 }
 
 export const HerdView: React.FC<HerdViewProps> = ({
@@ -62,6 +65,7 @@ export const HerdView: React.FC<HerdViewProps> = ({
   farmName,
   farmId,
   serverBacked,
+  onSaveHealthEvent,
 }) => {
   const t = translations[lang];
   const [activeSubTab, setActiveSubTab] = useState<'registry' | 'health' | 'breeding' | 'guide'>('registry');
@@ -86,7 +90,9 @@ export const HerdView: React.FC<HerdViewProps> = ({
     return true;
   });
 
-  const activeWithdrawals = healthEvents.filter((h) => h.isWithdrawalActive);
+  // Worked out from the dates, so a withdrawal ends by itself on its end date.
+  const today = farmToday();
+  const activeWithdrawals = findActiveWithdrawals(healthEvents, today);
 
   const getStatusBadge = (status: CowStatus, isPregnant: boolean) => {
     let bg = 'bg-gray-100 text-gray-700';
@@ -498,17 +504,19 @@ export const HerdView: React.FC<HerdViewProps> = ({
                           {h.cowTag} {h.cowName ? `(${h.cowName})` : ''}
                         </span>
                         <span className="px-2 py-0.5 rounded-md text-xs font-bold uppercase tracking-wider bg-rose-100 text-rose-800">
-                          {h.type}
+                          {healthTypeLabel(h.type)}
                         </span>
                         <span className="text-xs text-gray-400 font-medium">
                           {h.date}
                         </span>
                       </div>
 
-                      <div className="text-xs text-gray-700 font-medium">
-                        Medicine: <strong>{h.medicineName || 'N/A'}</strong>
-                        {h.diagnosis && <span> • Diagnosis: {h.diagnosis}</span>}
-                      </div>
+                      {(h.type !== 'routine_check' || h.medicineName || h.diagnosis) && (
+                        <div className="text-xs text-gray-700 font-medium">
+                          Medicine: <strong>{h.medicineName || 'N/A'}</strong>
+                          {h.diagnosis && <span> • Diagnosis: {h.diagnosis}</span>}
+                        </div>
+                      )}
 
                       <div className="flex items-center gap-3 text-xs text-gray-500 flex-wrap">
                         {h.administeredBy && <span>Provider: {h.administeredBy}</span>}
@@ -528,9 +536,14 @@ export const HerdView: React.FC<HerdViewProps> = ({
                     </div>
 
                     <div className="flex items-center justify-between sm:justify-end space-x-4">
-                      {h.isWithdrawalActive && (
+                      {withdrawalState(h, today) === 'active' && (
                         <span className="px-2.5 py-1 bg-rose-100 text-rose-800 font-bold text-xs rounded-full border border-rose-200">
                           Withdrawal Active
+                        </span>
+                      )}
+                      {withdrawalState(h, today) === 'ended' && (
+                        <span className="px-2.5 py-1 bg-gray-100 text-gray-600 font-semibold text-xs rounded-full border border-gray-200">
+                          Withdrawal ended {h.withdrawalEndDate}
                         </span>
                       )}
 
@@ -651,7 +664,7 @@ export const HerdView: React.FC<HerdViewProps> = ({
       )}
 
       {/* SUB-TAB 4: VET GUIDE (emergency signs and seasonal risks) */}
-      {activeSubTab === 'guide' && <VetGuide today={farmToday()} subscription={subscription} county={county} farmName={farmName} cows={cows} farmId={farmId} serverBacked={serverBacked} />}
+      {activeSubTab === 'guide' && <VetGuide today={farmToday()} subscription={subscription} county={county} farmName={farmName} cows={cows} farmId={farmId} serverBacked={serverBacked} onSaveHealthEvent={onSaveHealthEvent} />}
 
       {/* Cow Detail Information Modal */}
       <CowDetailModal

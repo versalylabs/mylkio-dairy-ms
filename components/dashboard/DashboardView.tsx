@@ -5,6 +5,7 @@ import { Cow, Buyer, MilkEntry, Delivery, PaymentRecord, FarmReminder, ExpenseRe
 import { translations } from '@/lib/translations';
 import { farmToday, monthRange } from '@/lib/dates';
 import { dailyProduction } from '@/lib/milk';
+import { isReminderDone } from '@/lib/herd-care';
 import { cashReceived, expensesInRange, salesInRange, summariseBalances } from '@/lib/ledger';
 import { 
   Milk, 
@@ -105,12 +106,15 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
   const displayName = farm?.ownerName || user?.name || 'Farmer';
   const farmLocation = farm ? `${farm.name} • ${farm.county}` : 'My Dairy Farm';
 
+  // A withdrawal reminder whose end date has passed is over, so it leaves the list by itself.
+  const currentReminders = reminders.filter((r) => r.completed || !isReminderDone(r, todayStr));
+
   // Active withdrawal reminders
-  const withdrawalReminders = reminders.filter((r) => r.type === 'withdrawal' && !r.completed);
+  const withdrawalReminders = currentReminders.filter((r) => r.type === 'withdrawal' && !r.completed);
 
   // Open items first, the most severe first among them.
-  const openReminders = reminders.filter((r) => !r.completed);
-  const sortedReminders = [...reminders].sort((a, b) => Number(a.completed) - Number(b.completed) || Number(b.severity === 'high') - Number(a.severity === 'high'));
+  const openReminders = currentReminders.filter((r) => !r.completed);
+  const sortedReminders = [...currentReminders].sort((a, b) => Number(a.completed) - Number(b.completed) || Number(b.severity === 'high') - Number(a.severity === 'high'));
   const shownReminders = showAllReminders ? sortedReminders : sortedReminders.slice(0, REMINDERS_SHOWN);
 
   return (
