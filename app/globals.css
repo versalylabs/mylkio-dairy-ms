@@ -164,7 +164,9 @@ body {
    Buttons and labels never wrap onto a second line (whitespace-nowrap); long text goes in paragraphs. */
 @layer components {
   .container-page { @apply mx-auto w-full max-w-[1200px] px-4 sm:px-6 lg:px-8; }
-  .section { @apply py-16 sm:py-20 lg:py-28; }
+  .section { @apply py-12 sm:py-14 lg:py-16; }
+  /* The space between a section heading and what follows it, the same everywhere. */
+  .section-body { @apply mt-10 sm:mt-12; }
 
   .eyebrow {
     @apply inline-flex items-center gap-2.5 whitespace-nowrap text-xs font-semibold uppercase tracking-[0.16em] text-sage;

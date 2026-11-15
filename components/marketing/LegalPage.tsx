@@ -16,13 +16,13 @@ export function LegalPage({ doc, other }: { doc: LegalDocument; other: { href: s
         </div>
       </header>
 
-      <main className="container-page max-w-3xl py-12 sm:py-16">
+      <main className="container-page max-w-3xl py-10 sm:py-12">
         <p className="eyebrow">Legal</p>
         <h1 className="page-title mt-4 !text-display-lg">{doc.title}</h1>
         <p className="mt-4 text-lg text-charcoal-light">{doc.summary}</p>
         <p className="mt-2 text-sm text-charcoal-muted">Last updated {LEGAL_UPDATED}</p>
 
-        <div className="mt-10 space-y-9">
+        <div className="mt-8 space-y-8">
           {doc.sections.map((section, index) => (
             <section key={section.heading} aria-labelledby={`s${index}`}>
               <h2 id={`s${index}`} className="font-display text-2xl font-medium">{section.heading}</h2>
@@ -36,7 +36,7 @@ export function LegalPage({ doc, other }: { doc: LegalDocument; other: { href: s
           ))}
         </div>
 
-        <p className="mt-14 border-t border-ivory-border pt-6 text-sm text-charcoal-muted">
+        <p className="mt-10 border-t border-ivory-border pt-6 text-sm text-charcoal-muted">
           Also read our <Link className="font-semibold text-sage underline" href={other.href}>{other.label}</Link>.
         </p>
       </main>

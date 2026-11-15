@@ -273,7 +273,7 @@ export const HerdView: React.FC<HerdViewProps> = ({
 
           {/* Cow Cards / Grid */}
           {filteredCows.length === 0 ? (
-            <div className="text-center py-12 bg-white rounded-2xl border border-gray-200 p-6">
+            <div className="text-center py-10 bg-white rounded-2xl border border-gray-200 p-6">
               <Activity className="w-12 h-12 text-gray-300 mx-auto mb-3" />
               <p className="text-gray-500 font-medium text-sm">{t.herd.emptyState}</p>
               <button
