@@ -15,8 +15,9 @@ import {
 import { ALWAYS_ASK_YOUR_VET, SEASONS, SEASON_NOTE, seasonForDate } from '@/lib/vet/seasonal';
 import { draftContentAllowed, visibleEntries } from '@/lib/vet/review';
 import { DISCLAIMER_FULL, DISCLAIMER_SHORT } from '@/lib/vet/disclaimer';
-import { KVB_REGISTERS_NOTE, KVB_REGISTERS_URL, contactsFor } from '@/lib/vet/contacts';
+import { contactsFor } from '@/lib/vet/contacts';
 import { canUse } from '@/lib/plans';
+import { VetContacts } from './VetContacts';
 
 interface VetGuideProps {
   /** The farm's date, YYYY-MM-DD (Nairobi). */
@@ -25,6 +26,9 @@ interface VetGuideProps {
   county?: string;
   farmName?: string;
   cows?: Cow[];
+  farmId?: string;
+  /** A real signed-in account (not the demo), so saved vets and the directory use the server. */
+  serverBacked?: boolean;
 }
 
 const URGENCY_STYLE: Record<Urgency, { box: string; chip: string }> = {
@@ -128,7 +132,7 @@ function ConditionCard({ match }: { match: ConditionMatch }) {
  * banner on previews (lib/vet/review.ts). A photo is optional and never leaves the phone unless the farmer
  * shares it.
  */
-export function VetGuide({ today, subscription, county, farmName, cows = [] }: VetGuideProps) {
+export function VetGuide({ today, subscription, county, farmName, cows = [], farmId, serverBacked }: VetGuideProps) {
   const [animal, setAnimal] = useState<AnimalKind>('adult');
   const [calved, setCalved] = useState<Calved>('no');
   const [cowId, setCowId] = useState('');
@@ -391,13 +395,8 @@ export function VetGuide({ today, subscription, county, farmName, cows = [] }: V
         )}
       </section>
 
-      {/* Who to call and how to find a vet */}
-      <section aria-labelledby="call-heading" className="card p-5 sm:p-6">
-        <h2 id="call-heading" className="font-display text-2xl font-medium text-charcoal">Finding a vet</h2>
-        <p className="mt-2 text-base text-charcoal-light">{KVB_REGISTERS_NOTE}</p>
-        <a href={KVB_REGISTERS_URL} target="_blank" rel="noopener noreferrer" className="btn btn-secondary mt-3"><ExternalLink className="h-4 w-4" />Kenya Veterinary Board registers</a>
-        <p className="mt-3 text-sm text-charcoal-muted">A list of vets and animal health workers near your farm is planned for the Farm Pro plan.</p>
-      </section>
+      {/* My vets, vets near you (Farm Pro) and suggesting a vet */}
+      <VetContacts farmId={farmId ?? 'local'} serverBacked={Boolean(serverBacked && farmId)} county={county} subscription={subscription} summary={hasResult ? text() : undefined} />
 
       {/* This season */}
       {season && (

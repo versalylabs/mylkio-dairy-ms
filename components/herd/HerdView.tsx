@@ -39,6 +39,9 @@ interface HerdViewProps {
   subscription?: Subscription | null;
   county?: string;
   farmName?: string;
+  farmId?: string;
+  /** A real signed-in account (not the demo). */
+  serverBacked?: boolean;
 }
 
 export const HerdView: React.FC<HerdViewProps> = ({
@@ -57,6 +60,8 @@ export const HerdView: React.FC<HerdViewProps> = ({
   subscription,
   county,
   farmName,
+  farmId,
+  serverBacked,
 }) => {
   const t = translations[lang];
   const [activeSubTab, setActiveSubTab] = useState<'registry' | 'health' | 'breeding' | 'guide'>('registry');
@@ -646,7 +651,7 @@ export const HerdView: React.FC<HerdViewProps> = ({
       )}
 
       {/* SUB-TAB 4: VET GUIDE (emergency signs and seasonal risks) */}
-      {activeSubTab === 'guide' && <VetGuide today={farmToday()} subscription={subscription} county={county} farmName={farmName} cows={cows} />}
+      {activeSubTab === 'guide' && <VetGuide today={farmToday()} subscription={subscription} county={county} farmName={farmName} cows={cows} farmId={farmId} serverBacked={serverBacked} />}
 
       {/* Cow Detail Information Modal */}
       <CowDetailModal

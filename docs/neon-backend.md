@@ -26,6 +26,7 @@ The database schema is in `db/migrations/`:
 - `0002_record_sync.sql`: idempotent operations and downloads. Milk, delivery, payment, statement, bill and allocation records are append-only.
 - `0003_leads.sql`: website enquiries, with flood protection and administrator-only access.
 - `0004_usage.sql`: account activity for the administrator's usage screen (see below).
+- `0005_vet_directory.sql`: each farm's own vet contacts and the shared vet directory with its confirm-by-phone queue (see `docs/vet-and-illness-feature.md`, step C).
 
 ## Usage data for the administrator
 
