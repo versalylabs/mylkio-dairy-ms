@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { Fraunces, Inter } from "next/font/google";
 import "./globals.css";
+import { SITE_NAME, SITE_TAGLINE, SITE_URL } from "@/lib/site";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -17,8 +18,23 @@ const fraunces = Fraunces({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL(SITE_URL),
   title: "Mylkio — Dairy Farm Management System",
   description: "Smarter Dairy Farming. Made Simple. Mobile-first management for Kenyan dairy farmers.",
+  alternates: { canonical: "/" },
+  openGraph: {
+    type: "website",
+    siteName: SITE_NAME,
+    locale: "en_KE",
+    title: "Mylkio — Smarter dairy farming, made simple",
+    description: SITE_TAGLINE,
+    url: "/",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Mylkio — Smarter dairy farming, made simple",
+    description: SITE_TAGLINE,
+  },
   manifest: "/manifest.json",
   icons: {
     icon: [

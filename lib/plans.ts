@@ -2,6 +2,8 @@
 // and admin screens. The database also stores the price when a farm is created or its plan changes
 // (`provision_farm` and `admin_update_subscription`); tests/plans.test.ts fails if the two disagree.
 
+import { extrasLapsed } from './billing';
+
 export type PlanId = 'starter' | 'farmer' | 'farm_pro';
 
 /** What a plan includes. See docs/vet-and-illness-feature.md. */
@@ -55,15 +57,17 @@ const EVERYTHING: PlanFeatures = { illnessGuide: true, seasonalCalendar: true, h
  * smallest plan, never more than was paid for. Servers must use this too: hiding a button in the
  * interface is never the only protection.
  */
-export function featuresFor(subscription: { plan: string; status?: string } | null | undefined): PlanFeatures {
+export function featuresFor(subscription: { plan: string; status?: string; renewsAt?: string } | null | undefined, now: Date = new Date()): PlanFeatures {
   if (!subscription) return PLANS.starter.features;
   if (subscription.plan === 'admin') return EVERYTHING;
+  // Trial over, payment well late, or cancelled: the extras pause (records never do). See lib/billing.ts.
+  if (extrasLapsed(subscription, now)) return PLANS.starter.features;
   const plan = (PLANS as Record<string, Plan | undefined>)[subscription.plan] ?? PLANS.starter;
   if (subscription.status === 'trial' && plan.id === 'starter') return PLANS.farmer.features;
   return plan.features;
 }
 
-export const canUse = (subscription: { plan: string; status?: string } | null | undefined, feature: FeatureId) =>
+export const canUse = (subscription: { plan: string; status?: string; renewsAt?: string } | null | undefined, feature: FeatureId) =>
   featuresFor(subscription)[feature];
 
 export const PLAN_ORDER: PlanId[] = ['starter', 'farmer', 'farm_pro'];

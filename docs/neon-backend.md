@@ -20,6 +20,9 @@ Set up on 9 November 2026: the Neon project (Frankfurt, Postgres 18) has a `prod
 | `GET /api/farms/:id/changes?since=N` | Downloads records changed since a device's last sync |
 | `/api/admin/accounts` | Administrator account list (farm, county, phone, last active) and subscription changes |
 | `GET /api/admin/usage?at=…` | Administrator usage snapshot as at a moment: who was active, accounts by plan and status, sign-ups per day |
+| `/api/admin/payments` | Administrator: list a farm's plan payments, record a payment received, void one entered by mistake |
+| `/api/admin/notes` | Administrator: notes on an account |
+| `GET /api/admin/collections` | Administrator: money received per month for six months |
 
 The database schema is in `db/migrations/`:
 - `0001_accounts_and_farms.sql`: profiles, farms, memberships, subscriptions, audit log, the record store, farm creation, account lookup and admin functions.
@@ -27,6 +30,7 @@ The database schema is in `db/migrations/`:
 - `0003_leads.sql`: website enquiries, with flood protection and administrator-only access.
 - `0004_usage.sql`: account activity for the administrator's usage screen (see below).
 - `0005_vet_directory.sql`: each farm's own vet contacts and the shared vet directory with its confirm-by-phone queue (see `docs/vet-and-illness-feature.md`, step C).
+- `0006_commercial_admin.sql`: the manual payment ledger, account notes and herd size for the administrator (see `docs/phase-8-commercial.md`). Apply it to a branch **before** deploying the code that reads it: until then the administration screen's billing board cannot load.
 
 ## Usage data for the administrator
 

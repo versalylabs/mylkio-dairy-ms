@@ -6,6 +6,7 @@ import { translations } from '@/lib/translations';
 import { farmToday, monthRange } from '@/lib/dates';
 import { dailyProduction } from '@/lib/milk';
 import { isReminderDone } from '@/lib/herd-care';
+import { PlanNotice } from '@/components/billing/PlanNotice';
 import { cashReceived, expensesInRange, salesInRange, summariseBalances } from '@/lib/ledger';
 import { 
   Milk, 
@@ -126,6 +127,8 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
           {sw ? `Habari, ${displayName}!` : `Hello, ${displayName}`}
         </h1>
       </header>
+
+      <PlanNotice subscription={user?.subscription} farmName={farm?.name ?? 'My farm'} />
 
       <section aria-label={sw ? 'Vitendo vya haraka' : 'Quick actions'} className="grid grid-cols-2 lg:grid-cols-4 gap-3">
         <button onClick={onOpenRecordMilk} className="min-h-[88px] flex flex-col items-center justify-center gap-2 whitespace-nowrap rounded-2xl bg-[#345C4A] px-2 py-4 text-white shadow-soft hover:bg-[#274537] transition-colors">
