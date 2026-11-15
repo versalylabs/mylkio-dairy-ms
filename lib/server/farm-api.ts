@@ -29,14 +29,19 @@ export interface OnboardingInput {
   language: 'en' | 'sw';
 }
 
-async function run<T>(db: Db, text: string, params: unknown[], denied = 'You do not have access to this farm.'): Promise<T[]> {
+async function run<T>(
+  db: Db, text: string, params: unknown[],
+  denied = 'You do not have access to this farm.',
+  tooMany = 'Too many messages in a short time. Please try again later, or contact us on WhatsApp.',
+): Promise<T[]> {
   try {
     return await db.query<T>(text, params);
   } catch (error) {
     const code = (error as { code?: string } | null)?.code;
     if (code === '42501') throw new ApiError(403, denied);
     if (code === '22023') throw new ApiError(400, 'Some records or fields could not be accepted.');
-    if (code === 'MY429') throw new ApiError(429, 'Too many messages in a short time. Please try again later, or contact us on WhatsApp.');
+    if (code === '23505') throw new ApiError(409, 'That phone number is already listed.');
+    if (code === 'MY429') throw new ApiError(429, tooMany);
     throw error;
   }
 }
@@ -153,4 +158,78 @@ export async function adminListLeads(db: Db, actor: string) {
 
 export async function adminSetLeadStatus(db: Db, actor: string, leadId: string, status: string) {
   await run(db, 'select public.admin_set_lead_status($1, $2, $3)', [actor, leadId, status], 'Administrator access required.');
+}
+
+// ───────────── Vets and animal health workers ─────────────
+
+export type VetKind = 'veterinarian' | 'animal_health_assistant' | 'co_op_vet' | 'agrovet' | 'clinic';
+export type VetStatus = 'pending' | 'confirmed' | 'rejected' | 'hidden';
+
+/** A contact a farm saved for itself. */
+export interface MyVet { id: string; name: string; kind: VetKind; phone: string; notes: string | null; created_at: string }
+
+/** A confirmed entry in the shared directory. `confirmed_on` is the day someone rang the number. */
+export interface DirectoryVet {
+  id: string; name: string; kind: VetKind; county: string; areas: string | null; phone: string; whatsapp: boolean;
+  emergency: boolean; hours: string | null; kvb_reg_no: string | null; notes: string | null; confirmed_on: string;
+}
+
+export interface MyVetInput { name: string; kind: VetKind; phone: string; notes?: string }
+export interface VetSuggestion {
+  name: string; kind: VetKind; county: string; areas?: string; phone: string; whatsapp?: boolean; emergency?: boolean;
+  hours?: string; kvbRegNo?: string; notes?: string;
+}
+export interface AdminVet extends Omit<DirectoryVet, 'confirmed_on'> { status: VetStatus; confirmed_on: string | null; source: 'admin' | 'farmer'; submitted_by_name: string | null; created_at: string }
+
+const VET_COLUMNS = 'id, name, kind, county, areas, phone, whatsapp, emergency, hours, kvb_reg_no, notes';
+
+export async function listMyVets(db: Db, actor: string, farmId: string): Promise<MyVet[]> {
+  return run<MyVet>(db, 'select id, name, kind, phone, notes, created_at::text as created_at from public.list_my_vets($1, $2)', [actor, farmId]);
+}
+
+export async function addMyVet(db: Db, actor: string, farmId: string, vet: MyVetInput): Promise<string> {
+  const [row] = await run<{ id: string }>(db, 'select public.add_my_vet($1, $2, $3, $4, $5, $6) as id', [actor, farmId, vet.name, vet.kind, vet.phone, vet.notes ?? null]);
+  return row.id;
+}
+
+export async function removeMyVet(db: Db, actor: string, farmId: string, id: string): Promise<void> {
+  await run(db, 'select public.remove_my_vet($1, $2, $3)', [actor, farmId, id]);
+}
+
+/** Confirmed vets in a county. The route decides who may call this (Farm Pro). */
+export async function vetDirectory(db: Db, actor: string, county: string): Promise<DirectoryVet[]> {
+  return run<DirectoryVet>(db, `select ${VET_COLUMNS}, confirmed_on::text as confirmed_on from public.list_vet_directory($1, $2)`, [actor, county]);
+}
+
+/** A farmer suggests a vet. It stays hidden until an administrator rings the number and confirms it. */
+export async function suggestVet(db: Db, actor: string, s: VetSuggestion): Promise<string> {
+  const [row] = await run<{ id: string }>(
+    db, 'select public.suggest_vet($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11) as id',
+    [actor, s.name, s.kind, s.county, s.areas ?? null, s.phone, s.whatsapp ?? false, s.emergency ?? false, s.hours ?? null, s.kvbRegNo ?? null, s.notes ?? null],
+    'A farm account is needed to suggest a vet.',
+    'You have suggested several vets today. Please try again tomorrow.',
+  );
+  return row.id;
+}
+
+export async function adminListVets(db: Db, actor: string, status?: VetStatus): Promise<AdminVet[]> {
+  return run<AdminVet>(
+    db, `select ${VET_COLUMNS}, status, confirmed_on::text as confirmed_on, source, submitted_by_name, created_at::text as created_at from public.admin_list_vets($1, $2)`,
+    [actor, status ?? null], 'Administrator access required.',
+  );
+}
+
+export async function adminSaveVet(
+  db: Db, actor: string, id: string | null, v: VetSuggestion & { status: VetStatus; confirmedOn?: string | null },
+): Promise<string> {
+  const [row] = await run<{ id: string }>(
+    db, 'select public.admin_save_vet($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14::date) as id',
+    [actor, id, v.name, v.kind, v.county, v.areas ?? null, v.phone, v.whatsapp ?? false, v.emergency ?? false, v.hours ?? null, v.kvbRegNo ?? null, v.notes ?? null, v.status, v.confirmedOn ?? null],
+    'Administrator access required.',
+  );
+  return row.id;
+}
+
+export async function adminSetVetStatus(db: Db, actor: string, id: string, status: VetStatus, confirmedOn?: string | null): Promise<void> {
+  await run(db, 'select public.admin_set_vet_status($1, $2, $3, $4::date)', [actor, id, status, confirmedOn ?? null], 'Administrator access required.');
 }

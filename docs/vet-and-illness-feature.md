@@ -1,6 +1,6 @@
 # Vet and illness feature: spec
 
-Status: agreed in outline on 14 November 2026. **Steps A and B are built** (see "Step A: what exists" and "Step B: what was built, and why it differs from the plan" below); steps C to E are not. Step B changed the original plan: read that section first. This records the decisions so we can build from them in small steps.
+Status: agreed in outline on 14 November 2026. **Steps A, B and C are built** (see "Step A: what exists", "Step B: what was built, and why it differs from the plan" and "Step C: vets and the directory" below); steps D and E are not. Step B changed the original plan: read that section first. This records the decisions so we can build from them in small steps.
 
 ## What it is
 
@@ -164,3 +164,35 @@ So step B is a **free, private, offline symptom checker**, and the photo is for 
 - **Direct Nairobi veterinary contacts**, confirmed by phone.
 - **AI photo reading** is deliberately left for later. If it is added, it should only read visible signs off a photo and tick them for the farmer to confirm (never name a disease), use a paid or privacy-respecting provider rather than a free tier that trains on the photos, and carry the per-month limit already defined in `lib/plans.ts`.
 - **Kiswahili**, the vet finder (step C) and a "save to the cow's health record" button.
+
+## Step C: vets and the directory
+
+The plan was a vet directory seeded with real contacts. There are none we can vouch for yet and nobody to phone them, so step C is built so that **nothing is shown unless someone has rung the number**, and so that it is useful from day one without a directory at all.
+
+### What exists
+
+- **My vets (every plan).** A farm saves up to 10 of its own vets and animal health workers (name, kind, phone, note). Each has **Call** and **WhatsApp** buttons, and **Send my check**, which opens WhatsApp to that vet with the summary of the symptom check in progress. Saved on the account when signed in to a real account, so it follows the farmer to another phone, and always cached on the phone, so the buttons work with no signal. In the demo it is saved on the phone only. This is safety, not a premium feature.
+- **Vets near you (Farm Pro).** A list of directory entries in the farm's county, emergency call-outs first. Every entry shows **"Number confirmed by phone on [date]"**; unconfirmed entries never appear. The plan is checked on the server (`GET /api/vets`), not only in the interface. Until entries exist the screen says: no vets are listed for this county yet, and we only list a vet after ringing the number.
+- **Suggest a vet (any farm account).** Name, kind, county, areas, phone, WhatsApp, emergency call-outs, hours, Kenya Veterinary Board registration number, note. A suggestion is stored as `pending`, hidden from everyone, limited to 5 new suggestions per account per day, and a number that is already in the directory is not duplicated (numbers are compared by their last nine digits, so `0712 345 678` and `+254 712 345 678` are the same).
+- **Administrator queue** (the administration screen, "Vet directory"). Pending suggestions come first. **Confirm** asks for the day you rang the number and does not accept a future day; **Reject** and **Hide** remove an entry from view; **Add a vet** and **Edit** let an administrator enter vets directly. The database refuses a confirmed entry with no day.
+- **Official national contacts.** The symptom-check screen's reporting block and the "Finding a vet" section show the Directorate of Veterinary Services (Kangemi, 020 8043441) and the Kenya Veterinary Board (0722 305 253, 0701 581 718), each read from its own official page on 15 November 2026 and labelled **not yet confirmed by phone**. The Board is a regulator: its numbers are for checking that a vet is registered or making a complaint.
+
+### Database and server
+
+`db/migrations/0005_vet_directory.sql`: tables `farm_vet_contacts` and `vet_providers`, and functions `list_my_vets`, `add_my_vet`, `remove_my_vet`, `list_vet_directory`, `suggest_vet` and the administrator functions `admin_list_vets`, `admin_save_vet`, `admin_set_vet_status`. Farm membership and administrator rights are re-checked in SQL, like the rest of the backend. Routes: `/api/farms/:id/vets` (a farm's own), `/api/vets` (directory, suggest), `/api/admin/vets`. **Apply the migration to a Neon branch before the code that uses it is deployed to that branch**; until then, signed-in farmers cannot save vets on their account (the phone copy still works) and the administrator's vet section shows an error. 29 new tests cover privacy between farms, the suggestion limit, the confirm rules (19 on the database rules), request validation (5) and phone numbers (5).
+
+### How to fill the directory (the part that needs a person)
+
+The directory fills only by people ringing numbers. A practical routine:
+
+1. Open the administration screen, **Vet directory**, and look at **Waiting to be confirmed**.
+2. Ring the number. Ask: are you the vet, do you treat cattle, which areas do you cover, do you take emergency calls, and may we list you?
+3. If yes, **Confirm** with today's date (and fix any details with **Edit** first). If not, **Reject**.
+4. To seed Nairobi yourself, **Add a vet** after phoning. Places worth ringing first, none of which have been confirmed: the **Nairobi City County veterinary services** department (through the county help line), the **University of Nairobi Faculty of Veterinary Medicine's large animal clinic at Upper Kabete** (its department page lists a line, but the page could not be read for this project), **dairy cooperative vets** your members already use, and **vets on the Kenya Veterinary Board registers** who work in Nairobi's dairy areas (Kabete, Dagoretti, Kasarani, Ruai). Check any individual's registration number on the Board's registers before listing them.
+
+### Deliberately not built yet
+
+- **Vets signing themselves up** from the website. It needs a public form with its own abuse protection; for now vets are suggested by farmers or entered by an administrator.
+- **Location sharing** and distance sorting. Matching is by county (and the areas text).
+- **Ratings** ("this vet helped me"), and **paid vet review of a case** (step D).
+- The Kenya Veterinary Board registers are **not copied into the app**. They contain individuals' details published for verification; the app links to them instead.

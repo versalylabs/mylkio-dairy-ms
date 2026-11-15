@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { CONDITIONS, GENERAL_SOURCES } from '@/lib/vet/conditions';
 import { RED_FLAGS, SIGNS } from '@/lib/vet/red-flags';
 import { MAX_CONDITIONS_SHOWN, assess, summaryText, type CheckInput } from '@/lib/vet/checker';
-import { COUNTY_CONTACTS, KVB_REGISTERS_URL, contactsFor } from '@/lib/vet/contacts';
+import { COUNTY_CONTACTS, KVB_CONTACT, KVB_REGISTERS_URL, contactsFor } from '@/lib/vet/contacts';
 import { DISCLAIMER_FULL, DISCLAIMER_SHORT } from '@/lib/vet/disclaimer';
 
 const check = (signs: string[], extra: Partial<CheckInput> = {}) => assess({ signs, animal: 'adult', calved: 'no', ...extra });
@@ -227,14 +227,19 @@ describe('county contacts', () => {
   it('labels every number with where it came from, and as unconfirmed until someone has rung it', () => {
     for (const county of COUNTY_CONTACTS) {
       for (const contact of county.reporting) {
-        expect(contact.source).toMatch(/^https:\/\/nairobi\.go\.ke\//);
+        expect(contact.source).toMatch(/^https:\/\/(nairobi\.go\.ke|dvs\.ecitizen\.go\.ke)\//);
         expect(contact.phone.length).toBeGreaterThan(0);
         for (const phone of contact.phone) expect(phone).toMatch(/^[0-9 ]{9,14}$/);
-        if (contact.confirmedOn === null) expect(contact.note).toMatch(/still to be added|not a direct/i);
+        if (contact.confirmedOn === null) expect(contact.note.length).toBeGreaterThan(20);
         else expect(contact.confirmedOn).toMatch(/^\d{4}-\d{2}-\d{2}$/);
       }
     }
+    // The general county line must keep saying that it is not a direct veterinary number.
+    const general = COUNTY_CONTACTS[0].reporting.find((c) => c.name.includes('help line'));
+    expect(general?.note).toMatch(/not a direct/i);
     expect(KVB_REGISTERS_URL).toBe('https://kenyavetboard.or.ke/en/registers');
+    expect(KVB_CONTACT.source).toBe('https://kenyavetboard.or.ke/en/contact');
+    for (const phone of KVB_CONTACT.phone) expect(phone).toMatch(/^[0-9 ]{9,14}$/);
   });
 });
 

@@ -24,6 +24,7 @@ import {
 import type { OpenTarget } from '@/lib/settlements';
 import { AppStorage } from '@/lib/storage';
 import { SecureAuth } from '@/lib/auth-client';
+import { CloudStore } from '@/lib/cloud-store';
 import { withLedgerBalances } from '@/lib/ledger';
 import { sessionLabel } from '@/lib/milk';
 import { formatFarmDate, farmToday } from '@/lib/dates';
@@ -496,6 +497,8 @@ export default function Home() {
           subscription={currentUser?.subscription}
           county={farm.county}
           farmName={farm.name}
+          farmId={currentUser?.farmId || farm.id}
+          serverBacked={CloudStore.status().configured && currentUser?.id !== 'usr-demo-01'}
         />
       )}
 

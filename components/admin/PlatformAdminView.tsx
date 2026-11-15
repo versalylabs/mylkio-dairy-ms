@@ -1,6 +1,7 @@
 'use client';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import type { Subscription } from '@/types';
+import { VetDirectoryAdmin } from './VetDirectoryAdmin';
 
 type Account = {
   id: string; email: string; name: string; phone: string; role: string; farm_id: string | null; farm_name: string | null;
@@ -205,6 +206,8 @@ export function PlatformAdminView({ onLogout }: Props) {
       })}</div>
       {!busy && !error && visible.length === 0 && <p className="text-sm">{farmers.length === 0 ? 'No farm accounts had been created by this time.' : 'No accounts match these filters.'}</p>}
     </section>
+
+    <VetDirectoryAdmin />
 
     <section aria-labelledby="leads-heading" className="space-y-3">
       <h2 id="leads-heading" className="font-display text-2xl font-medium">Website enquiries ({leads.filter(l => l.status === 'new').length} new)</h2>

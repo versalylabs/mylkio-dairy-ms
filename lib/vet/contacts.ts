@@ -23,10 +23,26 @@ export const KVB_REGISTERS_URL = 'https://kenyavetboard.or.ke/en/registers';
 export const KVB_REGISTERS_NOTE =
   'Before you pay anyone to treat an animal, check that they are on the Kenya Veterinary Board registers (veterinary surgeons, technologists and technicians).';
 
+/** The Board that registers vets. Not a treatment service: ring it to check that someone is registered, or to complain. */
+export const KVB_CONTACT: Contact = {
+  name: 'Kenya Veterinary Board, Kabete',
+  phone: ['0722 305 253', '0701 581 718'],
+  note: 'The regulator of vets, not a treatment service. Ring it to check that a vet is registered, or to make a complaint. Email: info@kenyavetboard.or.ke.',
+  source: 'https://kenyavetboard.or.ke/en/contact',
+  confirmedOn: null,
+};
+
 export const COUNTY_CONTACTS: CountyContacts[] = [
   {
     county: 'Nairobi',
     reporting: [
+      {
+        name: 'Directorate of Veterinary Services (national office), Kangemi',
+        phone: ['020 8043441'],
+        note: 'Upper Kabete Road, off Kapenguria Road, off Waiyaki Way. The national office that handles notifiable animal diseases. Another listing gives 020 2718 870 and infodvs@kilimo.go.ke.',
+        source: 'https://dvs.ecitizen.go.ke/',
+        confirmedOn: null,
+      },
       {
         name: 'Nairobi City County help line',
         phone: ['0725 624489', '020 2224281'],
