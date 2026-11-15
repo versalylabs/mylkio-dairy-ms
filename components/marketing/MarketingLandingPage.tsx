@@ -298,6 +298,12 @@ export const MarketingLandingPage: React.FC<MarketingLandingPageProps> = ({
 
       {/* ───────────── Hero ───────────── */}
       <section className="relative overflow-hidden pt-28 sm:pt-32 lg:pt-36">
+        {/* A faded photo of the herd behind the headline. Decorative only: low opacity keeps the text easy to read, and it fades out towards the bottom so it melts into the page. */}
+        <div
+          aria-hidden
+          className="pointer-events-none absolute inset-x-0 top-0 h-[36rem] bg-cover bg-[position:70%_88%] lg:bottom-0 lg:h-auto opacity-[0.17] [mask-image:linear-gradient(to_bottom,black_50%,transparent_96%)] sm:bg-[position:center_88%]"
+          style={{ backgroundImage: "url('/images/hero-cows.jpg')" }}
+        />
         <div aria-hidden className="pointer-events-none absolute -right-40 -top-40 h-[34rem] w-[34rem] rounded-full bg-sage-200/50 blur-3xl" />
         <div aria-hidden className="pointer-events-none absolute -left-40 top-1/2 h-[26rem] w-[26rem] rounded-full bg-gold-200/40 blur-3xl" />
 
