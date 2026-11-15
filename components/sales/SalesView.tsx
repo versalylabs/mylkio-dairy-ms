@@ -536,7 +536,7 @@ export const SalesView: React.FC<SalesViewProps> = ({
           {buyers.map((buyer) => (
             <div
               key={buyer.id}
-              className="bg-white rounded-2xl border border-gray-200/90 p-5 shadow-sm hover:shadow transition-all flex flex-col justify-between"
+              className="bg-white rounded-2xl border border-gray-200/90 p-5 shadow-sm tile-hover flex flex-col justify-between"
             >
               <div>
                 <div className="flex items-start justify-between gap-2">

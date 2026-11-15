@@ -139,10 +139,10 @@ export const Shell: React.FC<ShellProps> = ({
               <button
                 key={item.key}
                 onClick={() => onTabChange(item.key)}
-                className={`w-full flex items-center space-x-3 px-3.5 py-2.5 rounded-xl text-sm font-semibold transition-all ${
+                className={`nav-item group w-full flex items-center space-x-3 px-3.5 py-2.5 rounded-xl text-sm font-semibold transition-all duration-300 ease-premium ${
                   isActive
                     ? 'bg-[#345C4A] text-white shadow-sm'
-                    : 'text-[#5D7368] hover:text-[#26332D] hover:bg-[#FAF9F5]'
+                    : 'text-[#5D7368] hover:translate-x-1 hover:text-[#26332D] hover:bg-[#e4ede7]/70'
                 }`}
               >
                 <Icon className="w-4 h-4 shrink-0" />

@@ -148,7 +148,7 @@ const config: Config = {
       // Fluid type: headings scale smoothly between a 320px phone and a wide desktop,
       // so they never need a different size per breakpoint or wrap awkwardly.
       fontSize: {
-        "display-xl": ["clamp(2.25rem, 1.4rem + 4.4vw, 4.75rem)", { lineHeight: "1.04", letterSpacing: "-0.025em", fontWeight: "500" }],
+        "display-xl": ["clamp(2.5rem, 1.1rem + 6.4vw, 6.25rem)", { lineHeight: "1.02", letterSpacing: "-0.03em", fontWeight: "500" }],
         "display-lg": ["clamp(2rem, 1.35rem + 2.8vw, 3.5rem)", { lineHeight: "1.08", letterSpacing: "-0.02em", fontWeight: "500" }],
         "display-md": ["clamp(1.625rem, 1.3rem + 1.4vw, 2.375rem)", { lineHeight: "1.15", letterSpacing: "-0.015em", fontWeight: "500" }],
       },
@@ -162,7 +162,13 @@ const config: Config = {
         "fade-in": "fade-in 0.35s ease-out both",
         float: "float 7s ease-in-out infinite",
       },
+      // One easing curve for every hover and entrance so the whole product moves the same way:
+      // quick to start, a long soft landing.
+      transitionTimingFunction: {
+        premium: "cubic-bezier(0.22, 1, 0.36, 1)",
+      },
       boxShadow: {
+        "glow-gold": "0 10px 30px -8px rgba(198, 167, 106, 0.55)",
         soft: "0 1px 2px rgba(38, 51, 45, 0.04), 0 6px 20px -6px rgba(38, 51, 45, 0.08)",
         lift: "0 2px 4px rgba(38, 51, 45, 0.04), 0 18px 40px -12px rgba(38, 51, 45, 0.16)",
         glow: "0 10px 30px -8px rgba(52, 92, 74, 0.45)",
@@ -180,6 +186,9 @@ const config: Config = {
       }
     },
   },
+  // Hover effects apply only where a real pointer can hover. On a phone a tap would otherwise leave
+  // the lifted or recoloured "hover" state stuck on until the next tap.
+  future: { hoverOnlyWhenSupported: true },
   plugins: [],
 };
 export default config;

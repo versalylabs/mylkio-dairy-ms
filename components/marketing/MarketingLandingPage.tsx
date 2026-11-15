@@ -241,7 +241,7 @@ export const MarketingLandingPage: React.FC<MarketingLandingPageProps> = ({
 
           <nav aria-label="Main" className="hidden items-center gap-8 lg:flex">
             {NAV_LINKS.map((link) => (
-              <a key={link.href} href={link.href} className="whitespace-nowrap text-sm font-medium text-charcoal transition-colors hover:text-sage">{link.label}</a>
+              <a key={link.href} href={link.href} className="link-slide whitespace-nowrap text-sm font-medium text-charcoal hover:text-sage">{link.label}</a>
             ))}
           </nav>
 
@@ -296,48 +296,48 @@ export const MarketingLandingPage: React.FC<MarketingLandingPageProps> = ({
       </header>
 
       {/* ───────────── Hero ───────────── */}
-      <section className="relative overflow-hidden pt-28 sm:pt-32 lg:pt-36">
+      <section className="relative flex flex-col justify-center overflow-hidden pt-24 sm:pt-28 lg:min-h-[min(100svh,56rem)] lg:pt-32">
         {/* A faded photo of Holstein cows at the feed barrier behind the headline. Decorative only: low opacity keeps the text easy to read, and it fades out towards the bottom so it melts into the page. */}
         <div
           aria-hidden
-          className="pointer-events-none absolute inset-x-0 top-0 h-[36rem] bg-cover bg-[position:40%_42%] lg:bottom-0 lg:h-auto opacity-[0.17] [mask-image:linear-gradient(to_bottom,black_50%,transparent_96%)] sm:bg-[position:center_42%]"
+          className="pointer-events-none absolute inset-x-0 top-0 h-[36rem] bg-cover bg-[position:40%_42%] lg:bottom-0 lg:h-auto opacity-[0.14] [mask-image:linear-gradient(to_bottom,black_50%,transparent_96%)] sm:bg-[position:center_42%]"
           style={{ backgroundImage: "url('/images/hero-dairy.jpg')" }}
         />
         <div aria-hidden className="pointer-events-none absolute -right-40 -top-40 h-[34rem] w-[34rem] rounded-full bg-sage-200/50 blur-3xl" />
         <div aria-hidden className="pointer-events-none absolute -left-40 top-1/2 h-[26rem] w-[26rem] rounded-full bg-gold-200/40 blur-3xl" />
 
-        <div className="container-page relative pb-28 pt-4 sm:pb-32 lg:pb-40 lg:pt-8">
-          <div className="mx-auto max-w-4xl animate-rise text-center">
+        <div className="container-page relative pb-28 pt-6 sm:pb-32 lg:pb-36 lg:pt-8">
+          <div className="mx-auto max-w-5xl animate-rise text-center">
             <span className="inline-flex items-center gap-2 whitespace-nowrap rounded-full border border-ivory-border bg-white/80 px-3.5 py-1.5 text-xs font-semibold uppercase tracking-wider text-sage shadow-soft backdrop-blur">
               <span className="h-2 w-2 animate-pulse rounded-full bg-sage" />
               Mobile-first dairy management
             </span>
 
-            <h1 className="mt-7 font-display text-display-xl text-charcoal [text-wrap:balance]">
+            <h1 className="mt-6 font-display text-display-xl text-charcoal [text-wrap:balance] sm:mt-7">
               Your dairy farm. <span className="whitespace-nowrap text-sage">Under control.</span>
             </h1>
 
-            <p className="mx-auto mt-7 max-w-2xl text-lg leading-relaxed text-charcoal-light sm:text-xl">
+            <p className="mx-auto mt-6 max-w-2xl text-lg font-medium leading-relaxed text-charcoal sm:mt-7 sm:text-xl">
               Track every litre of milk, manage your cows, and know where your farm income goes, all from your phone.
             </p>
-            <p className="mx-auto mt-4 max-w-2xl text-base leading-relaxed text-charcoal-muted">
+            <p className="mx-auto mt-4 max-w-xl text-base leading-relaxed text-charcoal-light">
               Mylkio brings your milk records, cow health, breeding activities, sales, and farm expenses into one simple system built for everyday dairy farming. No complicated paperwork. No scattered records. Just a clearer picture of your farm.
             </p>
 
-            <div className="mt-10 flex flex-col items-stretch justify-center gap-3 sm:flex-row sm:items-center">
+            <div className="mx-auto mt-9 flex max-w-sm flex-col items-stretch justify-center gap-3 sm:mt-10 sm:max-w-none sm:flex-row sm:items-center sm:gap-4">
               <button onClick={() => startTrial()} className="btn btn-primary btn-lg group w-full sm:w-auto">
                 <span>Start managing your farm</span>
-                <ArrowRight className="h-5 w-5 transition-transform group-hover:translate-x-1" />
+                <ArrowRight className="nudge h-5 w-5" />
               </button>
-              <button onClick={onExploreDemo} className="btn btn-secondary btn-lg w-full sm:w-auto">
-                <Play className="h-4 w-4 fill-sage text-sage" />
+              <button onClick={onExploreDemo} className="btn btn-secondary btn-lg group w-full sm:w-auto">
+                <Play className="h-4 w-4 fill-sage text-sage transition-transform duration-300 ease-premium group-hover:scale-125" />
                 <span>See how Mylkio works</span>
               </button>
             </div>
 
-            <ul className="mt-9 flex flex-wrap justify-center gap-x-7 gap-y-2">
+            <ul className="mt-10 flex flex-col items-center gap-2.5 sm:mt-12 sm:flex-row sm:flex-wrap sm:justify-center sm:gap-x-0 sm:gap-y-2">
               {HERO_PROOF.map((item) => (
-                <li key={item} className="flex items-center gap-2 whitespace-nowrap text-sm font-medium text-charcoal-light">
+                <li key={item} className="flex items-center gap-2 whitespace-nowrap text-sm font-medium text-charcoal-light sm:px-6 sm:[&:not(:first-child)]:border-l sm:[&:not(:first-child)]:border-ivory-border">
                   <CheckCircle2 className="h-4 w-4 text-sage" />
                   {item}
                 </li>
@@ -380,8 +380,8 @@ export const MarketingLandingPage: React.FC<MarketingLandingPageProps> = ({
               <p className="text-base leading-relaxed text-charcoal-light">
                 Most Kenyan dairy farmers lose money not from bad cows, but from missing records and unreconciled deliveries.
               </p>
-              <a href="#features" className="inline-flex items-center gap-1.5 whitespace-nowrap text-sm font-semibold text-sage hover:underline">
-                Explore all solutions <ArrowRight className="h-4 w-4" />
+              <a href="#features" className="group inline-flex items-center gap-1.5 whitespace-nowrap text-sm font-semibold text-sage">
+                <span className="link-slide">Explore all solutions</span> <ArrowRight className="nudge h-4 w-4" />
               </a>
             </div>
           </div>
@@ -395,7 +395,7 @@ export const MarketingLandingPage: React.FC<MarketingLandingPageProps> = ({
                   <p className="text-base leading-relaxed text-charcoal-light">{body}</p>
                 </div>
                 <a href={href} onClick={() => setPreviewTab(tab)} className="inline-flex w-fit items-center gap-1 whitespace-nowrap text-sm font-semibold text-sage">
-                  See how Mylkio helps <ChevronRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
+                  See how Mylkio helps <ChevronRight className="nudge h-4 w-4" />
                 </a>
               </article>
             ))}
@@ -553,8 +553,8 @@ export const MarketingLandingPage: React.FC<MarketingLandingPageProps> = ({
           <ol className="relative mt-14 grid grid-cols-1 gap-6 md:grid-cols-3">
             <div aria-hidden className="absolute left-[16%] right-[16%] top-10 hidden h-px bg-gradient-to-r from-transparent via-gold to-transparent md:block" />
             {STEPS.map((step, index) => (
-              <li key={step.title} className="card relative p-8 text-center">
-                <span className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-sage font-display text-2xl font-medium text-white shadow-glow ring-8 ring-ivory">{index + 1}</span>
+              <li key={step.title} className="card card-hover group relative p-8 text-center">
+                <span className="mx-auto flex h-14 w-14 transition-transform duration-500 ease-premium group-hover:scale-110 items-center justify-center rounded-full bg-sage font-display text-2xl font-medium text-white shadow-glow ring-8 ring-ivory">{index + 1}</span>
                 <h3 className="mt-6 text-lg font-semibold">{step.title}</h3>
                 <p className="mt-3 text-base leading-relaxed text-charcoal-light">{step.body}</p>
               </li>
@@ -618,7 +618,7 @@ export const MarketingLandingPage: React.FC<MarketingLandingPageProps> = ({
               return (
                 <article
                   key={id}
-                  className={`card relative flex flex-col p-6 sm:p-8 ${copy.featured ? 'border-2 border-sage shadow-lift lg:-translate-y-3' : 'card-hover'}`}
+                  className={`card relative flex flex-col p-6 sm:p-8 ${copy.featured ? 'border-2 border-sage shadow-lift transition-all duration-500 ease-premium hover:shadow-glow lg:-translate-y-3 lg:hover:-translate-y-4' : 'card-hover'}`}
                 >
                   {copy.featured && (
                     <span className="absolute -top-3.5 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-full bg-gold px-4 py-1 text-xs font-bold uppercase tracking-wider text-charcoal shadow-soft">
@@ -667,7 +667,7 @@ export const MarketingLandingPage: React.FC<MarketingLandingPageProps> = ({
             />
             <div className="mt-12 grid grid-cols-1 gap-6 md:grid-cols-3">
               {approvedTestimonials.map((t) => (
-                <figure key={t.id} className="card flex flex-col justify-between gap-6 bg-ivory p-7">
+                <figure key={t.id} className="card card-hover flex flex-col justify-between gap-6 bg-ivory p-7">
                   <div>
                     <span className="inline-block whitespace-nowrap rounded-full border border-gold/50 bg-gold/15 px-3 py-1 text-xs font-bold uppercase tracking-wider text-gold-600">
                       Example, not a real review
@@ -881,7 +881,7 @@ export const MarketingLandingPage: React.FC<MarketingLandingPageProps> = ({
               <p className="text-xs font-semibold uppercase tracking-[0.16em] text-gold">Explore</p>
               <ul className="mt-4 space-y-2.5">
                 {ALL_LINKS.map((link) => (
-                  <li key={link.href}><a href={link.href} className="whitespace-nowrap text-base text-ivory/85 transition-colors hover:text-gold">{link.label}</a></li>
+                  <li key={link.href}><a href={link.href} className="link-slide whitespace-nowrap text-base text-ivory/85 hover:text-gold">{link.label}</a></li>
                 ))}
               </ul>
             </nav>
@@ -896,8 +896,8 @@ export const MarketingLandingPage: React.FC<MarketingLandingPageProps> = ({
           <div className="mt-12 flex flex-col gap-2 border-t border-white/10 pt-6 text-sm text-sage-200 sm:flex-row sm:items-center sm:justify-between">
             <span>© {new Date().getFullYear()} Mylkio by Versaly. Built for Kenyan dairy farmers.</span>
             <span className="flex flex-wrap gap-x-5 gap-y-1">
-              <a href="/privacy" className="whitespace-nowrap transition-colors hover:text-gold">Privacy notice</a>
-              <a href="/terms" className="whitespace-nowrap transition-colors hover:text-gold">Terms of use</a>
+              <a href="/privacy" className="link-slide whitespace-nowrap hover:text-gold">Privacy notice</a>
+              <a href="/terms" className="link-slide whitespace-nowrap hover:text-gold">Terms of use</a>
             </span>
           </div>
         </div>
