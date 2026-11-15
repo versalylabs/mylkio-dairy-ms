@@ -50,7 +50,7 @@ export function StatementsPanel({ statements, deliveries, ctx, onRecord, onVoid,
               {showVoided ? (sw ? 'Ficha zilizobatilishwa' : 'Hide voided') : (sw ? 'Onyesha zilizobatilishwa' : 'Show voided')}
             </button>
           )}
-          <button type="button" onClick={onRecord} className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-dairy-600 hover:bg-dairy-700 text-white font-bold text-sm">
+          <button type="button" onClick={onRecord} className="btn btn-primary">
             <Plus className="w-4 h-4" /> {sw ? 'Rekodi taarifa' : 'Record statement'}
           </button>
         </div>
@@ -79,9 +79,9 @@ export function StatementsPanel({ statements, deliveries, ctx, onRecord, onVoid,
                   <div className="text-right">
                     <div className="text-xl font-black text-gray-900">{ksh(rec.net)}</div>
                     {s.voidedAt ? (
-                      <span className="px-2 py-0.5 rounded-md text-xs font-bold bg-gray-200 text-gray-700">{sw ? 'Imebatilishwa' : 'Voided'}</span>
+                      <span className="px-2 py-0.5 rounded-md text-xs font-bold bg-gray-200 text-gray-700 whitespace-nowrap">{sw ? 'Imebatilishwa' : 'Voided'}</span>
                     ) : (
-                      <span className={`px-2 py-0.5 rounded-md text-xs font-bold ${statusStyle[pay.status]}`}>
+                      <span className={`px-2 py-0.5 rounded-md text-xs font-bold ${statusStyle[pay.status]} whitespace-nowrap`}>
                         {statusLabel[pay.status]}{pay.status === 'partly_paid' ? ` · ${ksh(pay.outstanding)} ${sw ? 'imebaki' : 'left'}` : ''}
                       </span>
                     )}

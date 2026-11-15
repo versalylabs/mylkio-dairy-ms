@@ -61,9 +61,9 @@ export const MilkView: React.FC<MilkViewProps> = ({
   return (
     <div className="space-y-6 pb-20 md:pb-8">
       {/* Top Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+      <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900 tracking-tight">
+          <h1 className="page-title">
             {sw ? 'Uzalishaji wa Maziwa' : 'Milk Production'}
           </h1>
           <p className="text-sm text-gray-600 mt-1">
@@ -75,7 +75,7 @@ export const MilkView: React.FC<MilkViewProps> = ({
 
         <button
           onClick={onOpenRecordModal}
-          className="flex items-center justify-center space-x-2 px-5 py-3 rounded-xl bg-dairy-600 hover:bg-dairy-700 text-white font-semibold text-sm shadow-sm transition-all touch-target"
+          className="btn btn-primary"
         >
           <Plus className="w-5 h-5" />
           <span>{sw ? 'Rekodi Maziwa' : 'Record Milk'}</span>
@@ -111,7 +111,7 @@ export const MilkView: React.FC<MilkViewProps> = ({
       )}
 
       {/* Production Summary Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 [&>:last-child:nth-child(odd)]:col-span-2 lg:[&>:last-child:nth-child(odd)]:col-span-1">
         {/* Today's Total */}
         <div className="bg-gradient-to-br from-dairy-900 via-dairy-800 to-dairy-900 rounded-3xl p-5 text-white shadow-md flex flex-col justify-between">
           <div>
@@ -123,7 +123,7 @@ export const MilkView: React.FC<MilkViewProps> = ({
                 <Milk className="w-5 h-5 text-dairy-200" />
               </div>
             </div>
-            <div className="text-3xl font-extrabold mt-3">
+            <div className="text-3xl font-extrabold mt-3 whitespace-nowrap">
               {today.litres.toFixed(1)} <span className="text-base font-normal text-dairy-200">{t.common.litres}</span>
             </div>
           </div>
@@ -152,7 +152,7 @@ export const MilkView: React.FC<MilkViewProps> = ({
                 {trend.changePercent !== null && trend.changePercent < 0 ? <TrendingDown className="w-5 h-5" /> : <TrendingUp className="w-5 h-5" />}
               </div>
             </div>
-            <div className="text-3xl font-extrabold text-gray-900 mt-3">
+            <div className="text-3xl font-extrabold text-gray-900 mt-3 whitespace-nowrap">
               {trend.average !== null ? trend.average.toFixed(1) : '—'}{' '}
               <span className="text-base font-normal text-gray-500">{t.common.litres}</span>
             </div>
@@ -262,18 +262,18 @@ export const MilkView: React.FC<MilkViewProps> = ({
                       <span className={`font-bold text-sm text-gray-900 ${voided ? 'line-through' : ''}`}>
                         {formatFarmDate(entry.date, lang)}
                       </span>
-                      <span className="px-2 py-0.5 rounded-md text-xs font-bold bg-gray-100 text-gray-700">
+                      <span className="px-2 py-0.5 rounded-md text-xs font-bold bg-gray-100 text-gray-700 whitespace-nowrap">
                         {sessionText(entry.session)}
                       </span>
                       <span className={`px-2 py-0.5 rounded-md text-xs font-semibold ${
                         entry.mode === 'cow_level' ? 'bg-[#A8BFA5]/25 text-[#345C4A]' : 'bg-[#FAF9F5] text-[#26332D] border border-gray-200'
-                      }`}>
+                      } whitespace-nowrap`}>
                         {entry.mode === 'cow_level' ? (sw ? 'Kwa Ng\'ombe' : 'By cow') : (sw ? 'Jumla ya Shamba' : 'Farm total')}
                       </span>
                       {voided ? (
-                        <span className="px-2 py-0.5 rounded-md text-xs font-bold bg-gray-200 text-gray-700">{sw ? 'Imebatilishwa' : 'Voided'}</span>
+                        <span className="px-2 py-0.5 rounded-md text-xs font-bold bg-gray-200 text-gray-700 whitespace-nowrap">{sw ? 'Imebatilishwa' : 'Voided'}</span>
                       ) : !isCounted ? (
-                        <span className="px-2 py-0.5 rounded-md text-xs font-bold bg-amber-100 text-amber-900">{sw ? 'Haihesabiwi — kagua' : 'Not counted — review'}</span>
+                        <span className="px-2 py-0.5 rounded-md text-xs font-bold bg-amber-100 text-amber-900 whitespace-nowrap">{sw ? 'Haihesabiwi — kagua' : 'Not counted — review'}</span>
                       ) : null}
                     </div>
 

@@ -115,8 +115,8 @@ export const BreedingModal: React.FC<BreedingModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/60 backdrop-blur-sm animate-fade-in">
-      <div className="bg-white rounded-3xl w-full max-w-lg max-h-[92vh] overflow-y-auto shadow-2xl border border-gray-100 flex flex-col">
+    <div className="fixed inset-0 z-50 flex items-end justify-center bg-charcoal/60 p-0 backdrop-blur-sm animate-fade-in sm:items-center sm:p-4">
+      <div className="flex max-h-[94dvh] w-full max-w-lg flex-col overflow-y-auto rounded-t-3xl border border-ivory-border bg-white shadow-2xl sm:rounded-3xl">
         {/* Header */}
         <div className="flex items-center justify-between p-5 border-b border-gray-100 sticky top-0 bg-white z-10">
           <div className="flex items-center space-x-2.5">
@@ -124,7 +124,7 @@ export const BreedingModal: React.FC<BreedingModalProps> = ({
               <Dna className="w-5 h-5" />
             </div>
             <div>
-              <h2 className="text-xl font-bold text-gray-900">
+              <h2 className="font-display text-xl font-medium text-charcoal">
                 {lang === 'sw' ? 'Rekodi Uzazi na Upandishaji' : 'Log Breeding & Calving'}
               </h2>
               <p className="text-xs text-gray-500">
@@ -150,13 +150,13 @@ export const BreedingModal: React.FC<BreedingModalProps> = ({
 
           {/* Select Cow */}
           <div>
-            <label className="block text-xs font-semibold uppercase tracking-wider text-gray-700 mb-1">
+            <label className="field-label">
               {lang === 'sw' ? 'Chagua Ng\'ombe (Jike) *' : 'Select Female Animal *'}
             </label>
             <select
               value={cowId}
               onChange={(e) => setCowId(e.target.value)}
-              className="w-full px-3.5 py-2.5 rounded-xl border border-gray-300 focus:ring-2 focus:ring-dairy-500 text-sm font-semibold bg-white"
+              className="field"
               required
             >
               {femaleCows.map((c) => (
@@ -169,20 +169,20 @@ export const BreedingModal: React.FC<BreedingModalProps> = ({
 
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="block text-xs font-semibold uppercase tracking-wider text-gray-700 mb-1">
+              <label className="field-label">
                 {lang === 'sw' ? 'Tarehe' : 'Date of Event'}
               </label>
               <input
                 type="date"
                 value={date}
                 onChange={(e) => handleDateChange(e.target.value)}
-                className="w-full px-3 py-2 rounded-xl border border-gray-300 focus:ring-2 focus:ring-dairy-500 text-xs font-medium"
+                className="field"
                 required
               />
             </div>
 
             <div>
-              <label className="block text-xs font-semibold uppercase tracking-wider text-gray-700 mb-1">
+              <label className="field-label">
                 {lang === 'sw' ? 'Tukio la Uzazi' : 'Breeding Event'}
               </label>
               <select
@@ -194,7 +194,7 @@ export const BreedingModal: React.FC<BreedingModalProps> = ({
                     setExpectedCalvingDate(calculateCalvingDate(date));
                   }
                 }}
-                className="w-full px-3 py-2 rounded-xl border border-gray-300 focus:ring-2 focus:ring-dairy-500 text-xs font-medium bg-white"
+                className="field"
               >
                 <option value="insemination">{lang === 'sw' ? 'Kupandisha (AI / Bull)' : 'Insemination (AI / Bull)'}</option>
                 <option value="pregnancy_check">{lang === 'sw' ? 'Kipimo cha Mimba' : 'Pregnancy Check'}</option>
@@ -207,7 +207,7 @@ export const BreedingModal: React.FC<BreedingModalProps> = ({
 
           {(type === 'insemination' || type === 'heat_observation') && (
             <div>
-              <label className="block text-xs font-semibold uppercase tracking-wider text-gray-700 mb-1">
+              <label className="field-label">
                 {lang === 'sw' ? 'Dume / Mhudumu wa AI' : 'Sire Breed / AI Provider / Technician'}
               </label>
               <input
@@ -215,7 +215,7 @@ export const BreedingModal: React.FC<BreedingModalProps> = ({
                 value={sireOrProvider}
                 onChange={(e) => setSireOrProvider(e.target.value)}
                 placeholder="e.g. KAGRC Friesian #84, ABS Sexed Semen, Vet technician James"
-                className="w-full px-3.5 py-2.5 rounded-xl border border-gray-300 focus:ring-2 focus:ring-dairy-500 text-sm font-medium"
+                className="field"
               />
             </div>
           )}
@@ -223,13 +223,13 @@ export const BreedingModal: React.FC<BreedingModalProps> = ({
           {type === 'pregnancy_check' && (
             <div className="grid grid-cols-2 gap-3">
               <div>
-                <label className="block text-xs font-semibold uppercase tracking-wider text-gray-700 mb-1">
+                <label className="field-label">
                   {lang === 'sw' ? 'Matokeo ya Kipimo' : 'Pregnancy Result'}
                 </label>
                 <select
                   value={pregnancyResult}
                   onChange={(e) => setPregnancyResult(e.target.value as any)}
-                  className="w-full px-3 py-2 rounded-xl border border-gray-300 focus:ring-2 focus:ring-dairy-500 text-xs font-bold bg-white"
+                  className="field"
                 >
                   <option value="positive">{lang === 'sw' ? 'Mimba Imedhibitishwa (+)' : 'Confirmed Pregnant (+)'}</option>
                   <option value="negative">{lang === 'sw' ? 'Hana Mimba (-)' : 'Not Pregnant (-)'}</option>
@@ -238,14 +238,14 @@ export const BreedingModal: React.FC<BreedingModalProps> = ({
               </div>
 
               <div>
-                <label className="block text-xs font-semibold uppercase tracking-wider text-gray-700 mb-1">
+                <label className="field-label">
                   {lang === 'sw' ? 'Tarehe Inayotarajiwa Kuzaa' : 'Expected Due Date'}
                 </label>
                 <input
                   type="date"
                   value={expectedCalvingDate}
                   onChange={(e) => setExpectedCalvingDate(e.target.value)}
-                  className="w-full px-3 py-2 rounded-xl border border-gray-300 focus:ring-2 focus:ring-dairy-500 text-xs font-medium"
+                  className="field"
                 />
               </div>
             </div>
@@ -293,7 +293,7 @@ export const BreedingModal: React.FC<BreedingModalProps> = ({
                   {(calvingOutcome === 'twins' ? [1, 2] : [1]).map((n) => (
                     <div key={n} className="grid grid-cols-[1fr_auto] gap-2">
                       <div>
-                        <label htmlFor={`calf-tag-${n}`} className="block text-xs font-semibold uppercase tracking-wider text-gray-700 mb-1">
+                        <label htmlFor={`calf-tag-${n}`} className="field-label">
                           {calvingOutcome === 'twins' ? `Calf ${n} ear tag` : 'Calf ear tag'} (optional)
                         </label>
                         <input
@@ -307,7 +307,7 @@ export const BreedingModal: React.FC<BreedingModalProps> = ({
                       </div>
                       {calvingOutcome === 'twins' && (
                         <div>
-                          <label htmlFor={`calf-sex-${n}`} className="block text-xs font-semibold uppercase tracking-wider text-gray-700 mb-1">Sex</label>
+                          <label htmlFor={`calf-sex-${n}`} className="field-label">Sex</label>
                           <select
                             id={`calf-sex-${n}`}
                             value={n === 1 ? calfSex : calfSex2}
@@ -336,7 +336,7 @@ export const BreedingModal: React.FC<BreedingModalProps> = ({
           )}
 
           <div>
-            <label className="block text-xs font-semibold uppercase tracking-wider text-gray-700 mb-1">
+            <label className="field-label">
               {lang === 'sw' ? 'Maelezo ya Ziada' : 'Breeding Notes'}
             </label>
             <input
@@ -344,7 +344,7 @@ export const BreedingModal: React.FC<BreedingModalProps> = ({
               value={notes}
               onChange={(e) => setNotes(e.target.value)}
               placeholder="e.g. Good standing heat, inseminated 12 hours after detection"
-              className="w-full px-3.5 py-2 rounded-xl border border-gray-300 focus:ring-2 focus:ring-dairy-500 text-xs"
+              className="field"
             />
           </div>
 
@@ -353,13 +353,13 @@ export const BreedingModal: React.FC<BreedingModalProps> = ({
             <button
               type="button"
               onClick={onClose}
-              className="px-4 py-2.5 rounded-xl border border-gray-300 text-xs font-semibold text-gray-700 hover:bg-gray-50 transition-colors"
+              className="btn btn-secondary"
             >
               {t.herd.cancel}
             </button>
             <button
               type="submit"
-              className="flex items-center space-x-2 px-6 py-2.5 rounded-xl bg-dairy-600 hover:bg-dairy-700 text-white font-bold text-xs shadow-sm transition-all"
+              className="btn btn-primary"
             >
               <Check className="w-4 h-4" />
               <span>{lang === 'sw' ? 'Hifadhi Kumbukumbu' : 'Save Record'}</span>

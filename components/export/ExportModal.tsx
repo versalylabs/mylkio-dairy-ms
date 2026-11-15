@@ -45,8 +45,8 @@ export const ExportModal: React.FC<ExportModalProps> = ({
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/60 backdrop-blur-sm animate-fade-in">
-      <div className="bg-white rounded-3xl w-full max-w-lg max-h-[92vh] overflow-y-auto shadow-2xl border border-gray-100 flex flex-col">
+    <div className="fixed inset-0 z-50 flex items-end justify-center bg-charcoal/60 p-0 backdrop-blur-sm animate-fade-in sm:items-center sm:p-4">
+      <div className="flex max-h-[94dvh] w-full max-w-lg flex-col overflow-y-auto rounded-t-3xl border border-ivory-border bg-white shadow-2xl sm:rounded-3xl">
         {/* Header */}
         <div className="flex items-center justify-between p-5 border-b border-gray-100 sticky top-0 bg-white z-10">
           <div className="flex items-center space-x-2.5">
@@ -54,7 +54,7 @@ export const ExportModal: React.FC<ExportModalProps> = ({
               <Download className="w-5 h-5 text-dairy-600" />
             </div>
             <div>
-              <h2 className="text-xl font-bold text-gray-900">
+              <h2 className="font-display text-xl font-medium text-charcoal">
                 {lang === 'sw' ? 'Pakua Data ya Shamba (CSV & Backup)' : 'Export Farm Data (CSV & Backup)'}
               </h2>
               <p className="text-xs text-gray-500">
@@ -89,7 +89,7 @@ export const ExportModal: React.FC<ExportModalProps> = ({
             </div>
             <button
               onClick={() => DataExporter.exportMilkToCSV(milk)}
-              className="px-3.5 py-1.5 bg-dairy-600 hover:bg-dairy-700 text-white rounded-xl text-xs font-bold transition-all shadow-xs flex items-center gap-1"
+              className="btn btn-primary"
             >
               <Download className="w-3.5 h-3.5" />
               <span>CSV</span>
@@ -113,7 +113,7 @@ export const ExportModal: React.FC<ExportModalProps> = ({
             </div>
             <button
               onClick={() => DataExporter.exportDeliveriesToCSV(deliveries)}
-              className="px-3.5 py-1.5 bg-[#345C4A] hover:bg-[#274537] text-white rounded-xl text-xs font-bold transition-all shadow-xs flex items-center gap-1"
+              className="btn btn-primary"
             >
               <Download className="w-3.5 h-3.5" />
               <span>CSV</span>
@@ -137,7 +137,7 @@ export const ExportModal: React.FC<ExportModalProps> = ({
             </div>
             <button
               onClick={() => DataExporter.exportExpensesToCSV(expenses)}
-              className="px-3.5 py-1.5 bg-[#345C4A] hover:bg-[#274537] text-white rounded-xl text-xs font-bold transition-all shadow-xs flex items-center gap-1"
+              className="btn btn-primary"
             >
               <Download className="w-3.5 h-3.5" />
               <span>CSV</span>
@@ -161,7 +161,7 @@ export const ExportModal: React.FC<ExportModalProps> = ({
             </div>
             <button
               onClick={() => DataExporter.exportHerdToCSV(cows)}
-              className="px-3.5 py-1.5 bg-[#345C4A] hover:bg-[#274537] text-white rounded-xl text-xs font-bold transition-all shadow-xs flex items-center gap-1"
+              className="btn btn-primary"
             >
               <Download className="w-3.5 h-3.5" />
               <span>CSV</span>

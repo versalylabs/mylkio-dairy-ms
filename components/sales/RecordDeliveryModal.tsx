@@ -115,8 +115,8 @@ export const RecordDeliveryModal: React.FC<RecordDeliveryModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/60 backdrop-blur-sm animate-fade-in">
-      <div className="bg-white rounded-3xl w-full max-w-lg max-h-[92vh] overflow-y-auto shadow-2xl border border-gray-100 flex flex-col">
+    <div className="fixed inset-0 z-50 flex items-end justify-center bg-charcoal/60 p-0 backdrop-blur-sm animate-fade-in sm:items-center sm:p-4">
+      <div className="flex max-h-[94dvh] w-full max-w-lg flex-col overflow-y-auto rounded-t-3xl border border-ivory-border bg-white shadow-2xl sm:rounded-3xl">
         {/* Header */}
         <div className="flex items-center justify-between p-5 border-b border-gray-100 sticky top-0 bg-white z-10">
           <div className="flex items-center space-x-2.5">
@@ -124,7 +124,7 @@ export const RecordDeliveryModal: React.FC<RecordDeliveryModalProps> = ({
               <Truck className="w-5 h-5" />
             </div>
             <div>
-              <h2 className="text-xl font-bold text-gray-900">
+              <h2 className="font-display text-xl font-medium text-charcoal">
                 {lang === 'sw' ? 'Rekodi Utoaji wa Maziwa' : 'Record Milk Delivery'}
               </h2>
               <p className="text-xs text-gray-500">
@@ -158,13 +158,13 @@ export const RecordDeliveryModal: React.FC<RecordDeliveryModalProps> = ({
 
           {/* Select Buyer */}
           <div>
-            <label className="block text-xs font-semibold uppercase tracking-wider text-gray-700 mb-1">
+            <label className="field-label">
               {lang === 'sw' ? 'Mnunuzi / Ushirika *' : 'Buyer / Cooperative *'}
             </label>
             <select
               value={buyerId}
               onChange={(e) => setBuyerId(e.target.value)}
-              className="w-full px-3.5 py-2.5 rounded-xl border border-gray-300 focus:ring-2 focus:ring-dairy-500 text-sm font-semibold bg-white"
+              className="field"
               required
             >
               {buyers.map((b) => (
@@ -177,20 +177,20 @@ export const RecordDeliveryModal: React.FC<RecordDeliveryModalProps> = ({
 
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="block text-xs font-semibold uppercase tracking-wider text-gray-700 mb-1">
+              <label className="field-label">
                 {lang === 'sw' ? 'Tarehe' : 'Date'}
               </label>
               <input
                 type="date"
                 value={date}
                 onChange={(e) => setDate(e.target.value)}
-                className="w-full px-3 py-2.5 rounded-xl border border-gray-300 focus:ring-2 focus:ring-dairy-500 text-sm font-medium"
+                className="field"
                 required
               />
             </div>
 
             <div>
-              <label className="block text-xs font-semibold uppercase tracking-wider text-gray-700 mb-1">
+              <label className="field-label">
                 {lang === 'sw' ? 'Bei kwa Lita (KSh)' : 'Rate / Litre (KSh)'}
               </label>
               <input
@@ -198,7 +198,7 @@ export const RecordDeliveryModal: React.FC<RecordDeliveryModalProps> = ({
                 step="any"
                 value={ratePerLitre}
                 onChange={(e) => setRatePerLitre(parseFloat(e.target.value) || 0)}
-                className="w-full px-3 py-2.5 rounded-xl border border-gray-300 focus:ring-2 focus:ring-dairy-500 text-sm font-semibold"
+                className="field"
                 required
               />
             </div>
@@ -217,7 +217,7 @@ export const RecordDeliveryModal: React.FC<RecordDeliveryModalProps> = ({
                 value={litres}
                 onChange={(e) => setLitres(e.target.value)}
                 placeholder="e.g. 45"
-                className="w-full text-3xl font-extrabold text-slate-900 pl-4 pr-16 py-3 rounded-2xl border border-gray-300 focus:ring-2 focus:ring-dairy-500 bg-white"
+                className="field text-3xl font-extrabold text-slate-900 pl-4 pr-16 rounded-2xl"
                 autoFocus
                 required
               />
@@ -239,7 +239,7 @@ export const RecordDeliveryModal: React.FC<RecordDeliveryModalProps> = ({
                   value={rejectedLitres}
                   onChange={(e) => setRejectedLitres(e.target.value)}
                   placeholder="0"
-                  className="w-full px-3 py-2 rounded-xl border border-gray-300 focus:ring-2 focus:ring-dairy-500 text-xs font-medium"
+                  className="field"
                 />
               </div>
 
@@ -253,7 +253,7 @@ export const RecordDeliveryModal: React.FC<RecordDeliveryModalProps> = ({
                   value={adjustmentKSh}
                   onChange={(e) => setAdjustmentKSh(e.target.value)}
                   placeholder="-100"
-                  className="w-full px-3 py-2 rounded-xl border border-gray-300 focus:ring-2 focus:ring-dairy-500 text-xs font-medium"
+                  className="field"
                 />
               </div>
             </div>
@@ -263,20 +263,20 @@ export const RecordDeliveryModal: React.FC<RecordDeliveryModalProps> = ({
             <div className="grid grid-cols-2 gap-3">
               {selectedBuyer?.type === 'cooperative' && (
                 <div>
-                  <label htmlFor="delivery-slip" className="block text-xs font-semibold uppercase tracking-wider text-gray-700 mb-1">
+                  <label htmlFor="delivery-slip" className="field-label">
                     {lang === 'sw' ? 'Nambari ya risiti ya kituo' : 'Delivery slip no.'}
                   </label>
                   <input id="delivery-slip" type="text" value={slipReference} onChange={(e) => setSlipReference(e.target.value)}
-                    placeholder="e.g. RG-1108" className="w-full px-3 py-2.5 rounded-xl border border-gray-300 focus:ring-2 focus:ring-dairy-500 text-sm" />
+                    placeholder="e.g. RG-1108" className="field" />
                 </div>
               )}
               {numRejected > 0 && (
                 <div>
-                  <label htmlFor="delivery-reject-reason" className="block text-xs font-semibold uppercase tracking-wider text-gray-700 mb-1">
+                  <label htmlFor="delivery-reject-reason" className="field-label">
                     {lang === 'sw' ? 'Sababu ya kukataliwa' : 'Rejection reason'}
                   </label>
                   <input id="delivery-reject-reason" type="text" value={rejectionReason} onChange={(e) => setRejectionReason(e.target.value)}
-                    placeholder={lang === 'sw' ? 'mfano Kipimo cha alkoholi' : 'e.g. Failed alcohol test'} className="w-full px-3 py-2.5 rounded-xl border border-gray-300 focus:ring-2 focus:ring-dairy-500 text-sm" />
+                    placeholder={lang === 'sw' ? 'mfano Kipimo cha alkoholi' : 'e.g. Failed alcohol test'} className="field" />
                 </div>
               )}
             </div>
@@ -297,7 +297,7 @@ export const RecordDeliveryModal: React.FC<RecordDeliveryModalProps> = ({
           {/* Payment received on delivery */}
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="block text-xs font-semibold uppercase tracking-wider text-gray-700 mb-1">
+              <label className="field-label">
                 {lang === 'sw' ? 'Imelipwa Papo Hapo (KSh)' : 'Amount Paid Today (KSh)'}
               </label>
               <input
@@ -306,19 +306,19 @@ export const RecordDeliveryModal: React.FC<RecordDeliveryModalProps> = ({
                 value={amountPaid}
                 onChange={(e) => setAmountPaid(e.target.value)}
                 placeholder="0"
-                className="w-full px-3 py-2.5 rounded-xl border border-gray-300 focus:ring-2 focus:ring-dairy-500 text-sm font-semibold"
+                className="field"
               />
             </div>
 
             <div>
-              <label className="block text-xs font-semibold uppercase tracking-wider text-gray-700 mb-1">
+              <label className="field-label">
                 {lang === 'sw' ? 'Njia ya malipo' : 'Paid by'}
               </label>
               <select
                 value={paymentMethod}
                 onChange={(e) => setPaymentMethod(e.target.value as PaymentRecord['paymentMethod'])}
                 disabled={numPaid <= 0}
-                className="w-full px-3 py-2.5 rounded-xl border border-gray-300 focus:ring-2 focus:ring-dairy-500 text-sm font-semibold bg-white disabled:bg-gray-50 disabled:text-gray-400"
+                className="field disabled:bg-gray-50 disabled:text-gray-400"
               >
                 <option value="cash">{lang === 'sw' ? 'Pesa taslimu' : 'Cash'}</option>
                 <option value="mpesa">M-Pesa</option>
@@ -340,7 +340,7 @@ export const RecordDeliveryModal: React.FC<RecordDeliveryModalProps> = ({
           </p>
 
           <div>
-            <label className="block text-xs font-semibold uppercase tracking-wider text-gray-700 mb-1">
+            <label className="field-label">
               {lang === 'sw' ? 'Maelezo' : 'Notes (Cans, clerk name)'}
             </label>
             <input
@@ -348,7 +348,7 @@ export const RecordDeliveryModal: React.FC<RecordDeliveryModalProps> = ({
               value={notes}
               onChange={(e) => setNotes(e.target.value)}
               placeholder="e.g. Rongai depot batch 1, aluminium cans"
-              className="w-full px-3.5 py-2 rounded-xl border border-gray-300 focus:ring-2 focus:ring-dairy-500 text-xs"
+              className="field"
             />
           </div>
 
@@ -357,13 +357,13 @@ export const RecordDeliveryModal: React.FC<RecordDeliveryModalProps> = ({
             <button
               type="button"
               onClick={onClose}
-              className="px-4 py-2.5 rounded-xl border border-gray-300 text-xs font-semibold text-gray-700 hover:bg-gray-50 transition-colors"
+              className="btn btn-secondary"
             >
               {t.herd.cancel}
             </button>
             <button
               type="submit"
-              className="flex items-center space-x-2 px-6 py-2.5 rounded-xl bg-dairy-600 hover:bg-dairy-700 text-white font-bold text-xs shadow-sm transition-all"
+              className="btn btn-primary"
             >
               <Check className="w-4 h-4" />
               <span>{lang === 'sw' ? 'Hifadhi Utoaji' : 'Save Delivery'}</span>

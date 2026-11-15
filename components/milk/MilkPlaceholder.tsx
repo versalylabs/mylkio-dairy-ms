@@ -24,7 +24,7 @@ export const MilkPlaceholder: React.FC<MilkPlaceholderProps> = ({
         <span>{lang === 'sw' ? 'Awamu ya 2: Kurekodi Maziwa' : 'Phase 2 Preview: Daily Operations'}</span>
       </div>
 
-      <h1 className="text-2xl font-black text-slate-900 tracking-tight">
+      <h1 className="page-title">
         {lang === 'sw' ? 'Kurekodi Maziwa na Malipo ya Ushirika' : 'Daily Milk Production & Cooperative Sales'}
       </h1>
 
@@ -60,7 +60,7 @@ export const MilkPlaceholder: React.FC<MilkPlaceholderProps> = ({
 
       <button
         onClick={onNavigateHerd}
-        className="mt-6 inline-flex items-center space-x-2 px-5 py-2.5 bg-dairy-600 hover:bg-dairy-700 text-white rounded-xl text-xs font-bold transition-all shadow-sm"
+        className="btn btn-primary mt-6"
       >
         <span>{lang === 'sw' ? 'Tazama na Ongeza Ng\'ombe Wako' : 'Explore Herd Registry'}</span>
         <ArrowRight className="w-4 h-4" />

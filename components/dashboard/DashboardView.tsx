@@ -122,27 +122,27 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
       {/* Greeting and the everyday actions come first: this is what a farmer opens the app to do. */}
       <header>
         <p className="text-sm font-medium text-[#4B5A52]">{farmLocation}</p>
-        <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-[#26332D]">
+        <h1 className="page-title">
           {sw ? `Habari, ${displayName}!` : `Hello, ${displayName}`}
         </h1>
       </header>
 
       <section aria-label={sw ? 'Vitendo vya haraka' : 'Quick actions'} className="grid grid-cols-2 lg:grid-cols-4 gap-3">
-        <button onClick={onOpenRecordMilk} className="min-h-[88px] flex flex-col items-center justify-center gap-2 rounded-2xl bg-[#345C4A] px-3 py-4 text-white shadow-sm hover:bg-[#274537] transition-colors">
+        <button onClick={onOpenRecordMilk} className="min-h-[88px] flex flex-col items-center justify-center gap-2 whitespace-nowrap rounded-2xl bg-[#345C4A] px-2 py-4 text-white shadow-soft hover:bg-[#274537] transition-colors">
           <Milk className="w-6 h-6" />
-          <span className="text-base font-bold">{t.quickActions.recordMilk}</span>
+          <span className="text-sm font-bold sm:text-base">{t.quickActions.recordMilk}</span>
         </button>
-        <button onClick={onOpenRecordDelivery} className="min-h-[88px] flex flex-col items-center justify-center gap-2 rounded-2xl border border-gray-200 bg-white px-3 py-4 text-[#26332D] shadow-sm hover:border-[#345C4A] transition-colors">
+        <button onClick={onOpenRecordDelivery} className="min-h-[88px] flex flex-col items-center justify-center gap-2 whitespace-nowrap rounded-2xl border border-gray-200 bg-white px-2 py-4 text-charcoal shadow-soft hover:border-[#345C4A] transition-colors">
           <Truck className="w-6 h-6 text-[#345C4A]" />
-          <span className="text-base font-bold">{sw ? 'Rekodi Utoaji' : 'Log Delivery'}</span>
+          <span className="text-sm font-bold sm:text-base">{sw ? 'Rekodi Utoaji' : 'Log Delivery'}</span>
         </button>
-        <button onClick={onOpenRecordPayment} className="min-h-[88px] flex flex-col items-center justify-center gap-2 rounded-2xl border border-gray-200 bg-white px-3 py-4 text-[#26332D] shadow-sm hover:border-[#C6A76A] transition-colors">
+        <button onClick={onOpenRecordPayment} className="min-h-[88px] flex flex-col items-center justify-center gap-2 whitespace-nowrap rounded-2xl border border-gray-200 bg-white px-2 py-4 text-charcoal shadow-soft hover:border-[#C6A76A] transition-colors">
           <DollarSign className="w-6 h-6 text-[#9A7B35]" />
-          <span className="text-base font-bold">{t.quickActions.receivePayment}</span>
+          <span className="text-sm font-bold sm:text-base">{t.quickActions.receivePayment}</span>
         </button>
-        <button onClick={onOpenAddCow} className="min-h-[88px] flex flex-col items-center justify-center gap-2 rounded-2xl border border-gray-200 bg-white px-3 py-4 text-[#26332D] shadow-sm hover:border-[#345C4A] transition-colors">
+        <button onClick={onOpenAddCow} className="min-h-[88px] flex flex-col items-center justify-center gap-2 whitespace-nowrap rounded-2xl border border-gray-200 bg-white px-2 py-4 text-charcoal shadow-soft hover:border-[#345C4A] transition-colors">
           <Plus className="w-6 h-6 text-[#345C4A]" />
-          <span className="text-base font-bold">{t.quickActions.addCow}</span>
+          <span className="text-sm font-bold sm:text-base">{t.quickActions.addCow}</span>
         </button>
       </section>
 
@@ -161,7 +161,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
       )}
 
       {/* KPI Cards */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+      <div className="grid grid-cols-1 gap-3 min-[360px]:grid-cols-2 sm:gap-4 xl:grid-cols-4">
         {/* Today's Milk */}
         <div className="bg-white p-4 rounded-2xl border border-gray-200/90 shadow-sm flex flex-col justify-between">
           <div className="flex items-center justify-between">
@@ -173,7 +173,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
             </div>
           </div>
           <div className="mt-2">
-            <div className="text-2xl font-black text-gray-900 tracking-tight">
+            <div className="text-2xl font-black text-gray-900 tracking-tight whitespace-nowrap">
               {todayLitres.toFixed(1)} <span className="text-sm font-normal text-gray-500">{t.common.lShort}</span>
             </div>
             <div className="text-sm font-medium text-[#345C4A] flex items-center gap-1 mt-0.5">
@@ -194,7 +194,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
             </div>
           </div>
           <div className="mt-2">
-            <div className="text-2xl font-black text-gray-900 tracking-tight">
+            <div className="text-2xl font-black text-gray-900 tracking-tight whitespace-nowrap">
               {todaySales.acceptedLitres.toFixed(1)} <span className="text-sm font-normal text-gray-500">{t.common.lShort}</span>
             </div>
             <div className="text-sm font-medium text-gray-600 mt-0.5">
@@ -215,7 +215,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
             </div>
           </div>
           <div className="mt-2">
-            <div className="text-2xl font-black text-gray-900 tracking-tight">
+            <div className="text-2xl font-black text-gray-900 tracking-tight whitespace-nowrap">
               KSh {cashToday.amount.toLocaleString()}
             </div>
             <div className="text-sm font-medium text-[#5D7368] mt-0.5">
@@ -235,7 +235,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
             </div>
           </div>
           <div className="mt-2">
-            <div className="text-2xl font-black text-[#b39252] tracking-tight">
+            <div className="text-2xl font-black text-[#b39252] tracking-tight whitespace-nowrap">
               KSh {owed.owedToFarm.toLocaleString()}
             </div>
             <div className="text-sm font-medium text-gray-600 mt-0.5">
@@ -346,14 +346,14 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
           </div>
           <button
             onClick={() => onNavigate('finance')}
-            className="text-sm font-semibold text-[#C6A76A] hover:text-[#d8be85] flex items-center gap-1"
+            className="flex shrink-0 items-center gap-1 whitespace-nowrap text-sm font-semibold text-gold-600 hover:text-sage"
           >
             <span>{lang === 'sw' ? 'Tazama Leja ya Fedha' : 'Open Finance Ledger'}</span>
             <ArrowRight className="w-3.5 h-3.5" />
           </button>
         </div>
 
-        <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 pt-1">
+        <div className="grid grid-cols-1 gap-3 pt-1 min-[360px]:grid-cols-2 sm:grid-cols-3">
           <div className="p-3 bg-white/10 rounded-2xl">
             <span className="text-sm text-[#cbdbcf] block">{sw ? 'Mauzo yaliyodaiwa' : 'Milk billed'}</span>
             <span className="text-lg font-black text-[#C6A76A]">KSh {monthSales.billed.toLocaleString()}</span>
@@ -398,25 +398,25 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
 
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
           <div className="p-3 bg-[#A8BFA5]/20 rounded-xl border border-[#A8BFA5]/40 flex items-center space-x-3">
-            <span className="text-2xl font-black text-[#345C4A]">{lactatingCount}</span>
+            <span className="text-2xl font-black text-[#345C4A] whitespace-nowrap">{lactatingCount}</span>
             <div className="text-sm font-semibold text-[#26332D]">
               {t.dashboard.lactating}
             </div>
           </div>
           <div className="p-3 bg-[#FAF5EB] rounded-xl border border-[#E5D5B5] flex items-center space-x-3">
-            <span className="text-2xl font-black text-[#C6A76A]">{dryCount}</span>
+            <span className="text-2xl font-black text-[#C6A76A] whitespace-nowrap">{dryCount}</span>
             <div className="text-sm font-semibold text-[#26332D]">
               {t.dashboard.dry}
             </div>
           </div>
           <div className="p-3 bg-[#F2EFE7] rounded-xl border border-[#E8E4D8] flex items-center space-x-3">
-            <span className="text-2xl font-black text-[#26332D]">{pregnantCount}</span>
+            <span className="text-2xl font-black text-[#26332D] whitespace-nowrap">{pregnantCount}</span>
             <div className="text-sm font-semibold text-[#26332D]">
               {t.dashboard.pregnant}
             </div>
           </div>
           <div className="p-3 bg-[#FAF9F5] rounded-xl border border-[#E8E4D8] flex items-center space-x-3">
-            <span className="text-2xl font-black text-[#26332D]">{calvesCount}</span>
+            <span className="text-2xl font-black text-[#26332D] whitespace-nowrap">{calvesCount}</span>
             <div className="text-sm font-semibold text-[#26332D]">
               {t.dashboard.calves}
             </div>

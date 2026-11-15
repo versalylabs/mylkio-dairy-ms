@@ -115,7 +115,7 @@ export const CowDetailModal: React.FC<CowDetailModalProps> = ({
   const badge = getStatusBadge();
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-5 bg-black/60 backdrop-blur-sm animate-fade-in overflow-y-auto">
+    <div className="fixed inset-0 z-50 flex items-end justify-center bg-charcoal/60 p-0 backdrop-blur-sm animate-fade-in sm:items-center sm:p-4 overflow-y-auto">
       <div className="bg-[#FAF9F5] rounded-3xl w-full max-w-2xl max-h-[92vh] overflow-y-auto shadow-2xl border border-[#E8E4D8] flex flex-col text-[#26332D]">
         
         {/* Top Header Ribbon */}
@@ -126,7 +126,7 @@ export const CowDetailModal: React.FC<CowDetailModalProps> = ({
             </span>
             <div>
               <div className="flex items-center gap-2">
-                <h2 className="text-lg sm:text-xl font-bold tracking-tight text-[#26332D]">
+                <h2 className="font-display text-xl font-medium text-charcoal">
                   {cow.name || cow.tag}
                 </h2>
                 <span className="text-xs font-semibold text-[#5D7368] bg-[#FAF9F5] px-2.5 py-0.5 rounded-full border border-[#E8E4D8]">
@@ -256,7 +256,7 @@ export const CowDetailModal: React.FC<CowDetailModalProps> = ({
                   onClose();
                   onEdit(cow);
                 }}
-                className="px-4 py-2 bg-[#345C4A] hover:bg-[#274537] text-white rounded-xl text-xs font-bold transition-all shadow-xs flex items-center gap-1.5"
+                className="btn btn-primary"
               >
                 <Camera className="w-3.5 h-3.5" />
                 <span>{lang === 'sw' ? 'Pakia Picha Sasa' : 'Upload Photos'}</span>
@@ -270,7 +270,7 @@ export const CowDetailModal: React.FC<CowDetailModalProps> = ({
               <span className="text-xs font-semibold text-[#879C91] uppercase tracking-wider block">
                 Status
               </span>
-              <span className={`inline-flex items-center px-2 py-0.5 rounded-md text-xs font-bold border ${badge.class}`}>
+              <span className={`inline-flex items-center px-2 py-0.5 rounded-md text-xs font-bold border ${badge.class} whitespace-nowrap`}>
                 {badge.label}
               </span>
             </div>
@@ -368,37 +368,25 @@ export const CowDetailModal: React.FC<CowDetailModalProps> = ({
 
           {/* Subtabs for Health & Breeding History */}
           <div className="space-y-3">
-            <div className="flex items-center gap-2 border-b border-[#E8E4D8] pb-1">
+            <div className="tab-strip">
               <button
                 onClick={() => setActiveTab('overview')}
-                className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all ${
-                  activeTab === 'overview'
-                    ? 'bg-[#345C4A] text-white shadow-2xs'
-                    : 'text-[#5D7368] hover:text-[#26332D] hover:bg-[#F2EFE7]'
-                }`}
+                className={`tab-btn ${activeTab === 'overview' ? 'tab-btn-active' : ''}`}
               >
                 {lang === 'sw' ? 'Muhtasari & Vidokezo' : 'Notes & Pedigree'}
               </button>
               <button
                 onClick={() => setActiveTab('health')}
-                className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 ${
-                  activeTab === 'health'
-                    ? 'bg-[#345C4A] text-white shadow-2xs'
-                    : 'text-[#5D7368] hover:text-[#26332D] hover:bg-[#F2EFE7]'
-                }`}
+                className={`tab-btn ${activeTab === 'health' ? 'tab-btn-active' : ''}`}
               >
-                <Stethoscope className="w-3.5 h-3.5" />
+                <Stethoscope className="h-4 w-4" />
                 <span>{lang === 'sw' ? 'Afya' : 'Health Records'} ({cowHealth.length})</span>
               </button>
               <button
                 onClick={() => setActiveTab('breeding')}
-                className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 ${
-                  activeTab === 'breeding'
-                    ? 'bg-[#345C4A] text-white shadow-2xs'
-                    : 'text-[#5D7368] hover:text-[#26332D] hover:bg-[#F2EFE7]'
-                }`}
+                className={`tab-btn ${activeTab === 'breeding' ? 'tab-btn-active' : ''}`}
               >
-                <Dna className="w-3.5 h-3.5" />
+                <Dna className="h-4 w-4" />
                 <span>{lang === 'sw' ? 'Uzazi' : 'Breeding Events'} ({cowBreeding.length})</span>
               </button>
             </div>
@@ -534,7 +522,7 @@ export const CowDetailModal: React.FC<CowDetailModalProps> = ({
                   onClose();
                   onEdit(cow);
                 }}
-                className="px-4 py-2 bg-[#345C4A] hover:bg-[#274537] text-white rounded-xl text-xs font-bold transition-all shadow-xs flex items-center gap-1.5"
+                className="btn btn-primary"
               >
                 <Edit3 className="w-3.5 h-3.5" />
                 <span>{lang === 'sw' ? 'Hariri Ng\'ombe' : 'Edit Details'}</span>
