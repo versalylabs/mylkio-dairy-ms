@@ -66,7 +66,17 @@ export function CloudSaveNotice() {
     return () => window.removeEventListener('mylkio_cloud_changed', update);
   }, []);
 
-  if (!status.pending && !status.error && !conflicts.length) return null;
+  if (!status.pending && !status.error && !status.storageError && !conflicts.length) return null;
+
+  // The phone itself could not save: the most serious message, and it stays until a save works again.
+  if (status.storageError) {
+    return (
+      <div role="alert" className="fixed bottom-20 left-4 right-4 z-50 mx-auto max-w-xl rounded-xl border border-rose-300 bg-rose-50 p-3 text-sm text-rose-950 shadow-lg">
+        <p className="font-semibold">{status.storageError}</p>
+        <p className="mt-1">{status.pending ? `${status.pending} change${status.pending === 1 ? '' : 's'} not yet in the cloud.` : 'Your cloud copy is up to date.'}</p>
+      </div>
+    );
+  }
 
   const resolve = async (groupId: string, choice: 'keep_local' | 'use_cloud') => {
     setBusy(true);

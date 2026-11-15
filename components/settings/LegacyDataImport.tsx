@@ -67,12 +67,12 @@ export function LegacyDataImport({ targetFarmId, language }: { targetFarmId: str
     <div className="flex items-start gap-3">
       <div className="rounded-xl bg-amber-50 p-2.5 text-amber-700"><Database className="h-5 w-5" /></div>
       <div>
-        <h2 className="text-base font-bold text-gray-900">{sw ? 'Hamisha rekodi za zamani' : 'Import existing farm records'}</h2>
-        <p className="mt-1 text-xs text-gray-600">{sw ? 'Unganisha data iliyohifadhiwa kwenye kifaa hiki na akaunti yako ya shamba.' : 'Bring records saved by the earlier local version on this device into this farm account.'}</p>
+        <h2 className="text-base font-bold text-gray-900">{sw ? 'Rejesha kutoka chelezo' : 'Restore from a backup'}</h2>
+        <p className="mt-1 text-xs text-gray-600">{sw ? 'Rejesha chelezo ya JSON au rekodi za toleo la zamani kwenye shamba hili.' : 'Put a backup file (or records from an earlier version on this phone) back into this farm. Nothing already here is overwritten.'}</p>
       </div>
     </div>
     <label className="block text-xs font-semibold text-gray-700">
-      {sw ? 'Chagua chelezo ya JSON' : 'Choose a JSON farm backup'}
+      {sw ? 'Chagua faili ya chelezo (JSON)' : 'Choose a backup file (.json)'}
       <input type="file" accept="application/json,.json" onChange={event => void selectBackup(event.target.files?.[0])} className="mt-1.5 block w-full text-xs file:mr-3 file:rounded-lg file:border-0 file:bg-[#345C4A] file:px-3 file:py-2 file:font-bold file:text-white" />
     </label>
     {sources.length > 0 && !backup && <>
@@ -94,7 +94,7 @@ export function LegacyDataImport({ targetFarmId, language }: { targetFarmId: str
       {preview.financial.slice(0, 5).map(row => <p key={row.buyerId} className="text-amber-900">{row.buyerName}: balance KSh {row.recordedBalance.toLocaleString()}, deliveries KSh {row.deliveryBalance.toLocaleString()}, gap KSh {row.gap.toLocaleString()}.</p>)}
     </div>}
       <button type="button" disabled={(!selected && !backup) || busy || total === 0 && !backup || !preview || preview.errors.length > 0} onClick={importData} className="inline-flex items-center gap-2 rounded-xl bg-[#345C4A] px-4 py-2.5 text-xs font-bold text-white disabled:cursor-not-allowed disabled:opacity-50">
-        <UploadCloud className="h-4 w-4" />{busy ? (sw ? 'Inahamisha…' : 'Importing…') : (sw ? 'Hamisha sasa' : 'Import records')}
+        <UploadCloud className="h-4 w-4" />{busy ? (sw ? 'Inarejesha…' : 'Restoring…') : (sw ? 'Rejesha sasa' : 'Restore records')}
       </button>
     {result && <div className="space-y-1 rounded-xl border border-emerald-200 bg-emerald-50 p-3 text-xs text-emerald-900">
       <div className="flex items-center gap-2 font-bold"><CheckCircle2 className="h-4 w-4" />{sw ? 'Ukaguzi wa uhamisho umekamilika' : 'Import pass completed'}</div>

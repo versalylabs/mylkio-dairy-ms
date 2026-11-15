@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
+import { primaryPhoto } from '@/lib/photos';
 import { Cow, MilkEntry, MilkAllocation, Language, HealthEvent } from '@/types';
 import { translations } from '@/lib/translations';
 import { farmToday, formatFarmDate } from '@/lib/dates';
@@ -386,9 +387,9 @@ export const RecordMilkModal: React.FC<RecordMilkModalProps> = ({
                       className="flex items-center justify-between p-2.5 bg-white rounded-xl border border-gray-200 shadow-2xs gap-3"
                     >
                       <div className="flex items-center space-x-2.5 min-w-0">
-                        {cow.photoUrl ? (
+                        {primaryPhoto(cow) ? (
                           <img
-                            src={cow.photoUrl}
+                            src={primaryPhoto(cow)}
                             alt={cow.tag}
                             className="w-9 h-9 rounded-lg object-cover shrink-0"
                           />

@@ -5,6 +5,7 @@ import { Farm, Language, UserAccount } from '@/types';
 import { translations } from '@/lib/translations';
 import { AppStorage } from '@/lib/storage';
 import { LegacyDataImport } from './LegacyDataImport';
+import { StorageCard } from './StorageCard';
 import { PLANS, type PlanId } from '@/lib/plans';
 import { billingState, describeBilling, STATE_LABEL } from '@/lib/billing';
 import { SUPPORT_PHONE_DIGITS, whatsappLink } from '@/lib/contact';
@@ -19,6 +20,13 @@ interface SettingsViewProps {
   user?: UserAccount | null;
   /** Live cows on the farm, shown against what the plan covers. */
   cowCount?: number;
+  /** Backup and storage tools. Shown when the farm can supply them. */
+  storage?: {
+    recordCount: number;
+    cows: { photoUrl?: string; photoUrls?: string[] }[];
+    onDownloadBackup: () => void;
+    onShrinkPhotos: () => Promise<{ shrunk: number; savedBytes: number }>;
+  };
   onLogout?: () => void;
 }
 
@@ -29,6 +37,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
   onLanguageChange,
   user,
   cowCount,
+  storage,
   onLogout,
 }) => {
   const t = translations[lang];
@@ -312,6 +321,10 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
           </div>
         </form>
       </div>
+
+      {storage && user && user.role !== 'super_admin' && (
+        <StorageCard farmId={farm.id} recordCount={storage.recordCount} cows={storage.cows} onDownloadBackup={storage.onDownloadBackup} onShrinkPhotos={storage.onShrinkPhotos} />
+      )}
 
       {user && user.role !== 'super_admin' && user.id !== 'usr-demo-01' && (
         <LegacyDataImport targetFarmId={user.farmId} language={lang} />

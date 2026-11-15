@@ -46,6 +46,9 @@ import { ExpenseModal } from '@/components/finance/ExpenseModal';
 import { ExportModal } from '@/components/export/ExportModal';
 import { SettingsView } from '@/components/settings/SettingsView';
 import { liveCowCount } from '@/lib/billing';
+import { DataExporter } from '@/lib/export';
+import { registerOfflineApp } from '@/lib/offline-ready';
+import { photoSavings, shrinkCowPhotos } from '@/lib/photos';
 import { PlatformAdminView } from '@/components/admin/PlatformAdminView';
 import { MarketingLandingPage } from '@/components/marketing/MarketingLandingPage';
 import { AuthModal } from '@/components/auth/AuthModal';
@@ -139,16 +142,8 @@ export default function Home() {
       if (!cancelled) setAccountError(error instanceof Error ? error.message : 'Could not load account.');
     }).finally(() => { if (!cancelled) setMounted(true); });
 
-    // Service worker for PWA offline readiness. Not used in development, where chunk names
-    // change on every start; any worker left over from an earlier session is removed.
-    if (typeof window !== 'undefined' && 'serviceWorker' in navigator) {
-      if (process.env.NODE_ENV === 'production') {
-        navigator.serviceWorker.register('/sw.js').catch(() => {});
-      } else {
-        void navigator.serviceWorker.getRegistrations().then((list) => list.forEach((r) => void r.unregister()));
-        void caches.keys().then((keys) => keys.filter((k) => k.startsWith('mylkio-cache-')).forEach((k) => void caches.delete(k)));
-      }
-    }
+    // Service worker for offline start (production only; see lib/offline-ready.ts).
+    registerOfflineApp();
 
     const handleStorageChange = () => refreshData();
     window.addEventListener('mylkio_auth_changed', handleStorageChange);
@@ -234,6 +229,27 @@ export default function Home() {
   };
 
   // Cow actions
+  // Everything the farm holds, as the farmer's own backup file (see lib/export.ts and lib/backup.ts).
+  const totalRecords = cows.length + buyers.length + milkEntries.length + deliveries.length + payments.length + healthEvents.length
+    + breedingEvents.length + expenses.length + reminders.length + statements.length + bills.length + allocations.length;
+  const handleDownloadBackup = () => DataExporter.exportFullBackupJSON({
+    farm, cows, buyers, milk: milkEntries, deliveries, payments, health: healthEvents, breeding: breedingEvents,
+    expenses, reminders, statements, bills, allocations,
+  });
+  // Shrinks every large saved photo. Each cow is saved through the normal path, so the change syncs like any edit.
+  const handleShrinkPhotos = async () => {
+    let shrunk = 0; let savedBytes = 0;
+    for (const cow of AppStorage.getCows(currentTargetFarmId)) {
+      if (!photoSavings([cow]).large) continue;
+      const before = photoSavings([cow]).bytes;
+      const smaller = await shrinkCowPhotos(cow);
+      AppStorage.updateCow(cow.id, { photoUrl: undefined, photoUrls: smaller.photoUrls }, currentTargetFarmId);
+      savedBytes += Math.max(0, before - photoSavings([smaller]).bytes);
+      shrunk += photoSavings([cow]).large;
+    }
+    return { shrunk, savedBytes };
+  };
+
   const handleSaveCow = (cowData: Omit<Cow, 'id' | 'createdAt' | 'farmId'>) => {
     if (cowToEdit) {
       AppStorage.updateCow(cowToEdit.id, cowData, currentTargetFarmId);
@@ -556,6 +572,7 @@ export default function Home() {
           }}
           user={currentUser}
           cowCount={liveCowCount(cows)}
+          storage={{ recordCount: totalRecords, cows, onDownloadBackup: handleDownloadBackup, onShrinkPhotos: handleShrinkPhotos }}
           onLogout={handleLogout}
         />
       )}

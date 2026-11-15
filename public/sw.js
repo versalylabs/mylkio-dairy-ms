@@ -1,5 +1,5 @@
 // Bumped when the framework or asset layout changes: activating the new worker deletes older caches.
-const CACHE_NAME = 'mylkio-cache-v3';
+const CACHE_NAME = 'mylkio-cache-v4';
 
 const STATIC_ASSETS = [
   '/',
@@ -58,5 +58,21 @@ self.addEventListener('fetch', (event) => {
 
       return cachedResponse || fetchPromise;
     })
+  );
+});
+
+// The page tells the worker which scripts, styles and fonts it loaded (they loaded before the worker took control,
+// so they never passed through it). Saving them is what lets a phone open the app with no internet right after
+// its first visit. Only same-origin /_next/static/ files are accepted.
+self.addEventListener('message', (event) => {
+  const data = event.data;
+  if (!data || data.type !== 'CACHE_URLS' || !Array.isArray(data.urls)) return;
+  const urls = data.urls
+    .filter((u) => typeof u === 'string' && u.startsWith('/_next/static/') && u.length < 500)
+    .slice(0, 200);
+  event.waitUntil(
+    caches.open(CACHE_NAME).then((cache) =>
+      Promise.all(urls.map((u) => cache.match(u).then((hit) => hit || cache.add(u)).catch(() => {})))
+    )
   );
 });
