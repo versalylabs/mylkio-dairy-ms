@@ -163,7 +163,7 @@ export function PlatformAdminView({ onLogout }: Props) {
   const planRows = (['starter', 'farmer', 'farm_pro'] as const).map(p => [PLAN_NAMES[p], usage?.byPlan[p] ?? 0] as [string, number]).filter(([, n]) => n > 0);
   const maxSignups = Math.max(1, ...(usage?.signups ?? []).map(s => Number(s.count)));
 
-  return <main className="mx-auto max-w-6xl space-y-8 p-4 text-charcoal sm:p-6">
+  return <main className="mx-auto max-w-6xl space-y-6 p-4 text-charcoal sm:p-6">
     <header className="flex flex-wrap items-start justify-between gap-4">
       <div><h1 className="font-display text-display-md">Mylkio Administration</h1><p className="mt-2 max-w-2xl text-sm text-charcoal-light">Who is using Mylkio, and on which plan. This shows account activity only: farmers&apos; milk, herd and sales records stay private.</p></div>
       <button onClick={onLogout} className="btn btn-secondary">Sign out</button>

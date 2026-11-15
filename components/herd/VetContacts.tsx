@@ -121,7 +121,7 @@ export function VetContacts({ farmId, serverBacked, county, subscription, summar
   }
 
   return (
-    <section aria-labelledby="call-heading" className="card space-y-8 p-5 sm:p-6">
+    <section aria-labelledby="call-heading" className="card space-y-6 p-5 sm:p-6">
       <div>
         <h2 id="call-heading" className="font-display text-2xl font-medium text-charcoal">Finding a vet</h2>
         <p className="mt-2 text-base text-charcoal-light">Keep your vet&apos;s number where you can reach it in a hurry. {KVB_REGISTERS_NOTE}</p>

@@ -306,14 +306,9 @@ export const MarketingLandingPage: React.FC<MarketingLandingPageProps> = ({
         <div aria-hidden className="pointer-events-none absolute -right-40 -top-40 h-[34rem] w-[34rem] rounded-full bg-sage-200/50 blur-3xl" />
         <div aria-hidden className="pointer-events-none absolute -left-40 top-1/2 h-[26rem] w-[26rem] rounded-full bg-gold-200/40 blur-3xl" />
 
-        <div className="container-page relative pb-28 pt-6 sm:pb-32 lg:pb-36 lg:pt-8">
+        <div className="container-page relative pb-24 pt-4 sm:pb-28 lg:pb-32 lg:pt-6">
           <div className="mx-auto max-w-5xl animate-rise text-center">
-            <span className="inline-flex items-center gap-2 whitespace-nowrap rounded-full border border-ivory-border bg-white/80 px-3.5 py-1.5 text-xs font-semibold uppercase tracking-wider text-sage shadow-soft backdrop-blur">
-              <span className="h-2 w-2 animate-pulse rounded-full bg-sage" />
-              Mobile-first dairy management
-            </span>
-
-            <h1 className="mt-6 font-display text-display-xl text-charcoal [text-wrap:balance] sm:mt-7">
+            <h1 className="font-display text-display-xl text-charcoal [text-wrap:balance]">
               Your dairy farm. <span className="whitespace-nowrap text-sage">Under control.</span>
             </h1>
 
@@ -386,7 +381,7 @@ export const MarketingLandingPage: React.FC<MarketingLandingPageProps> = ({
             </div>
           </div>
 
-          <div className="mt-12 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
+          <div className="section-body grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
             {PROBLEMS.map(({ icon: Icon, tone, title, body, href, tab }) => (
               <article key={title} className="card card-hover group flex flex-col justify-between gap-5 p-6">
                 <div className="space-y-4">
@@ -401,13 +396,13 @@ export const MarketingLandingPage: React.FC<MarketingLandingPageProps> = ({
             ))}
           </div>
 
-          <p className="mt-14 text-center font-display text-2xl text-charcoal">There&apos;s a simpler way to manage it all.</p>
+          <p className="mt-10 text-center font-display text-2xl text-charcoal">There&apos;s a simpler way to manage it all.</p>
         </div>
       </section>
 
       {/* ───────────── About ───────────── */}
       <section className="section bg-white">
-        <div className="container-page grid grid-cols-1 items-center gap-12 lg:grid-cols-2 lg:gap-16">
+        <div className="container-page grid grid-cols-1 items-center gap-10 lg:grid-cols-2 lg:gap-14">
           <div>
             <SectionHeading
               align="left"
@@ -471,7 +466,7 @@ export const MarketingLandingPage: React.FC<MarketingLandingPageProps> = ({
             title="Everything you need to run your dairy farm. In one place."
             intro="From your first milk record to your monthly payments, Mylkio helps you stay organized and make more informed farming decisions."
           />
-          <div className="mt-14 grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
+          <div className="section-body grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
             {FEATURES.map(({ icon: Icon, tone, title, body, points }) => (
               <article key={title} className="card card-hover flex flex-col p-7">
                 <span className={`icon-tile ${tone === 'gold' ? 'icon-tile-gold' : ''}`}><Icon className="h-6 w-6" /></span>
@@ -495,7 +490,7 @@ export const MarketingLandingPage: React.FC<MarketingLandingPageProps> = ({
       <section id="payments" className="section relative scroll-mt-20 overflow-hidden bg-sage text-white">
         <div aria-hidden className="pointer-events-none absolute -right-32 -top-32 h-96 w-96 rounded-full bg-white/10 blur-3xl" />
         <div aria-hidden className="pointer-events-none absolute -bottom-40 -left-32 h-96 w-96 rounded-full bg-gold/20 blur-3xl" />
-        <div className="container-page relative grid grid-cols-1 items-center gap-12 lg:grid-cols-12 lg:gap-16">
+        <div className="container-page relative grid grid-cols-1 items-center gap-10 lg:grid-cols-12 lg:gap-14">
           <div className="lg:col-span-7">
             <SectionHeading
               align="left"
@@ -550,7 +545,7 @@ export const MarketingLandingPage: React.FC<MarketingLandingPageProps> = ({
       <section id="how-it-works" className="section scroll-mt-20">
         <div className="container-page">
           <SectionHeading eyebrow="How it works" title="From notebook to organized farm records in three simple steps." />
-          <ol className="relative mt-14 grid grid-cols-1 gap-6 md:grid-cols-3">
+          <ol className="section-body relative grid grid-cols-1 gap-6 md:grid-cols-3">
             <div aria-hidden className="absolute left-[16%] right-[16%] top-10 hidden h-px bg-gradient-to-r from-transparent via-gold to-transparent md:block" />
             {STEPS.map((step, index) => (
               <li key={step.title} className="card card-hover group relative p-8 text-center">
@@ -560,7 +555,7 @@ export const MarketingLandingPage: React.FC<MarketingLandingPageProps> = ({
               </li>
             ))}
           </ol>
-          <div className="mt-12 text-center">
+          <div className="mt-10 text-center">
             <button onClick={() => startTrial()} className="btn btn-primary btn-lg">
               <span>Get started with Mylkio</span>
               <ArrowRight className="h-5 w-5" />
@@ -575,7 +570,7 @@ export const MarketingLandingPage: React.FC<MarketingLandingPageProps> = ({
           <SectionHeading eyebrow="Product preview" title="See what a more organized dairy farm looks like." />
 
           {/* Tabs scroll sideways on a phone rather than wrapping. */}
-          <div className="-mx-4 mt-10 overflow-x-auto px-4 pb-2 [scrollbar-width:none] sm:mx-0 sm:px-0 [&::-webkit-scrollbar]:hidden">
+          <div className="section-body -mx-4 overflow-x-auto px-4 pb-2 [scrollbar-width:none] sm:mx-0 sm:px-0 [&::-webkit-scrollbar]:hidden">
             <div role="tablist" aria-label="Product preview" className="mx-auto flex w-max gap-1 rounded-full border border-ivory-border bg-ivory p-1.5">
               {PREVIEW_TABS.map((tab) => (
                 <button
@@ -611,7 +606,7 @@ export const MarketingLandingPage: React.FC<MarketingLandingPageProps> = ({
             title="Simple pricing for farms of every size."
             intro="Whether you're managing a few cows or a growing dairy farm, Mylkio has a suitable option."
           />
-          <div className="mt-16 grid grid-cols-1 items-stretch gap-6 lg:grid-cols-3">
+          <div className="section-body grid grid-cols-1 items-stretch gap-6 pt-3 lg:grid-cols-3">
             {PLAN_ORDER.map((id) => {
               const plan = PLANS[id];
               const copy = PLAN_COPY[id];
@@ -665,7 +660,7 @@ export const MarketingLandingPage: React.FC<MarketingLandingPageProps> = ({
               title="Built with Kenyan dairy farmers in mind."
               intro="These are example stories written to show how a farm could use Mylkio. They are not reviews from customers, and the names and figures are illustrative. Real farmer feedback will appear here once pilot farms agree to share it."
             />
-            <div className="mt-12 grid grid-cols-1 gap-6 md:grid-cols-3">
+            <div className="section-body grid grid-cols-1 gap-6 md:grid-cols-3">
               {approvedTestimonials.map((t) => (
                 <figure key={t.id} className="card card-hover flex flex-col justify-between gap-6 bg-ivory p-7">
                   <div>
@@ -689,7 +684,7 @@ export const MarketingLandingPage: React.FC<MarketingLandingPageProps> = ({
       )}
 
       {/* ───────────── Free checklist ───────────── */}
-      <section className="relative overflow-hidden py-16 sm:py-24">
+      <section className="relative overflow-hidden py-12 sm:py-14 lg:py-16">
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
           src="https://images.unsplash.com/photo-1570042225831-d98fa7577f1e?auto=format&fit=crop&w=1920&q=70"
@@ -700,7 +695,7 @@ export const MarketingLandingPage: React.FC<MarketingLandingPageProps> = ({
         />
         <div aria-hidden className="absolute inset-0 bg-gradient-to-b from-ivory/85 via-ivory/90 to-ivory/85" />
         <div className="container-page relative">
-          <div className="mx-auto max-w-3xl space-y-5 rounded-3xl border border-ivory-border bg-white p-8 text-center shadow-lift sm:p-14">
+          <div className="mx-auto max-w-3xl space-y-5 rounded-3xl border border-ivory-border bg-white p-8 text-center shadow-lift sm:p-12">
             <span className="eyebrow justify-center">Free resource</span>
             <h2 className="font-display text-display-md [text-wrap:balance]">Not ready for software yet? Start with better farm records.</h2>
             <p className="mx-auto max-w-xl text-base leading-relaxed text-charcoal-light">
@@ -720,7 +715,7 @@ export const MarketingLandingPage: React.FC<MarketingLandingPageProps> = ({
       <section id="faqs" className="section scroll-mt-20">
         <div className="container-page max-w-3xl">
           <SectionHeading eyebrow="FAQs" title="Frequently asked questions" />
-          <div className="mt-12 space-y-3">
+          <div className="section-body space-y-3">
             {faqs.map((faq, index) => {
               const open = openFaq === index;
               return (
@@ -757,7 +752,7 @@ export const MarketingLandingPage: React.FC<MarketingLandingPageProps> = ({
             intro="Have questions about getting your farm started, cooperative payment tracking, or subscribing? We are here to help."
           />
 
-          <div className="mx-auto mt-14 grid grid-cols-1 max-w-5xl items-start gap-8 lg:grid-cols-12">
+          <div className="section-body mx-auto grid grid-cols-1 max-w-5xl items-start gap-8 lg:grid-cols-12">
             <div className="space-y-4 lg:col-span-5">
               {[
                 { href: `tel:+${cleanPhone}`, icon: Phone, label: 'Direct phone', value: '+254 184 129145', note: 'Monday – Saturday, 7:00 AM – 7:00 PM', gold: false, external: false },
@@ -842,7 +837,7 @@ export const MarketingLandingPage: React.FC<MarketingLandingPageProps> = ({
       {/* ───────────── Final call to action ───────────── */}
       <section className="section">
         <div className="container-page">
-          <div className="relative overflow-hidden rounded-[2rem] bg-sage px-6 py-16 text-center text-white shadow-lift sm:px-12 sm:py-20">
+          <div className="relative overflow-hidden rounded-[2rem] bg-sage px-6 py-12 text-center text-white shadow-lift sm:px-12 sm:py-16">
             <div aria-hidden className="pointer-events-none absolute -right-24 -top-24 h-72 w-72 rounded-full bg-white/10 blur-3xl" />
             <div aria-hidden className="pointer-events-none absolute -bottom-28 -left-20 h-72 w-72 rounded-full bg-gold/25 blur-3xl" />
             <div className="relative mx-auto max-w-2xl">
@@ -868,7 +863,7 @@ export const MarketingLandingPage: React.FC<MarketingLandingPageProps> = ({
 
       {/* ───────────── Footer ───────────── */}
       <footer className="bg-sage-900 text-ivory">
-        <div className="container-page py-14">
+        <div className="container-page py-12">
           <div className="grid grid-cols-1 gap-10 md:grid-cols-[1.4fr_1fr_1fr]">
             <div>
               <div className="flex items-center gap-3">
@@ -893,7 +888,7 @@ export const MarketingLandingPage: React.FC<MarketingLandingPageProps> = ({
               </ul>
             </div>
           </div>
-          <div className="mt-12 flex flex-col gap-2 border-t border-white/10 pt-6 text-sm text-sage-200 sm:flex-row sm:items-center sm:justify-between">
+          <div className="mt-10 flex flex-col gap-2 border-t border-white/10 pt-6 text-sm text-sage-200 sm:flex-row sm:items-center sm:justify-between">
             <span>© {new Date().getFullYear()} Mylkio by Versaly. Built for Kenyan dairy farmers.</span>
             <span className="flex flex-wrap gap-x-5 gap-y-1">
               <a href="/privacy" className="link-slide whitespace-nowrap hover:text-gold">Privacy notice</a>
