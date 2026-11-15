@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect, useRef } from 'react';
+import { MAX_PHOTOS_PER_COW, PHOTO_RECORD_BUDGET, photoChars, photoProblem, shrinkPhoto } from '@/lib/photos';
 import { Cow, Breed, CowStatus, Language } from '@/types';
 import { translations } from '@/lib/translations';
 import { X, Check, Camera, Trash2, Image as ImageIcon } from 'lucide-react';
@@ -78,28 +79,37 @@ export const CowModal: React.FC<CowModalProps> = ({
 
   if (!isOpen) return null;
 
-  const handleFilesChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const files = e.target.files;
-    if (!files || files.length === 0) return;
+  const [photoBusy, setPhotoBusy] = useState(false);
 
-    Array.from(files).forEach((file) => {
-      if (file.size > 3.5 * 1024 * 1024) {
-        setError(lang === 'sw' ? 'Picha moja ni kubwa mno (chagua chini ya 3.5MB)' : 'One of the photos exceeds 3.5MB limit');
-        return;
-      }
-
-      const reader = new FileReader();
-      reader.onload = (event) => {
-        if (typeof event.target?.result === 'string') {
-          const resultStr = event.target.result;
-          setPhotoUrls((prev) => [...prev, resultStr]);
+  // Photos are shrunk on the phone before they are kept: a camera photo is several MB, which fills the phone's
+  // storage and makes the cow's record too large for the cloud to accept (see lib/photos.ts).
+  const handleFilesChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = Array.from(e.target.files ?? []);
+    if (fileInputRef.current) fileInputRef.current.value = '';
+    if (files.length === 0) return;
+    setError('');
+    setPhotoBusy(true);
+    try {
+      let next = photoUrls;
+      for (const file of files) {
+        const problem = photoProblem(file);
+        if (problem) { setError(lang === 'sw' ? 'Faili hiyo si picha, au ni kubwa kuliko 25MB.' : problem); break; }
+        if (next.length >= MAX_PHOTOS_PER_COW) {
+          setError(lang === 'sw' ? `Picha ${MAX_PHOTOS_PER_COW} tu kwa kila ng'ombe.` : `You can keep up to ${MAX_PHOTOS_PER_COW} photos for each cow.`);
+          break;
         }
-      };
-      reader.readAsDataURL(file);
-    });
-
-    if (fileInputRef.current) {
-      fileInputRef.current.value = '';
+        const small = await shrinkPhoto(file);
+        if (photoChars([...next, small]) > PHOTO_RECORD_BUDGET) {
+          setError(lang === 'sw' ? 'Hakuna nafasi ya picha zaidi kwa ng\'ombe huyu. Futa moja kwanza.' : 'There is no room for another photo on this cow. Remove one first.');
+          break;
+        }
+        next = [...next, small];
+        setPhotoUrls(next);
+      }
+    } catch (cause) {
+      setError(cause instanceof Error ? cause.message : 'That picture could not be read.');
+    } finally {
+      setPhotoBusy(false);
     }
   };
 
@@ -133,7 +143,7 @@ export const CowModal: React.FC<CowModalProps> = ({
       expectedCalvingDate: isPregnant ? expectedCalvingDate : undefined,
       parity: Number(parity) || 0,
       dob: dob || undefined,
-      photoUrl: photoUrls[0] || undefined,
+      photoUrl: undefined,
       photoUrls: photoUrls.length > 0 ? photoUrls : undefined,
       notes: notes.trim() || undefined,
     });
@@ -189,6 +199,7 @@ export const CowModal: React.FC<CowModalProps> = ({
               onChange={handleFilesChange}
               className="hidden"
             />
+            {photoBusy && <p role="status" className="text-sm font-medium text-sage">{lang === 'sw' ? 'Inaandaa picha…' : 'Preparing photo…'}</p>}
 
             {photoUrls.length > 0 ? (
               <div className="space-y-3">

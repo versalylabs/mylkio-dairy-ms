@@ -2,6 +2,7 @@
 
 import { bucketNames, type BucketName } from './backend-contract';
 import { CloudStore } from './cloud-store';
+import { shrinkCowPhotos } from './photos';
 import { validateMigrationData, type MigrationPreview } from './migration-validation';
 
 const legacyPrefixes: Record<BucketName, string> = {
@@ -130,7 +131,8 @@ export const LegacyDataMigration = {
         seen.add(row.id);
         const imported = { ...row, farmId: targetFarmId };
         const existing = byId.get(row.id);
-        if (!existing) { byId.set(row.id, imported); result.imported++; changed = true; }
+        // Photos in an old backup can be several MB each: shrink them so the cow saves and syncs.
+        if (!existing) { byId.set(row.id, bucket === 'cows' ? await shrinkCowPhotos(imported as { photoUrl?: string; photoUrls?: string[] }) as typeof imported : imported); result.imported++; changed = true; }
         else if (stable(existing) === stable(imported)) result.unchanged++;
         else { /* A differing cloud version is retained and counted by the dry-run preview. */ }
       }

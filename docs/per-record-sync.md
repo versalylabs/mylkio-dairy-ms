@@ -45,6 +45,6 @@ This replaces the bucket-level sync from Phase 2. Under that design, every save 
 
 - No hosted Neon project has run these migrations. PGlite is real Postgres but is not a rehearsal on Neon; do one on a preview branch.
 - The browser flow (`CloudStore` with `localStorage`, `fetch` and the review card) was checked only in demo mode, which does not use the cloud. Test it on a preview deployment: record offline, close and reopen offline, reconnect, open on a second device, then edit the same cow on both.
-- Local storage is still `localStorage` (about 5 MB per site). Moving to IndexedDB and storing photos outside the record JSON is the next offline step.
+- ~~Local storage is still `localStorage`~~ Done in Phase 6: the phone copy now lives in IndexedDB and photos are shrunk before saving. See `docs/phase-6-offline.md`.
 - Device caches from the bucket-level design (`mylkio_offline_v2_*`) are left in place and not converted. No production farm used that design, because the backend was never configured on Vercel.
 - Writes are owner-only. Manager and worker roles need their own permission rules.

@@ -1,4 +1,7 @@
-import { bucketNames, type BucketName } from './backend-contract';
+import { bucketNames, MAX_RECORD_BYTES, type BucketName } from './backend-contract';
+
+/** The newest backup format this app can read. It is the format `exportFullBackupJSON` writes (lib/export.ts). */
+export const BACKUP_SCHEMA_VERSION = 3;
 
 export type MigrationData = { farm: Record<string, unknown>; [key: string]: unknown };
 export type MigrationPreview = {
@@ -26,7 +29,7 @@ export function validateMigrationData(value: unknown, targetFarmId: string, remo
     preview.errors.push('Backup must be a JSON object.'); return preview;
   }
   const data = value as Record<string, unknown>;
-  if (typeof data.schemaVersion === 'number' && data.schemaVersion > 2) preview.errors.push(`Backup schema version ${data.schemaVersion} is newer than this importer supports.`);
+  if (typeof data.schemaVersion === 'number' && data.schemaVersion > BACKUP_SCHEMA_VERSION) preview.errors.push(`Backup schema version ${data.schemaVersion} is newer than this importer supports.`);
   if (!data.farm || typeof data.farm !== 'object' || Array.isArray(data.farm)) preview.errors.push('Farm profile is missing or invalid.');
   else preview.counts.farm = 1;
   for (const bucket of arrayBuckets) {
@@ -35,7 +38,6 @@ export function validateMigrationData(value: unknown, targetFarmId: string, remo
     if (!Array.isArray(rows)) { preview.errors.push(`${bucket}: expected an array.`); continue; }
     preview.counts[bucket] = rows.length;
     const seen = new Set<string>();
-    let bucketBytes = 0;
     const remoteRows = Array.isArray(remote[bucket]) ? remote[bucket] as Record<string, unknown>[] : [];
     const cloudById = new Map(remoteRows.map(row => [row.id, row]));
     for (const [index, row] of rows.entries()) {
@@ -48,14 +50,14 @@ export function validateMigrationData(value: unknown, targetFarmId: string, remo
       const remapped = { ...row, farmId: targetFarmId };
       const existing = cloudById.get(row.id);
       if (existing && stable(existing) !== stable(remapped)) preview.conflicts++;
-      if (encoded) bucketBytes += new TextEncoder().encode(encoded).byteLength;
+      const bytes = encoded ? new TextEncoder().encode(encoded).byteLength : 0;
       if (encoded && (encoded.includes('data:image/') || encoded.includes('base64,'))) {
-        const bytes = new TextEncoder().encode(encoded).byteLength;
-        if (bytes > 3_500_000) preview.errors.push(`${bucket}: a record with an embedded attachment exceeds the safe sync size. Keep this backup and migrate attachments separately.`);
-        else preview.warnings.push(`${bucket}: embedded photos or attachments were found; verify they remain visible after import.`);
+        // Photos are shrunk on the way in (see importPayload), so a big one is not a reason to refuse a backup.
+        preview.warnings.push(`${bucket}: embedded photos were found; they will be shrunk to a phone-friendly size when restored.`);
+      } else if (bytes > MAX_RECORD_BYTES) {
+        preview.errors.push(`${bucket}: record ${row.id} is larger than the cloud accepts (1 MB).`);
       }
     }
-    if (bucketBytes > 3_500_000) preview.errors.push(`${bucket}: combined records exceed the safe sync size. Split or remove embedded media before import.`);
   }
 
   const cowIds = new Set((Array.isArray(data.cows) ? data.cows : []).map((row: any) => row?.id).filter(Boolean));

@@ -4,6 +4,8 @@ import { Cow, MilkEntry, Delivery, PaymentRecord, ExpenseRecord, HealthEvent, Br
 import { farmToday } from './dates';
 import { acceptedLitres, deliveryCharge } from './ledger';
 import { countedEntryIds } from './milk';
+import { BACKUP_SCHEMA_VERSION } from './migration-validation';
+import { rememberBackup } from './backup';
 
 function downloadFile(content: string, fileName: string, mimeType: string) {
   if (typeof window === 'undefined') return;
@@ -109,7 +111,8 @@ export const DataExporter = {
     bills: CustomerBill[];
     allocations: PaymentAllocation[];
   }) {
-    const content = JSON.stringify({ schemaVersion: 3, exportedAt: new Date().toISOString(), ...backupData }, null, 2);
+    const content = JSON.stringify({ schemaVersion: BACKUP_SCHEMA_VERSION, exportedAt: new Date().toISOString(), ...backupData }, null, 2);
     downloadFile(content, `mylkio_full_farm_backup_${farmToday()}.json`, 'application/json');
+    rememberBackup(backupData.farm?.id);
   }
 };

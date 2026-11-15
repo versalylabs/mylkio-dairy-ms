@@ -3,7 +3,7 @@
 // Device-side store for an authenticated farm: local records, an outbox of
 // record operations, and synchronisation with the server.
 //
-// - Every change is saved on this device first (localStorage) and queued as
+// - Every change is saved on this device first (IndexedDB, see lib/local-store.ts) and queued as
 //   record-level operations with stable IDs.
 // - Operations leave the queue only after the server acknowledges them, so a
 //   closed app, lost connection or retried request never loses or duplicates data.
@@ -12,6 +12,7 @@
 // - The cache is scoped to one account and one farm; another account's queue is
 //   never sent.
 
+import { LocalStore, flushOnLeave } from './local-store';
 import { bucketNames, CHANGES_PAGE_SIZE, MAX_OPERATIONS_PER_REQUEST, type BucketName, type GroupResult, type RecordChange } from './backend-contract';
 import {
   applyChanges,
@@ -45,19 +46,16 @@ function announce() {
   if (typeof window !== 'undefined') window.dispatchEvent(new Event('mylkio_cloud_changed'));
 }
 
+/** Saves the farm on this phone. Writes are coalesced and a failure is reported in status(), never thrown. */
 function persist() {
-  if (state) localStorage.setItem(key(state.userId, state.farmId), JSON.stringify(state));
+  if (state) LocalStore.save(key(state.userId, state.farmId), state);
 }
 
-function readCache(userId: string, farmId: string): SyncState | null {
-  const cached = localStorage.getItem(key(userId, farmId));
-  if (!cached) return null;
-  try {
-    const parsed = JSON.parse(cached) as SyncState;
-    return parsed.schema === 3 && parsed.userId === userId && parsed.farmId === farmId ? parsed : null;
-  } catch {
-    throw new Error('Your local farm cache needs recovery. Contact support before clearing it.');
-  }
+async function readCache(userId: string, farmId: string): Promise<SyncState | null> {
+  // Moves a copy saved by the older localStorage version over to IndexedDB the first time.
+  const parsed = await LocalStore.load<SyncState>(key(userId, farmId));
+  if (!parsed) return null;
+  return parsed.schema === 3 && parsed.userId === userId && parsed.farmId === farmId ? parsed : null;
 }
 
 function hasLocalData(s: SyncState) {
@@ -67,6 +65,8 @@ function hasLocalData(s: SyncState) {
 function attachListeners() {
   if (listenersAttached || typeof window === 'undefined') return;
   listenersAttached = true;
+  flushOnLeave();
+  LocalStore.subscribe(announce);
   window.addEventListener('online', () => { void CloudStore.flush(); });
   document.addEventListener('visibilitychange', () => {
     if (document.visibilityState === 'visible') void CloudStore.flush();
@@ -163,7 +163,7 @@ export const CloudStore = {
   configure(enabled: boolean) { configured = enabled; },
 
   async load(userId: string, farmId: string) {
-    state = readCache(userId, farmId) ?? emptyState(userId, farmId);
+    state = (await readCache(userId, farmId)) ?? emptyState(userId, farmId);
     errorMessage = '';
     attachListeners();
     if (configured && navigator.onLine) {
@@ -244,6 +244,8 @@ export const CloudStore = {
       pending: outbox.filter((op) => op.state === 'queued').length,
       conflict: conflictGroups(state ?? emptyState('', '')).length,
       error: errorMessage,
+      /** Set when this phone could not write the farm to its own storage (full, or blocked). */
+      storageError: LocalStore.status().error,
       running,
       configured,
       lastSyncedAt: state?.lastSyncedAt ?? null,

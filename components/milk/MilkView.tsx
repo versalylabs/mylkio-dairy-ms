@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useMemo, useState } from 'react';
+import { primaryPhoto } from '@/lib/photos';
 import { MilkEntry, Cow, Language } from '@/types';
 import { translations } from '@/lib/translations';
 import { farmToday, formatFarmDate } from '@/lib/dates';
@@ -36,7 +37,7 @@ export const MilkView: React.FC<MilkViewProps> = ({
   const topCows = cowYields(entries)
     .sort((a, b) => (b.averagePerDay ?? 0) - (a.averagePerDay ?? 0))
     .slice(0, 3);
-  const topCowPhoto = topCows[0] ? cows.find((c) => c.id === topCows[0].cowId)?.photoUrl : undefined;
+  const topCowPhoto = topCows[0] ? primaryPhoto(cows.find((c) => c.id === topCows[0].cowId) ?? {}) : undefined;
 
   const sortedEntries = [...entries].sort((a, b) => b.date.localeCompare(a.date) || b.createdAt.localeCompare(a.createdAt));
   const filteredEntries = sortedEntries.filter((e) => {
