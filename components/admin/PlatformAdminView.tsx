@@ -2,10 +2,14 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import type { Subscription } from '@/types';
 import { VetDirectoryAdmin } from './VetDirectoryAdmin';
+import { BillingBoard } from './BillingBoard';
+import { AccountBillingDialog } from './AccountBillingDialog';
+import { billingState, STATE_LABEL, shortDate } from '@/lib/billing';
 
 type Account = {
   id: string; email: string; name: string; phone: string; role: string; farm_id: string | null; farm_name: string | null;
   county: string | null; subscription: Subscription | null; created_at: string; last_seen_at: string | null;
+  herd_size: number; last_paid_on: string | null; note_count: number;
 };
 type Lead = { id: string; name: string; phone: string; county: string | null; cows_count: number | null; preferred_contact: string; message: string | null; source: string; status: 'new' | 'contacted' | 'converted' | 'archived'; created_at: string };
 type Usage = {
@@ -39,7 +43,7 @@ function localInputValue(date: Date) {
 function Stat({ label, value, note, tone = 'plain' }: { label: string; value: string | number; note?: string; tone?: 'plain' | 'good' }) {
   return <div className={`rounded-2xl border p-4 ${tone === 'good' ? 'border-sage-300 bg-sage/10' : 'border-ivory-border bg-white shadow-soft'}`}>
     <p className="text-sm text-charcoal-light">{label}</p>
-    <p className="mt-1 font-display text-4xl font-medium tabular-nums">{value}</p>
+    <p className="mt-1 whitespace-nowrap font-display text-[1.65rem] font-medium tabular-nums sm:text-4xl">{value}</p>
     {note && <p className="mt-1 text-xs text-charcoal-muted">{note}</p>}
   </div>;
 }
@@ -57,6 +61,27 @@ function Breakdown({ title, rows }: { title: string; rows: [string, number][] })
   </div>;
 }
 
+const csvCell = (value: unknown) => {
+  const text = String(value ?? '');
+  // A leading = + - @ would be run as a formula by a spreadsheet, so it is defused.
+  const safe = /^[=+\-@\t\r]/.test(text) ? `'${text}` : text;
+  return `"${safe.replace(/"/g, '""')}"`;
+};
+
+/** Downloads the listed accounts for a spreadsheet. Contact and plan details only: no farm records. */
+function downloadAccounts(rows: Account[]) {
+  const header = ['Farm', 'Owner', 'Phone', 'Email', 'County', 'Plan', 'Status', 'Billing', 'Paid until or trial ends', 'Cows', 'Last paid', 'Joined', 'Last active'];
+  const lines = rows.map(a => [
+    a.farm_name, a.name, a.phone, a.email, a.county, a.subscription ? PLAN_NAMES[a.subscription.plan] ?? a.subscription.plan : '', a.subscription ? STATUS_NAMES[a.subscription.status] : '',
+    a.subscription ? STATE_LABEL[billingState(a.subscription)] : '', a.subscription?.renewsAt ? shortDate(a.subscription.renewsAt) : '', a.herd_size, a.last_paid_on ?? '', shortDate(a.created_at), a.last_seen_at ? shortDate(a.last_seen_at) : '',
+  ].map(csvCell).join(','));
+  const blob = new Blob(['\ufeff' + [header.map(csvCell).join(','), ...lines].join('\r\n')], { type: 'text/csv;charset=utf-8' });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement('a');
+  link.href = url; link.download = `mylkio-accounts-${new Date().toISOString().slice(0, 10)}.csv`;
+  document.body.appendChild(link); link.click(); link.remove(); URL.revokeObjectURL(url);
+}
+
 export function PlatformAdminView({ onLogout }: Props) {
   const [accounts, setAccounts] = useState<Account[]>([]);
   const [leads, setLeads] = useState<Lead[]>([]);
@@ -67,6 +92,8 @@ export function PlatformAdminView({ onLogout }: Props) {
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
   const [activeOnly, setActiveOnly] = useState(false);
+  const [billingFor, setBillingFor] = useState<Account | null>(null);
+  const [billingTick, setBillingTick] = useState(0);
 
   const live = asAt === '';
   const asAtIso = useMemo(() => {
@@ -183,8 +210,14 @@ export function PlatformAdminView({ onLogout }: Props) {
       </>}
     </section>
 
+    <BillingBoard accounts={farmers} refreshKey={billingTick} onOpen={(a) => setBillingFor(farmers.find(f => f.id === a.id) ?? null)} />
+    {billingFor && <AccountBillingDialog account={billingFor} onClose={() => setBillingFor(null)} onChanged={() => { setBillingTick(t => t + 1); void load().then(() => undefined); }} />}
+
     <section aria-labelledby="accounts-heading" className="space-y-3">
-      <h2 id="accounts-heading" className="font-display text-2xl font-medium">Farm accounts ({visible.length}{visible.length !== farmers.length ? ` of ${farmers.length}` : ''})</h2>
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <h2 id="accounts-heading" className="font-display text-2xl font-medium">Farm accounts ({visible.length}{visible.length !== farmers.length ? ` of ${farmers.length}` : ''})</h2>
+        <button className="btn btn-secondary" disabled={visible.length === 0} onClick={() => downloadAccounts(visible)}>Download list (CSV)</button>
+      </div>
       <div className="flex flex-wrap items-end gap-3">
         <label className="min-w-0 flex-1 text-sm">Search<input type="search" value={search} onChange={e => setSearch(e.target.value)} placeholder="Name, farm, county, phone or email" className="field mt-1" /></label>
         <label className="text-sm">Status<select value={statusFilter} onChange={e => setStatusFilter(e.target.value)} className="field ml-2 !inline-block !w-auto"><option value="all">All</option>{Object.entries(STATUS_NAMES).map(([v, l]) => <option key={v} value={v}>{l}</option>)}</select></label>
@@ -198,8 +231,10 @@ export function PlatformAdminView({ onLogout }: Props) {
               {seenAtMoment && <span className="rounded-full bg-sage/10 px-2 py-0.5 text-xs font-semibold text-sage">Using it at this time</span>}</div>
             <p className="text-sm">{account.name}{account.county ? ` · ${account.county}` : ''}</p>
             <p className="text-sm text-charcoal-light">{account.phone && <><a className="underline" href={`tel:${account.phone.replace(/\s/g, '')}`}>{account.phone}</a> · </>}{account.email}</p>
-            <p className="mt-1 text-xs text-charcoal-muted">Joined {nairobi(account.created_at, { day: 'numeric', month: 'short', year: 'numeric' })} · Last active {account.last_seen_at ? `${ago(account.last_seen_at, Date.now())} (${dateTime(account.last_seen_at)})` : 'never'}</p>
+            <p className="mt-1 text-xs text-charcoal-muted">{account.subscription && <><strong className="font-semibold text-charcoal-light">{STATE_LABEL[billingState(account.subscription)]}</strong>{account.subscription.renewsAt && billingState(account.subscription) !== 'complimentary' ? `, ${new Date(account.subscription.renewsAt).getTime() < Date.now() ? 'ended' : 'until'} ${shortDate(account.subscription.renewsAt)}` : ''} · </>}{account.herd_size} {account.herd_size === 1 ? 'cow' : 'cows'} · </p>
+            <p className="text-xs text-charcoal-muted">Joined {nairobi(account.created_at, { day: 'numeric', month: 'short', year: 'numeric' })} · Last active {account.last_seen_at ? `${ago(account.last_seen_at, Date.now())} (${dateTime(account.last_seen_at)})` : 'never'}</p>
           </div>
+          {account.subscription && account.farm_id && <button className="btn btn-secondary" onClick={() => setBillingFor(account)}>Payments{account.note_count > 0 ? ` and notes (${account.note_count})` : ''}</button>}
           {account.subscription && <div className="flex flex-wrap gap-3"><label className="text-sm">Plan<select aria-label={`Plan for ${account.name}`} disabled={busy} className="field ml-2 !inline-block !w-auto" value={account.subscription.plan} onChange={e => void update(account, e.target.value as Subscription['plan'], account.subscription!.status)}>{['starter', 'farmer', 'farm_pro'].map(plan => <option key={plan} value={plan}>{PLAN_NAMES[plan]}</option>)}</select></label>
             <label className="text-sm">Status<select aria-label={`Status for ${account.name}`} disabled={busy} className="field ml-2 !inline-block !w-auto" value={account.subscription.status} onChange={e => void update(account, account.subscription!.plan, e.target.value as Subscription['status'])}>{['trial', 'active', 'past_due', 'cancelled'].map(status => <option key={status} value={status}>{STATUS_NAMES[status]}</option>)}</select></label></div>}
         </article>;

@@ -45,6 +45,7 @@ import { FinanceView } from '@/components/finance/FinanceView';
 import { ExpenseModal } from '@/components/finance/ExpenseModal';
 import { ExportModal } from '@/components/export/ExportModal';
 import { SettingsView } from '@/components/settings/SettingsView';
+import { liveCowCount } from '@/lib/billing';
 import { PlatformAdminView } from '@/components/admin/PlatformAdminView';
 import { MarketingLandingPage } from '@/components/marketing/MarketingLandingPage';
 import { AuthModal } from '@/components/auth/AuthModal';
@@ -554,6 +555,7 @@ export default function Home() {
             AppStorage.setLanguage(l);
           }}
           user={currentUser}
+          cowCount={liveCowCount(cows)}
           onLogout={handleLogout}
         />
       )}

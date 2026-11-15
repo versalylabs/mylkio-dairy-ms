@@ -1,6 +1,7 @@
 'use client';
 
 import React from 'react';
+import { planPillLabel } from '@/lib/billing';
 import { Language, Farm, UserAccount } from '@/types';
 import { translations } from '@/lib/translations';
 import { SyncStatusBar } from '@/components/sync/SyncStatusBar';
@@ -120,7 +121,7 @@ export const Shell: React.FC<ShellProps> = ({
                   ? 'bg-[#A8BFA5]/25 text-[#26332D] border border-[#A8BFA5]/40'
                   : 'bg-[#FAF5EB] text-[#8e7238] border border-[#E5D5B5]'
               } whitespace-nowrap`}>
-                {user.subscription.status === 'trial' ? '14-Day Free Trial' : `${user.subscription.plan.toUpperCase()} Plan`}
+                {planPillLabel(user.subscription)}
               </span>
               <span className="font-extrabold text-[#26332D]">
                 KSh {user.subscription.monthlyPriceKsh || 0}/mo

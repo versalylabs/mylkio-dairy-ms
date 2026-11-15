@@ -274,6 +274,12 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                   <ShieldCheck className="h-4 w-4 text-sage" />
                   <span>No M-Pesa charge today. Cancel anytime.</span>
                 </p>
+
+                <p className="text-center text-xs text-charcoal-muted">
+                  By creating an account you agree to our{' '}
+                  <a href="/terms" target="_blank" rel="noopener noreferrer" className="font-semibold text-sage underline">Terms of use</a> and{' '}
+                  <a href="/privacy" target="_blank" rel="noopener noreferrer" className="font-semibold text-sage underline">Privacy notice</a>.
+                </p>
               </form>
             )}
           </div>

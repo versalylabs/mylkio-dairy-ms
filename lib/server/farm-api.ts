@@ -33,6 +33,7 @@ async function run<T>(
   db: Db, text: string, params: unknown[],
   denied = 'You do not have access to this farm.',
   tooMany = 'Too many messages in a short time. Please try again later, or contact us on WhatsApp.',
+  duplicate = 'That phone number is already listed.',
 ): Promise<T[]> {
   try {
     return await db.query<T>(text, params);
@@ -40,7 +41,7 @@ async function run<T>(
     const code = (error as { code?: string } | null)?.code;
     if (code === '42501') throw new ApiError(403, denied);
     if (code === '22023') throw new ApiError(400, 'Some records or fields could not be accepted.');
-    if (code === '23505') throw new ApiError(409, 'That phone number is already listed.');
+    if (code === '23505') throw new ApiError(409, duplicate);
     if (code === 'MY429') throw new ApiError(429, tooMany);
     throw error;
   }
@@ -232,4 +233,51 @@ export async function adminSaveVet(
 
 export async function adminSetVetStatus(db: Db, actor: string, id: string, status: VetStatus, confirmedOn?: string | null): Promise<void> {
   await run(db, 'select public.admin_set_vet_status($1, $2, $3, $4::date)', [actor, id, status, confirmedOn ?? null], 'Administrator access required.');
+}
+
+// ---- Commercial administration (migration 0006). Administrators only; the database re-checks. ----
+
+const ADMIN_ONLY = 'Administrator access required.';
+
+export type PaymentMethod = 'mpesa' | 'cash' | 'bank' | 'other';
+
+export interface SubscriptionPayment {
+  id: string; amount_ksh: number; method: PaymentMethod; reference: string; paid_on: string; months: number; plan: string;
+  period_from: string; period_to: string; recorded_by_name: string | null; created_at: string; voided_at: string | null; void_reason: string | null;
+}
+export interface AccountNote { id: string; body: string; author_name: string | null; created_at: string }
+export interface Collections { months: { month: string; amountKsh: number; payments: number }[] }
+
+export async function adminRecordPayment(
+  db: Db, actor: string, farmId: string,
+  input: { amountKsh: number; method: PaymentMethod; reference: string; paidOn: string; months: number },
+): Promise<{ id: string; periodFrom: string; periodTo: string }> {
+  const [row] = await run<{ result: { id: string; periodFrom: string; periodTo: string } }>(
+    db, 'select public.admin_record_payment($1, $2, $3, $4, $5, $6::date, $7) as result',
+    [actor, farmId, input.amountKsh, input.method, input.reference, input.paidOn, input.months],
+    ADMIN_ONLY, undefined, 'That M-Pesa or bank reference has already been recorded.',
+  );
+  return row.result;
+}
+
+export async function adminVoidPayment(db: Db, actor: string, paymentId: string, reason: string): Promise<void> {
+  await run(db, 'select public.admin_void_payment($1, $2, $3)', [actor, paymentId, reason], ADMIN_ONLY);
+}
+
+export async function adminListPayments(db: Db, actor: string, farmId: string): Promise<SubscriptionPayment[]> {
+  return run<SubscriptionPayment>(db, 'select id, amount_ksh, method, reference, paid_on::text, months, plan, period_from::text, period_to::text, recorded_by_name, created_at, voided_at, void_reason from public.admin_list_payments($1, $2)', [actor, farmId], ADMIN_ONLY);
+}
+
+export async function adminAddNote(db: Db, actor: string, farmId: string, body: string): Promise<string> {
+  const [row] = await run<{ id: string }>(db, 'select public.admin_add_note($1, $2, $3) as id', [actor, farmId, body], ADMIN_ONLY);
+  return row.id;
+}
+
+export async function adminListNotes(db: Db, actor: string, farmId: string): Promise<AccountNote[]> {
+  return run<AccountNote>(db, 'select * from public.admin_list_notes($1, $2)', [actor, farmId], ADMIN_ONLY);
+}
+
+export async function adminCollections(db: Db, actor: string): Promise<Collections> {
+  const [row] = await run<{ result: Collections }>(db, 'select public.admin_collections($1) as result', [actor], ADMIN_ONLY);
+  return row.result;
 }

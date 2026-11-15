@@ -831,6 +831,7 @@ export const MarketingLandingPage: React.FC<MarketingLandingPageProps> = ({
                   <span>{contactSending ? 'Sending…' : 'Send message'}</span>
                   <ArrowRight className="h-5 w-5" />
                 </button>
+                <p className="text-sm text-charcoal-muted">We use your details only to reply to you. See our <a href="/privacy" className="font-semibold text-sage underline">Privacy notice</a>.</p>
               </form>
             </div>
           </div>
@@ -893,6 +894,10 @@ export const MarketingLandingPage: React.FC<MarketingLandingPageProps> = ({
           </div>
           <div className="mt-12 flex flex-col gap-2 border-t border-white/10 pt-6 text-sm text-sage-200 sm:flex-row sm:items-center sm:justify-between">
             <span>© {new Date().getFullYear()} Mylkio by Versaly. Built for Kenyan dairy farmers.</span>
+            <span className="flex flex-wrap gap-x-5 gap-y-1">
+              <a href="/privacy" className="whitespace-nowrap transition-colors hover:text-gold">Privacy notice</a>
+              <a href="/terms" className="whitespace-nowrap transition-colors hover:text-gold">Terms of use</a>
+            </span>
           </div>
         </div>
       </footer>

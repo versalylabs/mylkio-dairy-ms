@@ -5,6 +5,10 @@ import { Farm, Language, UserAccount } from '@/types';
 import { translations } from '@/lib/translations';
 import { AppStorage } from '@/lib/storage';
 import { LegacyDataImport } from './LegacyDataImport';
+import { PLANS, type PlanId } from '@/lib/plans';
+import { billingState, describeBilling, STATE_LABEL } from '@/lib/billing';
+import { SUPPORT_PHONE_DIGITS, whatsappLink } from '@/lib/contact';
+import { payMessage } from '@/components/billing/PlanNotice';
 import { Globe, Building, Database, RefreshCw, Check, Smartphone, CreditCard, LogOut } from 'lucide-react';
 
 interface SettingsViewProps {
@@ -13,6 +17,8 @@ interface SettingsViewProps {
   lang: Language;
   onLanguageChange: (lang: Language) => void;
   user?: UserAccount | null;
+  /** Live cows on the farm, shown against what the plan covers. */
+  cowCount?: number;
   onLogout?: () => void;
 }
 
@@ -22,9 +28,12 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
   lang,
   onLanguageChange,
   user,
+  cowCount,
   onLogout,
 }) => {
   const t = translations[lang];
+  const plan = user ? PLANS[user.subscription.plan as PlanId] : undefined;
+  const billing = user ? billingState(user.subscription) : 'complimentary';
 
   const [farmName, setFarmName] = useState(farm.name);
   const [county, setCounty] = useState(farm.county);
@@ -138,31 +147,35 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
             </div>
           </div>
 
-          <div className="p-4 bg-[#FAF9F5]/70 border border-[#E8E4D8] rounded-xl flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-            <div>
-              <div className="flex items-center gap-2">
-                <span className="font-extrabold text-sm text-[#26332D] uppercase">
-                  {user.subscription.plan.replace('_', ' ')} Plan
-                </span>
-                <span className={`px-2 py-0.5 rounded-full text-xs font-bold ${
-                  user.subscription.status === 'active'
-                    ? 'bg-[#A8BFA5]/25 text-[#26332D] border border-[#A8BFA5]/40'
-                    : 'bg-[#FAF5EB] text-[#8e7238] border border-[#E5D5B5]'
-                } whitespace-nowrap`}>
-                  {user.subscription.status === 'trial' ? '14-Day Free Trial' : user.subscription.status.toUpperCase()}
-                </span>
+          <div className="space-y-3 rounded-2xl border border-ivory-border bg-ivory-muted/50 p-4">
+            <div className="flex flex-wrap items-start justify-between gap-3">
+              <div className="min-w-0">
+                <div className="flex flex-wrap items-center gap-2">
+                  <span className="text-sm font-bold text-charcoal">{plan ? plan.name : user.subscription.plan.replace('_', ' ')} plan</span>
+                  <span className={`whitespace-nowrap rounded-full px-2 py-0.5 text-xs font-semibold ${billing === 'paid' || billing === 'complimentary' || billing === 'trial' ? 'bg-sage/10 text-sage' : 'bg-gold-subtle text-gold-600 border border-gold-border'}`}>
+                    {STATE_LABEL[billing]}
+                  </span>
+                </div>
+                <p className="mt-1 text-sm text-charcoal-light">{describeBilling(user.subscription)}</p>
+                <p className="text-xs text-charcoal-muted">{user.email}</p>
               </div>
-              <p className="text-xs text-slate-500 mt-1">
-                Renews on {new Date(user.subscription.renewsAt).toLocaleDateString()} • {user.email}
+              <div className="text-right">
+                <div className="whitespace-nowrap text-lg font-bold text-sage">KSh {user.subscription.monthlyPriceKsh?.toLocaleString()}/month</div>
+                <span className="text-xs text-charcoal-muted">Billed monthly</span>
+              </div>
+            </div>
+            {plan && plan.cowLimit !== null && cowCount !== undefined && (
+              <p className="text-sm text-charcoal-light">
+                {cowCount} {cowCount === 1 ? 'cow' : 'cows'} on your farm. The {plan.name} plan covers up to {plan.cowLimit}.
+                {cowCount > plan.cowLimit ? ' You have more than that: message us to move to a bigger plan. Nothing stops you adding cows meanwhile.' : ''}
               </p>
-            </div>
-
-            <div className="text-right">
-              <div className="text-lg font-black text-[#345C4A]">
-                KSh {user.subscription.monthlyPriceKsh?.toLocaleString()}/mo
+            )}
+            {billing !== 'complimentary' && (
+              <div className="flex flex-wrap items-center justify-between gap-3 border-t border-ivory-border pt-3">
+                <p className="text-sm text-charcoal-light">To pay, renew or change your plan, message Mylkio. Your records are always yours to export.</p>
+                <a className="btn btn-secondary" href={whatsappLink(SUPPORT_PHONE_DIGITS, payMessage(farm.name, plan ? plan.name : user.subscription.plan))} target="_blank" rel="noopener noreferrer">Message Mylkio</a>
               </div>
-              <span className="text-xs text-slate-400 font-semibold">Billed monthly</span>
-            </div>
+            )}
           </div>
 
           {onLogout && (
