@@ -70,9 +70,13 @@ self.addEventListener('message', (event) => {
   const urls = data.urls
     .filter((u) => typeof u === 'string' && u.startsWith('/_next/static/') && u.length < 500)
     .slice(0, 200);
+  // Tell the page how many could not be saved (a weak network), so it can try again.
   event.waitUntil(
-    caches.open(CACHE_NAME).then((cache) =>
-      Promise.all(urls.map((u) => cache.match(u).then((hit) => hit || cache.add(u)).catch(() => {})))
-    )
+    caches.open(CACHE_NAME)
+      .then((cache) => Promise.all(urls.map((u) => cache.match(u).then((hit) => (hit ? 0 : cache.add(u).then(() => 0))).catch(() => 1))))
+      .then((results) => {
+        const failed = results.reduce((sum, n) => sum + n, 0);
+        if (event.source) event.source.postMessage({ type: 'CACHE_RESULT', failed, total: urls.length });
+      })
   );
 });

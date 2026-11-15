@@ -128,3 +128,14 @@ describe('opening the app with no internet', () => {
     expect(files).toEqual(['/_next/static/chunks/app-1.js', '/_next/static/css/site.css?dpl=abc', '/_next/static/media/font.woff2']);
   });
 });
+
+describe('trying again when the files could not be saved', () => {
+  it('waits a little longer each time, then stops', async () => {
+    const { retryDelay, RETRY_AFTER_SECONDS } = await import('@/lib/offline-ready');
+    const delays = [0, 1, 2, 3].map(retryDelay);
+    expect(delays).toEqual(RETRY_AFTER_SECONDS.map((s) => s * 1000));
+    expect([...delays].sort((a, b) => (a as number) - (b as number))).toEqual(delays);
+    expect(retryDelay(4)).toBeNull();
+    expect(retryDelay(-1)).toBeNull();
+  });
+});
