@@ -17,6 +17,10 @@ export function loadedStaticFiles(entries: { name: string }[], origin: string): 
   return [...found];
 }
 
+/** Seconds to wait before handing the files over again after some could not be saved, or null to stop trying. */
+export const RETRY_AFTER_SECONDS = [3, 10, 30, 60];
+export const retryDelay = (attempt: number): number | null => (attempt >= 0 && attempt < RETRY_AFTER_SECONDS.length ? RETRY_AFTER_SECONDS[attempt] * 1000 : null);
+
 /** Registers the worker and hands it the page's files. Production only: development file names change on every start. */
 export function registerOfflineApp() {
   if (typeof window === 'undefined' || !('serviceWorker' in navigator)) return;
@@ -26,6 +30,7 @@ export function registerOfflineApp() {
     return;
   }
   navigator.serviceWorker.register('/sw.js').catch(() => {});
+  let attempt = 0;
   const handOver = async () => {
     try {
       const registration = await navigator.serviceWorker.ready;
@@ -33,6 +38,14 @@ export function registerOfflineApp() {
       registration.active?.postMessage({ type: 'CACHE_URLS', urls });
     } catch { /* Offline readiness is best effort. */ }
   };
+  // The worker says how many files it could not save (a weak network): try again a few times, then stop.
+  navigator.serviceWorker.addEventListener('message', (event) => {
+    if (event.data?.type !== 'CACHE_RESULT' || !(event.data.failed > 0)) return;
+    const wait = retryDelay(attempt++);
+    if (wait !== null) window.setTimeout(() => void handOver(), wait);
+  });
+  // A worker that takes control later (first visit) gets the files too.
+  navigator.serviceWorker.addEventListener('controllerchange', () => { window.setTimeout(() => void handOver(), 500); });
   if (document.readyState === 'complete') void handOver();
   else window.addEventListener('load', () => { window.setTimeout(() => void handOver(), 1500); }, { once: true });
 }
