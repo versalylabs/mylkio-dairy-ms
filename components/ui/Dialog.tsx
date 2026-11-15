@@ -59,7 +59,7 @@ export function Dialog({ open, onClose, title, subtitle, icon, wide, children, f
               {subtitle && <p className="text-sm text-gray-600">{subtitle}</p>}
             </div>
           </div>
-          <button type="button" data-dialog-close onClick={onClose} aria-label="Close" className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full text-charcoal-muted hover:bg-ivory-muted hover:text-charcoal">
+          <button type="button" data-dialog-close onClick={onClose} aria-label="Close" className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full text-charcoal-muted transition-all duration-300 ease-premium hover:rotate-90 hover:bg-ivory-muted hover:text-charcoal">
             <X className="w-5 h-5" />
           </button>
         </div>

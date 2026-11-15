@@ -294,7 +294,7 @@ export const HerdView: React.FC<HerdViewProps> = ({
                   <div
                     key={cow.id}
                     onClick={() => setSelectedCowForDetail(cow)}
-                    className="bg-white rounded-2xl border border-gray-200/90 shadow-xs hover:shadow-md hover:border-[#345C4A]/50 transition-all flex flex-col justify-between overflow-hidden cursor-pointer group"
+                    className="bg-white rounded-2xl border border-gray-200/90 shadow-xs tile-hover flex flex-col justify-between overflow-hidden cursor-pointer group"
                   >
                     {/* Cow Photo Banner */}
                     {primaryPhoto ? (

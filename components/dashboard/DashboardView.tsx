@@ -131,19 +131,19 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
       <PlanNotice subscription={user?.subscription} farmName={farm?.name ?? 'My farm'} />
 
       <section aria-label={sw ? 'Vitendo vya haraka' : 'Quick actions'} className="grid grid-cols-2 lg:grid-cols-4 gap-3">
-        <button onClick={onOpenRecordMilk} className="min-h-[88px] flex flex-col items-center justify-center gap-2 whitespace-nowrap rounded-2xl bg-[#345C4A] px-2 py-4 text-white shadow-soft hover:bg-[#274537] transition-colors">
+        <button onClick={onOpenRecordMilk} className="min-h-[88px] flex flex-col items-center justify-center gap-2 whitespace-nowrap rounded-2xl bg-[#345C4A] px-2 py-4 text-white shadow-soft hover:bg-[#274537] hover:shadow-glow tile-hover">
           <Milk className="w-6 h-6" />
           <span className="text-sm font-bold sm:text-base">{t.quickActions.recordMilk}</span>
         </button>
-        <button onClick={onOpenRecordDelivery} className="min-h-[88px] flex flex-col items-center justify-center gap-2 whitespace-nowrap rounded-2xl border border-gray-200 bg-white px-2 py-4 text-charcoal shadow-soft hover:border-[#345C4A] transition-colors">
+        <button onClick={onOpenRecordDelivery} className="min-h-[88px] flex flex-col items-center justify-center gap-2 whitespace-nowrap rounded-2xl border border-gray-200 bg-white px-2 py-4 text-charcoal shadow-soft hover:border-[#345C4A] tile-hover">
           <Truck className="w-6 h-6 text-[#345C4A]" />
           <span className="text-sm font-bold sm:text-base">{sw ? 'Rekodi Utoaji' : 'Log Delivery'}</span>
         </button>
-        <button onClick={onOpenRecordPayment} className="min-h-[88px] flex flex-col items-center justify-center gap-2 whitespace-nowrap rounded-2xl border border-gray-200 bg-white px-2 py-4 text-charcoal shadow-soft hover:border-[#C6A76A] transition-colors">
+        <button onClick={onOpenRecordPayment} className="min-h-[88px] flex flex-col items-center justify-center gap-2 whitespace-nowrap rounded-2xl border border-gray-200 bg-white px-2 py-4 text-charcoal shadow-soft hover:border-[#C6A76A] tile-hover">
           <DollarSign className="w-6 h-6 text-[#9A7B35]" />
           <span className="text-sm font-bold sm:text-base">{t.quickActions.receivePayment}</span>
         </button>
-        <button onClick={onOpenAddCow} className="min-h-[88px] flex flex-col items-center justify-center gap-2 whitespace-nowrap rounded-2xl border border-gray-200 bg-white px-2 py-4 text-charcoal shadow-soft hover:border-[#345C4A] transition-colors">
+        <button onClick={onOpenAddCow} className="min-h-[88px] flex flex-col items-center justify-center gap-2 whitespace-nowrap rounded-2xl border border-gray-200 bg-white px-2 py-4 text-charcoal shadow-soft hover:border-[#345C4A] tile-hover">
           <Plus className="w-6 h-6 text-[#345C4A]" />
           <span className="text-sm font-bold sm:text-base">{t.quickActions.addCow}</span>
         </button>

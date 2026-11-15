@@ -57,6 +57,9 @@
   /* Application Canvas & Foreground */
   --background: #FAF9F5;
   --foreground: #26332D;
+
+  /* The one easing curve used for every hover and entrance: quick to start, a long soft landing. */
+  --ease-premium: cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 html {
@@ -170,19 +173,43 @@ body {
   .eyebrow-light { @apply text-gold; }
 
   .btn {
-    @apply inline-flex min-h-11 items-center justify-center gap-2 whitespace-nowrap rounded-full px-5 text-sm font-semibold
-      transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sage focus-visible:ring-offset-2
-      disabled:cursor-not-allowed disabled:opacity-60 active:scale-[0.98];
+    @apply relative inline-flex min-h-11 items-center justify-center gap-2 whitespace-nowrap rounded-full px-5 text-sm font-semibold
+      transition-all duration-300 ease-premium focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sage focus-visible:ring-offset-2
+      disabled:cursor-not-allowed disabled:opacity-60 active:translate-y-0 active:scale-[0.98];
   }
   .btn-lg { @apply min-h-[52px] px-7 text-base; }
-  .btn-primary { @apply bg-sage text-white shadow-soft hover:bg-sage-hover hover:shadow-glow; }
-  .btn-secondary { @apply border border-ivory-border bg-white text-charcoal shadow-soft hover:border-sage hover:text-sage; }
+  /* Solid buttons lift a little, glow in their own colour, and a soft band of light sweeps across them once. */
+  .btn-primary { @apply isolate overflow-hidden bg-sage text-white shadow-soft hover:-translate-y-0.5 hover:bg-sage-hover hover:shadow-glow; }
+  .btn-gold { @apply isolate overflow-hidden bg-gold text-charcoal hover:-translate-y-0.5 hover:bg-gold-hover hover:text-white hover:shadow-glow-gold; }
+  .btn-primary::after, .btn-gold::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background: linear-gradient(105deg, transparent 35%, rgba(255, 255, 255, 0.3) 50%, transparent 65%);
+    transform: translateX(-130%);
+    transition: transform 0.9s var(--ease-premium);
+  }
+  .btn-secondary { @apply border border-ivory-border bg-white text-charcoal shadow-soft hover:-translate-y-0.5 hover:border-sage hover:bg-sage/5 hover:text-sage hover:shadow-lift; }
   .btn-ghost { @apply text-sage hover:bg-sage/10; }
-  .btn-gold { @apply bg-gold text-charcoal hover:bg-gold-hover hover:text-white; }
-  .btn-on-dark { @apply border border-white/25 bg-white/10 text-white hover:bg-white/20; }
+  .btn-on-dark { @apply border border-white/25 bg-white/10 text-white hover:-translate-y-0.5 hover:border-white/50 hover:bg-white/20; }
+  /* An arrow or chevron inside a button or link that slides forward on hover (put "group" on the parent). */
+  .nudge { @apply transition-transform duration-300 ease-premium group-hover:translate-x-1; }
 
   .card { @apply rounded-2xl border border-ivory-border bg-white shadow-soft; }
-  .card-hover { @apply transition-all duration-300 hover:-translate-y-1 hover:border-sage-300 hover:shadow-lift; }
+  .card-hover { @apply transition-all duration-500 ease-premium hover:-translate-y-1.5 hover:border-sage-300 hover:shadow-lift; }
+  /* Smaller tappable tiles and list cards inside the app: a lighter lift. */
+  .tile-hover { @apply transition-all duration-300 ease-premium hover:-translate-y-0.5 hover:border-sage/60 hover:shadow-lift; }
+  .row-hover { @apply transition-colors duration-200 hover:bg-sage/5; }
+  /* A gold underline that draws in from the left. For text links in the header, footer and body copy. */
+  .link-slide {
+    background-image: linear-gradient(var(--muted-gold), var(--muted-gold));
+    background-repeat: no-repeat;
+    background-position: 0 100%;
+    background-size: 0 2px;
+    padding-bottom: 3px;
+    transition: background-size 0.45s var(--ease-premium), color 0.3s var(--ease-premium);
+  }
 
   /* 16px text stops phones zooming into a field when it is tapped. */
   .field {
@@ -201,17 +228,31 @@ body {
   }
   .tab-btn {
     @apply inline-flex min-h-10 shrink-0 items-center gap-2 whitespace-nowrap rounded-full px-4 text-sm font-semibold text-charcoal-muted
-      transition-colors hover:bg-sage/10 hover:text-sage focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sage;
+      transition-all duration-300 ease-premium hover:bg-sage/10 hover:text-sage focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sage;
   }
   .tab-btn-active { @apply bg-sage text-white shadow-soft hover:bg-sage hover:text-white; }
-  .chip-btn { @apply inline-flex min-h-10 items-center whitespace-nowrap rounded-full border border-ivory-border bg-white px-3.5 text-sm font-semibold text-charcoal transition-colors hover:border-sage hover:text-sage; }
+  .chip-btn { @apply inline-flex min-h-10 items-center whitespace-nowrap rounded-full border border-ivory-border bg-white px-3.5 text-sm font-semibold text-charcoal transition-all duration-300 ease-premium hover:-translate-y-px hover:border-sage hover:bg-sage/5 hover:text-sage hover:shadow-soft; }
   .count-badge { @apply inline-flex min-w-[1.5rem] items-center justify-center rounded-full bg-ivory-muted px-1.5 text-xs font-semibold leading-5 text-charcoal-light; }
   .tab-btn-active .count-badge { @apply bg-white/20 text-white; }
 
-  .icon-tile { @apply flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-sage/10 text-sage; }
+  .icon-tile { @apply flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-sage/10 text-sage transition-all duration-500 ease-premium; }
   .icon-tile-gold { @apply bg-gold/15 text-gold-600; }
 }
 
+@media (hover: hover) and (pointer: fine) {
+  .btn-primary:hover::after, .btn-gold:hover::after { transform: translateX(130%); }
+  .link-slide:hover, a:hover > .link-slide, .group:hover .link-slide { background-size: 100% 2px; }
+  /* In a lifted card the icon tile fills with the brand colour and rises a touch. */
+  .card-hover:hover .icon-tile, .tile-hover:hover .icon-tile { background-color: var(--deep-sage); color: #fff; box-shadow: 0 10px 24px -8px rgba(52, 92, 74, 0.5); transform: translateY(-2px); }
+  .card-hover:hover .icon-tile-gold, .tile-hover:hover .icon-tile-gold { background-color: var(--muted-gold); color: var(--charcoal); box-shadow: 0 10px 24px -8px rgba(198, 167, 106, 0.6); }
+  /* Icons in app tiles and navigation lean in. */
+  .tile-hover svg, .nav-item svg { transition: transform 0.4s var(--ease-premium); }
+  .tile-hover:hover svg { transform: scale(1.12); }
+  .nav-item:hover svg { transform: translateX(2px) scale(1.08); }
+}
+
 @media (prefers-reduced-motion: reduce) {
+  .btn:hover, .card-hover:hover, .tile-hover:hover, .tab-btn:hover, .chip-btn:hover { transform: none !important; }
+  .btn-primary::after, .btn-gold::after { display: none; }
   *, *::before, *::after { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important; scroll-behavior: auto !important; }
 }
