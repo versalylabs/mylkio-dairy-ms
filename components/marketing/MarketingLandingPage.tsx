@@ -27,7 +27,6 @@ import {
   X,
 } from 'lucide-react';
 import { ABOUT_POINTS, ALL_LINKS, FEATURES, HERO_PROOF, NAV_LINKS, PREVIEW_TABS, PROBLEMS, STEPS, buildFaqs, type PreviewTab } from './content';
-import { PhoneMock } from './PhoneMock';
 
 interface MarketingLandingPageProps {
   onOpenAuth: (mode: 'login' | 'signup', plan?: PlanId) => void;
@@ -307,25 +306,25 @@ export const MarketingLandingPage: React.FC<MarketingLandingPageProps> = ({
         <div aria-hidden className="pointer-events-none absolute -right-40 -top-40 h-[34rem] w-[34rem] rounded-full bg-sage-200/50 blur-3xl" />
         <div aria-hidden className="pointer-events-none absolute -left-40 top-1/2 h-[26rem] w-[26rem] rounded-full bg-gold-200/40 blur-3xl" />
 
-        <div className="container-page relative grid grid-cols-1 items-center gap-14 pb-24 lg:grid-cols-[1.08fr_0.92fr] lg:gap-10 lg:pb-32">
-          <div className="max-w-2xl animate-rise">
+        <div className="container-page relative pb-28 pt-4 sm:pb-32 lg:pb-40 lg:pt-8">
+          <div className="mx-auto max-w-4xl animate-rise text-center">
             <span className="inline-flex items-center gap-2 whitespace-nowrap rounded-full border border-ivory-border bg-white/80 px-3.5 py-1.5 text-xs font-semibold uppercase tracking-wider text-sage shadow-soft backdrop-blur">
               <span className="h-2 w-2 animate-pulse rounded-full bg-sage" />
               Mobile-first dairy management
             </span>
 
-            <h1 className="mt-6 font-display text-display-xl text-charcoal [text-wrap:balance]">
+            <h1 className="mt-7 font-display text-display-xl text-charcoal [text-wrap:balance]">
               Your dairy farm. <span className="whitespace-nowrap text-sage">Under control.</span>
             </h1>
 
-            <p className="mt-6 text-lg leading-relaxed text-charcoal-light sm:text-xl">
+            <p className="mx-auto mt-7 max-w-2xl text-lg leading-relaxed text-charcoal-light sm:text-xl">
               Track every litre of milk, manage your cows, and know where your farm income goes, all from your phone.
             </p>
-            <p className="mt-4 text-base leading-relaxed text-charcoal-muted">
+            <p className="mx-auto mt-4 max-w-2xl text-base leading-relaxed text-charcoal-muted">
               Mylkio brings your milk records, cow health, breeding activities, sales, and farm expenses into one simple system built for everyday dairy farming. No complicated paperwork. No scattered records. Just a clearer picture of your farm.
             </p>
 
-            <div className="mt-9 flex flex-col gap-3 sm:flex-row">
+            <div className="mt-10 flex flex-col items-stretch justify-center gap-3 sm:flex-row sm:items-center">
               <button onClick={() => startTrial()} className="btn btn-primary btn-lg group w-full sm:w-auto">
                 <span>Start managing your farm</span>
                 <ArrowRight className="h-5 w-5 transition-transform group-hover:translate-x-1" />
@@ -336,7 +335,7 @@ export const MarketingLandingPage: React.FC<MarketingLandingPageProps> = ({
               </button>
             </div>
 
-            <ul className="mt-8 flex flex-wrap gap-x-6 gap-y-2">
+            <ul className="mt-9 flex flex-wrap justify-center gap-x-7 gap-y-2">
               {HERO_PROOF.map((item) => (
                 <li key={item} className="flex items-center gap-2 whitespace-nowrap text-sm font-medium text-charcoal-light">
                   <CheckCircle2 className="h-4 w-4 text-sage" />
@@ -344,10 +343,6 @@ export const MarketingLandingPage: React.FC<MarketingLandingPageProps> = ({
                 </li>
               ))}
             </ul>
-          </div>
-
-          <div className="animate-rise [animation-delay:150ms]">
-            <PhoneMock />
           </div>
         </div>
       </section>
