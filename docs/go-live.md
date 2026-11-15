@@ -1,3 +1,5 @@
+> **Historical.** This checklist covers the move from the old Supabase code. For the current state and release checklist see [phase-9-release.md](phase-9-release.md).
+
 # Going live with the pilot
 
 This is the checklist for turning on real accounts on the production site. It assumes the preview already works end to end (sign-up, sign-in, saving records, a second device). Work through it in order; each step says how to confirm it.
