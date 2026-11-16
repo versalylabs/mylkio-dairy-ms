@@ -9,7 +9,8 @@ import { StorageCard } from './StorageCard';
 import { TeamCard } from './TeamCard';
 import { ROLE_LABEL, ROLE_SUMMARY, canManageTeam, canSeeBilling, roleOrOwner } from '@/lib/team';
 import { PLANS, type PlanId } from '@/lib/plans';
-import { billingState, describeBilling, STATE_LABEL } from '@/lib/billing';
+import { billingState, describeBilling, stateLabel } from '@/lib/billing';
+import { BILLING_COPY } from '@/lib/app-copy';
 import { whatsappLink } from '@/lib/contact';
 import { useSiteContent } from '@/components/site/SiteContentProvider';
 import { whatsappDigits } from '@/lib/site-content';
@@ -51,6 +52,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
   // A farm can have several logins. Only the owner sees the plan, payments and team; a worker does not edit the farm.
   const role = roleOrOwner(user?.farmRole);
   const isOwner = canSeeBilling(role);
+  const bc = BILLING_COPY[lang === 'sw' ? 'sw' : 'en'];
 
   const [farmName, setFarmName] = useState(farm.name);
   const [county, setCounty] = useState(farm.county);
@@ -156,10 +158,10 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
             </div>
             <div>
               <h2 className="text-base font-bold text-gray-900">
-                {lang === 'sw' ? 'Hali ya Usajili wa Kila Mwezi' : 'Monthly Subscription'}
+                {bc.settings.title}
               </h2>
               <p className="text-xs text-gray-500">
-                {lang === 'sw' ? 'Mpango wako wa sasa na tarehe ya kurejesha' : 'Your current plan and renewal details'}
+                {bc.settings.subtitle}
               </p>
             </div>
           </div>
@@ -168,29 +170,29 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
             <div className="flex flex-wrap items-start justify-between gap-3">
               <div className="min-w-0">
                 <div className="flex flex-wrap items-center gap-2">
-                  <span className="text-sm font-bold text-charcoal">{plan ? plan.name : user.subscription.plan.replace('_', ' ')} plan</span>
+                  <span className="text-sm font-bold text-charcoal">{bc.settings.planWord(plan ? plan.name : user.subscription.plan.replace('_', ' '))}</span>
                   <span className={`whitespace-nowrap rounded-full px-2 py-0.5 text-xs font-semibold ${billing === 'paid' || billing === 'complimentary' || billing === 'trial' ? 'bg-sage/10 text-sage' : 'bg-gold-subtle text-gold-600 border border-gold-border'}`}>
-                    {STATE_LABEL[billing]}
+                    {stateLabel(billing, lang === 'sw' ? 'sw' : 'en')}
                   </span>
                 </div>
-                <p className="mt-1 text-sm text-charcoal-light">{describeBilling(user.subscription)}</p>
+                <p className="mt-1 text-sm text-charcoal-light">{describeBilling(user.subscription, new Date(), lang === 'sw' ? 'sw' : 'en')}</p>
                 <p className="text-xs text-charcoal-muted">{user.email}</p>
               </div>
               <div className="text-right">
-                <div className="whitespace-nowrap text-lg font-bold text-sage">KSh {user.subscription.monthlyPriceKsh?.toLocaleString()}/month</div>
-                <span className="text-xs text-charcoal-muted">Billed monthly</span>
+                <div className="whitespace-nowrap text-lg font-bold text-sage">KSh {user.subscription.monthlyPriceKsh?.toLocaleString()}{bc.settings.perMonth}</div>
+                <span className="text-xs text-charcoal-muted">{bc.settings.billedMonthly}</span>
               </div>
             </div>
             {plan && plan.cowLimit !== null && cowCount !== undefined && (
               <p className="text-sm text-charcoal-light">
-                {cowCount} {cowCount === 1 ? 'cow' : 'cows'} on your farm. The {plan.name} plan covers up to {plan.cowLimit}.
-                {cowCount > plan.cowLimit ? ' You have more than that: message us to move to a bigger plan. Nothing stops you adding cows meanwhile.' : ''}
+                {bc.settings.cows(cowCount, plan.name, plan.cowLimit)}
+                {cowCount > plan.cowLimit ? bc.settings.overLimit : ''}
               </p>
             )}
             {billing !== 'complimentary' && (
               <div className="flex flex-wrap items-center justify-between gap-3 border-t border-ivory-border pt-3">
-                <p className="text-sm text-charcoal-light">To pay, renew or change your plan, message Mylkio. Your records are always yours to export.</p>
-                <a className="btn btn-secondary" href={whatsappLink(whatsappDigits(contact), payMessage(farm.name, plan ? plan.name : user.subscription.plan))} target="_blank" rel="noopener noreferrer">Message Mylkio</a>
+                <p className="text-sm text-charcoal-light">{bc.settings.howToPay}</p>
+                <a className="btn btn-secondary" href={whatsappLink(whatsappDigits(contact), payMessage(farm.name, plan ? plan.name : user.subscription.plan, lang === 'sw' ? 'sw' : 'en'))} target="_blank" rel="noopener noreferrer">{bc.notice.message}</a>
               </div>
             )}
           </div>
@@ -271,7 +273,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
                 type="text"
                 value={county}
                 onChange={(e) => setCounty(e.target.value)}
-                placeholder="e.g. Nakuru County, Kiambu, Uasin Gishu"
+                placeholder={lang === 'sw' ? 'mfano: Kaunti ya Nakuru, Kiambu, Uasin Gishu' : 'e.g. Nakuru County, Kiambu, Uasin Gishu'}
                 className="field"
                 required
               />
@@ -294,7 +296,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
 
             <div>
               <label className="field-label">
-                Phone Number
+                {lang === 'sw' ? 'Nambari ya Simu' : 'Phone Number'}
               </label>
               <input
                 type="tel"
@@ -308,13 +310,13 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
               <label className="field-label">
-                Sub-County / Area
+                {lang === 'sw' ? 'Kaunti Ndogo / Eneo' : 'Sub-County / Area'}
               </label>
               <input
                 type="text"
                 value={subCounty}
                 onChange={(e) => setSubCounty(e.target.value)}
-                placeholder="e.g. Rongai, Njoro, Limuru"
+                placeholder={lang === 'sw' ? 'mfano: Rongai, Njoro, Limuru' : 'e.g. Rongai, Njoro, Limuru'}
                 className="field"
               />
             </div>

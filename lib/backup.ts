@@ -1,6 +1,8 @@
 // When a farm last made a backup, and when to remind the farmer. A backup is the farmer's own copy of the whole
 // farm (a JSON file), kept outside the app: the last line of defence if a phone is lost, wiped or broken.
 
+import { backupMessage, type Lang } from './app-copy';
+
 const key = (farmId: string) => `mylkio_last_backup_${farmId}`;
 
 export const BACKUP_REMINDER_DAYS = 30;
@@ -19,18 +21,16 @@ export function lastBackupAt(farmId: string): string | null {
 
 export interface BackupAdvice { level: 'ok' | 'remind'; message: string }
 
-const days = (n: number) => (n === 1 ? '1 day' : `${n} days`);
-
 /** What to tell the farmer about their backups. */
-export function backupAdvice(lastIso: string | null, recordCount: number, now: Date = new Date()): BackupAdvice {
+export function backupAdvice(lastIso: string | null, recordCount: number, now: Date = new Date(), lang: Lang = 'en'): BackupAdvice {
   if (!lastIso) {
     return recordCount >= BACKUP_MIN_RECORDS
-      ? { level: 'remind', message: 'You have not made a backup yet. Download one now and keep it somewhere safe, such as WhatsApp to yourself or Google Drive.' }
-      : { level: 'ok', message: 'No backup yet. Once you have recorded more, download one and keep it somewhere safe.' };
+      ? { level: 'remind', message: backupMessage(lang, 'never_many') }
+      : { level: 'ok', message: backupMessage(lang, 'never_few') };
   }
   const ago = Math.max(0, Math.floor((now.getTime() - new Date(lastIso).getTime()) / 86_400_000));
-  if (ago >= BACKUP_REMINDER_DAYS) return { level: 'remind', message: `Your last backup was ${days(ago)} ago. Download a fresh one.` };
-  return { level: 'ok', message: ago === 0 ? 'You made a backup today.' : `Your last backup was ${days(ago)} ago.` };
+  if (ago >= BACKUP_REMINDER_DAYS) return { level: 'remind', message: backupMessage(lang, 'old', ago) };
+  return { level: 'ok', message: ago === 0 ? backupMessage(lang, 'today') : backupMessage(lang, 'recent', ago) };
 }
 
 /** "12.4 MB", "340 KB". */

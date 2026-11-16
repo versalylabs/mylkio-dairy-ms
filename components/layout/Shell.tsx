@@ -135,7 +135,7 @@ export const Shell: React.FC<ShellProps> = ({
                   ? 'bg-[#A8BFA5]/25 text-[#26332D] border border-[#A8BFA5]/40'
                   : 'bg-[#FAF5EB] text-[#8e7238] border border-[#E5D5B5]'
               } whitespace-nowrap`}>
-                {planPillLabel(user.subscription)}
+                {planPillLabel(user.subscription, lang === 'sw' ? 'sw' : 'en')}
               </span>
               <span className="font-extrabold text-[#26332D]">
                 KSh {user.subscription.monthlyPriceKsh || 0}/mo

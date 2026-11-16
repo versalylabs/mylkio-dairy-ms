@@ -10,6 +10,8 @@
 //     paid-only extras (symptom checker, vet finder) fall back to the Starter set. See `featuresFor`.
 //   * The herd limit on each plan is a guide for follow-up, not a lock: nothing stops a farm adding a cow.
 
+import { BILLING_COPY, type Lang } from './app-copy';
+
 export const SOON_DAYS = 7;
 /** How long after the paid-until date the extras keep working. Trials get none. */
 export const GRACE_DAYS = 7;
@@ -66,35 +68,28 @@ export function extrasLapsed(subscription: BillingSubscription | null | undefine
 export const needsFollowUp = (state: BillingState) =>
   state === 'trial_ending' || state === 'trial_ended' || state === 'due_soon' || state === 'overdue';
 
-export const STATE_LABEL: Record<BillingState, string> = {
-  complimentary: 'Platform account',
-  trial: 'Free trial',
-  trial_ending: 'Trial ending soon',
-  trial_ended: 'Trial ended',
-  paid: 'Paid',
-  due_soon: 'Payment due soon',
-  overdue: 'Payment overdue',
-  cancelled: 'Cancelled',
-};
+// The administration screens use the English labels; a farmer sees their own language (see lib/app-copy.ts).
+export const STATE_LABEL: Record<BillingState, string> = BILLING_COPY.en.stateLabel;
+export const stateLabel = (state: BillingState, lang: Lang = 'en') => BILLING_COPY[lang].stateLabel[state];
 
-export const shortDate = (iso: string) =>
-  new Date(iso).toLocaleDateString('en-KE', { timeZone: 'Africa/Nairobi', day: 'numeric', month: 'short', year: 'numeric' });
+export const shortDate = (iso: string, lang: Lang = 'en') =>
+  new Date(iso).toLocaleDateString(lang === 'sw' ? 'sw-KE' : 'en-KE', { timeZone: 'Africa/Nairobi', day: 'numeric', month: 'short', year: 'numeric' });
 
 /** One line a farmer can read: "Free trial: 9 days left (ends 24 Nov 2026)". */
-export function describeBilling(subscription: BillingSubscription, now: Date = new Date()): string {
+export function describeBilling(subscription: BillingSubscription, now: Date = new Date(), lang: Lang = 'en'): string {
   const state = billingState(subscription, now);
   const left = daysLeft(subscription, now);
-  const date = subscription.renewsAt ? shortDate(subscription.renewsAt) : '';
-  const days = (n: number) => (n === 1 ? '1 day' : `${n} days`);
+  const date = subscription.renewsAt ? shortDate(subscription.renewsAt, lang) : '';
+  const d = BILLING_COPY[lang].describe;
   switch (state) {
-    case 'complimentary': return 'Platform account';
-    case 'cancelled': return 'This plan was cancelled. Your records are still here and you can export them.';
+    case 'complimentary': return d.complimentary;
+    case 'cancelled': return d.cancelled;
     case 'trial':
-    case 'trial_ending': return left === null ? 'Free trial' : `Free trial: ${left <= 0 ? 'ends today' : `${days(left)} left`} (ends ${date})`;
-    case 'trial_ended': return `Free trial ended on ${date}. Your records are safe and can be exported.`;
+    case 'trial_ending': return left === null ? d.trialUnknown : d.trial(left, date);
+    case 'trial_ended': return d.trialEnded(date);
     case 'paid':
-    case 'due_soon': return `Paid until ${date}`;
-    case 'overdue': return `Payment was due on ${date}`;
+    case 'due_soon': return d.paid(date);
+    case 'overdue': return d.overdue(date);
   }
 }
 
@@ -116,13 +111,14 @@ export const liveCowCount = (cows: { status: string }[]) =>
   cows.filter((c) => c.status !== 'sold' && c.status !== 'deceased' && c.status !== 'archived').length;
 
 /** The few words for the plan pill in the sidebar. */
-export function planPillLabel(subscription: BillingSubscription): string {
+export function planPillLabel(subscription: BillingSubscription, lang: Lang = 'en'): string {
+  const p = BILLING_COPY[lang].pill;
   switch (billingState(subscription)) {
     case 'trial':
-    case 'trial_ending': return 'Free trial';
-    case 'trial_ended': return 'Trial ended';
-    case 'overdue': return 'Payment overdue';
-    case 'cancelled': return 'Cancelled';
-    default: return `${subscription.plan.replace('_', ' ').toUpperCase()} Plan`;
+    case 'trial_ending': return p.trial;
+    case 'trial_ended': return p.trial_ended;
+    case 'overdue': return p.overdue;
+    case 'cancelled': return p.cancelled;
+    default: return p.plan(subscription.plan.replace('_', ' ').toUpperCase());
   }
 }
