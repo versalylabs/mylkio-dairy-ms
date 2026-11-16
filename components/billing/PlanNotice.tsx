@@ -2,9 +2,8 @@
 
 import React from 'react';
 import { MessageCircle } from 'lucide-react';
-import { whatsappLink } from '@/lib/contact';
+import { supportMessageHref } from '@/lib/contact';
 import { useSiteContent } from '@/components/site/SiteContentProvider';
-import { whatsappDigits } from '@/lib/site-content';
 import { PLANS, type PlanId } from '@/lib/plans';
 import { billingState, daysLeft, describeBilling, extrasLapsed, type BillingSubscription } from '@/lib/billing';
 import { BILLING_COPY, type Lang } from '@/lib/app-copy';
@@ -52,7 +51,7 @@ export function PlanNotice({ subscription, farmName }: { subscription?: (Billing
           {paused ? t.paused : t.safe}
         </p>
       </div>
-      <a className="btn btn-primary shrink-0" href={whatsappLink(whatsappDigits(contact), payMessage(farmName, plan?.name ?? subscription.plan, lang))} target="_blank" rel="noopener noreferrer">
+      <a className="btn btn-primary shrink-0" href={supportMessageHref(contact, payMessage(farmName, plan?.name ?? subscription.plan, lang))} target="_blank" rel="noopener noreferrer">
         <MessageCircle className="h-4 w-4" />{t.message}
       </a>
     </section>

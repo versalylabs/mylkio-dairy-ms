@@ -11,9 +11,9 @@ import { ROLE_LABEL, ROLE_SUMMARY, canManageTeam, canSeeBilling, roleOrOwner } f
 import { PLANS, type PlanId } from '@/lib/plans';
 import { billingState, describeBilling, stateLabel } from '@/lib/billing';
 import { BILLING_COPY } from '@/lib/app-copy';
-import { whatsappLink } from '@/lib/contact';
+import { supportMessageHref } from '@/lib/contact';
+import { formatKsh } from '@/lib/money';
 import { useSiteContent } from '@/components/site/SiteContentProvider';
-import { whatsappDigits } from '@/lib/site-content';
 import { payMessage } from '@/components/billing/PlanNotice';
 import { Globe, Building, Database, RefreshCw, Check, Smartphone, CreditCard, LogOut } from 'lucide-react';
 
@@ -177,9 +177,10 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
                 </div>
                 <p className="mt-1 text-sm text-charcoal-light">{describeBilling(user.subscription, new Date(), lang === 'sw' ? 'sw' : 'en')}</p>
                 <p className="text-xs text-charcoal-muted">{user.email}</p>
+                {user.subscription.plan === 'custom' && user.subscription.customNote && <p className="mt-1 text-xs text-charcoal-light">{user.subscription.customNote}</p>}
               </div>
               <div className="text-right">
-                <div className="whitespace-nowrap text-lg font-bold text-sage">KSh {user.subscription.monthlyPriceKsh?.toLocaleString()}{bc.settings.perMonth}</div>
+                <div className="whitespace-nowrap text-lg font-bold text-sage">{formatKsh(user.subscription.monthlyPriceKsh || 0)}{bc.settings.perMonth}</div>
                 <span className="text-xs text-charcoal-muted">{bc.settings.billedMonthly}</span>
               </div>
             </div>
@@ -192,7 +193,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
             {billing !== 'complimentary' && (
               <div className="flex flex-wrap items-center justify-between gap-3 border-t border-ivory-border pt-3">
                 <p className="text-sm text-charcoal-light">{bc.settings.howToPay}</p>
-                <a className="btn btn-secondary" href={whatsappLink(whatsappDigits(contact), payMessage(farm.name, plan ? plan.name : user.subscription.plan, lang === 'sw' ? 'sw' : 'en'))} target="_blank" rel="noopener noreferrer">{bc.notice.message}</a>
+                <a className="btn btn-secondary" href={supportMessageHref(contact, payMessage(farm.name, plan ? plan.name : user.subscription.plan, lang === 'sw' ? 'sw' : 'en'))} target="_blank" rel="noopener noreferrer">{bc.notice.message}</a>
               </div>
             )}
           </div>

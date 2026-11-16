@@ -68,14 +68,14 @@ describe('saved website content', () => {
 
 describe('plan prices', () => {
   it('record the built-in price on a new subscription until the administrator saves a different one', async () => {
-    expect((await subscription('amina')).monthlyPriceKsh).toBe(1000);
+    expect((await subscription('amina')).monthlyPriceKsh).toBe(1300);
     await adminUpdateSubscription(db, 'boss', await farmOf('baraka'), 'starter', 'active');
-    expect((await subscription('baraka')).monthlyPriceKsh).toBe(500);
+    expect((await subscription('baraka')).monthlyPriceKsh).toBe(700);
   });
 
   it('apply to new sign-ups and plan changes, never to existing subscriptions', async () => {
     await adminSetSiteContent(db, 'boss', 'prices', { starter: 600, farmer: 1200, farm_pro: 3000 });
-    expect((await subscription('amina')).monthlyPriceKsh).toBe(1000); // already subscribed: untouched
+    expect((await subscription('amina')).monthlyPriceKsh).toBe(1300); // already subscribed: untouched
     await onboard(db, user('chebet'), details('farm_pro'));
     expect((await subscription('chebet')).monthlyPriceKsh).toBe(3000);
     await adminUpdateSubscription(db, 'boss', await farmOf('baraka'), 'farmer', 'active');
@@ -85,7 +85,7 @@ describe('plan prices', () => {
   it('fall back to the built-in price if the saved value is damaged', async () => {
     await pg.query(`update public.site_content set value = '{"starter":"cheap"}'::jsonb where key = 'prices'`);
     const { rows } = await pg.query<{ p: number }>(`select public.plan_price('starter') as p`);
-    expect(rows[0].p).toBe(500);
+    expect(rows[0].p).toBe(700);
     await adminResetSiteContent(db, 'boss', 'prices');
   });
 });

@@ -13,7 +13,7 @@ import {
   Milk, 
   TrendingUp, 
   TrendingDown,
-  DollarSign, 
+  Banknote, 
   Clock, 
   Plus, 
   Truck,
@@ -147,7 +147,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
         )}
         {money && (
           <button onClick={onOpenRecordPayment} className="min-h-[88px] flex flex-col items-center justify-center gap-2 whitespace-nowrap rounded-2xl border border-gray-200 bg-white px-2 py-4 text-charcoal shadow-soft hover:border-[#C6A76A] tile-hover">
-          <DollarSign className="w-6 h-6 text-[#9A7B35]" />
+          <Banknote className="w-6 h-6 text-[#9A7B35]" />
           <span className="text-sm font-bold sm:text-base">{t.quickActions.receivePayment}</span>
         </button>
         )}
@@ -225,7 +225,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
               {t.dashboard.cashReceived}
             </span>
             <div className="p-2 bg-[#FAF5EB] rounded-xl text-[#C6A76A] border border-[#E5D5B5]">
-              <DollarSign className="w-4 h-4" />
+              <Banknote className="w-4 h-4" />
             </div>
           </div>
           <div className="mt-2">

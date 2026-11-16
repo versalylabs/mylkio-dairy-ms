@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import { LegalPage } from '@/components/marketing/LegalPage';
-import { PRIVACY } from '@/lib/legal';
+import { PRIVACY, withSupportEmail } from '@/lib/legal';
+import { currentSupportEmail } from '@/lib/server/support-email';
 
 export const metadata: Metadata = {
   title: 'Privacy notice | Mylkio',
@@ -8,6 +9,10 @@ export const metadata: Metadata = {
   alternates: { canonical: '/privacy' },
 };
 
-export default function PrivacyPage() {
-  return <LegalPage doc={PRIVACY} other={{ href: '/terms', label: 'Terms of use' }} />;
+// Shown with the support address saved in Admin > Website; refreshed at most once a minute.
+export const revalidate = 60;
+
+export default async function PrivacyPage() {
+  const email = await currentSupportEmail();
+  return <LegalPage doc={withSupportEmail(PRIVACY, email)} other={{ href: '/terms', label: 'Terms of use' }} />;
 }

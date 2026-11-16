@@ -78,4 +78,4 @@ export const fieldInput = 'field';
 export const primaryButton = 'btn btn-primary';
 export const secondaryButton = 'btn btn-secondary';
 
-export const ksh = (n: number) => `KSh ${n.toLocaleString('en-KE', { maximumFractionDigits: 2 })}`;
+export { formatKsh as ksh } from '@/lib/money';

@@ -23,8 +23,10 @@ export const ROLE_SUMMARY: Record<FarmRole, { en: string; sw: string }> = {
 };
 
 /** Total logins a plan includes, the owner counted as one. Mirrors team_limit() in the database. */
-export const TEAM_LOGINS: Record<string, number> = { starter: 1, farmer: 1, farm_pro: 6 };
-export const teamLoginsFor = (plan: string | undefined) => (plan ? TEAM_LOGINS[plan] : undefined) ?? 1;
+export const TEAM_LOGINS: Record<string, number> = { starter: 1, farmer: 1, farm_pro: 6, custom: 6 };
+/** A Custom farm's own limit (set by an administrator) wins; otherwise the plan's. Mirrors team_limit_for_farm(). */
+export const teamLoginsFor = (plan: string | undefined, customLimit?: number) =>
+  (plan === 'custom' && customLimit && customLimit >= 1 ? customLimit : plan ? TEAM_LOGINS[plan] : undefined) ?? 1;
 
 export const INVITE_DAYS = 7;
 

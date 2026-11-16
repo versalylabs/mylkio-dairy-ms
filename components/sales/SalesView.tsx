@@ -14,7 +14,6 @@ import { acceptedLitres, cashReceived, deliveryCharge, possibleDuplicatePayments
 import {
   Plus,
   Truck,
-  DollarSign,
   Users,
   Building2,
   User,
@@ -143,7 +142,7 @@ export const SalesView: React.FC<SalesViewProps> = ({
             onClick={onOpenRecordPayment}
             className="btn btn-gold"
           >
-            <DollarSign className="w-4 h-4" />
+            <Banknote className="w-4 h-4" />
             <span>{lang === 'sw' ? 'Pokea Malipo' : 'Receive Payment'}</span>
           </button>
 
@@ -211,7 +210,7 @@ export const SalesView: React.FC<SalesViewProps> = ({
             </p>
           </div>
           <div className="p-3 bg-[#A8BFA5]/20 text-[#345C4A] rounded-2xl">
-            <DollarSign className="w-7 h-7" />
+            <Banknote className="w-7 h-7" />
           </div>
         </div>
       </div>
@@ -233,7 +232,7 @@ export const SalesView: React.FC<SalesViewProps> = ({
           onClick={() => setActiveTab('payments')}
           className={`tab-btn ${activeTab === 'payments' ? 'tab-btn-active' : ''}`}
         >
-          <DollarSign className="w-4 h-4" />
+          <Banknote className="w-4 h-4" />
           <span>{lang === 'sw' ? 'Risiti za Malipo (Payments)' : 'Payments Ledger'}</span>
           <span className="count-badge">
             {payments.filter((p) => !p.voidedAt).length}

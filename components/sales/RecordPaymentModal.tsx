@@ -6,7 +6,7 @@ import { translations } from '@/lib/translations';
 import { farmToday, formatFarmDate } from '@/lib/dates';
 import { paymentsWithReference, roundMoney } from '@/lib/ledger';
 import type { OpenTarget } from '@/lib/settlements';
-import { X, Check, DollarSign, Smartphone, CreditCard, Banknote } from 'lucide-react';
+import { X, Check, Wallet, Smartphone, CreditCard, Banknote } from 'lucide-react';
 
 interface RecordPaymentModalProps {
   isOpen: boolean;
@@ -106,7 +106,7 @@ export const RecordPaymentModal: React.FC<RecordPaymentModalProps> = ({
         <div className="flex items-center justify-between p-5 border-b border-gray-100 sticky top-0 bg-white z-10">
           <div className="flex items-center space-x-2.5">
             <div className="w-10 h-10 rounded-2xl bg-[#FAF5EB] text-[#C6A76A] border border-[#E5D5B5] flex items-center justify-center">
-              <DollarSign className="w-5 h-5" />
+              <Wallet className="w-5 h-5" />
             </div>
             <div>
               <h2 className="font-display text-xl font-medium text-charcoal">

@@ -4,6 +4,7 @@ import { ArrowDown, ArrowUp, ExternalLink, Plus, Trash2 } from 'lucide-react';
 import { buildFaqs, SAMPLE_TESTIMONIALS } from '@/components/marketing/content';
 import { SITE_CONTENT_CHANGED } from '@/components/site/SiteContentProvider';
 import { PLANS, PLAN_ORDER } from '@/lib/plans';
+import { formatKsh } from '@/lib/money';
 import {
   newItemId, type SiteContact, type SiteContent, type SiteContentKey, type SiteContentMeta, type SiteFaq, type SitePrices, type SiteTestimonial,
 } from '@/lib/site-content';
@@ -89,7 +90,7 @@ function PricesCard({ loaded, save, reset }: Parent) {
   const [draft, setDraft] = useState<SitePrices>(stored);
   const storedKey = JSON.stringify(stored);
   useEffect(() => setDraft(stored), [storedKey]); // eslint-disable-line react-hooks/exhaustive-deps
-  const card = useCard((v) => save('prices', v), async () => { if (window.confirm('Put the built-in prices back (Starter 500, Farmer 1,000, Farm Pro 2,500)?')) await reset('prices'); });
+  const card = useCard((v) => save('prices', v), async () => { if (window.confirm(`Put the built-in prices back (${PLAN_ORDER.map((id) => `${PLANS[id].name} ${formatKsh(PLANS[id].priceKsh)}`).join(', ')})?`)) await reset('prices'); });
   const dirty = JSON.stringify(draft) !== JSON.stringify(stored);
   return <Card title="Subscription prices" savedInfo={loaded.meta.prices ?? null} dirty={dirty} busy={card.busy} error={card.error} done={card.done}
     help="The monthly price of each plan, shown on the website, in the sign-up form and in the cost FAQ. New sign-ups and plan changes you make from the Accounts tab record the current price. Farms that already have a subscription keep the price they were given, so a change here never quietly re-bills anyone."

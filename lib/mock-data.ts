@@ -716,7 +716,7 @@ export const initialAccounts: UserAccount[] = [
     subscription: {
       plan: 'farmer',
       status: 'active',
-      monthlyPriceKsh: 1000,
+      monthlyPriceKsh: PLANS.farmer.priceKsh,
       startDate: '2026-10-01',
       renewsAt: '2030-01-01',
     },
@@ -733,7 +733,7 @@ export const initialAccounts: UserAccount[] = [
     subscription: {
       plan: 'farmer',
       status: 'active',
-      monthlyPriceKsh: 1000,
+      monthlyPriceKsh: PLANS.farmer.priceKsh,
       startDate: '2026-09-15',
       renewsAt: '2030-01-01',
       isAnnual: true,
@@ -751,7 +751,7 @@ export const initialAccounts: UserAccount[] = [
     subscription: {
       plan: 'starter',
       status: 'trial',
-      monthlyPriceKsh: 500,
+      monthlyPriceKsh: PLANS.starter.priceKsh,
       startDate: '2026-10-18',
       renewsAt: '2030-01-01',
     },
@@ -768,7 +768,7 @@ export const initialAccounts: UserAccount[] = [
     subscription: {
       plan: 'farm_pro',
       status: 'active',
-      monthlyPriceKsh: 2500,
+      monthlyPriceKsh: PLANS.farm_pro.priceKsh,
       startDate: '2026-08-01',
       renewsAt: '2030-01-01',
     },

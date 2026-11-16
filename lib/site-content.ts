@@ -15,7 +15,7 @@ export type SiteContentKey = (typeof SITE_CONTENT_KEYS)[number];
 const digitsOnly = (value: string) => value.replace(/\D/g, '');
 
 export const contactSchema = z.object({
-  /** How the phone number is written on the website, for example "+254 184 129145". */
+  /** How the phone number is written on the website, for example "+254 712 345 678". */
   phone: z.string().trim().min(7).max(32).refine((v) => /^[+0-9 ()-]+$/.test(v) && digitsOnly(v).length >= 9 && digitsOnly(v).length <= 15, 'Use digits, spaces and a leading +.'),
   /** The WhatsApp number. Only its digits are used, in the wa.me link. */
   whatsapp: z.string().trim().min(7).max(32).refine((v) => /^[+0-9 ()-]+$/.test(v) && digitsOnly(v).length >= 9 && digitsOnly(v).length <= 15, 'Use digits, spaces and a leading +.'),
@@ -78,7 +78,7 @@ export const DEFAULT_PRICES: SitePrices = {
 };
 
 export const DEFAULT_SITE_CONTENT: SiteContent = {
-  contact: { phone: SUPPORT_PHONE_DISPLAY, whatsapp: `+${SUPPORT_PHONE_DIGITS}`, email: SUPPORT_EMAIL },
+  contact: { phone: SUPPORT_PHONE_DISPLAY, whatsapp: SUPPORT_PHONE_DIGITS ? `+${SUPPORT_PHONE_DIGITS}` : '', email: SUPPORT_EMAIL },
   prices: DEFAULT_PRICES,
   testimonials: null,
   faqs: null,
@@ -100,7 +100,7 @@ export function mergeSiteContent(stored: unknown): SiteContent {
 }
 
 export const whatsappDigits = (contact: SiteContact) => digitsOnly(contact.whatsapp);
-export const phoneHref = (contact: SiteContact) => `tel:+${digitsOnly(contact.phone)}`;
+export const phoneHref = (contact: SiteContact) => (digitsOnly(contact.phone).length >= 9 ? `tel:+${digitsOnly(contact.phone)}` : undefined);
 
 /** The price of a plan, from the saved prices. */
 export const priceOf = (prices: SitePrices, plan: PlanId | string): number =>

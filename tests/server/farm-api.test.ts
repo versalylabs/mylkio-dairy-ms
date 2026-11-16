@@ -48,7 +48,7 @@ describe('first sign-in', () => {
     aminaFarm = account.farmId;
     expect(account).toMatchObject({ id: AMINA.id, email: 'amina@example.test', role: 'farmer', name: 'Amina Wanjiru' });
     expect(aminaFarm).toMatch(/^[0-9a-f-]{36}$/);
-    expect(account.subscription).toMatchObject({ plan: 'farmer', status: 'trial', monthlyPriceKsh: 1000 });
+    expect(account.subscription).toMatchObject({ plan: 'farmer', status: 'trial', monthlyPriceKsh: 1300 });
   });
 
   it('is safe to repeat: the existing farm is returned', async () => {
@@ -124,7 +124,7 @@ describe('platform administration', () => {
     expect(accounts.map((a) => (a as { id: string }).id).sort()).toEqual([AMINA.id, OTIENO.id].sort());
     await adminUpdateSubscription(db, OTIENO.id, aminaFarm, 'farm_pro', 'active');
     const account = await getAccount(db, AMINA.id);
-    expect(account?.subscription).toMatchObject({ plan: 'farm_pro', status: 'active', monthlyPriceKsh: 2500 });
+    expect(account?.subscription).toMatchObject({ plan: 'farm_pro', status: 'active', monthlyPriceKsh: 2800 });
   });
 
   it('rejects unknown plans', async () => {

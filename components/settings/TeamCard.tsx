@@ -1,12 +1,11 @@
 'use client';
 import { useCallback, useEffect, useState } from 'react';
 import { Check, Copy, MessageCircle, Plus, Trash2, Users } from 'lucide-react';
-import { whatsappLink } from '@/lib/contact';
+import { supportMessageHref } from '@/lib/contact';
 import { PLANS, type PlanId } from '@/lib/plans';
 import { TEAM_COPY, type Lang } from '@/lib/team-copy';
 import { INVITABLE_ROLES, ROLE_LABEL, ROLE_SUMMARY, inviteLink, inviteMessage, type FarmRole } from '@/lib/team';
 import { useSiteContent } from '@/components/site/SiteContentProvider';
-import { whatsappDigits } from '@/lib/site-content';
 
 type Member = { id: string; name: string; email: string; phone: string; role: FarmRole; joinedAt: string; lastSeenAt: string | null };
 type Invite = { id: string; role: FarmRole; label: string | null; createdAt: string; expiresAt: string };
@@ -139,7 +138,7 @@ export function TeamCard({ farmId, farmName, planId, lang }: { farmId: string; f
             <div className="rounded-xl border border-gold-border bg-gold-subtle p-4">
               <p className="text-sm text-charcoal">{t.oneLogin(planName)}</p>
               <a className="btn btn-primary mt-3" target="_blank" rel="noopener noreferrer"
-                href={whatsappLink(whatsappDigits(contact), t.upgradeMessage(farmName))}>
+                href={supportMessageHref(contact, t.upgradeMessage(farmName))}>
                 <MessageCircle className="h-4 w-4" />{t.upgrade}
               </a>
             </div>

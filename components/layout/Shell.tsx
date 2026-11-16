@@ -2,6 +2,7 @@
 
 import React from 'react';
 import { planPillLabel } from '@/lib/billing';
+import { formatKshPerMonth } from '@/lib/money';
 import { Language, Farm, UserAccount } from '@/types';
 import { translations } from '@/lib/translations';
 import { ROLE_LABEL, roleOrOwner, tabsFor } from '@/lib/team';
@@ -138,7 +139,7 @@ export const Shell: React.FC<ShellProps> = ({
                 {planPillLabel(user.subscription, lang === 'sw' ? 'sw' : 'en')}
               </span>
               <span className="font-extrabold text-[#26332D]">
-                KSh {user.subscription.monthlyPriceKsh || 0}/mo
+                {formatKshPerMonth(user.subscription.monthlyPriceKsh || 0, true)}
               </span>
             </div>
           )}
@@ -189,10 +190,6 @@ export const Shell: React.FC<ShellProps> = ({
             </div>
             <span className="text-xs text-[#879C91] uppercase font-bold">Switch</span>
           </button>
-
-          <div className="px-1">
-            <SyncStatusBar lang={lang} onOpenExport={onOpenExport} />
-          </div>
 
           <button
             onClick={onLogout}
