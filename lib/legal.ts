@@ -10,6 +10,20 @@ export const LEGAL_UPDATED = '15 November 2026';
 export interface LegalSection { heading: string; paragraphs?: string[]; bullets?: string[] }
 export interface LegalDocument { title: string; summary: string; sections: LegalSection[] }
 
+/**
+ * The notice and terms name the support address once, from lib/contact.ts. The pages show the address the
+ * administrator has saved in Admin > Website (when there is one), so there is a single place to change it:
+ * this swaps the built-in address for the current one. The wording itself is not touched.
+ */
+export function withSupportEmail(doc: LegalDocument, email: string): LegalDocument {
+  if (!email || email === SUPPORT_EMAIL) return doc;
+  const swap = (text: string) => text.split(SUPPORT_EMAIL).join(email);
+  return {
+    ...doc,
+    sections: doc.sections.map((s) => ({ ...s, paragraphs: s.paragraphs?.map(swap), bullets: s.bullets?.map(swap) })),
+  };
+}
+
 export const PRIVACY: LegalDocument = {
   title: 'Privacy notice',
   summary: 'What Mylkio collects, why, where it is kept, and the choices you have. We wrote this to be read, not skipped.',

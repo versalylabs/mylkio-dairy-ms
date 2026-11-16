@@ -134,8 +134,12 @@ export async function adminUsage(db: Db, actor: string, at?: string): Promise<Us
   return row.usage;
 }
 
-export async function adminUpdateSubscription(db: Db, actor: string, farmId: string, plan: string, status: string) {
-  await run(db, 'select public.admin_update_subscription($1, $2, $3, $4)', [actor, farmId, plan, status], 'Administrator access required.');
+/** For a Custom plan, `custom` carries the monthly price agreed with the farm, a note, and optionally the number of logins. */
+export interface CustomPlanTerms { monthlyPriceKsh?: number; note?: string; teamLimit?: number }
+
+export async function adminUpdateSubscription(db: Db, actor: string, farmId: string, plan: string, status: string, custom: CustomPlanTerms = {}) {
+  await run(db, 'select public.admin_update_subscription($1, $2, $3, $4, $5, $6, $7)',
+    [actor, farmId, plan, status, custom.monthlyPriceKsh ?? null, custom.note ?? null, custom.teamLimit ?? null], 'Administrator access required.');
 }
 
 export interface LeadInput {

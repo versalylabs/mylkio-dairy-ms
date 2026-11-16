@@ -20,7 +20,7 @@ type Usage = {
 };
 interface Props { onLogout: () => void; onImpersonateFarm?: (farmId: string) => void }
 
-const PLAN_NAMES: Record<string, string> = { starter: 'Starter', farmer: 'Farmer', farm_pro: 'Farm Pro' };
+const PLAN_NAMES: Record<string, string> = { starter: 'Starter', farmer: 'Farmer', farm_pro: 'Farm Pro', custom: 'Custom' };
 const STATUS_NAMES: Record<string, string> = { trial: 'Trial', active: 'Paying', past_due: 'Past due', cancelled: 'Cancelled' };
 const nairobi = (iso: string, options: Intl.DateTimeFormatOptions) => new Date(iso).toLocaleString('en-KE', { timeZone: 'Africa/Nairobi', ...options });
 const dateTime = (iso: string) => nairobi(iso, { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' });
@@ -94,6 +94,8 @@ export function PlatformAdminView({ onLogout }: Props) {
   const [statusFilter, setStatusFilter] = useState('all');
   const [activeOnly, setActiveOnly] = useState(false);
   const [billingFor, setBillingFor] = useState<Account | null>(null);
+  // Set when an administrator picks Custom for a farm that is not on it yet: the dialog asks for the agreed price first.
+  const [startCustom, setStartCustom] = useState(false);
   const [billingTick, setBillingTick] = useState(0);
   const [tab, setTab] = useState<'overview' | 'accounts' | 'enquiries' | 'vets' | 'website'>('overview');
 
@@ -162,7 +164,7 @@ export function PlatformAdminView({ onLogout }: Props) {
       && (!term || [a.name, a.email, a.farm_name, a.county, a.phone].some(v => v?.toLowerCase().includes(term))));
   }, [farmers, search, statusFilter, activeOnly, activeIds]);
   const statusRows = (['trial', 'active', 'past_due', 'cancelled'] as const).map(s => [STATUS_NAMES[s], usage?.byStatus[s] ?? 0] as [string, number]).filter(([, n]) => n > 0);
-  const planRows = (['starter', 'farmer', 'farm_pro'] as const).map(p => [PLAN_NAMES[p], usage?.byPlan[p] ?? 0] as [string, number]).filter(([, n]) => n > 0);
+  const planRows = (['starter', 'farmer', 'farm_pro', 'custom'] as const).map(p => [PLAN_NAMES[p], usage?.byPlan[p] ?? 0] as [string, number]).filter(([, n]) => n > 0);
   const maxSignups = Math.max(1, ...(usage?.signups ?? []).map(s => Number(s.count)));
 
   return <main className="mx-auto max-w-6xl space-y-6 p-4 text-charcoal sm:p-6">
@@ -222,7 +224,7 @@ export function PlatformAdminView({ onLogout }: Props) {
 
     {tab === 'accounts' && <>
     <BillingBoard accounts={farmers} refreshKey={billingTick} onOpen={(a) => setBillingFor(farmers.find(f => f.id === a.id) ?? null)} />
-    {billingFor && <AccountBillingDialog account={billingFor} onClose={() => setBillingFor(null)} onChanged={() => { setBillingTick(t => t + 1); void load().then(() => undefined); }} />}
+    {billingFor && <AccountBillingDialog account={billingFor} startCustom={startCustom} onClose={() => { setBillingFor(null); setStartCustom(false); }} onChanged={() => { setBillingTick(t => t + 1); void load().then(() => undefined); }} />}
 
     <section aria-labelledby="accounts-heading" className="space-y-3">
       <div className="flex flex-wrap items-center justify-between gap-3">
@@ -245,8 +247,8 @@ export function PlatformAdminView({ onLogout }: Props) {
             <p className="mt-1 text-xs text-charcoal-muted">{account.subscription && <><strong className="font-semibold text-charcoal-light">{STATE_LABEL[billingState(account.subscription)]}</strong>{account.subscription.renewsAt && billingState(account.subscription) !== 'complimentary' ? `, ${new Date(account.subscription.renewsAt).getTime() < Date.now() ? 'ended' : 'until'} ${shortDate(account.subscription.renewsAt)}` : ''} · </>}{account.herd_size} {account.herd_size === 1 ? 'cow' : 'cows'} · </p>
             <p className="text-xs text-charcoal-muted">Joined {nairobi(account.created_at, { day: 'numeric', month: 'short', year: 'numeric' })} · Last active {account.last_seen_at ? `${ago(account.last_seen_at, Date.now())} (${dateTime(account.last_seen_at)})` : 'never'}</p>
           </div>
-          {account.subscription && account.farm_id && <button className="btn btn-secondary" onClick={() => setBillingFor(account)}>Payments{account.note_count > 0 ? ` and notes (${account.note_count})` : ''}</button>}
-          {account.subscription && <div className="flex flex-wrap gap-3"><label className="text-sm">Plan<select aria-label={`Plan for ${account.name}`} disabled={busy} className="field ml-2 !inline-block !w-auto" value={account.subscription.plan} onChange={e => void update(account, e.target.value as Subscription['plan'], account.subscription!.status)}>{['starter', 'farmer', 'farm_pro'].map(plan => <option key={plan} value={plan}>{PLAN_NAMES[plan]}</option>)}</select></label>
+          {account.subscription && account.farm_id && <button className="btn btn-secondary" onClick={() => { setStartCustom(false); setBillingFor(account); }}>Payments{account.note_count > 0 ? ` and notes (${account.note_count})` : ''}</button>}
+          {account.subscription && <div className="flex flex-wrap gap-3"><label className="text-sm">Plan<select aria-label={`Plan for ${account.name}`} disabled={busy} className="field ml-2 !inline-block !w-auto" value={account.subscription.plan} onChange={e => { if (e.target.value === 'custom' && account.subscription!.plan !== 'custom') { setStartCustom(true); setBillingFor(account); } else void update(account, e.target.value as Subscription['plan'], account.subscription!.status); }}>{['starter', 'farmer', 'farm_pro', 'custom'].map(plan => <option key={plan} value={plan}>{PLAN_NAMES[plan]}</option>)}</select></label>
             <label className="text-sm">Status<select aria-label={`Status for ${account.name}`} disabled={busy} className="field ml-2 !inline-block !w-auto" value={account.subscription.status} onChange={e => void update(account, account.subscription!.plan, e.target.value as Subscription['status'])}>{['trial', 'active', 'past_due', 'cancelled'].map(status => <option key={status} value={status}>{STATUS_NAMES[status]}</option>)}</select></label></div>}
         </article>;
       })}</div>

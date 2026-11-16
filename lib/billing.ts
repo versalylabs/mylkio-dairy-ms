@@ -11,6 +11,7 @@
 //   * The herd limit on each plan is a guide for follow-up, not a lock: nothing stops a farm adding a cow.
 
 import { BILLING_COPY, type Lang } from './app-copy';
+import { formatKshPerMonth } from './money';
 
 export const SOON_DAYS = 7;
 /** How long after the paid-until date the extras keep working. Trials get none. */
@@ -98,7 +99,7 @@ export function reminderMessage(name: string, subscription: BillingSubscription,
   const state = billingState(subscription, now);
   const first = name.trim().split(/\s+/)[0] || 'there';
   const date = subscription.renewsAt ? shortDate(subscription.renewsAt) : '';
-  const price = `KSh ${priceKsh.toLocaleString('en-KE')}/month`;
+  const price = formatKshPerMonth(priceKsh);
   if (state === 'trial_ending') return `Hello ${first}, your Mylkio free trial ends on ${date}. To keep the ${planName} plan (${price}) going, reply here and we will help you with payment. Your records stay safe either way.`;
   if (state === 'trial_ended') return `Hello ${first}, your Mylkio free trial ended on ${date}. Your records are safe. To continue on the ${planName} plan (${price}), reply here and we will help you with payment.`;
   if (state === 'due_soon') return `Hello ${first}, your Mylkio ${planName} plan is paid until ${date}. To renew (${price}), reply here and we will help you.`;

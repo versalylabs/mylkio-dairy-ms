@@ -4,6 +4,8 @@ import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { CreditCard } from 'lucide-react';
 import { Dialog } from '@/components/ui/Dialog';
 import { PLANS, type PlanId } from '@/lib/plans';
+import { formatKsh } from '@/lib/money';
+import { TEAM_LOGINS } from '@/lib/team';
 import { billingState, describeBilling, STATE_LABEL, shortDate } from '@/lib/billing';
 import type { Subscription } from '@/types';
 
@@ -32,7 +34,7 @@ async function call<T>(url: string, init?: RequestInit): Promise<T> {
  * Payments and notes for one farm. Mylkio takes no automatic payments: record each one you receive and the
  * paid-until date moves forward. A mistake is voided with a reason, never deleted.
  */
-export function AccountBillingDialog({ account, onClose, onChanged }: { account: BillingAccount; onClose: () => void; onChanged: () => void }) {
+export function AccountBillingDialog({ account, onClose, onChanged, startCustom = false }: { account: BillingAccount; onClose: () => void; onChanged: () => void; startCustom?: boolean }) {
   const farmId = account.farm_id!;
   const plan = (account.subscription?.plan ?? 'farmer') as PlanId;
   const price = account.subscription?.monthlyPriceKsh || PLANS[plan]?.priceKsh || 0;
@@ -49,6 +51,14 @@ export function AccountBillingDialog({ account, onClose, onChanged }: { account:
   const [paidOn, setPaidOn] = useState(todayInNairobi());
   const [voiding, setVoiding] = useState<{ id: string; reason: string } | null>(null);
   const [note, setNote] = useState('');
+  // Custom plan terms (the price agreed with this farm, what was agreed, and how many logins it has).
+  const isCustom = plan === 'custom';
+  const [terms, setTerms] = useState({
+    price: account.subscription?.plan === 'custom' ? String(account.subscription.monthlyPriceKsh || '') : '',
+    note: account.subscription?.customNote ?? '',
+    team: account.subscription?.teamLimit ? String(account.subscription.teamLimit) : '',
+  });
+  const termsValid = Number(terms.price) >= 1 && Number(terms.price) <= 1_000_000 && (terms.team === '' || (Number(terms.team) >= 1 && Number(terms.team) <= 100));
 
   const load = useCallback(async () => {
     try {
@@ -87,6 +97,20 @@ export function AccountBillingDialog({ account, onClose, onChanged }: { account:
     });
   };
 
+  const saveCustom = (event: React.FormEvent) => {
+    event.preventDefault();
+    void act(async () => {
+      await call('/api/admin/accounts', {
+        method: 'PATCH',
+        body: JSON.stringify({
+          farmId, plan: 'custom', status: account.subscription?.status ?? 'trial',
+          monthlyPriceKsh: Number(terms.price), note: terms.note.trim(), ...(terms.team ? { teamLimit: Number(terms.team) } : {}),
+        }),
+      });
+      onClose();
+    });
+  };
+
   return (
     <Dialog open onClose={onClose} wide title={account.farm_name || account.name} subtitle={`${account.name} · ${PLANS[plan]?.name ?? plan} plan`} icon={<CreditCard className="h-5 w-5" />}>
       {error && <p role="alert" className="rounded-xl bg-red-50 p-3 text-sm text-red-800">{error}</p>}
@@ -94,8 +118,22 @@ export function AccountBillingDialog({ account, onClose, onChanged }: { account:
       <div className="rounded-2xl border border-ivory-border bg-ivory-muted/50 p-4">
         <p className="text-sm font-semibold">{STATE_LABEL[state]}</p>
         <p className="text-sm text-charcoal-light">{account.subscription ? describeBilling(account.subscription) : 'No subscription'}</p>
-        <p className="mt-1 text-xs text-charcoal-muted">Monthly price KSh {price.toLocaleString('en-KE')}. Records and exports stay available whatever the state.</p>
+        <p className="mt-1 text-xs text-charcoal-muted">Monthly price {formatKsh(price)}. Records and exports stay available whatever the state.</p>
       </div>
+
+      {(isCustom || startCustom) && <form onSubmit={saveCustom} className="space-y-3 rounded-2xl border border-gold/40 bg-gold/10 p-4">
+        <h3 className="text-base font-bold">Custom plan: what was agreed</h3>
+        <p className="text-xs text-charcoal-muted">A Custom farm has every Farm Pro feature. Record the price and what was agreed with this farm; payments, paid-until and follow-ups work as for any plan, using this price.</p>
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+          <div><label className="field-label" htmlFor="cust-price">Monthly price agreed (KSh) *</label>
+            <input id="cust-price" className="field" inputMode="numeric" required value={terms.price} onChange={(e) => setTerms({ ...terms, price: e.target.value.replace(/[^0-9]/g, '') })} /></div>
+          <div><label className="field-label" htmlFor="cust-team">Logins for this farm (owner included)</label>
+            <input id="cust-team" className="field" inputMode="numeric" placeholder={`Blank = ${TEAM_LOGINS.custom} (the Farm Pro limit)`} value={terms.team} onChange={(e) => setTerms({ ...terms, team: e.target.value.replace(/[^0-9]/g, '') })} /></div>
+        </div>
+        <div><label className="field-label" htmlFor="cust-note">What was agreed (optional)</label>
+          <textarea id="cust-note" className="field" rows={3} maxLength={500} value={terms.note} onChange={(e) => setTerms({ ...terms, note: e.target.value })} placeholder="e.g. 120 cows, 8 logins, quarterly invoice" /></div>
+        <button className="btn btn-primary" disabled={busy || !termsValid}>{busy ? 'Saving…' : isCustom ? 'Save Custom plan terms' : 'Move this farm to Custom'}</button>
+      </form>}
 
       <form onSubmit={record} className="space-y-3 rounded-2xl border border-ivory-border p-4">
         <h3 className="text-base font-bold">Record a payment received</h3>
@@ -115,7 +153,7 @@ export function AccountBillingDialog({ account, onClose, onChanged }: { account:
           <div><label className="field-label" htmlFor="pay-date">Date received</label>
             <input id="pay-date" type="date" className="field" required max={todayInNairobi()} value={paidOn} onChange={(e) => setPaidOn(e.target.value)} /></div>
         </div>
-        {Number(amount) !== price * months && Number(amount) > 0 && <p className="text-xs text-charcoal-muted">The usual amount for {months} {months === 1 ? 'month' : 'months'} is KSh {(price * months).toLocaleString('en-KE')}.</p>}
+        {Number(amount) !== price * months && Number(amount) > 0 && <p className="text-xs text-charcoal-muted">The usual amount for {months} {months === 1 ? 'month' : 'months'} is {formatKsh(price * months)}.</p>}
         <div className="flex flex-wrap items-center gap-3">
           <button className="btn btn-primary" disabled={busy || !Number(amount) || (needsReference && !reference.trim())}>{busy ? 'Saving…' : 'Record payment'}</button>
           {done && <span role="status" className="text-sm font-semibold text-sage">{done}</span>}
@@ -128,7 +166,7 @@ export function AccountBillingDialog({ account, onClose, onChanged }: { account:
         <ul className="space-y-2">
           {payments.map((p) => <li key={p.id} className={`rounded-xl border border-ivory-border p-3 text-sm ${p.voided_at ? 'bg-ivory-muted/60 opacity-75' : 'bg-white'}`}>
             <div className="flex flex-wrap items-center justify-between gap-2">
-              <span className={`font-semibold ${p.voided_at ? 'line-through' : ''}`}>KSh {p.amount_ksh.toLocaleString('en-KE')} · {METHOD_LABEL[p.method]}{p.reference ? ` · ${p.reference}` : ''}</span>
+              <span className={`font-semibold ${p.voided_at ? 'line-through' : ''}`}>{formatKsh(p.amount_ksh)} · {METHOD_LABEL[p.method]}{p.reference ? ` · ${p.reference}` : ''}</span>
               {!p.voided_at && voiding?.id !== p.id && <button className="btn btn-ghost !min-h-9 !px-3" onClick={() => setVoiding({ id: p.id, reason: '' })}>Void</button>}
             </div>
             <p className="text-charcoal-light">Received {shortDate(p.paid_on)} · covers {shortDate(p.period_from)} to {shortDate(p.period_to)} ({p.months} {p.months === 1 ? 'month' : 'months'})</p>

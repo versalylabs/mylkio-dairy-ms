@@ -323,7 +323,7 @@ export interface PaymentAllocation {
 
 // Multi-tenant & Subscription Types
 export type UserRole = 'super_admin' | 'farmer';
-export type SubscriptionPlan = 'starter' | 'farmer' | 'farm_pro' | 'admin';
+export type SubscriptionPlan = 'starter' | 'farmer' | 'farm_pro' | 'custom' | 'admin';
 export type SubscriptionStatus = 'trial' | 'active' | 'past_due' | 'cancelled';
 
 export interface Subscription {
@@ -333,6 +333,10 @@ export interface Subscription {
   startDate: string;
   renewsAt: string;
   isAnnual?: boolean;
+  /** Custom plan only: what was agreed with the farm, in the administrator's words. */
+  customNote?: string;
+  /** Custom plan only: total logins (owner included) the administrator set for this farm. */
+  teamLimit?: number;
 }
 
 export interface UserAccount {

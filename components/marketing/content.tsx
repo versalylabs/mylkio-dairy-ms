@@ -1,7 +1,7 @@
 import {
   Activity,
   Calendar,
-  DollarSign,
+  Banknote,
   Download,
   FileText,
   Milk,
@@ -60,7 +60,7 @@ export const PROBLEMS: Problem[] = [
     href: '#preview', tab: 'herd',
   },
   {
-    icon: DollarSign, tone: 'gold', title: 'Unclear farm profits',
+    icon: Banknote, tone: 'gold', title: 'Unclear farm profits',
     body: 'You sell milk regularly, but calculating what your farm actually earns is another story once feed and veterinary bills arrive.',
     href: '#preview', tab: 'finance',
   },
@@ -96,7 +96,7 @@ export const FEATURES: Feature[] = [
     points: ['Delivery history and monthly co-op tallies', 'M-Pesa and cash payment receipts'],
   },
   {
-    icon: DollarSign, tone: 'sage', title: 'Know where your farm money goes',
+    icon: Banknote, tone: 'sage', title: 'Know where your farm money goes',
     body: 'Track dairy meal, silage, fodder, veterinary fees, worker wages, transport, and maintenance costs against your milk receipts.',
     points: ['Categorized expenses in Kenyan shillings', 'Real net profit margin calculation'],
   },

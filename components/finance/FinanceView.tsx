@@ -9,7 +9,6 @@ import {
   Plus, 
   TrendingUp, 
   TrendingDown, 
-  DollarSign, 
   Receipt, 
   Smartphone, 
   Banknote, 
@@ -123,7 +122,7 @@ export const FinanceView: React.FC<FinanceViewProps> = ({
               {sw ? 'Mauzo Yaliyodaiwa' : 'Milk Billed'}
             </span>
             <div className="p-2 bg-[#FAF5EB] text-[#C6A76A] rounded-xl border border-[#E5D5B5]">
-              <DollarSign className="w-4 h-4" />
+              <Banknote className="w-4 h-4" />
             </div>
           </div>
           <div className="mt-2">

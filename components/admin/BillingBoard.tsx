@@ -3,6 +3,7 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { MessageCircle, Phone } from 'lucide-react';
 import { PLANS, type PlanId } from '@/lib/plans';
+import { formatKsh } from '@/lib/money';
 import { billingState, daysLeft, needsFollowUp, reminderMessage, STATE_LABEL, shortDate, type BillingState } from '@/lib/billing';
 import { telHref, whatsappHref, usablePhone } from '@/lib/vet/phone';
 import type { BillingAccount } from './AccountBillingDialog';
@@ -17,7 +18,7 @@ const TONE: Partial<Record<BillingState, string>> = {
   overdue: 'bg-rose-100 text-rose-900', trial_ended: 'bg-amber-100 text-amber-900', due_soon: 'bg-amber-100 text-amber-900', trial_ending: 'bg-gold-100 text-gold-600',
 };
 const monthName = (key: string) => new Date(`${key}-01T00:00:00Z`).toLocaleDateString('en-KE', { month: 'short', timeZone: 'UTC' });
-const ksh = (n: number) => `KSh ${n.toLocaleString('en-KE')}`;
+const ksh = formatKsh;
 
 /** When the date is, in words: "5 days left", "3 days ago". */
 function whenLine(account: BoardAccount) {

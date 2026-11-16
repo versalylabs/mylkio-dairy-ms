@@ -81,7 +81,7 @@ describe('platform usage', () => {
     const usage = await adminUsage(db, 'boss');
     expect(usage.byPlan).toEqual({ farmer: 1, starter: 1, farm_pro: 1 });
     expect(usage.byStatus).toEqual({ active: 1, trial: 2 });
-    expect(usage.monthlyValueKsh).toBe(1000);
+    expect(usage.monthlyValueKsh).toBe(1300);
     expect(usage.signups).toHaveLength(14);
     expect(usage.signups.reduce((sum, d) => sum + Number(d.count), 0)).toBe(3);
   });

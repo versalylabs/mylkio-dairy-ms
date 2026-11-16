@@ -3,8 +3,14 @@
 // (`provision_farm` and `admin_update_subscription`); tests/plans.test.ts fails if the two disagree.
 
 import { extrasLapsed } from './billing';
+import { formatKsh } from './money';
 
-export type PlanId = 'starter' | 'farmer' | 'farm_pro';
+export { formatKsh };
+
+/** `custom` is never chosen by a farmer: an administrator sets it, with a price agreed for that farm. */
+export type PlanId = 'starter' | 'farmer' | 'farm_pro' | 'custom';
+/** The plans a farmer can pick on the website and at sign-up. */
+export type SelfServePlanId = Exclude<PlanId, 'custom'>;
 
 /** What a plan includes. See docs/vet-and-illness-feature.md. */
 export interface PlanFeatures {
@@ -36,15 +42,21 @@ export interface Plan {
 
 export const PLANS: Record<PlanId, Plan> = {
   starter: {
-    id: 'starter', name: 'Starter', priceKsh: 500, cowLimit: 5,
+    id: 'starter', name: 'Starter', priceKsh: 700, cowLimit: 5,
     features: { illnessGuide: true, seasonalCalendar: true, healthChecker: false, healthChecksPerMonth: 0, vetFinder: false },
   },
   farmer: {
-    id: 'farmer', name: 'Farmer', priceKsh: 1000, cowLimit: 25,
+    id: 'farmer', name: 'Farmer', priceKsh: 1300, cowLimit: 25,
     features: { illnessGuide: true, seasonalCalendar: true, healthChecker: true, healthChecksPerMonth: 10, vetFinder: false },
   },
   farm_pro: {
-    id: 'farm_pro', name: 'Farm Pro', priceKsh: 2500, cowLimit: null,
+    id: 'farm_pro', name: 'Farm Pro', priceKsh: 2800, cowLimit: null,
+    features: { illnessGuide: true, seasonalCalendar: true, healthChecker: true, healthChecksPerMonth: 40, vetFinder: true },
+  },
+  // Quoted per farm: the real price lives on the farm's subscription (`monthlyPriceKsh`), so this one is 0.
+  // A Custom farm has every Farm Pro feature.
+  custom: {
+    id: 'custom', name: 'Custom', priceKsh: 0, cowLimit: null,
     features: { illnessGuide: true, seasonalCalendar: true, healthChecker: true, healthChecksPerMonth: 40, vetFinder: true },
   },
 };
@@ -70,13 +82,11 @@ export function featuresFor(subscription: { plan: string; status?: string; renew
 export const canUse = (subscription: { plan: string; status?: string; renewsAt?: string } | null | undefined, feature: FeatureId) =>
   featuresFor(subscription)[feature];
 
-export const PLAN_ORDER: PlanId[] = ['starter', 'farmer', 'farm_pro'];
+export const PLAN_ORDER: SelfServePlanId[] = ['starter', 'farmer', 'farm_pro'];
 export const TRIAL_DAYS = 14;
 
-export const formatKsh = (amount: number) => `KSh ${amount.toLocaleString('en-KE')}`;
-
-/** "KSh 500/month for up to 5 cows, KSh 1,000/month … and KSh 2,500/month …" for the FAQ. */
-export function pricingSentence(prices: Record<PlanId, number> = { starter: PLANS.starter.priceKsh, farmer: PLANS.farmer.priceKsh, farm_pro: PLANS.farm_pro.priceKsh }) {
+/** "KSh 700/month for up to 5 cows, KSh 1,300/month … and KSh 2,800/month …" for the FAQ. */
+export function pricingSentence(prices: Record<SelfServePlanId, number> = { starter: PLANS.starter.priceKsh, farmer: PLANS.farmer.priceKsh, farm_pro: PLANS.farm_pro.priceKsh }) {
   const { starter, farmer } = PLANS;
-  return `Plans start at KSh ${prices.starter.toLocaleString('en-KE')}/month for up to ${starter.cowLimit} cows, ${formatKsh(prices.farmer)}/month for growing farms (up to ${farmer.cowLimit} cows), and ${formatKsh(prices.farm_pro)}/month for larger commercial herds.`;
+  return `Plans start at ${formatKsh(prices.starter)}/month for up to ${starter.cowLimit} cows, ${formatKsh(prices.farmer)}/month for growing farms (up to ${farmer.cowLimit} cows), and ${formatKsh(prices.farm_pro)}/month for larger commercial herds. For a cooperative or a very large farm we quote a Custom plan: talk to us.`;
 }

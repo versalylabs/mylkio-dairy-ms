@@ -11,7 +11,7 @@ import { TEAM_COPY } from '@/lib/team-copy';
 import { AUTH_COPY, translateMessage } from '@/lib/app-copy';
 import { useLanguage } from '@/lib/use-language';
 import { looksLikeInviteCode, normaliseInviteCode } from '@/lib/team';
-import { SUPPORT_PHONE_DIGITS, whatsappLink } from '@/lib/contact';
+import { hasDialableNumber, whatsappLink } from '@/lib/contact';
 import { SubscriptionPlan, UserAccount } from '@/types';
 import { 
   X, 
@@ -341,6 +341,11 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                       </button>
                     ))}
                   </div>
+                  {/* Custom cannot be chosen here: it is agreed with the Mylkio team. */}
+                  <a href="#custom-plan" onClick={onClose} className="mt-2 flex min-h-12 items-center justify-between gap-3 rounded-xl border border-dashed border-ivory-border bg-white px-3 py-2 text-left transition-colors hover:border-sage-300">
+                    <span className="min-w-0"><span className="block text-sm font-semibold text-charcoal">{PLANS.custom.name}</span><span className="block text-xs text-charcoal-muted">{t.customHint}</span></span>
+                    <span className="whitespace-nowrap text-sm font-bold text-sage">{t.customTalk}</span>
+                  </a>
                 </fieldset>
 
                 <button type="submit" disabled={loading} className="btn btn-primary btn-lg w-full">
@@ -405,6 +410,7 @@ function ForgotPassword({ email, onEmail, sent, loading, onSubmit, onBack }: {
   email: string; onEmail: (value: string) => void; sent: boolean; loading: boolean; onSubmit: (e: React.FormEvent) => void; onBack: () => void;
 }) {
   const [lang] = useLanguage();
+  const { contact } = useSiteContent();
   const t = RESET_COPY[lang];
   if (sent) {
     return (
@@ -412,7 +418,7 @@ function ForgotPassword({ email, onEmail, sent, loading, onSubmit, onBack }: {
         <h3 className="font-display text-xl font-medium">{t.sentTitle}</h3>
         <p className="text-base text-charcoal-light">{t.sentBody(RESET_LINK_MINUTES)}</p>
         <p className="text-sm text-charcoal-muted">{t.noEmail}</p>
-        <a className="btn btn-secondary w-full" href={whatsappLink(SUPPORT_PHONE_DIGITS, 'Hello Mylkio, I cannot reset my password.')} target="_blank" rel="noopener noreferrer">{t.whatsapp}</a>
+        {hasDialableNumber(contact.whatsapp) && <a className="btn btn-secondary w-full" href={whatsappLink(contact.whatsapp, 'Hello Mylkio, I cannot reset my password.')} target="_blank" rel="noopener noreferrer">{t.whatsapp}</a>}
         <button type="button" onClick={onBack} className="btn btn-ghost w-full">{t.back}</button>
       </div>
     );

@@ -145,8 +145,8 @@ export const HerdView: React.FC<HerdViewProps> = ({
           </h1>
           <p className="text-sm text-gray-500 mt-1">
             {lang === 'sw'
-              ? 'Usajili wa wanyama, afya na kizuizi cha maziwa, na uzazi wa kisasa'
-              : 'Animal registry, veterinary treatments, withdrawal periods & AI breeding'}
+              ? 'Usajili wa wanyama, afya na kizuizi cha maziwa, na uhamilishaji (artificial insemination, AI)'
+              : 'Animal registry, veterinary treatments, withdrawal periods and artificial insemination (AI)'}
           </p>
         </div>
 
@@ -163,7 +163,7 @@ export const HerdView: React.FC<HerdViewProps> = ({
 
           <button
             onClick={onOpenRecordHealth}
-            className="flex items-center space-x-1.5 px-4 py-2.5 rounded-xl bg-rose-600 hover:bg-rose-700 text-white font-semibold text-xs shadow-sm transition-all"
+            className="btn btn-secondary"
           >
             <Stethoscope className="w-4 h-4" />
             <span>{lang === 'sw' ? 'Rekodi Afya' : 'Log Health'}</span>

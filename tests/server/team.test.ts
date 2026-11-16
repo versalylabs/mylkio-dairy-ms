@@ -185,7 +185,7 @@ describe('managing the team', () => {
 
 describe('plans', () => {
   it('only Farm Pro has a team: other plans cannot invite anyone', async () => {
-    expect(TEAM_LOGINS).toEqual({ starter: 1, farmer: 1, farm_pro: 6 });
+    expect(TEAM_LOGINS).toEqual({ starter: 1, farmer: 1, farm_pro: 6, custom: 6 });
     await expect(createInvite(db, 'small', farmerFarm, 'worker', '', code())).rejects.toMatchObject({ status: 409, message: expect.stringMatching(/Farm Pro/) });
   });
 

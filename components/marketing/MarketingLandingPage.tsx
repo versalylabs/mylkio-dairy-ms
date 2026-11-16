@@ -2,7 +2,8 @@
 
 import React, { useEffect, useMemo, useState } from 'react';
 import { farmToday } from '@/lib/dates';
-import { PLANS, PLAN_ORDER, TRIAL_DAYS, formatKsh, type PlanId } from '@/lib/plans';
+import { PLANS, PLAN_ORDER, TRIAL_DAYS, formatKsh, type PlanId, type SelfServePlanId } from '@/lib/plans';
+import { hasDialableNumber } from '@/lib/contact';
 import {
   AlertTriangle,
   ArrowRight,
@@ -30,11 +31,11 @@ import { useSiteContent } from '@/components/site/SiteContentProvider';
 import { phoneHref, priceOf, whatsappDigits } from '@/lib/site-content';
 
 interface MarketingLandingPageProps {
-  onOpenAuth: (mode: 'login' | 'signup', plan?: PlanId) => void;
+  onOpenAuth: (mode: 'login' | 'signup', plan?: SelfServePlanId) => void;
   onExploreDemo: () => void;
 }
 
-const PLAN_COPY: Record<PlanId, { headline: string; blurb: string; points: string[]; featured?: boolean }> = {
+const PLAN_COPY: Record<SelfServePlanId, { headline: string; blurb: string; points: string[]; featured?: boolean }> = {
   starter: {
     headline: 'For farmers going digital',
     blurb: 'For farmers beginning to digitize their farm records.',
@@ -43,7 +44,7 @@ const PLAN_COPY: Record<PlanId, { headline: string; blurb: string; points: strin
   farmer: {
     headline: 'For growing dairy farms',
     blurb: 'For growing dairy farms needing additional tracking and reporting.',
-    points: [`Up to ${PLANS.farmer.cowLimit} cows`, 'Cow identification, photos and pedigree', 'AI breeding, calving dates and reminders', 'Antibiotic milk withdrawal alert notices', 'CSV export and full database backup'],
+    points: [`Up to ${PLANS.farmer.cowLimit} cows`, 'Cow identification, photos and pedigree', 'Artificial insemination (AI), calving dates and reminders', 'Antibiotic milk withdrawal alert notices', 'CSV export and full database backup'],
     featured: true,
   },
   farm_pro: {
@@ -52,6 +53,8 @@ const PLAN_COPY: Record<PlanId, { headline: string; blurb: string; points: strin
     points: ['Unlimited herd capacity', 'Team logins: you and up to five managers and workers', 'Priority WhatsApp and phone assistance', 'Operating profit and net margin ledger'],
   },
 };
+
+const CUSTOM_PLAN_SUBJECT = 'Custom plan:';
 
 const checklistText = (contact: { phone: string; email: string }) => `MYLKIO FREE DAIRY FARM RECORD-KEEPING CHECKLIST
 Developed by Versaly Labs for Kenyan Dairy Farmers
@@ -123,7 +126,25 @@ export const MarketingLandingPage: React.FC<MarketingLandingPageProps> = ({
   const approvedTestimonials = (content.testimonials ?? SAMPLE_TESTIMONIALS).filter((t) => t.approved);
   const onlySamples = approvedTestimonials.every((t) => t.sample);
   const someSamples = approvedTestimonials.some((t) => t.sample);
+  // Until a real support number is set, "WhatsApp" buttons are not shown and enquiries go by the form or email.
+  const hasWhatsapp = hasDialableNumber(contact.whatsapp);
   const whatsappUrl = `https://wa.me/${whatsappDigits(contact)}?text=Hello%20Mylkio,%20I%20would%20like%20to%20inquire%20about%20the%20dairy%20management%20system.`;
+  const customWhatsappUrl = `https://wa.me/${whatsappDigits(contact)}?text=${encodeURIComponent('Hello Mylkio, I would like to talk about a Custom plan for my farm or cooperative.')}`;
+
+  // "Talk to us" on the Custom plan: opens the contact form with the subject filled in.
+  const openCustomEnquiry = () => {
+    setContactMessage((m) => (m.startsWith(CUSTOM_PLAN_SUBJECT) ? m : `${CUSTOM_PLAN_SUBJECT} ${m}`.trimEnd() + (m ? '' : ' ')));
+    document.getElementById('contact')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    window.setTimeout(() => document.getElementById('contact-message')?.focus({ preventScroll: true }), 600);
+  };
+  // The sign-up box links here (#custom-plan) because a Custom plan cannot be chosen at sign-up.
+  useEffect(() => {
+    const check = () => { if (window.location.hash === '#custom-plan') { openCustomEnquiry(); history.replaceState(null, '', window.location.pathname + window.location.search); } };
+    check();
+    window.addEventListener('hashchange', check);
+    return () => window.removeEventListener('hashchange', check);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 16);
@@ -221,7 +242,7 @@ export const MarketingLandingPage: React.FC<MarketingLandingPageProps> = ({
     setLeadSubmitted(false);
   }
 
-  const startTrial = (plan?: PlanId) => onOpenAuth('signup', plan);
+  const startTrial = (plan?: SelfServePlanId) => onOpenAuth('signup', plan);
 
   return (
     <div id="top" className="min-h-screen overflow-x-clip bg-ivory font-sans text-charcoal antialiased selection:bg-sage/15">
@@ -606,7 +627,7 @@ export const MarketingLandingPage: React.FC<MarketingLandingPageProps> = ({
             title="Simple pricing for farms of every size."
             intro="Whether you're managing a few cows or a growing dairy farm, Mylkio has a suitable option."
           />
-          <div className="section-body grid grid-cols-1 items-stretch gap-6 pt-3 lg:grid-cols-3">
+          <div className="section-body grid grid-cols-1 items-stretch gap-6 pt-3 md:grid-cols-2 xl:grid-cols-4">
             {PLAN_ORDER.map((id) => {
               const plan = PLANS[id];
               const copy = PLAN_COPY[id];
@@ -647,6 +668,27 @@ export const MarketingLandingPage: React.FC<MarketingLandingPageProps> = ({
                 </article>
               );
             })}
+
+            {/* Custom: quoted per farm, never chosen at sign-up */}
+            <article className="card card-hover relative flex flex-col p-6 sm:p-8">
+              <p className="eyebrow">{PLANS.custom.name}</p>
+              <h3 className="mt-3 text-xl font-semibold">For cooperatives and very large farms</h3>
+              <p className="mt-2 text-base text-charcoal-muted">A plan shaped around your farm or group, with a price agreed with you.</p>
+              <div className="mt-6 border-y border-ivory-border py-6">
+                <p className="whitespace-nowrap font-display text-[clamp(2rem,8.5vw,3rem)] font-medium tracking-tight sm:text-5xl">Talk to us</p>
+                <p className="mt-2 text-sm text-charcoal-muted">Quoted per farm</p>
+              </div>
+              <ul className="mt-6 flex-1 space-y-3.5">
+                {['Everything in Farm Pro', 'Team size set for your farm', 'Monthly price agreed with you', 'Anything beyond this is quoted and agreed with you first'].map((point) => (
+                  <li key={point} className="flex items-start gap-3 text-base text-charcoal-light">
+                    <Check className="mt-1 h-4 w-4 shrink-0 text-sage" />
+                    <span>{point}</span>
+                  </li>
+                ))}
+              </ul>
+              <button onClick={openCustomEnquiry} className="btn btn-lg btn-secondary mt-8 w-full">Talk to us</button>
+              {hasWhatsapp && <a href={customWhatsappUrl} target="_blank" rel="noopener noreferrer" className="btn btn-lg btn-ghost mt-3 w-full">Message us on WhatsApp</a>}
+            </article>
           </div>
         </div>
       </section>
@@ -756,12 +798,12 @@ export const MarketingLandingPage: React.FC<MarketingLandingPageProps> = ({
             <div className="space-y-4 lg:col-span-5">
               {[
                 { href: phoneHref(contact), icon: Phone, label: 'Direct phone', value: contact.phone, note: 'Monday – Saturday, 7:00 AM – 7:00 PM', gold: false, external: false },
-                { href: whatsappUrl, icon: MessageSquare, label: 'WhatsApp line', value: contact.whatsapp, note: 'Quick responses on setup and questions', gold: true, external: true },
-                { href: `mailto:${contact.email}`, icon: Mail, label: 'Email inquiry', value: contact.email, note: 'For cooperative partnerships and billing', gold: false, external: false },
+                ...(hasWhatsapp ? [{ href: whatsappUrl as string | undefined, icon: MessageSquare, label: 'WhatsApp line', value: contact.whatsapp, note: 'Quick responses on setup and questions', gold: true, external: true }] : []),
+                { href: `mailto:${contact.email}` as string | undefined, icon: Mail, label: 'Email inquiry', value: contact.email, note: 'For cooperative partnerships and billing', gold: false, external: false },
               ].map(({ href, icon: Icon, label, value, note, gold, external }) => (
                 <a
                   key={label}
-                  href={href}
+                  {...(href ? { href } : {})}
                   {...(external ? { target: '_blank', rel: 'noopener noreferrer' } : {})}
                   className="card card-hover group flex items-center gap-4 p-5"
                 >
@@ -783,7 +825,7 @@ export const MarketingLandingPage: React.FC<MarketingLandingPageProps> = ({
                 {contactError && (
                   <div role="alert" className="rounded-2xl border border-red-200 bg-red-50 p-4 text-sm font-medium text-red-800">
                     {contactError}{' '}
-                    <a href={whatsappUrl} target="_blank" rel="noopener noreferrer" className="font-bold underline">Message us on WhatsApp</a>
+                    {hasWhatsapp ? <a href={whatsappUrl} target="_blank" rel="noopener noreferrer" className="font-bold underline">Message us on WhatsApp</a> : <a href={`mailto:${contact.email}`} className="font-bold underline">Email us</a>}
                   </div>
                 )}
                 {contactSubmitted && (
@@ -850,10 +892,13 @@ export const MarketingLandingPage: React.FC<MarketingLandingPageProps> = ({
                   <span>Start managing your farm</span>
                   <ArrowRight className="h-5 w-5" />
                 </button>
-                <a href={whatsappUrl} target="_blank" rel="noreferrer" className="btn btn-lg btn-on-dark w-full sm:w-auto">
+                {hasWhatsapp ? <a href={whatsappUrl} target="_blank" rel="noreferrer" className="btn btn-lg btn-on-dark w-full sm:w-auto">
                   <MessageCircle className="h-5 w-5" />
                   <span>Talk to our team</span>
-                </a>
+                </a> : <a href="#contact" className="btn btn-lg btn-on-dark w-full sm:w-auto">
+                  <MessageCircle className="h-5 w-5" />
+                  <span>Talk to our team</span>
+                </a>}
               </div>
               <p className="mt-8 text-sm text-ivory/75">Mylkio is developed by Versaly, building practical software solutions for Kenyan dairy farmers.</p>
             </div>
@@ -883,7 +928,7 @@ export const MarketingLandingPage: React.FC<MarketingLandingPageProps> = ({
             <div>
               <p className="text-xs font-semibold uppercase tracking-[0.16em] text-gold">Get in touch</p>
               <ul className="mt-4 space-y-2.5 text-base">
-                <li><a href={phoneHref(contact)} className="whitespace-nowrap text-ivory/85 transition-colors hover:text-gold">{contact.phone}</a></li>
+                <li>{phoneHref(contact) ? <a href={phoneHref(contact)} className="whitespace-nowrap text-ivory/85 transition-colors hover:text-gold">{contact.phone}</a> : <span className="text-ivory/85">{contact.phone}</span>}</li>
                 <li><a href={`mailto:${contact.email}`} className="break-all text-ivory/85 transition-colors hover:text-gold">{contact.email}</a></li>
               </ul>
             </div>

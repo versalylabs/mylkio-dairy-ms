@@ -300,6 +300,7 @@ export const AUTH_COPY = {
     noCharge: 'No M-Pesa charge today. Cancel anytime.',
     agree: (terms: string, privacy: string) => ({ before: 'By creating an account you agree to our ', terms, and: ' and ', privacy }),
     terms: 'Terms of use', privacy: 'Privacy notice', language: 'Kiswahili',
+    customHint: 'For cooperatives and very large farms', customTalk: 'Talk to us',
   },
   sw: {
     tagline: 'Usimamizi wa shamba la maziwa', tablist: 'Ingia au tengeneza akaunti', signIn: 'Ingia', createAccount: 'Tengeneza akaunti', close: 'Funga',
@@ -312,5 +313,6 @@ export const AUTH_COPY = {
     noCharge: 'Hakuna malipo ya M-Pesa leo. Ghairi wakati wowote.',
     agree: (terms: string, privacy: string) => ({ before: 'Kwa kutengeneza akaunti unakubali ', terms, and: ' na ', privacy }),
     terms: 'Masharti ya matumizi', privacy: 'Taarifa ya faragha', language: 'English',
+    customHint: 'Kwa vyama vya ushirika na mashamba makubwa sana', customTalk: 'Zungumza nasi',
   },
 } as const;
