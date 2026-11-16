@@ -7,6 +7,7 @@ import { billingState, describeBilling, planPillLabel, shortDate, stateLabel } f
 import { TEAM_COPY } from '@/lib/team-copy';
 import { RESET_COPY } from '@/lib/password-reset';
 import { FEATURE_NAMES, PLAN_TEXT } from '@/lib/plan-copy';
+import { PRODUCED_COPY } from '@/lib/produced-copy';
 
 /** Every entry of the English copy has a Kiswahili entry of the same kind (text, text-maker, or a group). */
 function sameShape(en: unknown, sw: unknown, where: string) {
@@ -21,7 +22,7 @@ function sameShape(en: unknown, sw: unknown, where: string) {
 }
 
 describe('every screen has both languages, entry for entry', () => {
-  for (const [name, copy] of Object.entries({ BILLING_COPY, STORAGE_COPY, SYNC_COPY, VET_COPY, AUTH_COPY, TEAM_COPY, RESET_COPY, PLAN_TEXT, FEATURE_NAMES })) {
+  for (const [name, copy] of Object.entries({ BILLING_COPY, STORAGE_COPY, SYNC_COPY, VET_COPY, AUTH_COPY, TEAM_COPY, RESET_COPY, PLAN_TEXT, FEATURE_NAMES, PRODUCED_COPY })) {
     it(name, () => sameShape(copy.en, copy.sw, name));
   }
 });

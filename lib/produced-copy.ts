@@ -1,0 +1,58 @@
+// Wording for "Produced vs sold" in English and Kiswahili, side by side (tests/app-copy.test.ts checks both are complete).
+
+import type { MilkUseKind } from './produced-sold';
+
+const l = (n: number) => `${n.toLocaleString('en-KE', { minimumFractionDigits: 1, maximumFractionDigits: 1 })} L`;
+
+export const PRODUCED_COPY = {
+  en: {
+    heading: 'Produced vs sold',
+    produced: 'Produced',
+    sold: 'Sold',
+    notSold: (litres: number) => `${l(litres)} not sold`,
+    soldMoreToday: "Sold more than recorded. Check today's milk record.",
+    soldMorePeriod: 'Sold more than recorded. Check the milk records for this period.',
+    noMilk: 'No milk recorded for this period yet.',
+    periods: { today: 'Today', thisMonth: 'This month', lastMonth: 'Last month' },
+    tapHint: 'Tap the not sold figure to say where that milk went (optional).',
+    kinds: { homeUse: 'Home use', calves: 'Calves', spoiled: 'Spoiled', other: 'Other' } as Record<MilkUseKind, string>,
+    unassigned: (litres: number) => `${l(litres)} not accounted for`,
+    modalTitle: 'Where did the unsold milk go?',
+    modalFor: (date: string) => `For ${date}`,
+    modalFacts: (produced: number, sold: number, notSold: number) => `Produced ${l(produced)}, sold ${l(sold)}, not sold ${l(notSold)}.`,
+    modalOptional: 'This is optional. It never changes what was produced or sold, and you can leave it empty.',
+    litres: 'litres',
+    left: (litres: number) => `${l(litres)} not accounted for yet`,
+    allDone: 'All of the unsold milk is accounted for.',
+    over: (litres: number) => `That is ${l(litres)} more than was not sold. You can still save it.`,
+    save: 'Save',
+    clear: 'Clear this day',
+    cancel: 'Cancel',
+    saving: 'Saving…',
+  },
+  sw: {
+    heading: 'Yaliyozalishwa na yaliyouzwa',
+    produced: 'Yaliyozalishwa',
+    sold: 'Yaliyouzwa',
+    notSold: (litres: number) => `${l(litres)} hayajauzwa`,
+    soldMoreToday: 'Yaliyouzwa ni zaidi ya yaliyorekodiwa. Kagua rekodi ya maziwa ya leo.',
+    soldMorePeriod: 'Yaliyouzwa ni zaidi ya yaliyorekodiwa. Kagua rekodi za maziwa za kipindi hiki.',
+    noMilk: 'Bado hakuna maziwa yaliyorekodiwa kwa kipindi hiki.',
+    periods: { today: 'Leo', thisMonth: 'Mwezi huu', lastMonth: 'Mwezi uliopita' },
+    tapHint: 'Gusa kiasi kisichouzwa kusema maziwa hayo yalikwenda wapi (si lazima).',
+    kinds: { homeUse: 'Matumizi ya nyumbani', calves: 'Ndama', spoiled: 'Yaliyoharibika', other: 'Mengineyo' } as Record<MilkUseKind, string>,
+    unassigned: (litres: number) => `${l(litres)} hayajaelezwa`,
+    modalTitle: 'Maziwa yasiyouzwa yalikwenda wapi?',
+    modalFor: (date: string) => `Kwa ${date}`,
+    modalFacts: (produced: number, sold: number, notSold: number) => `Yaliyozalishwa ${l(produced)}, yaliyouzwa ${l(sold)}, hayajauzwa ${l(notSold)}.`,
+    modalOptional: 'Si lazima. Haibadilishi yaliyozalishwa wala yaliyouzwa, na unaweza kuacha wazi.',
+    litres: 'lita',
+    left: (litres: number) => `${l(litres)} bado hayajaelezwa`,
+    allDone: 'Maziwa yote yasiyouzwa yameelezwa.',
+    over: (litres: number) => `Hiyo ni ${l(litres)} zaidi ya zisizouzwa. Bado unaweza kuhifadhi.`,
+    save: 'Hifadhi',
+    clear: 'Futa siku hii',
+    cancel: 'Ghairi',
+    saving: 'Inahifadhi…',
+  },
+} as const;

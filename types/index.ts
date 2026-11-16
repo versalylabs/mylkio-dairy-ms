@@ -143,6 +143,22 @@ export interface Delivery {
   voidReason?: string;
 }
 
+/**
+ * Where one day's unsold milk went (optional). One record per date. It never changes what was produced or sold:
+ * it only says what became of the milk that was not sold. Litres only, so every role may see it.
+ */
+export interface MilkUse {
+  id: string;
+  farmId: string;
+  date: string; // YYYY-MM-DD
+  homeUse: number;
+  calves: number;
+  spoiled: number;
+  other: number;
+  createdAt: string;
+  updatedAt: string;
+}
+
 export interface PaymentRecord {
   id: string;
   farmId: string;

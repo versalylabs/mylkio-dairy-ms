@@ -30,8 +30,8 @@ export const teamLoginsFor = (plan: string | undefined, customLimit?: number) =>
 
 export const INVITE_DAYS = 7;
 
-const WORKER_READS: readonly BucketName[] = ['farm', 'cows', 'milk', 'health', 'breeding', 'reminders'];
-const WORKER_WRITES: readonly BucketName[] = ['milk', 'health', 'breeding', 'reminders'];
+const WORKER_READS: readonly BucketName[] = ['farm', 'cows', 'milk', 'milkUse', 'health', 'breeding', 'reminders'];
+const WORKER_WRITES: readonly BucketName[] = ['milk', 'milkUse', 'health', 'breeding', 'reminders'];
 
 /** Mirrors role_can_read() in the database. */
 export function canRead(role: FarmRole | undefined | null, bucket: BucketName): boolean {

@@ -20,6 +20,7 @@ import {
   CoopStatement,
   CustomerBill,
   PaymentAllocation,
+  MilkUse,
 } from '@/types';
 import { 
   initialFarm, 
@@ -35,6 +36,7 @@ import {
   initialStatements,
   initialBills,
   initialAllocations,
+  initialMilkUse,
   initialAccounts,
   initialTestimonials,
   initialLeads,
@@ -55,7 +57,7 @@ const bucketForPrefix: Record<string, BucketName> = {
   mylkio_farm_: 'farm', mylkio_cows_: 'cows', mylkio_buyers_: 'buyers', mylkio_milk_: 'milk',
   mylkio_deliv_: 'deliveries', mylkio_pay_: 'payments', mylkio_health_: 'health',
   mylkio_breed_: 'breeding', mylkio_exp_: 'expenses', mylkio_rem_: 'reminders',
-  mylkio_stmt_: 'statements', mylkio_bill_: 'bills', mylkio_alloc_: 'allocations',
+  mylkio_stmt_: 'statements', mylkio_bill_: 'bills', mylkio_alloc_: 'allocations', mylkio_muse_: 'milkUse',
 };
 
 const STORAGE_KEYS = {
@@ -80,6 +82,7 @@ const STORAGE_KEYS = {
   STATEMENTS_PREFIX: 'mylkio_stmt_',
   BILLS_PREFIX: 'mylkio_bill_',
   ALLOCATIONS_PREFIX: 'mylkio_alloc_',
+  MILK_USE_PREFIX: 'mylkio_muse_',
 };
 
 export const AppStorage = {
@@ -724,6 +727,40 @@ export const AppStorage = {
   },
 
   // ==========================================
+  // MILK USE: where the unsold milk went (optional, one record per date)
+  // ==========================================
+
+  getMilkUse(customFarmId?: string): MilkUse[] {
+    const targetFarmId = customFarmId || this.getActiveFarmId();
+    const fallback = targetFarmId === 'farm-green-hills' ? initialMilkUse : [];
+    return this.getTenantData<MilkUse[]>(STORAGE_KEYS.MILK_USE_PREFIX, targetFarmId, fallback);
+  },
+
+  /** Saves the split for one date. All zeros removes it. Never touches the milk or delivery records. */
+  setMilkUse(date: string, split: Pick<MilkUse, 'homeUse' | 'calves' | 'spoiled' | 'other'>, customFarmId?: string): MilkUse | null {
+    const targetFarmId = customFarmId || this.getActiveFarmId();
+    const id = `milkuse-${date}`;
+    const all = this.getMilkUse(targetFarmId);
+    const others = all.filter((u) => u.id !== id);
+    const total = split.homeUse + split.calves + split.spoiled + split.other;
+    if (total <= 0) {
+      this.saveTenantData(STORAGE_KEYS.MILK_USE_PREFIX, targetFarmId, others);
+      window.dispatchEvent(new Event('mylkio_milk_changed'));
+      return null;
+    }
+    const now = new Date().toISOString();
+    const previous = all.find((u) => u.id === id);
+    const record: MilkUse = {
+      id, farmId: targetFarmId, date,
+      homeUse: split.homeUse, calves: split.calves, spoiled: split.spoiled, other: split.other,
+      createdAt: previous?.createdAt ?? now, updatedAt: now,
+    };
+    this.saveTenantData(STORAGE_KEYS.MILK_USE_PREFIX, targetFarmId, [record, ...others]);
+    window.dispatchEvent(new Event('mylkio_milk_changed'));
+    return record;
+  },
+
+  // ==========================================
   // EXPENSES (Tenant Scoped)
   // ==========================================
 
@@ -951,6 +988,7 @@ export const AppStorage = {
     this.saveTenantData(STORAGE_KEYS.STATEMENTS_PREFIX, demoFarmId, initialStatements);
     this.saveTenantData(STORAGE_KEYS.BILLS_PREFIX, demoFarmId, initialBills);
     this.saveTenantData(STORAGE_KEYS.ALLOCATIONS_PREFIX, demoFarmId, initialAllocations);
+    this.saveTenantData(STORAGE_KEYS.MILK_USE_PREFIX, demoFarmId, initialMilkUse);
     window.dispatchEvent(new Event('mylkio_settlements_changed'));
 
     window.dispatchEvent(new Event('mylkio_farm_changed'));
@@ -980,6 +1018,7 @@ export const AppStorage = {
     this.saveTenantData(STORAGE_KEYS.STATEMENTS_PREFIX, targetFarmId, []);
     this.saveTenantData(STORAGE_KEYS.BILLS_PREFIX, targetFarmId, []);
     this.saveTenantData(STORAGE_KEYS.ALLOCATIONS_PREFIX, targetFarmId, []);
+    this.saveTenantData(STORAGE_KEYS.MILK_USE_PREFIX, targetFarmId, []);
     window.dispatchEvent(new Event('mylkio_settlements_changed'));
 
     window.dispatchEvent(new Event('mylkio_cows_changed'));

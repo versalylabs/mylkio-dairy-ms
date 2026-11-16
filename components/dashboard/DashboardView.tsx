@@ -1,7 +1,9 @@
 'use client';
 
 import React, { useState } from 'react';
-import { Cow, Buyer, MilkEntry, Delivery, PaymentRecord, FarmReminder, ExpenseRecord, Language, Farm, UserAccount } from '@/types';
+import { Cow, Buyer, MilkEntry, Delivery, PaymentRecord, FarmReminder, ExpenseRecord, Language, Farm, UserAccount, MilkUse } from '@/types';
+import { ProducedSoldLine } from '@/components/milk/ProducedSoldLine';
+import { producedVsSold, splitInRange } from '@/lib/produced-sold';
 import { translations } from '@/lib/translations';
 import { farmToday, monthRange } from '@/lib/dates';
 import { dailyProduction } from '@/lib/milk';
@@ -31,9 +33,11 @@ interface DashboardViewProps {
   buyers: Buyer[];
   milkEntries: MilkEntry[];
   deliveries: Delivery[];
+  milkUse?: MilkUse[];
   payments: PaymentRecord[];
   expenses: ExpenseRecord[];
   reminders: FarmReminder[];
+  onOpenMilkUse?: (date: string) => void;
   onToggleReminder: (id: string) => void;
   onNavigate: (tab: 'home' | 'milk' | 'herd' | 'sales' | 'finance' | 'settings') => void;
   onOpenRecordMilk: () => void;
@@ -60,9 +64,11 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
   buyers,
   milkEntries,
   deliveries,
+  milkUse = [],
   payments,
   expenses,
   reminders,
+  onOpenMilkUse,
   onToggleReminder,
   onNavigate,
   onOpenRecordMilk,
@@ -94,6 +100,8 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
   const todayMilk = dailyProduction(milkEntries, todayStr);
   const todayLitres = todayMilk.litres;
   const todaySales = salesInRange(deliveries, today);
+  const todayFigures = producedVsSold(milkEntries, deliveries, today);
+  const todaySplit = splitInRange(milkUse, milkEntries, today, todayFigures.notSold);
   const cashToday = cashReceived(payments, today);
   const cashMonth = cashReceived(payments, month);
   const monthSales = salesInRange(deliveries, month);
@@ -215,6 +223,14 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
               {sw ? 'Zilizokubaliwa leo' : 'Accepted today'} · KSh {todaySales.billed.toLocaleString()}
               {todaySales.rejectedLitres > 0 && (sw ? ` · ${todaySales.rejectedLitres} L zilikataliwa` : ` · ${todaySales.rejectedLitres} L rejected`)}
             </div>
+            <ProducedSoldLine
+              className="mt-2 border-t border-gray-100 pt-2"
+              figures={todayFigures}
+              split={todaySplit}
+              lang={lang}
+              isToday
+              onOpenSplit={onOpenMilkUse && todayFigures.state === 'ok' && canWrite(role, 'milkUse') ? () => onOpenMilkUse(todayStr) : undefined}
+            />
           </div>
         </div>
 

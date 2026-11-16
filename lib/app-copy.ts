@@ -175,7 +175,7 @@ export const SYNC_COPY = {
     notYetInCloud: (n: number) => (n ? `${n} change${n === 1 ? '' : 's'} not yet in the cloud.` : 'Your cloud copy is up to date.'),
     kind: {
       farm: 'Farm profile', cows: 'Cow', buyers: 'Buyer', milk: 'Milk record', deliveries: 'Delivery', payments: 'Payment', health: 'Health record',
-      breeding: 'Breeding record', expenses: 'Expense', reminders: 'Reminder', statements: 'Co-op statement', bills: 'Customer bill', allocations: 'Payment allocation',
+      breeding: 'Breeding record', expenses: 'Expense', reminders: 'Reminder', statements: 'Co-op statement', bills: 'Customer bill', allocations: 'Payment allocation', milkUse: 'Milk use',
     },
     did: { deleted: 'deleted', voided: 'voided', added: 'added', changed: 'changed' },
   },
@@ -191,7 +191,7 @@ export const SYNC_COPY = {
     notYetInCloud: (n: number) => (n ? `Mabadiliko ${n} bado hayako kwenye wingu.` : 'Nakala yako ya wingu iko sawa.'),
     kind: {
       farm: 'Wasifu wa shamba', cows: 'Ng’ombe', buyers: 'Mnunuzi', milk: 'Rekodi ya maziwa', deliveries: 'Utoaji', payments: 'Malipo', health: 'Rekodi ya afya',
-      breeding: 'Rekodi ya uzazi', expenses: 'Gharama', reminders: 'Kikumbusho', statements: 'Taarifa ya ushirika', bills: 'Bili ya mteja', allocations: 'Ugawaji wa malipo',
+      breeding: 'Rekodi ya uzazi', expenses: 'Gharama', reminders: 'Kikumbusho', statements: 'Taarifa ya ushirika', bills: 'Bili ya mteja', allocations: 'Ugawaji wa malipo', milkUse: 'Matumizi ya maziwa',
     },
     did: { deleted: 'imefutwa', voided: 'imebatilishwa', added: 'imeongezwa', changed: 'imebadilishwa' },
   },

@@ -1,6 +1,6 @@
 import { z } from 'zod';
 
-export const bucketNames = ['farm','cows','buyers','milk','deliveries','payments','health','breeding','expenses','reminders','statements','bills','allocations'] as const;
+export const bucketNames = ['farm','cows','buyers','milk','deliveries','payments','health','breeding','expenses','reminders','statements','bills','allocations','milkUse'] as const;
 export type BucketName = typeof bucketNames[number];
 export const bucketName = z.enum(bucketNames);
 

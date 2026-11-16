@@ -18,6 +18,7 @@ import {
   CoopStatement,
   CustomerBill,
   PaymentAllocation,
+  MilkUse,
 } from '@/types';
 import type { OpenTarget } from '@/lib/settlements';
 import { AppStorage } from '@/lib/storage';
@@ -25,6 +26,8 @@ import { SecureAuth } from '@/lib/auth-client';
 import { CloudStore } from '@/lib/cloud-store';
 import { withLedgerBalances } from '@/lib/ledger';
 import { sessionLabel } from '@/lib/milk';
+import { producedVsSold, milkUseFor, emptySplit, type MilkUseSplit } from '@/lib/produced-sold';
+import { MilkUseModal } from '@/components/milk/MilkUseModal';
 import { formatFarmDate, farmToday } from '@/lib/dates';
 import { CloudSaveNotice } from '@/components/sync/CloudSaveNotice';
 import { Shell } from '@/components/layout/Shell';
@@ -50,7 +53,7 @@ import { photoSavings, shrinkCowPhotos } from '@/lib/photos';
 import { PlatformAdminView } from '@/components/admin/PlatformAdminView';
 import { MarketingLandingPage } from '@/components/marketing/MarketingLandingPage';
 import { AuthModal } from '@/components/auth/AuthModal';
-import { canWrite, roleOrOwner, tabsFor } from '@/lib/team';
+import { canSeeMoney, canWrite, roleOrOwner, tabsFor } from '@/lib/team';
 
 export default function Home() {
   const [mounted, setMounted] = useState(false);
@@ -80,6 +83,9 @@ export default function Home() {
   const [statements, setStatements] = useState<CoopStatement[]>([]);
   const [bills, setBills] = useState<CustomerBill[]>([]);
   const [allocations, setAllocations] = useState<PaymentAllocation[]>([]);
+  const [milkUse, setMilkUse] = useState<MilkUse[]>([]);
+  // The date whose unsold-milk split is being edited (null: the form is closed).
+  const [milkUseDate, setMilkUseDate] = useState<string | null>(null);
 
   // Modals state
   const [isCowModalOpen, setIsCowModalOpen] = useState(false);
@@ -127,6 +133,7 @@ export default function Home() {
     setStatements(AppStorage.getStatements(activeFarmId));
     setBills(AppStorage.getBills(activeFarmId));
     setAllocations(AppStorage.getAllocations(activeFarmId));
+    setMilkUse(AppStorage.getMilkUse(activeFarmId));
     setLang(AppStorage.getLanguage());
   };
 
@@ -251,10 +258,10 @@ export default function Home() {
   // Cow actions
   // Everything the farm holds, as the farmer's own backup file (see lib/export.ts and lib/backup.ts).
   const totalRecords = cows.length + buyers.length + milkEntries.length + deliveries.length + payments.length + healthEvents.length
-    + breedingEvents.length + expenses.length + reminders.length + statements.length + bills.length + allocations.length;
+    + breedingEvents.length + expenses.length + reminders.length + statements.length + bills.length + allocations.length + milkUse.length;
   const handleDownloadBackup = () => DataExporter.exportFullBackupJSON({
     farm, cows, buyers, milk: milkEntries, deliveries, payments, health: healthEvents, breeding: breedingEvents,
-    expenses, reminders, statements, bills, allocations,
+    expenses, reminders, statements, bills, allocations, milkUse,
   });
   // Shrinks every large saved photo. Each cow is saved through the normal path, so the change syncs like any edit.
   const handleShrinkPhotos = async () => {
@@ -331,6 +338,11 @@ export default function Home() {
     const text = lang === 'sw' ? `Lita ${entry.totalLitres} zimehifadhiwa ${when}${replaced}` : `Saved ${entry.totalLitres} L ${when}${replaced}`;
     run(() => AppStorage.addMilkEntry(entry, currentTargetFarmId, { replaceIds }), text);
   };
+
+  const handleSaveMilkUse = (date: string, split: MilkUseSplit) => {
+    run(() => AppStorage.setMilkUse(date, split, currentTargetFarmId), lang === 'sw' ? 'Maelezo ya maziwa yasiyouzwa yamehifadhiwa' : 'Saved where the unsold milk went');
+  };
+  const milkUseFigures = milkUseDate ? producedVsSold(milkEntries, deliveries, { from: milkUseDate, to: milkUseDate }) : null;
 
   const handleVoidMilkEntry = (id: string, reason: string) => {
     run(() => AppStorage.voidMilkEntry(id, reason, currentTargetFarmId), lang === 'sw' ? 'Rekodi imebatilishwa. Inabaki kwenye historia lakini haihesabiwi.' : 'Milk record voided. It stays in history but is no longer counted.');
@@ -501,6 +513,8 @@ export default function Home() {
           onToggleReminder={(id) => AppStorage.toggleReminder(id, currentTargetFarmId)}
           onNavigate={setActiveTab}
           onOpenRecordMilk={() => setIsRecordMilkModalOpen(true)}
+          milkUse={milkUse}
+          onOpenMilkUse={setMilkUseDate}
           onOpenRecordDelivery={() => setIsRecordDeliveryModalOpen(true)}
           onOpenRecordPayment={() => setIsRecordPaymentModalOpen(true)}
           onOpenAddCow={handleOpenAddCow}
@@ -518,6 +532,10 @@ export default function Home() {
           onOpenRecordModal={() => setIsRecordMilkModalOpen(true)}
           onVoidEntry={handleVoidMilkEntry}
           lang={lang}
+          deliveries={deliveries}
+          milkUse={milkUse}
+          showProducedVsSold={canSeeMoney(roleOrOwner(currentUser?.farmRole))}
+          onOpenMilkUse={setMilkUseDate}
         />
       )}
 
@@ -689,8 +707,23 @@ export default function Home() {
         statements={statements}
         bills={bills}
         allocations={allocations}
+        milkUse={milkUse}
         lang={lang}
       />
+
+      {milkUseDate && milkUseFigures && (
+        <MilkUseModal
+          open
+          date={milkUseDate}
+          produced={milkUseFigures.produced}
+          sold={milkUseFigures.sold}
+          notSold={milkUseFigures.notSold ?? 0}
+          current={(() => { const u = milkUseFor(milkUse, milkUseDate); return u ? { homeUse: u.homeUse, calves: u.calves, spoiled: u.spoiled, other: u.other } : emptySplit(); })()}
+          lang={lang}
+          onSave={handleSaveMilkUse}
+          onClose={() => setMilkUseDate(null)}
+        />
+      )}
     </Shell>
   );
 }
