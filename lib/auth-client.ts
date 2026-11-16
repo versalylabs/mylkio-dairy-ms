@@ -5,6 +5,7 @@ import type { UserAccount, SubscriptionPlan } from '@/types';
 import { initialAccounts } from './mock-data';
 import { CloudStore } from './cloud-store';
 import { attempt } from './auth-call';
+import { classifyResetFailure, type ResetFailure } from './password-reset';
 
 // Identity (sign-up, sign-in, sign-out, session cookie) is handled by Neon Auth through
 // this site's /api/auth route. The farm, plan and permissions come from /api/account/*,
@@ -190,6 +191,22 @@ export const SecureAuth = {
       }
     }
     return finishSession();
+  },
+  /**
+   * Asks Neon Auth to email a reset link. It answers the same whether or not the address has an account, so this
+   * never reveals who is registered; only a rate limit, a malformed address or an outage is reported.
+   */
+  async requestPasswordReset(email: string): Promise<{ success: true } | { success: false; reason: ResetFailure }> {
+    const { error } = await attempt(() => neonClient().requestPasswordReset({ email: email.trim(), redirectTo: `${location.origin}/reset-password` }));
+    if (!error) return { success: true };
+    const reason = classifyResetFailure(error);
+    // Anything else the service says about an unknown address is treated as sent, for the same reason.
+    return reason === 'other' ? { success: true } : { success: false, reason };
+  },
+  /** Sets the new password using the token from the emailed link. */
+  async resetPassword(token: string, newPassword: string): Promise<{ success: true } | { success: false; reason: ResetFailure }> {
+    const { error } = await attempt(() => neonClient().resetPassword({ newPassword, token }));
+    return error ? { success: false, reason: classifyResetFailure(error) === 'other' ? 'invalid_link' : classifyResetFailure(error) } : { success: true };
   },
   demo() {
     CloudStore.clear();

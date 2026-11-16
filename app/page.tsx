@@ -59,7 +59,7 @@ export default function Home() {
 
   // Marketing & Auth state
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
-  const [authModalMode, setAuthModalMode] = useState<'login' | 'signup'>('login');
+  const [authModalMode, setAuthModalMode] = useState<'login' | 'signup' | 'forgot'>('login');
   const [authModalPlan, setAuthModalPlan] = useState<SubscriptionPlan>('farmer');
 
   // Farm data states
@@ -127,6 +127,15 @@ export default function Home() {
     setAllocations(AppStorage.getAllocations(activeFarmId));
     setLang(AppStorage.getLanguage());
   };
+
+  // Links from the password-reset page: "?signin=1" opens sign-in, "?forgot=1" opens the reset step.
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    if (!params.has('signin') && !params.has('forgot')) return;
+    setAuthModalMode(params.has('forgot') ? 'forgot' : 'login');
+    setIsAuthModalOpen(true);
+    window.history.replaceState(null, '', window.location.pathname);
+  }, []);
 
   useEffect(() => {
     let cancelled = false;
