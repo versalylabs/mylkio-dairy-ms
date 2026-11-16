@@ -18,6 +18,7 @@ import { draftContentAllowed, visibleEntries } from '@/lib/vet/review';
 import { DISCLAIMER_FULL, DISCLAIMER_SHORT } from '@/lib/vet/disclaimer';
 import { contactsFor } from '@/lib/vet/contacts';
 import { canUse } from '@/lib/plans';
+import { LockedFeature } from '@/components/billing/LockedFeature';
 import { VetContacts } from './VetContacts';
 
 interface VetGuideProps {
@@ -367,10 +368,7 @@ export function VetGuide({ today, subscription, county, farmName, cows = [], far
               )}
 
               {!fullChecker && hasResult && (
-                <div className="flex items-start gap-3 rounded-2xl border border-ivory-border bg-ivory p-4 text-base text-charcoal-light">
-                  <Lock className="mt-0.5 h-5 w-5 shrink-0 text-gold-600" />
-                  <p><strong className="text-charcoal">Want to know what the signs could fit?</strong> The full symptom checker, with reasons and sources, is part of the Farmer plan. The emergency guidance above is free on every plan.</p>
-                </div>
+                <LockedFeature feature="healthChecker">The emergency guidance above is free on every plan.</LockedFeature>
               )}
 
               {result.noClearMatch && (

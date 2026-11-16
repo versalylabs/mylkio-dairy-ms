@@ -9,6 +9,7 @@ import { priceOf } from '@/lib/site-content';
 import { RESET_COPY, RESET_LINK_MINUTES } from '@/lib/password-reset';
 import { TEAM_COPY } from '@/lib/team-copy';
 import { AUTH_COPY, translateMessage } from '@/lib/app-copy';
+import { planFeatureLines } from '@/lib/plan-copy';
 import { useLanguage } from '@/lib/use-language';
 import { looksLikeInviteCode, normaliseInviteCode } from '@/lib/team';
 import { hasDialableNumber, whatsappLink } from '@/lib/contact';
@@ -341,6 +342,9 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                       </button>
                     ))}
                   </div>
+                  <ul className="mt-3 list-disc space-y-1 pl-5 text-sm text-charcoal-light marker:text-sage" aria-label={PLANS[plan === 'admin' ? 'farmer' : plan].name}>
+                    {planFeatureLines(plan === 'admin' ? 'farmer' : plan, lang).map((line) => <li key={line}>{line}</li>)}
+                  </ul>
                   {/* Custom cannot be chosen here: it is agreed with the Mylkio team. */}
                   <a href="#custom-plan" onClick={onClose} className="mt-2 flex min-h-12 items-center justify-between gap-3 rounded-xl border border-dashed border-ivory-border bg-white px-3 py-2 text-left transition-colors hover:border-sage-300">
                     <span className="min-w-0"><span className="block text-sm font-semibold text-charcoal">{PLANS.custom.name}</span><span className="block text-xs text-charcoal-muted">{t.customHint}</span></span>

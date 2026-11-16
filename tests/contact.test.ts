@@ -4,11 +4,12 @@ import { DEFAULT_SITE_CONTENT, mergeSiteContent, phoneHref } from '@/lib/site-co
 import { PRIVACY, TERMS, withSupportEmail } from '@/lib/legal';
 
 describe('support contact details', () => {
-  it('does not present a made-up phone number: the built-in number is a marked placeholder', () => {
-    expect(SUPPORT_PHONE_DISPLAY).toMatch(/to be confirmed/);
-    expect(SUPPORT_PHONE_DIGITS).toBe('');
-    expect(hasDialableNumber(SUPPORT_PHONE_DISPLAY)).toBe(false);
-    expect(hasDialableNumber(SUPPORT_PHONE_DIGITS)).toBe(false);
+  it('has the support number the owner gave, and treats a missing number as no number', () => {
+    expect(SUPPORT_PHONE_DISPLAY).toBe('+254 184 129145');
+    expect(SUPPORT_PHONE_DIGITS).toBe('254184129145');
+    expect(hasDialableNumber(SUPPORT_PHONE_DIGITS)).toBe(true);
+    expect(hasDialableNumber('')).toBe(false);
+    expect(hasDialableNumber('+254 7XX XXX XXX (to be confirmed)')).toBe(false);
     expect(hasDialableNumber('+254 712 345 678')).toBe(true);
   });
 
@@ -20,8 +21,9 @@ describe('support contact details', () => {
     expect(supportMessageHref({ whatsapp: '+254 712 345 678', email: SUPPORT_EMAIL }, 'Hi')).toBe(whatsappLink('254712345678', 'Hi'));
   });
 
-  it('shows no phone link on the website until a real number is saved in Admin > Website', () => {
-    expect(phoneHref(DEFAULT_SITE_CONTENT.contact)).toBeUndefined();
+  it('links the phone number, and shows no phone link when there is none', () => {
+    expect(phoneHref(DEFAULT_SITE_CONTENT.contact)).toBe('tel:+254184129145');
+    expect(phoneHref({ ...DEFAULT_SITE_CONTENT.contact, phone: '' })).toBeUndefined();
     const saved = mergeSiteContent({ contact: { phone: '+254 712 345 678', whatsapp: '+254 712 345 678', email: 'help@example.test' } });
     expect(phoneHref(saved.contact)).toBe('tel:+254712345678');
     expect(saved.contact.email).toBe('help@example.test');

@@ -12,12 +12,19 @@ export type PlanId = 'starter' | 'farmer' | 'farm_pro' | 'custom';
 /** The plans a farmer can pick on the website and at sign-up. */
 export type SelfServePlanId = Exclude<PlanId, 'custom'>;
 
-/** What a plan includes. See docs/vet-and-illness-feature.md. */
+/**
+ * What a plan includes: one flag per feature. Starter records, Farmer explains, Farm Pro oversees.
+ * Nothing here is a price or a limit on the records themselves: records are never locked (see lib/billing.ts).
+ */
 export interface PlanFeatures {
   /** Emergency-signs guide and county reporting contacts. Safety information: on every plan. */
   illnessGuide: boolean;
   /** Seasonal risk calendar. On every plan. */
   seasonalCalendar: boolean;
+  /** Milk produced against milk sold, and what was not sold. Every plan. */
+  producedVsSold: boolean;
+  /** Reminders as phone notifications (the app can be closed). Every plan. */
+  reminderPush: boolean;
   /** The symptom checker ("what the signs could fit", with reasons and sources). Free to run, so no usage limit. */
   healthChecker: boolean;
   /**
@@ -25,8 +32,22 @@ export interface PlanFeatures {
    * docs/vet-and-illness-feature.md); the symptom checker itself costs nothing per use and is not limited.
    */
   healthChecksPerMonth: number;
+  /** What it costs to produce a litre, against what buyers pay (Finance). Farmer and up. */
+  costPerLitre: boolean;
+  /** A cow whose milk has dropped, and a ranking of the cows this week. Farmer and up. */
+  milkDrop: boolean;
+  /** Cows not served, and cows served again and again without holding. Farmer and up. */
+  fertility: boolean;
+  /** The most important reminders as an SMS. Farmer and up (also needs the owner to switch it on). */
+  reminderSms: boolean;
   /** Vet finder and send-case-to-vet (step C). */
   vetFinder: boolean;
+  /** More than one login per farm. The size of the team is set by the plan (lib/team.ts). */
+  teamLogins: boolean;
+  /** A weekly summary of the farm for the owner. Farm Pro and up. */
+  weeklySummary: boolean;
+  /** A one-page farm report for a bank or SACCO. Farm Pro and up. */
+  farmReport: boolean;
 }
 
 export type FeatureId = Exclude<keyof PlanFeatures, 'healthChecksPerMonth'>;
@@ -40,28 +61,44 @@ export interface Plan {
   features: PlanFeatures;
 }
 
-export const PLANS: Record<PlanId, Plan> = {
-  starter: {
-    id: 'starter', name: 'Starter', priceKsh: 700, cowLimit: 5,
-    features: { illnessGuide: true, seasonalCalendar: true, healthChecker: false, healthChecksPerMonth: 0, vetFinder: false },
-  },
-  farmer: {
-    id: 'farmer', name: 'Farmer', priceKsh: 1300, cowLimit: 25,
-    features: { illnessGuide: true, seasonalCalendar: true, healthChecker: true, healthChecksPerMonth: 10, vetFinder: false },
-  },
-  farm_pro: {
-    id: 'farm_pro', name: 'Farm Pro', priceKsh: 2800, cowLimit: null,
-    features: { illnessGuide: true, seasonalCalendar: true, healthChecker: true, healthChecksPerMonth: 40, vetFinder: true },
-  },
-  // Quoted per farm: the real price lives on the farm's subscription (`monthlyPriceKsh`), so this one is 0.
-  // A Custom farm has every Farm Pro feature.
-  custom: {
-    id: 'custom', name: 'Custom', priceKsh: 0, cowLimit: null,
-    features: { illnessGuide: true, seasonalCalendar: true, healthChecker: true, healthChecksPerMonth: 40, vetFinder: true },
-  },
+const STARTER_FEATURES: PlanFeatures = {
+  illnessGuide: true, seasonalCalendar: true, producedVsSold: true, reminderPush: true,
+  healthChecker: false, healthChecksPerMonth: 0, costPerLitre: false, milkDrop: false, fertility: false, reminderSms: false,
+  vetFinder: false, teamLogins: false, weeklySummary: false, farmReport: false,
+};
+const FARMER_FEATURES: PlanFeatures = {
+  ...STARTER_FEATURES,
+  healthChecker: true, healthChecksPerMonth: 10, costPerLitre: true, milkDrop: true, fertility: true, reminderSms: true,
+};
+const FARM_PRO_FEATURES: PlanFeatures = {
+  ...FARMER_FEATURES,
+  healthChecksPerMonth: 40, vetFinder: true, teamLogins: true, weeklySummary: true, farmReport: true,
 };
 
-const EVERYTHING: PlanFeatures = { illnessGuide: true, seasonalCalendar: true, healthChecker: true, healthChecksPerMonth: 40, vetFinder: true };
+export const PLANS: Record<PlanId, Plan> = {
+  starter: { id: 'starter', name: 'Starter', priceKsh: 700, cowLimit: 5, features: STARTER_FEATURES },
+  farmer: { id: 'farmer', name: 'Farmer', priceKsh: 1300, cowLimit: 25, features: FARMER_FEATURES },
+  farm_pro: { id: 'farm_pro', name: 'Farm Pro', priceKsh: 2800, cowLimit: null, features: FARM_PRO_FEATURES },
+  // Quoted per farm: the real price lives on the farm's subscription (`monthlyPriceKsh`), so this one is 0.
+  // A Custom farm has every Farm Pro feature.
+  custom: { id: 'custom', name: 'Custom', priceKsh: 0, cowLimit: null, features: FARM_PRO_FEATURES },
+};
+
+const EVERYTHING: PlanFeatures = FARM_PRO_FEATURES;
+
+/**
+ * Features whose flag is in the plan table but whose screen is not built yet. The plan descriptions mark these
+ * "coming soon" so the website never promises what the app cannot do. Each build step removes its feature from this
+ * list in the same pull request that ships it.
+ */
+export const FEATURES_COMING_SOON: ReadonlySet<FeatureId> = new Set<FeatureId>([
+  'producedVsSold', 'costPerLitre', 'milkDrop', 'fertility', 'weeklySummary', 'farmReport', 'reminderPush', 'reminderSms',
+]);
+
+/** The cheapest self-serve plan that includes a feature (so a locked line can name it). */
+export function minimumPlanFor(feature: FeatureId): SelfServePlanId {
+  return PLAN_ORDER.find((id) => PLANS[id].features[feature]) ?? 'farm_pro';
+}
 
 /**
  * The features a subscription gets. A free trial gets at least the Farmer features so people can try

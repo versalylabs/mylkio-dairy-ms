@@ -9,6 +9,7 @@ import {
   type DirectoryEntry, type MyVetEntry,
 } from '@/lib/vet/client';
 import { canUse } from '@/lib/plans';
+import { LockedFeature } from '@/components/billing/LockedFeature';
 import { VET_COPY, translateMessage, type Lang } from '@/lib/app-copy';
 import { useLanguage } from '@/lib/use-language';
 
@@ -186,10 +187,7 @@ export function VetContacts({ farmId, serverBacked, county, subscription, summar
       <div>
         <h3 className="text-lg font-semibold text-charcoal">{t.nearYou(county)}</h3>
         {!finderAllowed ? (
-          <div className="mt-3 flex items-start gap-3 rounded-2xl border border-ivory-border bg-ivory p-4 text-base text-charcoal-light">
-            <Lock className="mt-0.5 h-5 w-5 shrink-0 text-gold-600" />
-            <p>{t.farmProOnly}</p>
-          </div>
+          <div className="mt-3"><LockedFeature feature="vetFinder">{t.farmProOnly}</LockedFeature></div>
         ) : !serverBacked ? (
           <p className="mt-3 rounded-xl border border-ivory-border bg-ivory p-4 text-base text-charcoal-light">{t.signInToSee}</p>
         ) : directoryError ? (
