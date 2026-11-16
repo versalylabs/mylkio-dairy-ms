@@ -5,6 +5,8 @@ import { DatabaseBackup, Download, HardDrive, Image as ImageIcon, WifiOff } from
 import { checkStorage, LocalStore, type StorageHealth } from '@/lib/local-store';
 import { backupAdvice, formatBytes, lastBackupAt } from '@/lib/backup';
 import { photoSavings } from '@/lib/photos';
+import { STORAGE_COPY, translateMessage } from '@/lib/app-copy';
+import { useLanguage } from '@/lib/use-language';
 
 interface StorageCardProps {
   farmId: string;
@@ -38,6 +40,8 @@ async function offlineState(): Promise<OfflineState> {
  * shrinking photos, and whether the app will open with no internet.
  */
 export function StorageCard({ farmId, recordCount, cows, onDownloadBackup, onShrinkPhotos }: StorageCardProps) {
+  const [lang] = useLanguage();
+  const t = STORAGE_COPY[lang];
   const [health, setHealth] = useState<StorageHealth | null>(null);
   const [offline, setOffline] = useState<OfflineState | null>(null);
   const [saveError, setSaveError] = useState('');
@@ -57,16 +61,16 @@ export function StorageCard({ farmId, recordCount, cows, onDownloadBackup, onShr
   useEffect(() => setSavings(photoSavings(cows)), [cows]);
   useEffect(() => LocalStore.subscribe(() => setSaveError(LocalStore.status().error)), []);
 
-  const advice = backupAdvice(lastBackup, recordCount);
+  const advice = backupAdvice(lastBackup, recordCount, new Date(), lang);
   const usedShare = health?.usage != null && health.quota ? health.usage / health.quota : null;
 
   const shrink = async () => {
     setBusy(true); setShrinkResult('');
     try {
       const { shrunk, savedBytes } = await onShrinkPhotos();
-      setShrinkResult(shrunk === 0 ? 'Nothing needed shrinking.' : `Shrunk ${shrunk} ${shrunk === 1 ? 'photo' : 'photos'}, freeing about ${formatBytes(savedBytes)}.`);
+      setShrinkResult(shrunk === 0 ? t.nothingToShrink : t.shrunk(shrunk, formatBytes(savedBytes)));
     } catch (cause) {
-      setShrinkResult(cause instanceof Error ? cause.message : 'Could not shrink the photos.');
+      setShrinkResult(cause instanceof Error ? translateMessage(cause.message, lang) : t.shrinkFailed);
     } finally { setBusy(false); void refresh(); }
   };
 
@@ -75,52 +79,52 @@ export function StorageCard({ farmId, recordCount, cows, onDownloadBackup, onShr
       <div className="flex items-start gap-3">
         <div className="icon-tile"><DatabaseBackup className="h-5 w-5" /></div>
         <div>
-          <h2 id="storage-heading" className="text-base font-bold text-charcoal">Backup and storage</h2>
-          <p className="mt-1 text-sm text-charcoal-muted">Your farm is saved on this phone and in the cloud. A backup file is your own copy, kept outside Mylkio.</p>
+          <h2 id="storage-heading" className="text-base font-bold text-charcoal">{t.title}</h2>
+          <p className="mt-1 text-sm text-charcoal-muted">{t.intro}</p>
         </div>
       </div>
 
-      {saveError && <p role="alert" className="rounded-xl bg-rose-50 p-3 text-sm text-rose-900">{saveError}</p>}
+      {saveError && <p role="alert" className="rounded-xl bg-rose-50 p-3 text-sm text-rose-900">{translateMessage(saveError, lang)}</p>}
 
       <div className="rounded-xl border border-ivory-border bg-ivory-muted/50 p-4 space-y-3">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div className="min-w-0">
-            <p className="text-sm font-semibold text-charcoal">Backup</p>
+            <p className="text-sm font-semibold text-charcoal">{t.backup}</p>
             <p className={`text-sm ${advice.level === 'remind' ? 'font-semibold text-gold-600' : 'text-charcoal-light'}`}>{advice.message}</p>
           </div>
           <button type="button" className="btn btn-primary shrink-0" onClick={() => { onDownloadBackup(); window.setTimeout(() => setLastBackup(lastBackupAt(farmId)), 200); }}>
-            <Download className="h-4 w-4" />Download backup
+            <Download className="h-4 w-4" />{t.download}
           </button>
         </div>
-        <p className="text-xs text-charcoal-muted">To restore a backup into this farm, use &ldquo;Restore from a backup&rdquo; below. Records that are already here are kept as they are.</p>
+        <p className="text-xs text-charcoal-muted">{t.restoreHint}</p>
       </div>
 
       <dl className="grid grid-cols-1 gap-3 sm:grid-cols-2">
         <div className="rounded-xl border border-ivory-border p-4">
-          <dt className="flex items-center gap-2 text-sm font-semibold text-charcoal"><HardDrive className="h-4 w-4 text-sage" />On this phone</dt>
+          <dt className="flex items-center gap-2 text-sm font-semibold text-charcoal"><HardDrive className="h-4 w-4 text-sage" />{t.onPhone}</dt>
           <dd className="mt-1 text-sm text-charcoal-light">
-            {health?.usage != null ? <>Using {formatBytes(health.usage)}{health.quota ? ` of about ${formatBytes(health.quota)} available` : ''}{usedShare !== null && usedShare > 0.8 ? '. Space is running low.' : '.'}</> : 'Storage size is not reported by this browser.'}
+            {health?.usage != null ? t.using(formatBytes(health.usage), health.quota ? formatBytes(health.quota) : null, usedShare !== null && usedShare > 0.8) : t.sizeUnknown}
           </dd>
           <dd className="mt-1 text-xs text-charcoal-muted">
-            {health?.persistent === true ? 'Protected: the phone will not clear it to make room.' : health?.persistent === false ? 'Not protected yet. Adding Mylkio to your home screen helps keep your records on this phone.' : ''}
+            {health?.persistent === true ? t.protectedYes : health?.persistent === false ? t.protectedNo : ''}
           </dd>
         </div>
         <div className="rounded-xl border border-ivory-border p-4">
-          <dt className="flex items-center gap-2 text-sm font-semibold text-charcoal"><WifiOff className="h-4 w-4 text-sage" />Opens without internet</dt>
+          <dt className="flex items-center gap-2 text-sm font-semibold text-charcoal"><WifiOff className="h-4 w-4 text-sage" />{t.offlineTitle}</dt>
           <dd className="mt-1 text-sm text-charcoal-light">
-            {offline === 'ready' ? 'Ready. Mylkio is saved on this phone.' : offline === 'not_yet' ? 'Not ready yet. Stay online for a minute after opening Mylkio, then check again.' : offline === 'unsupported' ? 'This browser cannot save Mylkio for offline use.' : 'Checking…'}
+            {offline === 'ready' ? t.offlineReady : offline === 'not_yet' ? t.offlineNotYet : offline === 'unsupported' ? t.offlineUnsupported : t.checking}
           </dd>
         </div>
       </dl>
 
       {savings.photos > 0 && (
         <div className="rounded-xl border border-ivory-border p-4 space-y-2">
-          <p className="flex items-center gap-2 text-sm font-semibold text-charcoal"><ImageIcon className="h-4 w-4 text-sage" />Photos</p>
+          <p className="flex items-center gap-2 text-sm font-semibold text-charcoal"><ImageIcon className="h-4 w-4 text-sage" />{t.photos}</p>
           <p className="text-sm text-charcoal-light">
-            {savings.photos} saved {savings.photos === 1 ? 'photo' : 'photos'} using {formatBytes(savings.bytes)}.
-            {savings.large > 0 ? ` ${savings.large} ${savings.large === 1 ? 'is' : 'are'} larger than needed.` : ' All are a good size.'}
+            {t.photoCount(savings.photos, formatBytes(savings.bytes))}
+            {savings.large > 0 ? t.photosLarge(savings.large) : t.photosGood}
           </p>
-          {savings.large > 0 && <button type="button" className="btn btn-secondary" disabled={busy} onClick={() => void shrink()}>{busy ? 'Shrinking…' : 'Shrink photos'}</button>}
+          {savings.large > 0 && <button type="button" className="btn btn-secondary" disabled={busy} onClick={() => void shrink()}>{busy ? t.shrinking : t.shrink}</button>}
           {shrinkResult && <p role="status" className="text-sm font-semibold text-sage">{shrinkResult}</p>}
         </div>
       )}

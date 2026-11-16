@@ -8,6 +8,8 @@ import { useSiteContent } from '@/components/site/SiteContentProvider';
 import { priceOf } from '@/lib/site-content';
 import { RESET_COPY, RESET_LINK_MINUTES } from '@/lib/password-reset';
 import { TEAM_COPY } from '@/lib/team-copy';
+import { AUTH_COPY, translateMessage } from '@/lib/app-copy';
+import { useLanguage } from '@/lib/use-language';
 import { looksLikeInviteCode, normaliseInviteCode } from '@/lib/team';
 import { SUPPORT_PHONE_DIGITS, whatsappLink } from '@/lib/contact';
 import { SubscriptionPlan, UserAccount } from '@/types';
@@ -45,6 +47,8 @@ export const AuthModal: React.FC<AuthModalProps> = ({
   onSuccess,
 }) => {
   const { prices } = useSiteContent();
+  const [lang, chooseLang] = useLanguage();
+  const t = AUTH_COPY[lang];
   const [mode, setMode] = useState<'login' | 'signup' | 'forgot' | 'join'>(initialMode);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
@@ -99,10 +103,10 @@ export const AuthModal: React.FC<AuthModalProps> = ({
         onSuccess(res.user);
         onClose();
       } else {
-        setError(res.error || 'Invalid credentials. Please verify your email and password.');
+        setError(res.error ? translateMessage(res.error, lang) : 'Invalid credentials. Please verify your email and password.');
       }
     } catch {
-      setError('An unexpected error occurred during login.');
+      setError(translateMessage('An unexpected error occurred during login.', lang));
     } finally {
       setLoading(false);
     }
@@ -112,7 +116,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
     e.preventDefault();
     setError(null);
     setLoading(true);
-    const copy = RESET_COPY[AppStorage.getLanguage() === 'sw' ? 'sw' : 'en'];
+    const copy = RESET_COPY[lang];
     try {
       const result = await SecureAuth.requestPasswordReset(resetEmail);
       if (result.success) { setResetSent(true); return; }
@@ -127,9 +131,9 @@ export const AuthModal: React.FC<AuthModalProps> = ({
   const handleJoin = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
-    const copy = TEAM_COPY[AppStorage.getLanguage() === 'sw' ? 'sw' : 'en'];
+    const copy = TEAM_COPY[lang];
     if (!looksLikeInviteCode(joinCode)) { setError(copy.joinNeedsCode); return; }
-    if (!name.trim() || !signupEmail.trim()) { setError('Please fill in all required fields.'); return; }
+    if (!name.trim() || !signupEmail.trim()) { setError(translateMessage('Please fill in all required fields.', lang)); return; }
     if (signupPassword.length < 12) { setError(copy.passwordShort); return; }
     setLoading(true);
     try {
@@ -158,13 +162,13 @@ export const AuthModal: React.FC<AuthModalProps> = ({
 
     try {
       if (!name.trim() || !signupEmail.trim() || !signupPassword.trim() || !farmName.trim() || !county.trim()) {
-        setError('Please fill in all required fields.');
+        setError(translateMessage('Please fill in all required fields.', lang));
         setLoading(false);
         return;
       }
 
       if (signupPassword.length < 12) {
-        setError('Password must be at least 12 characters.');
+        setError(translateMessage('Password must be at least 12 characters.', lang));
         setLoading(false);
         return;
       }
@@ -183,16 +187,16 @@ export const AuthModal: React.FC<AuthModalProps> = ({
 
       if (res.confirmationRequired) {
         setSignupPassword('');
-        setNotice('Check your email to confirm your account, then sign in.');
+        setNotice(translateMessage('Check your email to confirm your account, then sign in.', lang));
       } else if (res.success && res.user) {
         onSuccess(res.user);
         onClose();
       } else {
-        setError(res.error || 'Failed to create your farm account.');
+        setError(translateMessage(res.error || 'Failed to create your farm account.', lang));
       }
     } catch (error) {
       console.error('Account creation failed unexpectedly', error);
-      setError('An error occurred while creating your account.');
+      setError(translateMessage('An error occurred while creating your account.', lang));
     } finally {
       setLoading(false);
     }
@@ -213,7 +217,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
             <div aria-hidden className="pointer-events-none absolute -right-16 -top-16 h-44 w-44 rounded-full bg-white/10 blur-2xl" />
             <button
               onClick={onClose}
-              aria-label="Close"
+              aria-label={t.close}
               className="absolute right-3 top-3 flex h-11 w-11 items-center justify-center rounded-full bg-white/10 text-white transition-colors hover:bg-white/20"
             >
               <X className="h-5 w-5" />
@@ -223,12 +227,14 @@ export const AuthModal: React.FC<AuthModalProps> = ({
               <span className="flex h-11 w-11 items-center justify-center rounded-full bg-white font-display text-xl font-medium text-sage">M</span>
               <div>
                 <h2 id="auth-title" className="font-display text-2xl font-medium leading-tight">Mylkio</h2>
-                <p className="text-sm text-sage-200">Dairy farm management</p>
+                <p className="text-sm text-sage-200">{t.tagline}</p>
               </div>
             </div>
 
-            <div role="tablist" aria-label="Sign in or create an account" className="relative mt-6 flex rounded-full bg-sage-900/40 p-1">
-              {([['login', 'Sign in'], ['signup', 'Create account']] as const).map(([key, label]) => (
+            <button type="button" onClick={() => chooseLang(lang === 'en' ? 'sw' : 'en')} className="absolute right-16 top-3 flex h-11 items-center rounded-full bg-white/10 px-4 text-sm font-semibold text-white transition-colors hover:bg-white/20">{t.language}</button>
+
+            <div role="tablist" aria-label={t.tablist} className="relative mt-6 flex rounded-full bg-sage-900/40 p-1">
+              {([['login', t.signIn], ['signup', t.createAccount]] as const).map(([key, label]) => (
                 <button
                   key={key}
                   role="tab"
@@ -253,31 +259,31 @@ export const AuthModal: React.FC<AuthModalProps> = ({
           <div className="p-6 sm:p-8">
             {mode === 'login' ? (
               <form onSubmit={handleLogin} className="space-y-5">
-                <IconField id="login-email" label="Email address" icon={Mail} type="email" required autoComplete="email" value={loginEmail} onChange={(e) => setLoginEmail(e.target.value)} placeholder="farmer@dairy.co.ke" />
+                <IconField id="login-email" label={t.email} icon={Mail} type="email" required autoComplete="email" value={loginEmail} onChange={(e) => setLoginEmail(e.target.value)} placeholder="farmer@dairy.co.ke" />
                 <div>
-                  <IconField id="login-password" label="Password" icon={Lock} type="password" required autoComplete="current-password" value={loginPassword} onChange={(e) => setLoginPassword(e.target.value)} placeholder="Your password" />
+                  <IconField id="login-password" label={t.password} icon={Lock} type="password" required autoComplete="current-password" value={loginPassword} onChange={(e) => setLoginPassword(e.target.value)} placeholder={t.yourPassword} />
                   <button type="button" onClick={() => { setResetEmail(loginEmail); setResetSent(false); setError(null); setMode('forgot'); }} className="mt-2 inline-flex min-h-10 items-center text-sm font-semibold text-sage hover:underline">
-                    {RESET_COPY[AppStorage.getLanguage() === 'sw' ? 'sw' : 'en'].forgotLink}
+                    {RESET_COPY[lang].forgotLink}
                   </button>
                 </div>
 
                 <button type="submit" disabled={loading} className="btn btn-primary btn-lg w-full">
-                  <span>{loading ? 'Verifying…' : 'Sign in to your farm'}</span>
+                  <span>{loading ? t.verifying : t.signInButton}</span>
                   <ArrowRight className="h-5 w-5" />
                 </button>
 
                 <button type="button" onClick={() => { setError(null); setMode('join'); }} className="mx-auto flex min-h-10 items-center text-sm font-semibold text-sage hover:underline">
-                  {TEAM_COPY[AppStorage.getLanguage() === 'sw' ? 'sw' : 'en'].joinLink}
+                  {TEAM_COPY[lang].joinLink}
                 </button>
 
                 <div className="relative py-1">
                   <div className="absolute inset-0 flex items-center"><div className="w-full border-t border-ivory-border" /></div>
-                  <p className="relative mx-auto w-fit bg-white px-3 text-xs font-semibold uppercase tracking-wider text-charcoal-muted">Or try sample data</p>
+                  <p className="relative mx-auto w-fit bg-white px-3 text-xs font-semibold uppercase tracking-wider text-charcoal-muted">{t.orSample}</p>
                 </div>
 
                 <button type="button" onClick={handleDemoLogin} className="btn btn-secondary btn-lg w-full">
                   <Tractor className="h-5 w-5 text-sage" />
-                  <span>Explore the demo farm</span>
+                  <span>{t.demo}</span>
                 </button>
               </form>
             ) : mode === 'join' ? (
@@ -292,35 +298,35 @@ export const AuthModal: React.FC<AuthModalProps> = ({
               <form onSubmit={handleSignup} className="space-y-5">
                 <p className="flex items-start gap-2.5 rounded-xl border border-gold-200 bg-gold-50 p-3.5 text-sm font-medium text-charcoal">
                   <Sparkles className="mt-0.5 h-4 w-4 shrink-0 text-gold-600" />
-                  <span>Includes a {TRIAL_DAYS}-day full free trial. Your farm starts clean, with no demo data.</span>
+                  <span>{t.trialNote(TRIAL_DAYS)}</span>
                 </p>
 
                 <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
-                  <IconField id="su-name" label="Your name *" icon={User} type="text" required autoComplete="name" value={name} onChange={(e) => setName(e.target.value)} placeholder="e.g. Peter Chege" />
-                  <IconField id="su-phone" label="Phone (M-Pesa)" icon={Phone} type="tel" autoComplete="tel" value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="0712 345 678" />
+                  <IconField id="su-name" label={t.yourName} icon={User} type="text" required autoComplete="name" value={name} onChange={(e) => setName(e.target.value)} placeholder="e.g. Peter Chege" />
+                  <IconField id="su-phone" label={t.phoneMpesa} icon={Phone} type="tel" autoComplete="tel" value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="0712 345 678" />
                 </div>
 
-                <IconField id="su-farm" label="Farm name *" type="text" required value={farmName} onChange={(e) => setFarmName(e.target.value)} placeholder="e.g. Rongai Pride Dairy" />
+                <IconField id="su-farm" label={t.farmName} type="text" required value={farmName} onChange={(e) => setFarmName(e.target.value)} placeholder="e.g. Rongai Pride Dairy" />
 
                 <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
-                  <IconField id="su-county" label="County *" icon={MapPin} type="text" required value={county} onChange={(e) => setCounty(e.target.value)} placeholder="e.g. Nakuru, Kiambu" />
-                  <IconField id="su-subcounty" label="Sub-county" type="text" value={subCounty} onChange={(e) => setSubCounty(e.target.value)} placeholder="e.g. Rongai, Limuru" />
+                  <IconField id="su-county" label={t.county} icon={MapPin} type="text" required value={county} onChange={(e) => setCounty(e.target.value)} placeholder="e.g. Nakuru, Kiambu" />
+                  <IconField id="su-subcounty" label={t.subCounty} type="text" value={subCounty} onChange={(e) => setSubCounty(e.target.value)} placeholder="e.g. Rongai, Limuru" />
                 </div>
 
                 <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
-                  <IconField id="su-email" label="Email address *" icon={Mail} type="email" required autoComplete="email" value={signupEmail} onChange={(e) => setSignupEmail(e.target.value)} placeholder="you@email.com" />
-                  <IconField id="su-password" label="Set password *" icon={Lock} type="password" required minLength={12} autoComplete="new-password" value={signupPassword} onChange={(e) => setSignupPassword(e.target.value)} placeholder="At least 12 characters" />
+                  <IconField id="su-email" label={t.email + ' *'} icon={Mail} type="email" required autoComplete="email" value={signupEmail} onChange={(e) => setSignupEmail(e.target.value)} placeholder="you@email.com" />
+                  <IconField id="su-password" label={t.setPassword} icon={Lock} type="password" required minLength={12} autoComplete="new-password" value={signupPassword} onChange={(e) => setSignupPassword(e.target.value)} placeholder={t.atLeast12} />
                 </div>
 
                 {SecureAuth.inviteRequired() && (
                   <div>
-                    <IconField id="signup-invite" label="Invitation code *" type="text" required autoComplete="off" autoCapitalize="characters" value={inviteCode} onChange={(e) => setInviteCode(e.target.value)} placeholder="The code you were given" className="uppercase tracking-wide" />
-                    <p className="mt-1.5 text-sm text-charcoal-muted">Mylkio is invitation-only during the pilot. No code? Use the contact form to request one.</p>
+                    <IconField id="signup-invite" label={t.invitation} type="text" required autoComplete="off" autoCapitalize="characters" value={inviteCode} onChange={(e) => setInviteCode(e.target.value)} placeholder={t.invitationPlaceholder} className="uppercase tracking-wide" />
+                    <p className="mt-1.5 text-sm text-charcoal-muted">{t.invitationHint}</p>
                   </div>
                 )}
 
                 <fieldset>
-                  <legend className="field-label">Choose a monthly plan ({TRIAL_DAYS} days free)</legend>
+                  <legend className="field-label">{t.choosePlan(TRIAL_DAYS)}</legend>
                   <div className="grid grid-cols-3 gap-2">
                     {PLAN_ORDER.map((id) => (
                       <button
@@ -338,19 +344,19 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                 </fieldset>
 
                 <button type="submit" disabled={loading} className="btn btn-primary btn-lg w-full">
-                  <span>{loading ? 'Setting up your farm…' : `Start ${TRIAL_DAYS}-day free trial`}</span>
+                  <span>{loading ? t.settingUp : t.startTrial(TRIAL_DAYS)}</span>
                   <ArrowRight className="h-5 w-5" />
                 </button>
 
                 <p className="flex items-center justify-center gap-1.5 text-sm text-charcoal-muted">
                   <ShieldCheck className="h-4 w-4 text-sage" />
-                  <span>No M-Pesa charge today. Cancel anytime.</span>
+                  <span>{t.noCharge}</span>
                 </p>
 
                 <p className="text-center text-xs text-charcoal-muted">
-                  By creating an account you agree to our{' '}
-                  <a href="/terms" target="_blank" rel="noopener noreferrer" className="font-semibold text-sage underline">Terms of use</a> and{' '}
-                  <a href="/privacy" target="_blank" rel="noopener noreferrer" className="font-semibold text-sage underline">Privacy notice</a>.
+                  {t.agree(t.terms, t.privacy).before}
+                  <a href="/terms" target="_blank" rel="noopener noreferrer" className="font-semibold text-sage underline">{t.terms}</a>{t.agree(t.terms, t.privacy).and}
+                  <a href="/privacy" target="_blank" rel="noopener noreferrer" className="font-semibold text-sage underline">{t.privacy}</a>.
                 </p>
               </form>
             )}
@@ -367,7 +373,8 @@ function JoinFarm({ code, onCode, name, onName, phone, onPhone, email, onEmail, 
   email: string; onEmail: (v: string) => void; password: string; onPassword: (v: string) => void; loading: boolean;
   onSubmit: (e: React.FormEvent) => void; onBack: () => void;
 }) {
-  const t = TEAM_COPY[AppStorage.getLanguage() === 'sw' ? 'sw' : 'en'];
+  const [lang] = useLanguage();
+  const t = TEAM_COPY[lang];
   return (
     <form onSubmit={onSubmit} className="space-y-5">
       <div>
@@ -397,7 +404,8 @@ function JoinFarm({ code, onCode, name, onName, phone, onPhone, email, onEmail, 
 function ForgotPassword({ email, onEmail, sent, loading, onSubmit, onBack }: {
   email: string; onEmail: (value: string) => void; sent: boolean; loading: boolean; onSubmit: (e: React.FormEvent) => void; onBack: () => void;
 }) {
-  const t = RESET_COPY[AppStorage.getLanguage() === 'sw' ? 'sw' : 'en'];
+  const [lang] = useLanguage();
+  const t = RESET_COPY[lang];
   if (sent) {
     return (
       <div role="status" className="space-y-4">

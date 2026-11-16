@@ -110,7 +110,8 @@ One-off, before the first farmers:
 
 ## 8. Known gaps carried past release
 
-- Automatic M-Pesa payments and reminders, a history of hand-made plan changes, Kiswahili for the newest screens, vet steps D and E, and some Phase 5 extras (suggested withdrawal from medicine, calf weights and weaning).
+- Kiswahili now covers the newest screens (see [kiswahili.md](kiswahili.md)); it still needs a native speaker to read it, and the website and the vet clinical content stay English.
+- Automatic M-Pesa payments and reminders, a history of hand-made plan changes, vet steps D and E, and some Phase 5 extras (suggested withdrawal from medicine, calf weights and weaning).
 - Existing cow photos are shrunk only when the farmer taps "Shrink photos".
 - iOS Safari can clear a site's data after weeks without opening it unless the app is on the home screen. The backup is the protection.
 - Team logins are built (see [team-logins.md](team-logins.md)): Farm Pro farms can add up to five managers and workers.
