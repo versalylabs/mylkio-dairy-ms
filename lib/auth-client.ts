@@ -16,6 +16,7 @@ const demoKey = 'mylkio_demo_session_v2';
 const cachedAccountKey = 'mylkio_last_secure_account_v2';
 const backendKey = 'mylkio_secure_backend_enabled_v1';
 const pendingKey = 'mylkio_pending_onboarding_v1';
+const pendingJoinKey = 'mylkio_pending_join_v1';
 let secureBackend = false;
 let inviteNeeded = false;
 let backendProblem = 'not checked yet';
@@ -29,6 +30,7 @@ export type AuthResult = { success: boolean; user?: UserAccount; error?: string;
 
 type SignUpDetails = { name: string; email: string; password: string; phone: string; farmName: string; county: string; subCounty?: string; plan?: SubscriptionPlan; language?: string; inviteCode?: string };
 type Onboarding = Omit<SignUpDetails, 'email' | 'password'>;
+type JoinDetails = { name: string; phone: string; code: string };
 type AccountResponse =
   | { state: 'account'; user: UserAccount }
   | { state: 'onboarding' }
@@ -38,7 +40,7 @@ type AccountResponse =
 async function activate(user: UserAccount) {
   if (user.role !== 'super_admin') await CloudStore.load(user.id, user.farmId);
   else CloudStore.clear();
-  localStorage.setItem(cachedAccountKey, JSON.stringify({ id: user.id, email: user.email, role: user.role, farmId: user.farmId, name: user.name, phone: user.phone, createdAt: user.createdAt, subscription: user.subscription }));
+  localStorage.setItem(cachedAccountKey, JSON.stringify({ id: user.id, email: user.email, role: user.role, farmId: user.farmId, farmRole: user.farmRole, name: user.name, phone: user.phone, createdAt: user.createdAt, subscription: user.subscription }));
   sessionStorage.removeItem(demoKey);
   activeUser = user;
   window.dispatchEvent(new Event('mylkio_auth_changed'));
@@ -59,6 +61,34 @@ function readPending(): Onboarding | null {
   } catch {
     return null;
   }
+}
+
+function readPendingJoin(): JoinDetails | null {
+  try {
+    const raw = localStorage.getItem(pendingJoinKey);
+    return raw ? (JSON.parse(raw) as JoinDetails) : null;
+  } catch {
+    return null;
+  }
+}
+
+/** Joins the signed-in person to the farm their invitation belongs to (instead of creating a farm of their own). */
+async function completeJoin(details: JoinDetails): Promise<AuthResult> {
+  const response = await fetch('/api/account/join', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ name: details.name, phone: details.phone, code: details.code }),
+  });
+  const result = await response.json().catch(() => ({}));
+  // A refused code (wrong, used, expired, plan full, already in a farm) will not work on a retry: forget it.
+  if (response.status >= 400 && response.status < 500) {
+    localStorage.removeItem(pendingJoinKey);
+    return { success: false, error: result.error || 'That invitation is not valid. Ask the owner for a new one.' };
+  }
+  if (!response.ok) return { success: false, error: 'You could not be added to the farm just now. Please try again.' };
+  localStorage.removeItem(pendingJoinKey);
+  await activate(result.user);
+  return { success: true, user: result.user };
 }
 
 async function completeOnboarding(details: Onboarding): Promise<AuthResult> {
@@ -86,8 +116,10 @@ async function completeOnboarding(details: Onboarding): Promise<AuthResult> {
 /** After Neon Auth has signed the user in: load their farm, or create it if this is their first sign-in. */
 async function finishSession(): Promise<AuthResult> {
   const account = await fetchAccount();
-  if (account.state === 'account') { localStorage.removeItem(pendingKey); await activate(account.user); return { success: true, user: account.user }; }
+  if (account.state === 'account') { localStorage.removeItem(pendingKey); localStorage.removeItem(pendingJoinKey); await activate(account.user); return { success: true, user: account.user }; }
   if (account.state === 'onboarding') {
+    const joining = readPendingJoin();
+    if (joining) return completeJoin(joining);
     const pending = readPending();
     if (pending) return completeOnboarding(pending);
     return {
@@ -159,6 +191,8 @@ export const SecureAuth = {
     }
     if (account.state === 'account') { await activate(account.user); return; }
     if (account.state === 'onboarding') {
+      const joining = readPendingJoin();
+      if (joining) { const done = await completeJoin(joining); if (done.success) return; }
       const pending = readPending();
       if (pending) { const done = await completeOnboarding(pending); if (done.success) return; }
     } else if (account.state === 'unavailable') {
@@ -188,6 +222,23 @@ export const SecureAuth = {
       if (resumed.error) {
         localStorage.removeItem(pendingKey);
         return { success: false, error: friendly(created.error, 'Could not create the account. If you already have one, sign in instead.') };
+      }
+    }
+    return finishSession();
+  },
+  /** Signs up (or signs in) and joins the farm the invitation code belongs to. */
+  async joinFarm(input: { name: string; email: string; password: string; phone: string; code: string }): Promise<AuthResult> {
+    if (!secureBackend) return { success: false, error: unavailable() };
+    const { email, password, ...details } = input;
+    // Kept on this device (no password) so the join completes as soon as the account has a session.
+    localStorage.setItem(pendingJoinKey, JSON.stringify(details));
+    const created = await attempt(() => neonClient().signUp.email({ email, password, name: input.name }));
+    if (created.error) {
+      // The account may already exist (someone who signed up earlier and has no farm yet).
+      const resumed = await attempt(() => neonClient().signIn.email({ email, password }));
+      if (resumed.error) {
+        localStorage.removeItem(pendingJoinKey);
+        return { success: false, error: friendly(created.error, 'Could not create the account. If you already have one, enter the email and password you used before.') };
       }
     }
     return finishSession();

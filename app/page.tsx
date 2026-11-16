@@ -50,6 +50,7 @@ import { photoSavings, shrinkCowPhotos } from '@/lib/photos';
 import { PlatformAdminView } from '@/components/admin/PlatformAdminView';
 import { MarketingLandingPage } from '@/components/marketing/MarketingLandingPage';
 import { AuthModal } from '@/components/auth/AuthModal';
+import { canWrite, roleOrOwner, tabsFor } from '@/lib/team';
 
 export default function Home() {
   const [mounted, setMounted] = useState(false);
@@ -59,7 +60,8 @@ export default function Home() {
 
   // Marketing & Auth state
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
-  const [authModalMode, setAuthModalMode] = useState<'login' | 'signup' | 'forgot'>('login');
+  const [authModalMode, setAuthModalMode] = useState<'login' | 'signup' | 'forgot' | 'join'>('login');
+  const [joinCode, setJoinCode] = useState('');
   const [authModalPlan, setAuthModalPlan] = useState<SubscriptionPlan>('farmer');
 
   // Farm data states
@@ -128,14 +130,22 @@ export default function Home() {
     setLang(AppStorage.getLanguage());
   };
 
-  // Links from the password-reset page: "?signin=1" opens sign-in, "?forgot=1" opens the reset step.
+  // Links that open the sign-in box: "?signin=1" (sign in), "?forgot=1" (reset step, from the reset page) and
+  // "?join=CODE" (a team invitation the farm owner shared).
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
-    if (!params.has('signin') && !params.has('forgot')) return;
-    setAuthModalMode(params.has('forgot') ? 'forgot' : 'login');
+    const invitation = params.get('join');
+    if (!params.has('signin') && !params.has('forgot') && !invitation) return;
+    if (invitation) { setJoinCode(invitation.slice(0, 40)); setAuthModalMode('join'); }
+    else setAuthModalMode(params.has('forgot') ? 'forgot' : 'login');
     setIsAuthModalOpen(true);
     window.history.replaceState(null, '', window.location.pathname);
   }, []);
+
+  // A person who may not open a screen (a worker has no sales or finance) is brought back to Home.
+  useEffect(() => {
+    if (!tabsFor(roleOrOwner(currentUser?.farmRole)).includes(activeTab)) setActiveTab('home');
+  }, [currentUser?.farmRole, activeTab]);
 
   useEffect(() => {
     let cancelled = false;
@@ -418,6 +428,7 @@ export default function Home() {
           isOpen={isAuthModalOpen}
           onClose={() => setIsAuthModalOpen(false)}
           initialMode={authModalMode}
+          initialJoinCode={joinCode}
           initialPlan={authModalPlan}
           onSuccess={(user) => {
             setCurrentUser(user);
@@ -521,6 +532,7 @@ export default function Home() {
           county={farm.county}
           farmName={farm.name}
           onSaveHealthEvent={handleSaveHealth}
+          canEditCows={canWrite(roleOrOwner(currentUser?.farmRole), 'cows')}
           farmId={currentUser?.farmId || farm.id}
           serverBacked={CloudStore.status().configured && currentUser?.id !== 'usr-demo-01'}
         />

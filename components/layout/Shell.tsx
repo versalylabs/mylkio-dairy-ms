@@ -4,6 +4,7 @@ import React from 'react';
 import { planPillLabel } from '@/lib/billing';
 import { Language, Farm, UserAccount } from '@/types';
 import { translations } from '@/lib/translations';
+import { ROLE_LABEL, roleOrOwner, tabsFor } from '@/lib/team';
 import { SyncStatusBar } from '@/components/sync/SyncStatusBar';
 import { 
   Home, 
@@ -41,7 +42,7 @@ export const Shell: React.FC<ShellProps> = ({
   onTabChange,
   lang,
   onLanguageToggle,
-  onOpenExport,
+  onOpenExport: onOpenExportProp,
   farm,
   user,
   onLogout,
@@ -49,8 +50,13 @@ export const Shell: React.FC<ShellProps> = ({
   isSuperAdminViewing = false,
 }) => {
   const t = translations[lang];
+  // A farm can have several logins: what each may open depends on their role (a worker never sees money).
+  const role = roleOrOwner(user?.farmRole);
+  const allowedTabs = tabsFor(role);
+  // Exporting copies every record, which a worker's device does not even hold.
+  const onOpenExport = role === 'worker' ? undefined : onOpenExportProp;
 
-  const navItems = [
+  const allNavItems = [
     { key: 'home', label: t.nav.home, icon: Home },
     { key: 'milk', label: t.nav.milk, icon: Milk },
     { key: 'herd', label: t.nav.herd, icon: Users },
@@ -58,6 +64,7 @@ export const Shell: React.FC<ShellProps> = ({
     { key: 'finance', label: lang === 'sw' ? 'Fedha' : 'Finance', icon: Receipt },
     { key: 'settings', label: t.nav.more, icon: Settings },
   ] as const;
+  const navItems = allNavItems.filter((item) => allowedTabs.includes(item.key));
 
   const mobileNavItems = navItems.filter((i) => i.key !== 'settings');
 
@@ -114,7 +121,14 @@ export const Shell: React.FC<ShellProps> = ({
             </div>
           </div>
 
-          {user && (
+          {user && role !== 'owner' && (
+            <div className="pt-2 border-t border-[#E8E4D8] text-xs">
+              <span className="px-2 py-0.5 rounded-full text-xs font-bold bg-[#A8BFA5]/25 text-[#26332D] border border-[#A8BFA5]/40 whitespace-nowrap">
+                {ROLE_LABEL[role][lang === 'sw' ? 'sw' : 'en']}
+              </span>
+            </div>
+          )}
+          {user && role === 'owner' && (
             <div className="pt-2 border-t border-[#E8E4D8] flex items-center justify-between text-xs">
               <span className={`px-2 py-0.5 rounded-full text-xs font-bold ${
                 user.subscription.status === 'active'

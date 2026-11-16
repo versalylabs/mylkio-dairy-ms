@@ -7,6 +7,7 @@ import { farmToday, monthRange } from '@/lib/dates';
 import { dailyProduction } from '@/lib/milk';
 import { isReminderDone } from '@/lib/herd-care';
 import { PlanNotice } from '@/components/billing/PlanNotice';
+import { canSeeBilling, canSeeMoney, canWrite, roleOrOwner } from '@/lib/team';
 import { cashReceived, expensesInRange, salesInRange, summariseBalances } from '@/lib/ledger';
 import { 
   Milk, 
@@ -104,7 +105,10 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
     ? (sw ? 'Bado haijarekodiwa' : 'Not recorded yet')
     : [todayMilk.am !== null ? 'AM' : null, todayMilk.pm !== null ? 'PM' : null].filter(Boolean).join(' + ') + (sw ? ' imerekodiwa' : ' recorded');
 
-  const displayName = farm?.ownerName || user?.name || 'Farmer';
+  // What this login may see: a worker gets the daily work (milk, cows, health) and never the money.
+  const role = roleOrOwner(user?.farmRole);
+  const money = canSeeMoney(role);
+  const displayName = (role === 'owner' ? farm?.ownerName : undefined) || user?.name || 'Farmer';
   const farmLocation = farm ? `${farm.name} • ${farm.county}` : 'My Dairy Farm';
 
   // A withdrawal reminder whose end date has passed is over, so it leaves the list by itself.
@@ -128,25 +132,31 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
         </h1>
       </header>
 
-      <PlanNotice subscription={user?.subscription} farmName={farm?.name ?? 'My farm'} />
+      {canSeeBilling(role) && <PlanNotice subscription={user?.subscription} farmName={farm?.name ?? 'My farm'} />}
 
       <section aria-label={sw ? 'Vitendo vya haraka' : 'Quick actions'} className="grid grid-cols-2 lg:grid-cols-4 gap-3">
         <button onClick={onOpenRecordMilk} className="min-h-[88px] flex flex-col items-center justify-center gap-2 whitespace-nowrap rounded-2xl bg-[#345C4A] px-2 py-4 text-white shadow-soft hover:bg-[#274537] hover:shadow-glow tile-hover">
           <Milk className="w-6 h-6" />
           <span className="text-sm font-bold sm:text-base">{t.quickActions.recordMilk}</span>
         </button>
-        <button onClick={onOpenRecordDelivery} className="min-h-[88px] flex flex-col items-center justify-center gap-2 whitespace-nowrap rounded-2xl border border-gray-200 bg-white px-2 py-4 text-charcoal shadow-soft hover:border-[#345C4A] tile-hover">
+        {money && (
+          <button onClick={onOpenRecordDelivery} className="min-h-[88px] flex flex-col items-center justify-center gap-2 whitespace-nowrap rounded-2xl border border-gray-200 bg-white px-2 py-4 text-charcoal shadow-soft hover:border-[#345C4A] tile-hover">
           <Truck className="w-6 h-6 text-[#345C4A]" />
           <span className="text-sm font-bold sm:text-base">{sw ? 'Rekodi Utoaji' : 'Log Delivery'}</span>
         </button>
-        <button onClick={onOpenRecordPayment} className="min-h-[88px] flex flex-col items-center justify-center gap-2 whitespace-nowrap rounded-2xl border border-gray-200 bg-white px-2 py-4 text-charcoal shadow-soft hover:border-[#C6A76A] tile-hover">
+        )}
+        {money && (
+          <button onClick={onOpenRecordPayment} className="min-h-[88px] flex flex-col items-center justify-center gap-2 whitespace-nowrap rounded-2xl border border-gray-200 bg-white px-2 py-4 text-charcoal shadow-soft hover:border-[#C6A76A] tile-hover">
           <DollarSign className="w-6 h-6 text-[#9A7B35]" />
           <span className="text-sm font-bold sm:text-base">{t.quickActions.receivePayment}</span>
         </button>
-        <button onClick={onOpenAddCow} className="min-h-[88px] flex flex-col items-center justify-center gap-2 whitespace-nowrap rounded-2xl border border-gray-200 bg-white px-2 py-4 text-charcoal shadow-soft hover:border-[#345C4A] tile-hover">
+        )}
+        {canWrite(role, 'cows') && (
+          <button onClick={onOpenAddCow} className="min-h-[88px] flex flex-col items-center justify-center gap-2 whitespace-nowrap rounded-2xl border border-gray-200 bg-white px-2 py-4 text-charcoal shadow-soft hover:border-[#345C4A] tile-hover">
           <Plus className="w-6 h-6 text-[#345C4A]" />
           <span className="text-sm font-bold sm:text-base">{t.quickActions.addCow}</span>
         </button>
+        )}
       </section>
 
       {/* Critical Milk Withdrawal Safety Banner */}
@@ -186,6 +196,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
           </div>
         </div>
 
+        {money && <>
         {/* Milk Sold */}
         <div className="bg-white p-4 rounded-2xl border border-gray-200/90 shadow-xs flex flex-col justify-between">
           <div className="flex items-center justify-between">
@@ -247,6 +258,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
             </div>
           </div>
         </div>
+        </>}
       </div>
 
       {/* What needs attention: open items first, a short list by default. */}
@@ -338,6 +350,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
         )}
       </section>
 
+      {money && <>
       {/* Financial Health Snapshot */}
       <div className="bg-[#26332D] text-white rounded-3xl p-5 shadow-sm space-y-3 border border-[#345C4A]/40">
         <div className="flex items-center justify-between">
@@ -378,6 +391,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
           </p>
         </div>
       </div>
+      </>}
 
       {/* Herd Snapshot */}
       <div className="bg-white rounded-2xl border border-gray-200/90 p-5 shadow-sm">
