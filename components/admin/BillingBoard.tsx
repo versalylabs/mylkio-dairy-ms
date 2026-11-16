@@ -92,7 +92,8 @@ export function BillingBoard({ accounts, refreshKey, onOpen }: { accounts: Board
         {followUp.length === 0 && <p className="text-sm text-charcoal-muted">Nobody needs following up right now: no trials ending within a week, and no payments due or late.</p>}
         {followUp.map(({ account, state }) => {
           const plan = PLANS[account.subscription!.plan as PlanId];
-          const message = reminderMessage(account.name, account.subscription!, plan?.name ?? account.subscription!.plan, plan?.priceKsh ?? 0);
+          const price = account.subscription!.monthlyPriceKsh || plan?.priceKsh || 0;
+          const message = reminderMessage(account.name, account.subscription!, plan?.name ?? account.subscription!.plan, price);
           const canReach = usablePhone(account.phone);
           return <article key={account.id} className="card flex flex-wrap items-center justify-between gap-3 p-4">
             <div className="min-w-0">
@@ -100,7 +101,7 @@ export function BillingBoard({ accounts, refreshKey, onOpen }: { accounts: Board
                 <h4 className="font-bold">{account.farm_name || account.name}</h4>
                 <span className={`whitespace-nowrap rounded-full px-2 py-0.5 text-xs font-semibold ${TONE[state] ?? ''}`}>{STATE_LABEL[state]}</span>
               </div>
-              <p className="text-sm text-charcoal-light">{account.name} · {plan?.name} plan, {ksh(plan?.priceKsh ?? 0)}/month</p>
+              <p className="text-sm text-charcoal-light">{account.name} · {plan?.name} plan, {ksh(price)}/month</p>
               <p className="text-xs text-charcoal-muted">{whenLine(account)}{account.last_paid_on ? ` · last paid ${shortDate(account.last_paid_on)}` : ' · never paid'}</p>
             </div>
             <div className="flex flex-wrap gap-2">

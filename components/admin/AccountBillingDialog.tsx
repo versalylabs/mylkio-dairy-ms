@@ -35,7 +35,7 @@ async function call<T>(url: string, init?: RequestInit): Promise<T> {
 export function AccountBillingDialog({ account, onClose, onChanged }: { account: BillingAccount; onClose: () => void; onChanged: () => void }) {
   const farmId = account.farm_id!;
   const plan = (account.subscription?.plan ?? 'farmer') as PlanId;
-  const price = PLANS[plan]?.priceKsh ?? 0;
+  const price = account.subscription?.monthlyPriceKsh || PLANS[plan]?.priceKsh || 0;
   const [payments, setPayments] = useState<Payment[]>([]);
   const [notes, setNotes] = useState<Note[]>([]);
   const [error, setError] = useState('');

@@ -1,7 +1,6 @@
 'use client';
 
 import React, { useEffect, useMemo, useState } from 'react';
-import type { Testimonial, PlatformSettings } from '@/types';
 import { farmToday } from '@/lib/dates';
 import { PLANS, PLAN_ORDER, TRIAL_DAYS, formatKsh, type PlanId } from '@/lib/plans';
 import {
@@ -26,13 +25,13 @@ import {
   Tractor,
   X,
 } from 'lucide-react';
-import { ABOUT_POINTS, ALL_LINKS, FEATURES, HERO_PROOF, NAV_LINKS, PREVIEW_TABS, PROBLEMS, STEPS, buildFaqs, type PreviewTab } from './content';
+import { ABOUT_POINTS, ALL_LINKS, FEATURES, HERO_PROOF, NAV_LINKS, PREVIEW_TABS, PROBLEMS, SAMPLE_TESTIMONIALS, STEPS, buildFaqs, type PreviewTab } from './content';
+import { useSiteContent } from '@/components/site/SiteContentProvider';
+import { phoneHref, priceOf, whatsappDigits } from '@/lib/site-content';
 
 interface MarketingLandingPageProps {
   onOpenAuth: (mode: 'login' | 'signup', plan?: PlanId) => void;
   onExploreDemo: () => void;
-  testimonials: Testimonial[];
-  settings: PlatformSettings;
 }
 
 const PLAN_COPY: Record<PlanId, { headline: string; blurb: string; points: string[]; featured?: boolean }> = {
@@ -54,7 +53,7 @@ const PLAN_COPY: Record<PlanId, { headline: string; blurb: string; points: strin
   },
 };
 
-const CHECKLIST_TEXT = `MYLKIO FREE DAIRY FARM RECORD-KEEPING CHECKLIST
+const checklistText = (contact: { phone: string; email: string }) => `MYLKIO FREE DAIRY FARM RECORD-KEEPING CHECKLIST
 Developed by Versaly Labs for Kenyan Dairy Farmers
 ==================================================
 
@@ -75,8 +74,8 @@ MONTHLY RECONCILIATION:
 [ ] 10. AI pregnancy check due dates verified (60-90 days post-insemination)
 
 Get full digital automation with Mylkio: https://mylkio.co.ke
-Support Phone & WhatsApp: +254 184 129145
-Support Email: versalylabs@gmail.com`;
+Support Phone & WhatsApp: ${contact.phone}
+Support Email: ${contact.email}`;
 
 /** Eyebrow, serif headline and intro, shared by every section so they read as one system. */
 function SectionHeading({ eyebrow, title, intro, align = 'center', light = false }: {
@@ -94,9 +93,8 @@ function SectionHeading({ eyebrow, title, intro, align = 'center', light = false
 export const MarketingLandingPage: React.FC<MarketingLandingPageProps> = ({
   onOpenAuth,
   onExploreDemo,
-  testimonials,
-  settings,
 }) => {
+  const content = useSiteContent();
   const [menuOpen, setMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const [previewTab, setPreviewTab] = useState<PreviewTab>('dashboard');
@@ -120,10 +118,12 @@ export const MarketingLandingPage: React.FC<MarketingLandingPageProps> = ({
   const [contactSending, setContactSending] = useState(false);
   const [contactError, setContactError] = useState('');
 
-  const faqs = useMemo(buildFaqs, []);
-  const approvedTestimonials = testimonials.filter((t) => t.isApproved);
-  const cleanPhone = (settings.supportWhatsApp || '+254184129145').replace(/[^0-9]/g, '');
-  const whatsappUrl = `https://wa.me/${cleanPhone}?text=Hello%20Mylkio,%20I%20would%20like%20to%20inquire%20about%20the%20dairy%20management%20system.`;
+  const { contact, prices } = content;
+  const faqs = useMemo(() => content.faqs ?? buildFaqs(prices), [content.faqs, prices]);
+  const approvedTestimonials = (content.testimonials ?? SAMPLE_TESTIMONIALS).filter((t) => t.approved);
+  const onlySamples = approvedTestimonials.every((t) => t.sample);
+  const someSamples = approvedTestimonials.some((t) => t.sample);
+  const whatsappUrl = `https://wa.me/${whatsappDigits(contact)}?text=Hello%20Mylkio,%20I%20would%20like%20to%20inquire%20about%20the%20dairy%20management%20system.`;
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 16);
@@ -205,7 +205,7 @@ export const MarketingLandingPage: React.FC<MarketingLandingPageProps> = ({
   };
 
   const downloadChecklist = () => {
-    const blob = new Blob([CHECKLIST_TEXT], { type: 'text/plain;charset=utf-8' });
+    const blob = new Blob([checklistText(contact)], { type: 'text/plain;charset=utf-8' });
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
     link.href = url;
@@ -626,7 +626,7 @@ export const MarketingLandingPage: React.FC<MarketingLandingPageProps> = ({
 
                   <div className="mt-6 border-y border-ivory-border py-6">
                     <p className="flex items-baseline gap-1.5 whitespace-nowrap">
-                      <span className="font-display text-[clamp(2rem,8.5vw,3rem)] font-medium tracking-tight sm:text-5xl">{formatKsh(plan.priceKsh)}</span>
+                      <span className="font-display text-[clamp(2rem,8.5vw,3rem)] font-medium tracking-tight sm:text-5xl">{formatKsh(priceOf(prices, id))}</span>
                       <span className="text-base text-charcoal-muted">/ month</span>
                     </p>
                     <p className="mt-2 text-sm text-charcoal-muted">Pay monthly once your free trial ends</p>
@@ -651,29 +651,29 @@ export const MarketingLandingPage: React.FC<MarketingLandingPageProps> = ({
         </div>
       </section>
 
-      {/* ───────────── Sample stories ───────────── */}
+      {/* ───────────── Farmer stories (real or clearly marked examples) ───────────── */}
       {approvedTestimonials.length > 0 && (
         <section className="section bg-white">
           <div className="container-page">
             <SectionHeading
-              eyebrow="Sample stories"
-              title="Built with Kenyan dairy farmers in mind."
-              intro="These are example stories written to show how a farm could use Mylkio. They are not reviews from customers, and the names and figures are illustrative. Real farmer feedback will appear here once pilot farms agree to share it."
+              eyebrow={onlySamples ? 'Sample stories' : 'Farmer stories'}
+              title={onlySamples ? 'Built with Kenyan dairy farmers in mind.' : 'What dairy farmers say about Mylkio.'}
+              intro={!onlySamples ? (someSamples ? 'Feedback from farmers using Mylkio. Any story marked as an example is illustrative and not a real review.' : 'Feedback from farmers using Mylkio.') : 'These are example stories written to show how a farm could use Mylkio. They are not reviews from customers, and the names and figures are illustrative. Real farmer feedback will appear here once pilot farms agree to share it.'}
             />
             <div className="section-body grid grid-cols-1 gap-6 md:grid-cols-3">
               {approvedTestimonials.map((t) => (
                 <figure key={t.id} className="card card-hover flex flex-col justify-between gap-6 bg-ivory p-7">
                   <div>
-                    <span className="inline-block whitespace-nowrap rounded-full border border-gold/50 bg-gold/15 px-3 py-1 text-xs font-bold uppercase tracking-wider text-gold-600">
+                    {t.sample && <span className="inline-block whitespace-nowrap rounded-full border border-gold/50 bg-gold/15 px-3 py-1 text-xs font-bold uppercase tracking-wider text-gold-600">
                       Example, not a real review
-                    </span>
+                    </span>}
                     <blockquote className="mt-4 border-l-2 border-sage pl-4 font-display text-lg leading-relaxed text-charcoal">
                       &ldquo;{t.quote}&rdquo;
                     </blockquote>
                   </div>
                   <figcaption className="border-t border-ivory-border pt-4">
-                    <p className="text-base font-semibold">{t.farmerName} <span className="font-normal text-charcoal-muted">(example)</span></p>
-                    <p className="text-sm font-medium text-sage">{t.farmName} • {t.county}</p>
+                    <p className="text-base font-semibold">{t.farmerName}{t.sample && <span className="font-normal text-charcoal-muted"> (example)</span>}</p>
+                    <p className="text-sm font-medium text-sage">{[t.farmName, t.county].filter(Boolean).join(' • ')}</p>
                     <p className="text-sm text-charcoal-muted">{t.cowsCount} cows</p>
                   </figcaption>
                 </figure>
@@ -755,9 +755,9 @@ export const MarketingLandingPage: React.FC<MarketingLandingPageProps> = ({
           <div className="section-body mx-auto grid grid-cols-1 max-w-5xl items-start gap-8 lg:grid-cols-12">
             <div className="space-y-4 lg:col-span-5">
               {[
-                { href: `tel:+${cleanPhone}`, icon: Phone, label: 'Direct phone', value: '+254 184 129145', note: 'Monday – Saturday, 7:00 AM – 7:00 PM', gold: false, external: false },
-                { href: whatsappUrl, icon: MessageSquare, label: 'WhatsApp line', value: '+254 184 129145', note: 'Quick responses on setup and questions', gold: true, external: true },
-                { href: 'mailto:versalylabs@gmail.com', icon: Mail, label: 'Email inquiry', value: 'versalylabs@gmail.com', note: 'For cooperative partnerships and billing', gold: false, external: false },
+                { href: phoneHref(contact), icon: Phone, label: 'Direct phone', value: contact.phone, note: 'Monday – Saturday, 7:00 AM – 7:00 PM', gold: false, external: false },
+                { href: whatsappUrl, icon: MessageSquare, label: 'WhatsApp line', value: contact.whatsapp, note: 'Quick responses on setup and questions', gold: true, external: true },
+                { href: `mailto:${contact.email}`, icon: Mail, label: 'Email inquiry', value: contact.email, note: 'For cooperative partnerships and billing', gold: false, external: false },
               ].map(({ href, icon: Icon, label, value, note, gold, external }) => (
                 <a
                   key={label}
@@ -883,8 +883,8 @@ export const MarketingLandingPage: React.FC<MarketingLandingPageProps> = ({
             <div>
               <p className="text-xs font-semibold uppercase tracking-[0.16em] text-gold">Get in touch</p>
               <ul className="mt-4 space-y-2.5 text-base">
-                <li><a href={`tel:+${cleanPhone}`} className="whitespace-nowrap text-ivory/85 transition-colors hover:text-gold">+254 184 129145</a></li>
-                <li><a href="mailto:versalylabs@gmail.com" className="break-all text-ivory/85 transition-colors hover:text-gold">versalylabs@gmail.com</a></li>
+                <li><a href={phoneHref(contact)} className="whitespace-nowrap text-ivory/85 transition-colors hover:text-gold">{contact.phone}</a></li>
+                <li><a href={`mailto:${contact.email}`} className="break-all text-ivory/85 transition-colors hover:text-gold">{contact.email}</a></li>
               </ul>
             </div>
           </div>

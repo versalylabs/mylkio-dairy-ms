@@ -4,6 +4,7 @@ import type { Subscription } from '@/types';
 import { VetDirectoryAdmin } from './VetDirectoryAdmin';
 import { BillingBoard } from './BillingBoard';
 import { AccountBillingDialog } from './AccountBillingDialog';
+import { WebsiteContentAdmin } from './WebsiteContentAdmin';
 import { billingState, STATE_LABEL, shortDate } from '@/lib/billing';
 
 type Account = {
@@ -94,6 +95,7 @@ export function PlatformAdminView({ onLogout }: Props) {
   const [activeOnly, setActiveOnly] = useState(false);
   const [billingFor, setBillingFor] = useState<Account | null>(null);
   const [billingTick, setBillingTick] = useState(0);
+  const [tab, setTab] = useState<'overview' | 'accounts' | 'enquiries' | 'vets' | 'website'>('overview');
 
   const live = asAt === '';
   const asAtIso = useMemo(() => {
@@ -165,12 +167,20 @@ export function PlatformAdminView({ onLogout }: Props) {
 
   return <main className="mx-auto max-w-6xl space-y-6 p-4 text-charcoal sm:p-6">
     <header className="flex flex-wrap items-start justify-between gap-4">
-      <div><h1 className="font-display text-display-md">Mylkio Administration</h1><p className="mt-2 max-w-2xl text-sm text-charcoal-light">Who is using Mylkio, and on which plan. This shows account activity only: farmers&apos; milk, herd and sales records stay private.</p></div>
+      <div><h1 className="font-display text-display-md">Mylkio Administration</h1><p className="mt-2 max-w-2xl text-sm text-charcoal-light">Who is using Mylkio, on which plan, and what the website says. This shows account activity only: farmers&apos; milk, herd and sales records stay private.</p></div>
       <button onClick={onLogout} className="btn btn-secondary">Sign out</button>
     </header>
+    <nav aria-label="Administration sections" className="tab-strip">
+      {([['overview', 'Overview'], ['accounts', 'Accounts and billing'], ['enquiries', 'Enquiries'], ['vets', 'Vet directory'], ['website', 'Website']] as const).map(([key, label]) => (
+        <button key={key} type="button" aria-current={tab === key ? 'page' : undefined} onClick={() => setTab(key)} className={`tab-btn ${tab === key ? 'tab-btn-active' : ''}`}>
+          {label}
+          {key === 'enquiries' && leads.some(l => l.status === 'new') && <span className="count-badge">{leads.filter(l => l.status === 'new').length}</span>}
+        </button>
+      ))}
+    </nav>
     {error && <p role="alert" className="rounded-xl bg-red-50 p-4 text-red-800">{error}</p>}
 
-    <section aria-labelledby="usage-heading" className="space-y-4">
+    {tab === 'overview' && <section aria-labelledby="usage-heading" className="space-y-4">
       <div className="flex flex-wrap items-end justify-between gap-4">
         <div><h2 id="usage-heading" className="font-display text-2xl font-medium">Usage {live ? 'right now' : 'as at a chosen time'}</h2>
           <p className="mt-1 text-sm text-charcoal-light">{usage ? `${live ? 'Live, as at' : 'As at'} ${dateTime(usage.asAt)} (Nairobi time)` : 'Loading…'}{live ? ' · refreshes every minute' : ''}</p></div>
@@ -208,8 +218,9 @@ export function PlatformAdminView({ onLogout }: Props) {
         </div>
         <p className="text-xs text-charcoal-muted">Plan and status are today&apos;s: subscription changes are not kept as history, so they are not rewound to the chosen time. Activity history is kept for about six months and starts from when this screen was introduced.</p>
       </>}
-    </section>
+    </section>}
 
+    {tab === 'accounts' && <>
     <BillingBoard accounts={farmers} refreshKey={billingTick} onOpen={(a) => setBillingFor(farmers.find(f => f.id === a.id) ?? null)} />
     {billingFor && <AccountBillingDialog account={billingFor} onClose={() => setBillingFor(null)} onChanged={() => { setBillingTick(t => t + 1); void load().then(() => undefined); }} />}
 
@@ -241,10 +252,13 @@ export function PlatformAdminView({ onLogout }: Props) {
       })}</div>
       {!busy && !error && visible.length === 0 && <p className="text-sm">{farmers.length === 0 ? 'No farm accounts had been created by this time.' : 'No accounts match these filters.'}</p>}
     </section>
+    </>}
 
-    <VetDirectoryAdmin />
+    {tab === 'vets' && <VetDirectoryAdmin />}
 
-    <section aria-labelledby="leads-heading" className="space-y-3">
+    {tab === 'website' && <WebsiteContentAdmin />}
+
+    {tab === 'enquiries' && <section aria-labelledby="leads-heading" className="space-y-3">
       <h2 id="leads-heading" className="font-display text-2xl font-medium">Website enquiries ({leads.filter(l => l.status === 'new').length} new)</h2>
       {leads.length === 0 && <p className="text-sm">No enquiries yet.</p>}
       {leads.map(lead => <article key={lead.id} className="flex flex-wrap items-start justify-between gap-4 card p-4">
@@ -254,6 +268,6 @@ export function PlatformAdminView({ onLogout }: Props) {
           <p className="mt-1 text-xs text-charcoal-muted">{lead.source} · {dateTime(lead.created_at)}</p></div>
         <label className="text-sm">Status<select aria-label={`Status for enquiry from ${lead.name}`} disabled={busy} className="field ml-2 !inline-block !w-auto" value={lead.status} onChange={e => void setLeadStatus(lead, e.target.value as Lead['status'])}>{['new', 'contacted', 'converted', 'archived'].map(status => <option key={status}>{status}</option>)}</select></label>
       </article>)}
-    </section>
+    </section>}
   </main>;
 }

@@ -2,7 +2,9 @@
 
 import React from 'react';
 import { MessageCircle } from 'lucide-react';
-import { SUPPORT_PHONE_DIGITS, whatsappLink } from '@/lib/contact';
+import { whatsappLink } from '@/lib/contact';
+import { useSiteContent } from '@/components/site/SiteContentProvider';
+import { whatsappDigits } from '@/lib/site-content';
 import { PLANS, type PlanId } from '@/lib/plans';
 import { billingState, daysLeft, describeBilling, extrasLapsed, type BillingSubscription } from '@/lib/billing';
 
@@ -18,6 +20,7 @@ export function payMessage(farmName: string, planName: string) {
  * stay open and exportable, and it says so. Nothing is shown while all is well.
  */
 export function PlanNotice({ subscription, farmName }: { subscription?: (BillingSubscription & { plan: string }) | null; farmName: string }) {
+  const { contact } = useSiteContent();
   if (!subscription) return null;
   const state = billingState(subscription);
   if (state === 'complimentary' || state === 'trial' || state === 'paid') return null;
@@ -45,7 +48,7 @@ export function PlanNotice({ subscription, farmName }: { subscription?: (Billing
           {paused ? ' The symptom checker and vet finder are paused until payment; everything else keeps working.' : ' Your records stay safe either way.'}
         </p>
       </div>
-      <a className="btn btn-primary shrink-0" href={whatsappLink(SUPPORT_PHONE_DIGITS, payMessage(farmName, plan?.name ?? subscription.plan))} target="_blank" rel="noopener noreferrer">
+      <a className="btn btn-primary shrink-0" href={whatsappLink(whatsappDigits(contact), payMessage(farmName, plan?.name ?? subscription.plan))} target="_blank" rel="noopener noreferrer">
         <MessageCircle className="h-4 w-4" />Message Mylkio
       </a>
     </section>

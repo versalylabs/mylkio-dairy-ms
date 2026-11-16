@@ -11,6 +11,8 @@ import {
   type LucideIcon,
 } from 'lucide-react';
 import { TRIAL_DAYS, pricingSentence } from '@/lib/plans';
+import { initialTestimonials } from '@/lib/mock-data';
+import type { SiteTestimonial } from '@/lib/site-content';
 
 // The words and structure of the website live here, apart from how they are drawn.
 
@@ -132,7 +134,13 @@ export const HERO_PROOF = [
   'Made for Kenyan dairy farms',
 ];
 
-export function buildFaqs() {
+/** The built-in example stories, shown until an administrator saves their own list. They are invented, and labelled so. */
+export const SAMPLE_TESTIMONIALS: SiteTestimonial[] = initialTestimonials.map((t) => ({
+  id: t.id, farmerName: t.farmerName, farmName: t.farmName, county: t.county, cowsCount: t.cowsCount, quote: t.quote,
+  rating: t.rating, approved: t.isApproved, sample: true,
+}));
+
+export function buildFaqs(prices?: Record<'starter' | 'farmer' | 'farm_pro', number>) {
   return [
     {
       q: 'Do I need computer skills to use Mylkio?',
@@ -156,7 +164,7 @@ export function buildFaqs() {
     },
     {
       q: 'How much does Mylkio cost?',
-      a: `${pricingSentence()} Every new account begins with a ${TRIAL_DAYS}-day free trial with no payment required upfront.`,
+      a: `${pricingSentence(prices)} Every new account begins with a ${TRIAL_DAYS}-day free trial with no payment required upfront.`,
     },
     {
       q: 'Is my farm data private and safe?',

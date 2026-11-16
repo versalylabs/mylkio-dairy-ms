@@ -235,6 +235,27 @@ export async function adminSetVetStatus(db: Db, actor: string, id: string, statu
   await run(db, 'select public.admin_set_vet_status($1, $2, $3, $4::date)', [actor, id, status, confirmedOn ?? null], 'Administrator access required.');
 }
 
+// ---- Website content (migration 0007). Reading is public; changing it is for administrators, and the database re-checks. ----
+
+/** The saved website content, as the database holds it (missing keys mean "never saved"). */
+export async function getSiteContent(db: Db): Promise<Record<string, unknown>> {
+  const [row] = await run<{ content: Record<string, unknown> }>(db, 'select public.get_site_content() as content', []);
+  return row?.content ?? {};
+}
+
+export async function adminSiteContentMeta(db: Db, actor: string): Promise<Record<string, { updatedAt: string; updatedBy: string | null }>> {
+  const [row] = await run<{ meta: Record<string, { updatedAt: string; updatedBy: string | null }> }>(db, 'select public.admin_site_content_meta($1) as meta', [actor], 'Administrator access required.');
+  return row?.meta ?? {};
+}
+
+export async function adminSetSiteContent(db: Db, actor: string, key: string, value: unknown): Promise<void> {
+  await run(db, 'select public.admin_set_site_content($1, $2, $3::jsonb)', [actor, key, JSON.stringify(value)], 'Administrator access required.');
+}
+
+export async function adminResetSiteContent(db: Db, actor: string, key: string): Promise<void> {
+  await run(db, 'select public.admin_reset_site_content($1, $2)', [actor, key], 'Administrator access required.');
+}
+
 // ---- Commercial administration (migration 0006). Administrators only; the database re-checks. ----
 
 const ADMIN_ONLY = 'Administrator access required.';

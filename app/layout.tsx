@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import { Fraunces, Inter } from "next/font/google";
 import "./globals.css";
 import { SITE_NAME, SITE_TAGLINE, SITE_URL } from "@/lib/site";
+import { SiteContentProvider } from "@/components/site/SiteContentProvider";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -65,7 +66,7 @@ export default function RootLayout({
   return (
     <html lang="en" className={`${inter.variable} ${fraunces.variable} scroll-smooth`}>
       <body className="antialiased bg-[#FAF9F5] text-[#26332D] selection:bg-[#A8BFA5]/30 selection:text-[#26332D]">
-        {children}
+        <SiteContentProvider>{children}</SiteContentProvider>
       </body>
     </html>
   );
