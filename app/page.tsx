@@ -15,8 +15,6 @@ import {
   Language,
   UserAccount,
   SubscriptionPlan,
-  Testimonial,
-  PlatformSettings,
   CoopStatement,
   CustomerBill,
   PaymentAllocation,
@@ -63,8 +61,6 @@ export default function Home() {
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const [authModalMode, setAuthModalMode] = useState<'login' | 'signup'>('login');
   const [authModalPlan, setAuthModalPlan] = useState<SubscriptionPlan>('farmer');
-  const [testimonials, setTestimonials] = useState<Testimonial[]>([]);
-  const [platformSettings, setPlatformSettings] = useState<PlatformSettings>(AppStorage.getPlatformSettings());
 
   // Farm data states
   const [activeTab, setActiveTab] = useState<'home' | 'milk' | 'herd' | 'sales' | 'finance' | 'settings'>('home');
@@ -130,8 +126,6 @@ export default function Home() {
     setBills(AppStorage.getBills(activeFarmId));
     setAllocations(AppStorage.getAllocations(activeFarmId));
     setLang(AppStorage.getLanguage());
-    setTestimonials(AppStorage.getTestimonials());
-    setPlatformSettings(AppStorage.getPlatformSettings());
   };
 
   useEffect(() => {
@@ -409,8 +403,6 @@ export default function Home() {
             setIsAuthModalOpen(true);
           }}
           onExploreDemo={handleDemoLoginClick}
-          testimonials={testimonials}
-          settings={platformSettings}
         />
 
         <AuthModal

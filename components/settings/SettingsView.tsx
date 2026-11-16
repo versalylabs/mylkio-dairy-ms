@@ -8,7 +8,9 @@ import { LegacyDataImport } from './LegacyDataImport';
 import { StorageCard } from './StorageCard';
 import { PLANS, type PlanId } from '@/lib/plans';
 import { billingState, describeBilling, STATE_LABEL } from '@/lib/billing';
-import { SUPPORT_PHONE_DIGITS, whatsappLink } from '@/lib/contact';
+import { whatsappLink } from '@/lib/contact';
+import { useSiteContent } from '@/components/site/SiteContentProvider';
+import { whatsappDigits } from '@/lib/site-content';
 import { payMessage } from '@/components/billing/PlanNotice';
 import { Globe, Building, Database, RefreshCw, Check, Smartphone, CreditCard, LogOut } from 'lucide-react';
 
@@ -41,6 +43,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
   onLogout,
 }) => {
   const t = translations[lang];
+  const { contact } = useSiteContent();
   const plan = user ? PLANS[user.subscription.plan as PlanId] : undefined;
   const billing = user ? billingState(user.subscription) : 'complimentary';
 
@@ -182,7 +185,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
             {billing !== 'complimentary' && (
               <div className="flex flex-wrap items-center justify-between gap-3 border-t border-ivory-border pt-3">
                 <p className="text-sm text-charcoal-light">To pay, renew or change your plan, message Mylkio. Your records are always yours to export.</p>
-                <a className="btn btn-secondary" href={whatsappLink(SUPPORT_PHONE_DIGITS, payMessage(farm.name, plan ? plan.name : user.subscription.plan))} target="_blank" rel="noopener noreferrer">Message Mylkio</a>
+                <a className="btn btn-secondary" href={whatsappLink(whatsappDigits(contact), payMessage(farm.name, plan ? plan.name : user.subscription.plan))} target="_blank" rel="noopener noreferrer">Message Mylkio</a>
               </div>
             )}
           </div>

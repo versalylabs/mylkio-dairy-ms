@@ -4,6 +4,8 @@ import React, { useState } from 'react';
 import { AppStorage } from '@/lib/storage';
 import { SecureAuth } from '@/lib/auth-client';
 import { PLANS, PLAN_ORDER, TRIAL_DAYS, formatKsh } from '@/lib/plans';
+import { useSiteContent } from '@/components/site/SiteContentProvider';
+import { priceOf } from '@/lib/site-content';
 import { SubscriptionPlan, UserAccount } from '@/types';
 import { 
   X, 
@@ -35,6 +37,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
   initialPlan = 'farmer',
   onSuccess,
 }) => {
+  const { prices } = useSiteContent();
   const [mode, setMode] = useState<'login' | 'signup'>(initialMode);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
@@ -259,7 +262,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                         className={`min-h-16 rounded-xl border px-1.5 py-2 text-center transition-all ${plan === id ? 'border-sage bg-sage/10 ring-2 ring-sage/25' : 'border-ivory-border bg-white hover:border-sage-300'}`}
                       >
                         <span className="block whitespace-nowrap text-sm font-semibold text-charcoal">{PLANS[id].name}</span>
-                        <span className="block whitespace-nowrap text-sm font-bold tabular-nums text-sage">{formatKsh(PLANS[id].priceKsh)}</span>
+                        <span className="block whitespace-nowrap text-sm font-bold tabular-nums text-sage">{formatKsh(priceOf(prices, id))}</span>
                       </button>
                     ))}
                   </div>

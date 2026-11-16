@@ -76,7 +76,7 @@ export const TRIAL_DAYS = 14;
 export const formatKsh = (amount: number) => `KSh ${amount.toLocaleString('en-KE')}`;
 
 /** "KSh 500/month for up to 5 cows, KSh 1,000/month … and KSh 2,500/month …" for the FAQ. */
-export function pricingSentence() {
-  const { starter, farmer, farm_pro } = PLANS;
-  return `Plans start at KSh ${starter.priceKsh.toLocaleString('en-KE')}/month for up to ${starter.cowLimit} cows, ${formatKsh(farmer.priceKsh)}/month for growing farms (up to ${farmer.cowLimit} cows), and ${formatKsh(farm_pro.priceKsh)}/month for larger commercial herds.`;
+export function pricingSentence(prices: Record<PlanId, number> = { starter: PLANS.starter.priceKsh, farmer: PLANS.farmer.priceKsh, farm_pro: PLANS.farm_pro.priceKsh }) {
+  const { starter, farmer } = PLANS;
+  return `Plans start at KSh ${prices.starter.toLocaleString('en-KE')}/month for up to ${starter.cowLimit} cows, ${formatKsh(prices.farmer)}/month for growing farms (up to ${farmer.cowLimit} cows), and ${formatKsh(prices.farm_pro)}/month for larger commercial herds.`;
 }
