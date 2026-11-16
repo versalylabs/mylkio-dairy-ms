@@ -340,6 +340,8 @@ export interface UserAccount {
   email: string;
   role: UserRole;
   farmId: string;
+  /** What this person is on their farm. Missing for the demo and older saved logins, which mean the owner. */
+  farmRole?: 'owner' | 'manager' | 'worker';
   name: string;
   phone?: string;
   subscription: Subscription;

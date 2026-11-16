@@ -6,6 +6,8 @@ import { translations } from '@/lib/translations';
 import { AppStorage } from '@/lib/storage';
 import { LegacyDataImport } from './LegacyDataImport';
 import { StorageCard } from './StorageCard';
+import { TeamCard } from './TeamCard';
+import { ROLE_LABEL, ROLE_SUMMARY, canManageTeam, canSeeBilling, roleOrOwner } from '@/lib/team';
 import { PLANS, type PlanId } from '@/lib/plans';
 import { billingState, describeBilling, STATE_LABEL } from '@/lib/billing';
 import { whatsappLink } from '@/lib/contact';
@@ -46,6 +48,9 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
   const { contact } = useSiteContent();
   const plan = user ? PLANS[user.subscription.plan as PlanId] : undefined;
   const billing = user ? billingState(user.subscription) : 'complimentary';
+  // A farm can have several logins. Only the owner sees the plan, payments and team; a worker does not edit the farm.
+  const role = roleOrOwner(user?.farmRole);
+  const isOwner = canSeeBilling(role);
 
   const [farmName, setFarmName] = useState(farm.name);
   const [county, setCounty] = useState(farm.county);
@@ -143,7 +148,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
       </div>
 
       {/* Subscription & Account Status */}
-      {user && (
+      {user && isOwner && (
         <div className="bg-white rounded-2xl border border-gray-200/90 p-5 shadow-sm space-y-4">
           <div className="flex items-center space-x-3">
             <div className="p-2.5 bg-[#A8BFA5]/20 text-[#345C4A] rounded-xl">
@@ -205,7 +210,22 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
         </div>
       )}
 
+      {user && canManageTeam(role) && user.id !== 'usr-demo-01' && user.role !== 'super_admin' && (
+        <TeamCard farmId={user.farmId} farmName={farm.name} planId={user.subscription.plan} lang={lang} />
+      )}
+
+      {user && !isOwner && (
+        <div className="bg-white rounded-2xl border border-gray-200/90 p-5 shadow-sm">
+          <h2 className="text-base font-bold text-gray-900">{user.name}</h2>
+          <p className="mt-1 text-sm text-gray-600">
+            {lang === 'sw' ? `${ROLE_LABEL[role].sw} kwenye ${farm.name}` : `${ROLE_LABEL[role].en} on ${farm.name}`}
+          </p>
+          <p className="mt-1 text-sm text-gray-500">{ROLE_SUMMARY[role][lang === 'sw' ? 'sw' : 'en']}</p>
+        </div>
+      )}
+
       {/* Farm Profile Form */}
+      {role !== 'worker' && (
       <div className="bg-white rounded-2xl border border-gray-200/90 p-5 shadow-sm">
         <div className="flex items-center space-x-3 mb-5">
           <div className="p-2.5 bg-[#A8BFA5]/20 text-[#345C4A] rounded-xl">
@@ -324,16 +344,18 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
           </div>
         </form>
       </div>
+      )}
 
-      {storage && user && user.role !== 'super_admin' && (
+      {storage && user && user.role !== 'super_admin' && role !== 'worker' && (
         <StorageCard farmId={farm.id} recordCount={storage.recordCount} cows={storage.cows} onDownloadBackup={storage.onDownloadBackup} onShrinkPhotos={storage.onShrinkPhotos} />
       )}
 
-      {user && user.role !== 'super_admin' && user.id !== 'usr-demo-01' && (
+      {user && isOwner && user.role !== 'super_admin' && user.id !== 'usr-demo-01' && (
         <LegacyDataImport targetFarmId={user.farmId} language={lang} />
       )}
 
       {/* Offline Status & Demo Data Control */}
+      {isOwner && (
       <div className="bg-white rounded-2xl border border-gray-200/90 p-5 shadow-sm space-y-4">
         <div className="flex items-center space-x-3">
           <div className="p-2.5 bg-[#FAF5EB] text-[#C6A76A] border border-[#E5D5B5] rounded-xl">
@@ -371,6 +393,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
           </button>
         </div>
       </div>
+      )}
     </div>
   );
 };

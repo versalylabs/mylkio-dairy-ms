@@ -49,7 +49,7 @@ const PLAN_COPY: Record<PlanId, { headline: string; blurb: string; points: strin
   farm_pro: {
     headline: 'For commercial herds',
     blurb: 'For larger operations requiring advanced features.',
-    points: ['Unlimited herd capacity', 'Multiple farm worker logins (coming soon)', 'Priority WhatsApp and phone assistance', 'Operating profit and net margin ledger'],
+    points: ['Unlimited herd capacity', 'Team logins: you and up to five managers and workers', 'Priority WhatsApp and phone assistance', 'Operating profit and net margin ledger'],
   },
 };
 

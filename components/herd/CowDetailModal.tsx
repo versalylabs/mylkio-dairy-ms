@@ -29,7 +29,8 @@ interface CowDetailModalProps {
   cow: Cow | null;
   isOpen: boolean;
   onClose: () => void;
-  onEdit: (cow: Cow) => void;
+  /** Missing for someone who may look at a cow but not change her (a farm worker). */
+  onEdit?: (cow: Cow) => void;
   onOpenRecordHealth?: () => void;
   onOpenRecordBreeding?: () => void;
   healthEvents: HealthEvent[];
@@ -140,7 +141,8 @@ export const CowDetailModal: React.FC<CowDetailModalProps> = ({
           </div>
 
           <div className="flex items-center space-x-2">
-            <button
+            {onEdit && (
+<button
               onClick={() => {
                 onClose();
                 onEdit(cow);
@@ -151,6 +153,7 @@ export const CowDetailModal: React.FC<CowDetailModalProps> = ({
               <Edit3 className="w-3.5 h-3.5 text-[#345C4A]" />
               <span className="hidden sm:inline">{lang === 'sw' ? 'Hariri' : 'Edit'}</span>
             </button>
+)}
             <button
               onClick={onClose}
               className="p-2 text-[#879C91] hover:text-[#26332D] hover:bg-[#F2EFE7] rounded-full transition-colors"
@@ -251,7 +254,8 @@ export const CowDetailModal: React.FC<CowDetailModalProps> = ({
                   {lang === 'sw' ? 'Unaweza kupakia picha nyingi za pembe tofauti za ng\'ombe huyu.' : 'Add multiple photos of cow markings, ear tags, and posture.'}
                 </p>
               </div>
-              <button
+              {onEdit && (
+<button
                 onClick={() => {
                   onClose();
                   onEdit(cow);
@@ -261,6 +265,7 @@ export const CowDetailModal: React.FC<CowDetailModalProps> = ({
                 <Camera className="w-3.5 h-3.5" />
                 <span>{lang === 'sw' ? 'Pakia Picha Sasa' : 'Upload Photos'}</span>
               </button>
+)}
             </div>
           )}
 
@@ -516,7 +521,8 @@ export const CowDetailModal: React.FC<CowDetailModalProps> = ({
             </div>
 
             <div className="flex items-center gap-2">
-              <button
+              {onEdit && (
+<button
                 type="button"
                 onClick={() => {
                   onClose();
@@ -527,6 +533,7 @@ export const CowDetailModal: React.FC<CowDetailModalProps> = ({
                 <Edit3 className="w-3.5 h-3.5" />
                 <span>{lang === 'sw' ? 'Hariri Ng\'ombe' : 'Edit Details'}</span>
               </button>
+)}
               <button
                 type="button"
                 onClick={onClose}

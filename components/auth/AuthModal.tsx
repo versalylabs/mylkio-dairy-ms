@@ -7,6 +7,8 @@ import { PLANS, PLAN_ORDER, TRIAL_DAYS, formatKsh } from '@/lib/plans';
 import { useSiteContent } from '@/components/site/SiteContentProvider';
 import { priceOf } from '@/lib/site-content';
 import { RESET_COPY, RESET_LINK_MINUTES } from '@/lib/password-reset';
+import { TEAM_COPY } from '@/lib/team-copy';
+import { looksLikeInviteCode, normaliseInviteCode } from '@/lib/team';
 import { SUPPORT_PHONE_DIGITS, whatsappLink } from '@/lib/contact';
 import { SubscriptionPlan, UserAccount } from '@/types';
 import { 
@@ -27,7 +29,9 @@ import {
 interface AuthModalProps {
   isOpen: boolean;
   onClose: () => void;
-  initialMode?: 'login' | 'signup' | 'forgot';
+  initialMode?: 'login' | 'signup' | 'forgot' | 'join';
+  /** The code from an invitation link (?join=CODE), filled in for the person. */
+  initialJoinCode?: string;
   initialPlan?: SubscriptionPlan;
   onSuccess: (user: UserAccount) => void;
 }
@@ -36,11 +40,12 @@ export const AuthModal: React.FC<AuthModalProps> = ({
   isOpen,
   onClose,
   initialMode = 'login',
+  initialJoinCode = '',
   initialPlan = 'farmer',
   onSuccess,
 }) => {
   const { prices } = useSiteContent();
-  const [mode, setMode] = useState<'login' | 'signup' | 'forgot'>(initialMode);
+  const [mode, setMode] = useState<'login' | 'signup' | 'forgot' | 'join'>(initialMode);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [notice, setNotice] = useState('');
@@ -48,6 +53,9 @@ export const AuthModal: React.FC<AuthModalProps> = ({
   // Login form fields
   const [loginEmail, setLoginEmail] = useState('');
   const [loginPassword, setLoginPassword] = useState('');
+
+  // Joining a farm with an invitation
+  const [joinCode, setJoinCode] = useState(initialJoinCode);
 
   // Forgot password
   const [resetEmail, setResetEmail] = useState('');
@@ -63,6 +71,8 @@ export const AuthModal: React.FC<AuthModalProps> = ({
   const [subCounty, setSubCounty] = useState('');
   const [plan, setPlan] = useState<SubscriptionPlan>(initialPlan);
   const [inviteCode, setInviteCode] = useState('');
+
+  React.useEffect(() => { if (initialJoinCode) setJoinCode(initialJoinCode); }, [initialJoinCode]);
 
   React.useEffect(() => {
     setMode(initialMode);
@@ -109,6 +119,26 @@ export const AuthModal: React.FC<AuthModalProps> = ({
       setError(result.reason === 'rate_limited' ? copy.rateLimited : result.reason === 'bad_email' ? copy.badEmail : copy.unavailable);
     } catch {
       setError(copy.other);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleJoin = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError(null);
+    const copy = TEAM_COPY[AppStorage.getLanguage() === 'sw' ? 'sw' : 'en'];
+    if (!looksLikeInviteCode(joinCode)) { setError(copy.joinNeedsCode); return; }
+    if (!name.trim() || !signupEmail.trim()) { setError('Please fill in all required fields.'); return; }
+    if (signupPassword.length < 12) { setError(copy.passwordShort); return; }
+    setLoading(true);
+    try {
+      const res = await SecureAuth.joinFarm({ name, email: signupEmail, password: signupPassword, phone, code: normaliseInviteCode(joinCode) });
+      if (res.success && res.user) { onSuccess(res.user); onClose(); }
+      else if (res.confirmationRequired) { setSignupPassword(''); setNotice('Check your email to confirm your account, then sign in and enter your invitation again.'); }
+      else setError(res.error || copy.invalidCode);
+    } catch {
+      setError(copy.invalidCode);
     } finally {
       setLoading(false);
     }
@@ -236,6 +266,10 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                   <ArrowRight className="h-5 w-5" />
                 </button>
 
+                <button type="button" onClick={() => { setError(null); setMode('join'); }} className="mx-auto flex min-h-10 items-center text-sm font-semibold text-sage hover:underline">
+                  {TEAM_COPY[AppStorage.getLanguage() === 'sw' ? 'sw' : 'en'].joinLink}
+                </button>
+
                 <div className="relative py-1">
                   <div className="absolute inset-0 flex items-center"><div className="w-full border-t border-ivory-border" /></div>
                   <p className="relative mx-auto w-fit bg-white px-3 text-xs font-semibold uppercase tracking-wider text-charcoal-muted">Or try sample data</p>
@@ -246,6 +280,12 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                   <span>Explore the demo farm</span>
                 </button>
               </form>
+            ) : mode === 'join' ? (
+              <JoinFarm
+                code={joinCode} onCode={setJoinCode} name={name} onName={setName} phone={phone} onPhone={setPhone}
+                email={signupEmail} onEmail={setSignupEmail} password={signupPassword} onPassword={setSignupPassword}
+                loading={loading} onSubmit={handleJoin} onBack={() => { setMode('login'); setError(null); }}
+              />
             ) : mode === 'forgot' ? (
               <ForgotPassword email={resetEmail} onEmail={setResetEmail} sent={resetSent} loading={loading} onSubmit={handleForgot} onBack={() => { setMode('login'); setError(null); setResetSent(false); }} />
             ) : (
@@ -320,6 +360,38 @@ export const AuthModal: React.FC<AuthModalProps> = ({
     </div>
   );
 };
+
+/** An invited person creates their own login and joins the owner's farm with the one-time code. */
+function JoinFarm({ code, onCode, name, onName, phone, onPhone, email, onEmail, password, onPassword, loading, onSubmit, onBack }: {
+  code: string; onCode: (v: string) => void; name: string; onName: (v: string) => void; phone: string; onPhone: (v: string) => void;
+  email: string; onEmail: (v: string) => void; password: string; onPassword: (v: string) => void; loading: boolean;
+  onSubmit: (e: React.FormEvent) => void; onBack: () => void;
+}) {
+  const t = TEAM_COPY[AppStorage.getLanguage() === 'sw' ? 'sw' : 'en'];
+  return (
+    <form onSubmit={onSubmit} className="space-y-5">
+      <div>
+        <h3 className="font-display text-xl font-medium">{t.joinTitle}</h3>
+        <p className="mt-2 text-sm text-charcoal-light">{t.joinIntro}</p>
+      </div>
+      <div>
+        <IconField id="join-code" label={t.joinCode} type="text" required autoComplete="off" autoCapitalize="characters" value={code} onChange={(e) => onCode(e.target.value)} placeholder="ABCDE-FGHJK" className="uppercase tracking-widest" />
+        <p className="mt-1.5 text-sm text-charcoal-muted">{t.joinCodeHint}</p>
+      </div>
+      <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
+        <IconField id="join-name" label={t.yourName} icon={User} type="text" required autoComplete="name" value={name} onChange={(e) => onName(e.target.value)} />
+        <IconField id="join-phone" label={t.yourPhone} icon={Phone} type="tel" autoComplete="tel" value={phone} onChange={(e) => onPhone(e.target.value)} placeholder="0712 345 678" />
+      </div>
+      <IconField id="join-email" label={t.email} icon={Mail} type="email" required autoComplete="email" value={email} onChange={(e) => onEmail(e.target.value)} />
+      <div>
+        <IconField id="join-password" label={t.password} icon={Lock} type="password" required minLength={12} autoComplete="new-password" value={password} onChange={(e) => onPassword(e.target.value)} />
+        <p className="mt-1.5 text-sm text-charcoal-muted">{t.passwordHint}</p>
+      </div>
+      <button type="submit" disabled={loading} className="btn btn-primary btn-lg w-full"><span>{loading ? t.joining : t.joinButton}</span><ArrowRight className="h-5 w-5" /></button>
+      <button type="button" onClick={onBack} className="btn btn-ghost w-full">{t.joinBack}</button>
+    </form>
+  );
+}
 
 /** Asks for the email address and sends the reset link. Says the same thing whether or not the address has an account. */
 function ForgotPassword({ email, onEmail, sent, loading, onSubmit, onBack }: {

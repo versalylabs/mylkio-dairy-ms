@@ -43,6 +43,7 @@ async function run<T>(
     if (code === '22023') throw new ApiError(400, 'Some records or fields could not be accepted.');
     if (code === '23505') throw new ApiError(409, duplicate);
     if (code === 'MY429') throw new ApiError(429, tooMany);
+    if (code === 'MY402') throw new ApiError(409, 'Your plan has no room for another login. Farm Pro includes a team.');
     throw error;
   }
 }
@@ -56,6 +57,7 @@ export async function getAccount(db: Db, userId: string): Promise<UserAccount | 
     email: String(a.email),
     role: a.role as UserAccount['role'],
     farmId: a.farmId ? String(a.farmId) : '',
+    farmRole: a.farmRole === 'manager' || a.farmRole === 'worker' || a.farmRole === 'owner' ? a.farmRole : undefined,
     name: String(a.name),
     phone: String(a.phone ?? ''),
     createdAt: String(a.createdAt),
@@ -233,6 +235,54 @@ export async function adminSaveVet(
 
 export async function adminSetVetStatus(db: Db, actor: string, id: string, status: VetStatus, confirmedOn?: string | null): Promise<void> {
   await run(db, 'select public.admin_set_vet_status($1, $2, $3, $4::date)', [actor, id, status, confirmedOn ?? null], 'Administrator access required.');
+}
+
+// ---- Team logins (migration 0008). The owner manages the team; every call is re-checked by the database. ----
+
+export type TeamRole = 'manager' | 'worker';
+export interface TeamMember { id: string; name: string; email: string; phone: string; role: 'owner' | TeamRole; joinedAt: string; lastSeenAt: string | null }
+export interface TeamInvite { id: string; role: TeamRole; label: string | null; createdAt: string; expiresAt: string }
+export interface TeamView { limit: number; members: TeamMember[]; invites: TeamInvite[] }
+
+const OWNER_ONLY = 'Only the farm owner can manage the team.';
+
+export async function listTeam(db: Db, actor: string, farmId: string): Promise<TeamView> {
+  const [row] = await run<{ team: TeamView }>(db, 'select public.list_farm_team($1, $2) as team', [actor, farmId], OWNER_ONLY);
+  return row.team;
+}
+
+/** Creates an invitation for the given one-time code (made by the server, shown to the owner once). */
+export async function createInvite(db: Db, actor: string, farmId: string, role: TeamRole, label: string, code: string): Promise<string> {
+  const [row] = await run<{ id: string }>(db, 'select public.create_farm_invite($1, $2, $3, $4, $5) as id', [actor, farmId, role, label, code], OWNER_ONLY);
+  return row.id;
+}
+
+export async function revokeInvite(db: Db, actor: string, farmId: string, inviteId: string): Promise<void> {
+  await run(db, 'select public.revoke_farm_invite($1, $2, $3)', [actor, farmId, inviteId], OWNER_ONLY);
+}
+
+export async function setMemberRole(db: Db, actor: string, farmId: string, memberId: string, role: TeamRole): Promise<void> {
+  await run(db, 'select public.set_member_role($1, $2, $3, $4)', [actor, farmId, memberId, role], OWNER_ONLY);
+}
+
+export async function removeMember(db: Db, actor: string, farmId: string, memberId: string): Promise<void> {
+  await run(db, 'select public.remove_farm_member($1, $2, $3)', [actor, farmId, memberId], OWNER_ONLY);
+}
+
+/** Joins the signed-in person to the farm an invitation belongs to, then returns their account as the app uses it. */
+export async function acceptInvite(db: Db, user: SessionUser, input: { name: string; phone: string; code: string }): Promise<UserAccount> {
+  if (!user.email) throw new ApiError(400, 'Your account has no email address.');
+  try {
+    await run(db, 'select public.accept_farm_invite($1, $2, $3, $4, $5)', [user.id, user.email, input.name, input.phone, input.code],
+      'You do not have access to this farm.', undefined, 'You already belong to a farm. Ask the owner to remove you from it first if you want to join another.');
+  } catch (error) {
+    // A wrong, used, expired or revoked code looks the same on purpose: it tells nobody which one it was.
+    if (error instanceof ApiError && error.status === 400) throw new ApiError(400, 'That invitation is not valid. It may have expired or already been used. Ask the owner for a new one.');
+    throw error;
+  }
+  const account = await getAccount(db, user.id);
+  if (!account) throw new ApiError(503, 'Your account could not be prepared. Please contact support.');
+  return account;
 }
 
 // ---- Website content (migration 0007). Reading is public; changing it is for administrators, and the database re-checks. ----

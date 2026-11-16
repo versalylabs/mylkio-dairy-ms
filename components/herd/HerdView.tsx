@@ -45,6 +45,8 @@ interface HerdViewProps {
   serverBacked?: boolean;
   /** Saves a health record, for "save this symptom check to the cow's record". */
   onSaveHealthEvent?: (event: Omit<HealthEvent, 'id' | 'createdAt' | 'farmId'>) => void;
+  /** False for a farm worker: they can read the herd and record health and breeding, but not add, change or remove cows. */
+  canEditCows?: boolean;
 }
 
 export const HerdView: React.FC<HerdViewProps> = ({
@@ -59,6 +61,7 @@ export const HerdView: React.FC<HerdViewProps> = ({
   onDeleteHealth,
   onOpenRecordBreeding,
   onDeleteBreeding,
+  canEditCows = true,
   lang,
   subscription,
   county,
@@ -148,13 +151,15 @@ export const HerdView: React.FC<HerdViewProps> = ({
         </div>
 
         <div className="flex items-center gap-2 flex-wrap">
-          <button
+          {canEditCows && (
+<button
             onClick={onAddCow}
             className="btn btn-primary"
           >
             <Plus className="w-4 h-4" />
             <span>{t.herd.addCowBtn}</span>
           </button>
+)}
 
           <button
             onClick={onOpenRecordHealth}
@@ -276,13 +281,15 @@ export const HerdView: React.FC<HerdViewProps> = ({
             <div className="text-center py-10 bg-white rounded-2xl border border-gray-200 p-6">
               <Activity className="w-12 h-12 text-gray-300 mx-auto mb-3" />
               <p className="text-gray-500 font-medium text-sm">{t.herd.emptyState}</p>
-              <button
+              {canEditCows && (
+<button
                 onClick={onAddCow}
                 className="mt-4 inline-flex items-center space-x-2 px-4 py-2 bg-dairy-50 text-dairy-700 font-semibold text-xs rounded-lg hover:bg-dairy-100 transition-colors"
               >
                 <Plus className="w-4 h-4" />
                 <span>{t.herd.addCowBtn}</span>
               </button>
+)}
             </div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -393,7 +400,8 @@ export const HerdView: React.FC<HerdViewProps> = ({
                         </span>
 
                         <div className="flex items-center space-x-1" onClick={(e) => e.stopPropagation()}>
-                          <button
+                          {canEditCows && (
+<button
                             onClick={(e) => {
                               e.stopPropagation();
                               onEditCow(cow);
@@ -403,7 +411,9 @@ export const HerdView: React.FC<HerdViewProps> = ({
                           >
                             <Edit2 className="w-4 h-4" />
                           </button>
-                          <button
+)}
+                          {canEditCows && (
+<button
                             onClick={(e) => {
                               e.stopPropagation();
                               if (confirm(lang === 'sw' ? `Una uhakika unataka kumfuta ng'ombe ${cow.tag}?` : `Are you sure you want to delete ${cow.tag}?`)) {
@@ -415,6 +425,7 @@ export const HerdView: React.FC<HerdViewProps> = ({
                           >
                             <Trash2 className="w-4 h-4" />
                           </button>
+)}
                         </div>
                       </div>
                     </div>
@@ -655,10 +666,10 @@ export const HerdView: React.FC<HerdViewProps> = ({
         cow={selectedCowForDetail}
         isOpen={!!selectedCowForDetail}
         onClose={() => setSelectedCowForDetail(null)}
-        onEdit={(cow) => {
+        onEdit={canEditCows ? (cow) => {
           setSelectedCowForDetail(null);
           onEditCow(cow);
-        }}
+        } : undefined}
         onOpenRecordHealth={() => {
           setSelectedCowForDetail(null);
           onOpenRecordHealth();

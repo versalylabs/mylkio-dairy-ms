@@ -113,4 +113,4 @@ One-off, before the first farmers:
 - Automatic M-Pesa payments and reminders, a history of hand-made plan changes, Kiswahili for the newest screens, vet steps D and E, and some Phase 5 extras (suggested withdrawal from medicine, calf weights and weaning).
 - Existing cow photos are shrunk only when the farmer taps "Shrink photos".
 - iOS Safari can clear a site's data after weeks without opening it unless the app is on the home screen. The backup is the protection.
-- Managers and workers (more than one person per farm) are not built; each farm has one owner login.
+- Team logins are built (see [team-logins.md](team-logins.md)): Farm Pro farms can add up to five managers and workers.
