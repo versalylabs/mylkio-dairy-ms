@@ -6,6 +6,8 @@ import { SecureAuth } from '@/lib/auth-client';
 import { PLANS, PLAN_ORDER, TRIAL_DAYS, formatKsh } from '@/lib/plans';
 import { useSiteContent } from '@/components/site/SiteContentProvider';
 import { priceOf } from '@/lib/site-content';
+import { RESET_COPY, RESET_LINK_MINUTES } from '@/lib/password-reset';
+import { SUPPORT_PHONE_DIGITS, whatsappLink } from '@/lib/contact';
 import { SubscriptionPlan, UserAccount } from '@/types';
 import { 
   X, 
@@ -25,7 +27,7 @@ import {
 interface AuthModalProps {
   isOpen: boolean;
   onClose: () => void;
-  initialMode?: 'login' | 'signup';
+  initialMode?: 'login' | 'signup' | 'forgot';
   initialPlan?: SubscriptionPlan;
   onSuccess: (user: UserAccount) => void;
 }
@@ -38,7 +40,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
   onSuccess,
 }) => {
   const { prices } = useSiteContent();
-  const [mode, setMode] = useState<'login' | 'signup'>(initialMode);
+  const [mode, setMode] = useState<'login' | 'signup' | 'forgot'>(initialMode);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [notice, setNotice] = useState('');
@@ -46,6 +48,10 @@ export const AuthModal: React.FC<AuthModalProps> = ({
   // Login form fields
   const [loginEmail, setLoginEmail] = useState('');
   const [loginPassword, setLoginPassword] = useState('');
+
+  // Forgot password
+  const [resetEmail, setResetEmail] = useState('');
+  const [resetSent, setResetSent] = useState(false);
 
   // Signup form fields
   const [name, setName] = useState('');
@@ -87,6 +93,22 @@ export const AuthModal: React.FC<AuthModalProps> = ({
       }
     } catch {
       setError('An unexpected error occurred during login.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleForgot = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError(null);
+    setLoading(true);
+    const copy = RESET_COPY[AppStorage.getLanguage() === 'sw' ? 'sw' : 'en'];
+    try {
+      const result = await SecureAuth.requestPasswordReset(resetEmail);
+      if (result.success) { setResetSent(true); return; }
+      setError(result.reason === 'rate_limited' ? copy.rateLimited : result.reason === 'bad_email' ? copy.badEmail : copy.unavailable);
+    } catch {
+      setError(copy.other);
     } finally {
       setLoading(false);
     }
@@ -181,7 +203,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                   key={key}
                   role="tab"
                   aria-selected={mode === key}
-                  onClick={() => { setMode(key); setError(null); }}
+                  onClick={() => { setMode(key); setError(null); setResetSent(false); }}
                   className={`min-h-11 flex-1 whitespace-nowrap rounded-full px-3 text-sm font-semibold transition-all ${mode === key ? 'bg-white text-sage shadow-soft' : 'text-sage-200 hover:text-white'}`}
                 >
                   {label}
@@ -202,7 +224,12 @@ export const AuthModal: React.FC<AuthModalProps> = ({
             {mode === 'login' ? (
               <form onSubmit={handleLogin} className="space-y-5">
                 <IconField id="login-email" label="Email address" icon={Mail} type="email" required autoComplete="email" value={loginEmail} onChange={(e) => setLoginEmail(e.target.value)} placeholder="farmer@dairy.co.ke" />
-                <IconField id="login-password" label="Password" icon={Lock} type="password" required autoComplete="current-password" value={loginPassword} onChange={(e) => setLoginPassword(e.target.value)} placeholder="Your password" />
+                <div>
+                  <IconField id="login-password" label="Password" icon={Lock} type="password" required autoComplete="current-password" value={loginPassword} onChange={(e) => setLoginPassword(e.target.value)} placeholder="Your password" />
+                  <button type="button" onClick={() => { setResetEmail(loginEmail); setResetSent(false); setError(null); setMode('forgot'); }} className="mt-2 inline-flex min-h-10 items-center text-sm font-semibold text-sage hover:underline">
+                    {RESET_COPY[AppStorage.getLanguage() === 'sw' ? 'sw' : 'en'].forgotLink}
+                  </button>
+                </div>
 
                 <button type="submit" disabled={loading} className="btn btn-primary btn-lg w-full">
                   <span>{loading ? 'Verifying…' : 'Sign in to your farm'}</span>
@@ -219,6 +246,8 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                   <span>Explore the demo farm</span>
                 </button>
               </form>
+            ) : mode === 'forgot' ? (
+              <ForgotPassword email={resetEmail} onEmail={setResetEmail} sent={resetSent} loading={loading} onSubmit={handleForgot} onBack={() => { setMode('login'); setError(null); setResetSent(false); }} />
             ) : (
               <form onSubmit={handleSignup} className="space-y-5">
                 <p className="flex items-start gap-2.5 rounded-xl border border-gold-200 bg-gold-50 p-3.5 text-sm font-medium text-charcoal">
@@ -291,6 +320,35 @@ export const AuthModal: React.FC<AuthModalProps> = ({
     </div>
   );
 };
+
+/** Asks for the email address and sends the reset link. Says the same thing whether or not the address has an account. */
+function ForgotPassword({ email, onEmail, sent, loading, onSubmit, onBack }: {
+  email: string; onEmail: (value: string) => void; sent: boolean; loading: boolean; onSubmit: (e: React.FormEvent) => void; onBack: () => void;
+}) {
+  const t = RESET_COPY[AppStorage.getLanguage() === 'sw' ? 'sw' : 'en'];
+  if (sent) {
+    return (
+      <div role="status" className="space-y-4">
+        <h3 className="font-display text-xl font-medium">{t.sentTitle}</h3>
+        <p className="text-base text-charcoal-light">{t.sentBody(RESET_LINK_MINUTES)}</p>
+        <p className="text-sm text-charcoal-muted">{t.noEmail}</p>
+        <a className="btn btn-secondary w-full" href={whatsappLink(SUPPORT_PHONE_DIGITS, 'Hello Mylkio, I cannot reset my password.')} target="_blank" rel="noopener noreferrer">{t.whatsapp}</a>
+        <button type="button" onClick={onBack} className="btn btn-ghost w-full">{t.back}</button>
+      </div>
+    );
+  }
+  return (
+    <form onSubmit={onSubmit} className="space-y-5">
+      <div>
+        <h3 className="font-display text-xl font-medium">{t.forgotTitle}</h3>
+        <p className="mt-2 text-sm text-charcoal-light">{t.forgotIntro}</p>
+      </div>
+      <IconField id="forgot-email" label="Email" icon={Mail} type="email" required autoComplete="email" value={email} onChange={(e) => onEmail(e.target.value)} placeholder="farmer@dairy.co.ke" />
+      <button type="submit" disabled={loading} className="btn btn-primary btn-lg w-full"><span>{loading ? t.sending : t.send}</span><ArrowRight className="h-5 w-5" /></button>
+      <button type="button" onClick={onBack} className="btn btn-ghost w-full">{t.back}</button>
+    </form>
+  );
+}
 
 /** A labelled input, with an optional icon, in the shared field style (16px so phones do not zoom in). */
 function IconField({ id, label, icon: Icon, className = '', ...input }: { id: string; label: string; icon?: LucideIcon } & React.InputHTMLAttributes<HTMLInputElement>) {
