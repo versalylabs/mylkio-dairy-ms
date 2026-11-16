@@ -142,6 +142,13 @@ export default function Home() {
     window.history.replaceState(null, '', window.location.pathname);
   }, []);
 
+  // The locked-feature line (components/billing/LockedFeature.tsx) asks to open Settings, where the plan is.
+  useEffect(() => {
+    const open = () => setActiveTab('settings');
+    window.addEventListener('mylkio_open_settings', open);
+    return () => window.removeEventListener('mylkio_open_settings', open);
+  }, []);
+
   // A person who may not open a screen (a worker has no sales or finance) is brought back to Home.
   useEffect(() => {
     if (!tabsFor(roleOrOwner(currentUser?.farmRole)).includes(activeTab)) setActiveTab('home');

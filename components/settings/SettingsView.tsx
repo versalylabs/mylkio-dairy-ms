@@ -13,6 +13,7 @@ import { billingState, describeBilling, stateLabel } from '@/lib/billing';
 import { BILLING_COPY } from '@/lib/app-copy';
 import { supportMessageHref } from '@/lib/contact';
 import { formatKsh } from '@/lib/money';
+import { PLAN_TEXT, planFeatureLines } from '@/lib/plan-copy';
 import { useSiteContent } from '@/components/site/SiteContentProvider';
 import { payMessage } from '@/components/billing/PlanNotice';
 import { Globe, Building, Database, RefreshCw, Check, Smartphone, CreditCard, LogOut } from 'lucide-react';
@@ -189,6 +190,14 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
                 {bc.settings.cows(cowCount, plan.name, plan.cowLimit)}
                 {cowCount > plan.cowLimit ? bc.settings.overLimit : ''}
               </p>
+            )}
+            {plan && billing !== 'complimentary' && (
+              <details className="border-t border-ivory-border pt-3">
+                <summary className="cursor-pointer text-sm font-semibold text-charcoal">{PLAN_TEXT[lang === 'sw' ? 'sw' : 'en'].includes}</summary>
+                <ul className="mt-2 list-disc space-y-1 pl-5 text-sm text-charcoal-light marker:text-sage">
+                  {planFeatureLines(plan.id, lang === 'sw' ? 'sw' : 'en').map((line) => <li key={line}>{line}</li>)}
+                </ul>
+              </details>
             )}
             {billing !== 'complimentary' && (
               <div className="flex flex-wrap items-center justify-between gap-3 border-t border-ivory-border pt-3">

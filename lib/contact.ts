@@ -2,15 +2,15 @@
 // The administrator's "Website" tab can override these without a release (see lib/site-content.ts); these are what
 // shows until something is saved there.
 //
-// OWNER DECISION NEEDED: the support phone number. The number that used to be here was not a valid Kenyan format
-// and nobody should be told to pay or call it, so it has been replaced by a clearly marked placeholder. Until a real
-// number is set (here, or in Admin > Website > Contact), phone and WhatsApp buttons are hidden and the website
-// shows the placeholder text, so nobody is sent to a wrong number.
-export const SUPPORT_PHONE_DISPLAY = '+254 7XX XXX XXX (to be confirmed)';
-export const SUPPORT_PHONE_DIGITS = '';
+// The phone number was given by the owner on 16 November 2026 (0184129145). Check it before the pilot: the "018"
+// start is not one of the usual Kenyan mobile or landline prefixes, so ring it once to be sure it is answered.
+// If it is wrong, change it here or in Admin > Website > Contact. With no number (an empty digits string) the phone
+// and WhatsApp buttons are hidden and "message Mylkio" falls back to email, so nobody is sent to a dead number.
+export const SUPPORT_PHONE_DISPLAY = '+254 184 129145';
+export const SUPPORT_PHONE_DIGITS = '254184129145';
 export const SUPPORT_EMAIL = 'versalylabs@gmail.com';
 
-/** True when a phone number has real digits (a placeholder has none, so links built from it are not shown). */
+/** True when a phone number has real digits (an empty or placeholder value has none, so links built from it are not shown). */
 export const hasDialableNumber = (digitsOrDisplay: string) => digitsOrDisplay.replace(/\D/g, '').length >= 9;
 
 export const whatsappLink = (digits: string, text: string) =>

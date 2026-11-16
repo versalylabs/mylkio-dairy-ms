@@ -4,6 +4,7 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { farmToday } from '@/lib/dates';
 import { PLANS, PLAN_ORDER, TRIAL_DAYS, formatKsh, type PlanId, type SelfServePlanId } from '@/lib/plans';
 import { hasDialableNumber } from '@/lib/contact';
+import { planFeatureLines } from '@/lib/plan-copy';
 import {
   AlertTriangle,
   ArrowRight,
@@ -39,18 +40,18 @@ const PLAN_COPY: Record<SelfServePlanId, { headline: string; blurb: string; poin
   starter: {
     headline: 'For farmers going digital',
     blurb: 'For farmers beginning to digitize their farm records.',
-    points: [`Up to ${PLANS.starter.cowLimit} cows`, 'Daily milk production tracking', 'Co-op and buyer sales logging', 'Works offline on your smartphone'],
+    points: [`Up to ${PLANS.starter.cowLimit} cows`],
   },
   farmer: {
     headline: 'For growing dairy farms',
     blurb: 'For growing dairy farms needing additional tracking and reporting.',
-    points: [`Up to ${PLANS.farmer.cowLimit} cows`, 'Cow identification, photos and pedigree', 'Artificial insemination (AI), calving dates and reminders', 'Antibiotic milk withdrawal alert notices', 'CSV export and full database backup'],
+    points: [`Up to ${PLANS.farmer.cowLimit} cows`],
     featured: true,
   },
   farm_pro: {
     headline: 'For commercial herds',
     blurb: 'For larger operations requiring advanced features.',
-    points: ['Unlimited herd capacity', 'Team logins: you and up to five managers and workers', 'Priority WhatsApp and phone assistance', 'Operating profit and net margin ledger'],
+    points: ['Unlimited herd capacity', 'Priority WhatsApp and phone assistance'],
   },
 };
 
@@ -654,7 +655,7 @@ export const MarketingLandingPage: React.FC<MarketingLandingPageProps> = ({
                   </div>
 
                   <ul className="mt-6 flex-1 space-y-3.5">
-                    {copy.points.map((point) => (
+                    {[copy.points[0], ...planFeatureLines(id), ...copy.points.slice(1)].map((point) => (
                       <li key={point} className="flex items-start gap-3 text-base text-charcoal-light">
                         <Check className="mt-1 h-4 w-4 shrink-0 text-sage" />
                         <span>{point}</span>

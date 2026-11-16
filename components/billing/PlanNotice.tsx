@@ -39,7 +39,7 @@ export function PlanNotice({ subscription, farmName }: { subscription?: (Billing
   }[state];
   const urgent = state === 'trial_ended' || state === 'overdue' || state === 'cancelled';
   // Only say extras are paused when they have been, and the farm had them in the first place.
-  const hadExtras = state === 'trial_ended' || Boolean(plan?.features.healthChecker || plan?.features.vetFinder);
+  const hadExtras = state === 'trial_ended' || (plan ? Object.entries(plan.features).some(([key, value]) => value && !(PLANS.starter.features as unknown as Record<string, unknown>)[key]) : false);
   const paused = extrasLapsed(subscription) && hadExtras;
 
   return (

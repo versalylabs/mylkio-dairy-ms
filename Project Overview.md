@@ -23,7 +23,7 @@
 | Roadmap | Phases 1–9 complete and merged to `main`. Follow-ups complete: team logins (migration 0008), password reset by email, Kiswahili for the newest screens. |
 | Stack | Next.js 16, React 19, TypeScript, Tailwind CSS 3, Neon Postgres 18 and Neon Auth (managed Better Auth), Vercel hosting, installable offline-first PWA. |
 | Database | 9 migrations (0001–0009) applied on both the Neon `production` and `preview` branches (0009, new prices and the Custom plan, on 16 November 2026). Region Frankfurt (`aws-eu-central-1`). |
-| Tests | 390 automated tests in 34 files (Vitest, with in-memory Postgres via PGlite running the real migrations). `npm run build` and `npm run typecheck` pass. CI ("Validate") runs build, typecheck and tests on every pull request. |
+| Tests | 404 automated tests in 35 files (Vitest, with in-memory Postgres via PGlite running the real migrations). `npm run build` and `npm run typecheck` pass. CI ("Validate") runs build, typecheck and tests on every pull request. |
 | Languages | English and Kiswahili for the farmer's app screens. The website, Privacy/Terms, administration screens and the vet guide's clinical content are English only. |
 | Needs a person, not code | Real-phone tests; lawyer review of Privacy and Terms; Data Protection registration; a veterinarian's review of the vet guide (still DRAFT and hidden from farmers); native-speaker review of Kiswahili; backups decision (Neon history is only 6 hours, no snapshots); Neon Auth production email settings (own sender, application name, sign-out-on-reset); a real password-reset email and a real team invite tried end to end. |
 
@@ -295,6 +295,25 @@ Positioning: “Know your cows, your milk, and who owes you—in one simple plac
 | Farm Pro | 2,800 | no limit | Farmer plus the vet finder and **team logins** (owner plus five managers/workers) |
 | Custom | quoted per farm | no limit | Every Farm Pro feature; price, note and team size agreed per farm and set by an administrator. Never chosen at sign-up: the website and sign-up box show "Talk to us" |
 
+**Plan features (as built, `lib/plans.ts`; one flag per feature).** Starter records, Farmer explains, Farm Pro oversees.
+
+| Feature | Starter | Farmer | Farm Pro and Custom | Built? |
+| --- | --- | --- | --- | --- |
+| Core app: herd, milk, sales, payments, finance, reminders, offline, export | Yes | Yes | Yes | Yes |
+| Emergency-signs guide, seasonal calendar, My vets | Yes | Yes | Yes | Yes |
+| Produced vs sold | Yes | Yes | Yes | Not yet |
+| Reminders as phone notifications | Yes | Yes | Yes | Not yet |
+| Symptom checker | No | Yes | Yes | Built; hidden until a vet approves it |
+| Cost per litre | No | Yes | Yes | Not yet |
+| Milk drop alert and cow ranking | No | Yes | Yes | Not yet |
+| Fertility flags | No | Yes | Yes | Not yet |
+| Reminders by SMS | No | Yes | Yes | Not yet |
+| Vets near you, team logins | No | No | Yes | Yes |
+| Weekly owner summary | No | No | Yes | Not yet |
+| Farm report for a bank or SACCO | No | No | Yes | Not yet |
+
+The trial keeps the Farmer set. When a trial has ended, a payment is over 7 days late or the plan is cancelled, every paid extra pauses and the farm falls back to the Starter set; records stay readable and exportable. A feature the plan lacks shows one calm line where it would appear ("Cost per litre is part of the Farmer plan." with a link to Settings), never a pop-up. Plan descriptions on the website, sign-up box and Settings are generated from the same table and mark a feature "coming soon" until its screen is built (`FEATURES_COMING_SOON`, removed one by one as each ships), and the symptom checker "coming after vet review" until a vet approves it.
+
 A **14-day free trial** gives every new farm the Farmer features. Annual (10 months' price for 12) and quarterly options from the original hypothesis are **not built**: billing is monthly and recorded by hand. Pricing remains a validation hypothesis, not a validated willingness to pay. A saved price applies only to new subscriptions and plan changes; nobody is re-billed.
 
 Cooperative partnership ideas (group onboarding days, co-branding, referral reward, aggregate dashboard, volume pricing after about 50 paying farmers) are **not built** and stay conditional on partner demand and farmer consent. Do not promise guaranteed yield or profits.
@@ -526,7 +545,7 @@ Product owner: Versaly. Brand note: verify “Mylkio” trademark, domain, and a
 
 ## 28. Quality, testing and releases
 
-- **Tests (390):** dates, milk rules, ledger, settlements, herd care, billing, plans and features, legal text, backup, photos, local store, sync core, password reset, app copy (language parity), vet checker/phone/review, security headers; **server tests** against the real migrations in PGlite (farm API, commercial, leads, usage, invites, site content, team: 26) ; **database tests** for sync, two-device scenarios, settlements. Each "known" system sentence and the screen-vs-database role rules have a test that fails if they drift.
+- **Tests (404):** dates, milk rules, ledger, settlements, herd care, billing, plans and features, legal text, backup, photos, local store, sync core, password reset, app copy (language parity), vet checker/phone/review, security headers; **server tests** against the real migrations in PGlite (farm API, commercial, leads, usage, invites, site content, team: 26) ; **database tests** for sync, two-device scenarios, settlements. Each "known" system sentence and the screen-vs-database role rules have a test that fails if they drift.
 - **CI:** the GitHub "Validate" workflow runs `npm ci`, `npm run build`, `npm run typecheck`, `npm test` on every pull request and on `main`.
 - **Release routine:** work on a branch; open a pull request; wait for **all three checks** (Vercel, Vercel Preview Comments, validate) to read SUCCESS; merge; confirm `/api/health` reads `ok` on all four lines and sign-in works. Never run `vercel --prod` as routine.
 - **Database changes:** additive migrations in `db/migrations/`, applied to the Neon `preview` branch, tested, then to `production` with the owner's go-ahead, recorded in `public.schema_migrations`. Apply a migration **before** deploying code that reads it (merging code first is safe for 0007 only because the endpoint falls back). `npm run db:migrate` (direct connection string) or the Neon SQL editor. Nine migrations: 0001 accounts and farms; 0002 record sync; 0003 leads; 0004 usage; 0005 vet directory; 0006 commercial admin; 0007 site content; 0008 team logins; 0009 new prices and the Custom plan.
@@ -547,7 +566,7 @@ Product owner: Versaly. Brand note: verify “Mylkio” trademark, domain, and a
 1. **Backups.** Neon's history window on this project is 6 hours (free plan) and there are no snapshots, so a mistake noticed the next day cannot be restored from Neon. Move to a plan with 7+ days, or take snapshots on a schedule (at least before each database change and weekly), and test one real restore into a new branch.
 2. **Real-phone test** on a low-cost Android (and an iPhone if used) over mobile data: install to home screen, airplane-mode open, offline entry then reconnect, camera photo, backup download, keyboard and rotation (script in `docs/phase-9-release.md`).
 3. **Neon Auth production settings:** own email sender, application name "Mylkio", revoke sessions on password reset; then try a real reset email and a real team invitation end to end on live accounts.
-4. **Lawyer review** of Privacy and Terms; Data Protection registration; set the support phone number (the old `+254 184 129145` was not a valid Kenyan format, so the site now shows a marked placeholder, hides WhatsApp/phone buttons and falls back to email until a real number is set in `lib/contact.ts` or Admin > Website) and confirm the email.
+4. **Lawyer review** of Privacy and Terms; Data Protection registration; ring the support phone number once to be sure it is answered (`+254 184 129145`, given by the owner on 16 November 2026; its "018" start is not a usual Kenyan prefix; change it in `lib/contact.ts` or Admin > Website; with no number, phone and WhatsApp buttons are hidden and "message Mylkio" falls back to email) and confirm the email.
 5. **Veterinarian review** of the guide; direct vet numbers confirmed by phone; fill the vet directory.
 6. **Native-speaker review** of Kiswahili.
 7. Replace sample testimonials with real ones (with the farmer's agreement).
