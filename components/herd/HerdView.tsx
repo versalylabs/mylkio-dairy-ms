@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Cow, CowStatus, HealthEvent, BreedingEvent, Language, MilkEntry, Subscription } from '@/types';
 import { CowDetailModal } from './CowDetailModal';
 import { VetGuide } from './VetGuide';
@@ -47,6 +47,9 @@ interface HerdViewProps {
   onSaveHealthEvent?: (event: Omit<HealthEvent, 'id' | 'createdAt' | 'farmId'>) => void;
   /** False for a farm worker: they can read the herd and record health and breeding, but not add, change or remove cows. */
   canEditCows?: boolean;
+  /** Asks the herd screen to open this cow's page (from a milk drop alert on Home). */
+  openCowId?: string | null;
+  onOpenCowHandled?: () => void;
 }
 
 export const HerdView: React.FC<HerdViewProps> = ({
@@ -69,12 +72,21 @@ export const HerdView: React.FC<HerdViewProps> = ({
   farmId,
   serverBacked,
   onSaveHealthEvent,
+  openCowId,
+  onOpenCowHandled,
 }) => {
   const t = translations[lang];
   const [activeSubTab, setActiveSubTab] = useState<'registry' | 'health' | 'breeding' | 'guide'>('registry');
   const [search, setSearch] = useState('');
   const [filter, setFilter] = useState<string>('all');
   const [selectedCowForDetail, setSelectedCowForDetail] = useState<Cow | null>(null);
+  useEffect(() => {
+    if (!openCowId) return;
+    const cow = cows.find((c) => c.id === openCowId);
+    if (cow) setSelectedCowForDetail(cow);
+    onOpenCowHandled?.();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [openCowId]);
 
   const filteredCows = cows.filter((cow) => {
     const matchesSearch =

@@ -84,6 +84,8 @@ export default function Home() {
   const [bills, setBills] = useState<CustomerBill[]>([]);
   const [allocations, setAllocations] = useState<PaymentAllocation[]>([]);
   const [milkUse, setMilkUse] = useState<MilkUse[]>([]);
+  // A cow page asked for from Home (a milk drop alert): the Herd screen opens it, then clears this.
+  const [openCowId, setOpenCowId] = useState<string | null>(null);
   // The date whose unsold-milk split is being edited (null: the form is closed).
   const [milkUseDate, setMilkUseDate] = useState<string | null>(null);
 
@@ -515,6 +517,8 @@ export default function Home() {
           onOpenRecordMilk={() => setIsRecordMilkModalOpen(true)}
           milkUse={milkUse}
           onOpenMilkUse={setMilkUseDate}
+          breedingEvents={breedingEvents}
+          onOpenCow={(cowId) => { setOpenCowId(cowId); setActiveTab('herd'); }}
           onOpenRecordDelivery={() => setIsRecordDeliveryModalOpen(true)}
           onOpenRecordPayment={() => setIsRecordPaymentModalOpen(true)}
           onOpenAddCow={handleOpenAddCow}
@@ -535,6 +539,7 @@ export default function Home() {
           deliveries={deliveries}
           milkUse={milkUse}
           showProducedVsSold={canSeeMoney(roleOrOwner(currentUser?.farmRole))}
+          subscription={currentUser?.subscription}
           onOpenMilkUse={setMilkUseDate}
         />
       )}
@@ -545,6 +550,8 @@ export default function Home() {
           healthEvents={healthEvents}
           breedingEvents={breedingEvents}
           milkEntries={milkEntries}
+          openCowId={openCowId}
+          onOpenCowHandled={() => setOpenCowId(null)}
           onAddCow={handleOpenAddCow}
           onEditCow={handleEditCow}
           onDeleteCow={handleDeleteCow}

@@ -1,7 +1,11 @@
 'use client';
 
-import React, { useState } from 'react';
-import { Cow, Buyer, MilkEntry, Delivery, PaymentRecord, FarmReminder, ExpenseRecord, Language, Farm, UserAccount, MilkUse } from '@/types';
+import React, { useEffect, useState } from 'react';
+import { Cow, Buyer, MilkEntry, Delivery, PaymentRecord, FarmReminder, ExpenseRecord, Language, Farm, UserAccount, MilkUse, BreedingEvent } from '@/types';
+import { canUse } from '@/lib/plans';
+import { milkDropAlerts } from '@/lib/milk-drop';
+import { DROP_COPY } from '@/lib/drop-copy';
+import { dismissAlert, isHidden, prune, snoozeAlert, type Dismissals } from '@/lib/alert-dismissals';
 import { ProducedSoldLine } from '@/components/milk/ProducedSoldLine';
 import { producedVsSold, splitInRange } from '@/lib/produced-sold';
 import { translations } from '@/lib/translations';
@@ -34,6 +38,10 @@ interface DashboardViewProps {
   milkEntries: MilkEntry[];
   deliveries: Delivery[];
   milkUse?: MilkUse[];
+  /** For milk drop alerts: a cow that has just calved is left alone. */
+  breedingEvents?: BreedingEvent[];
+  /** Opens a cow's page (from a milk drop alert). */
+  onOpenCow?: (cowId: string) => void;
   payments: PaymentRecord[];
   expenses: ExpenseRecord[];
   reminders: FarmReminder[];
@@ -65,6 +73,8 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
   milkEntries,
   deliveries,
   milkUse = [],
+  breedingEvents = [],
+  onOpenCow,
   payments,
   expenses,
   reminders,
@@ -83,6 +93,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
   const t = translations[lang];
   const sw = lang === 'sw';
   const [showAllReminders, setShowAllReminders] = useState(false);
+  const [hiddenAlerts, setHiddenAlerts] = useState<Dismissals>({});
   const todayStr = farmToday();
   const today = { from: todayStr, to: todayStr };
   const month = monthRange(todayStr);
@@ -118,6 +129,15 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
   const money = canSeeMoney(role);
   const displayName = (role === 'owner' ? farm?.ownerName : undefined) || user?.name || 'Farmer';
   const farmLocation = farm ? `${farm.name} • ${farm.county}` : 'My Dairy Farm';
+
+  // Milk drop alerts (Farmer plan and up; only for farms that log milk per cow). Worked out from the records, so they
+  // close by themselves when the cow recovers. A worker sees them too: they contain no money.
+  const dropText = DROP_COPY[lang];
+  const farmKey = farm?.id ?? 'farm';
+  const drops = canUse(user?.subscription, 'milkDrop') ? milkDropAlerts({ cows, milk: milkEntries, breeding: breedingEvents, reminders, today: todayStr }) : [];
+  const dropKey = drops.map((d) => d.cowId).join(',');
+  useEffect(() => { setHiddenAlerts(prune(farmKey, dropKey ? dropKey.split(',') : [])); }, [farmKey, dropKey]);
+  const shownDrops = drops.filter((d) => !isHidden(hiddenAlerts[d.cowId], todayStr));
 
   // A withdrawal reminder whose end date has passed is over, so it leaves the list by itself.
   const currentReminders = reminders.filter((r) => r.completed || !isReminderDone(r, todayStr));
@@ -294,17 +314,33 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
             </div>
           </div>
           <span className="shrink-0 text-sm font-bold px-2.5 py-0.5 rounded-full bg-amber-100 text-amber-900">
-            {openReminders.length} {sw ? 'wazi' : 'open'}
+            {openReminders.length + shownDrops.length} {sw ? 'wazi' : 'open'}
           </span>
         </div>
 
-        {openReminders.length === 0 && (
+        {openReminders.length === 0 && shownDrops.length === 0 && (
           <p className="rounded-2xl bg-[#EEF4EC] p-4 text-sm font-medium text-[#2B4A3B]">
             {sw ? 'Hakuna kinachohitaji umakini leo.' : 'Nothing needs your attention today.'}
           </p>
         )}
 
         <div className="space-y-2 pt-1">
+          {shownDrops.map((alert) => {
+            const name = alert.cowName ?? alert.cowTag;
+            return (
+              <div key={`drop-${alert.cowId}`} className="rounded-2xl border border-amber-200/70 bg-amber-50/50 p-3">
+                <button type="button" onClick={() => onOpenCow?.(alert.cowId)} aria-label={dropText.open(name)} className="block w-full text-left">
+                  <span className="mb-1 inline-block rounded-full bg-amber-100 px-2 py-0.5 text-xs font-bold text-amber-900">{dropText.tag.toUpperCase()}</span>
+                  <span className="block text-sm font-bold text-gray-900">{dropText.alert(name, alert.percent)}</span>
+                  <span className="mt-0.5 block text-sm text-gray-700">{dropText.detail(alert.recentAverage, alert.baselineAverage)}</span>
+                </button>
+                <div className="mt-2 flex flex-wrap gap-2">
+                  <button type="button" className="chip-btn" onClick={() => setHiddenAlerts(snoozeAlert(farmKey, alert.cowId, todayStr))}>{dropText.snooze}</button>
+                  <button type="button" className="chip-btn" onClick={() => setHiddenAlerts(dismissAlert(farmKey, alert.cowId))}>{dropText.dismiss}</button>
+                </div>
+              </div>
+            );
+          })}
           {shownReminders.map((rem) => (
             <div
               key={rem.id}
