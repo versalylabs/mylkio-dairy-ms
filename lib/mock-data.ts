@@ -351,6 +351,29 @@ const todayDeliveries: Delivery[] = [
   },
 ];
 
+// Per-cow milk for the last 14 days, so the demo shows the weekly cow ranking and one cow (Zawadi) whose milk has dropped.
+// Yesterday's farm total is replaced by the per-cow record for the same day (55 L), and each earlier day gets a per-cow
+// day total (newer than any farm total for that date, so it is the one that counts).
+{
+  const cowRows: { cowId: string; cowTag: string; cowName: string; litres: (k: number) => number }[] = [
+    { cowId: 'cow-1', cowTag: 'GH-01', cowName: 'Zawadi', litres: (k) => (k <= 3 ? 10 : 15) },      // down a third in the last 3 days
+    { cowId: 'cow-2', cowTag: 'GH-02', cowName: 'Neema', litres: () => 13 },                          // level
+    { cowId: 'cow-3', cowTag: 'GH-03', cowName: 'Baraka', litres: (k) => (k <= 6 ? 12.5 : 11) },      // up
+    { cowId: 'cow-4', cowTag: 'GH-04', cowName: 'Amani', litres: (k) => (k <= 6 ? 10.5 : 11.5) },     // slightly down
+    { cowId: 'cow-5', cowTag: 'GH-05', cowName: 'Cheyech', litres: () => 9 },                         // level
+  ];
+  const at = initialMilkEntries.findIndex((e) => e.id === 'milk-yesterday-total');
+  if (at >= 0) initialMilkEntries.splice(at, 1);
+  for (let k = 1; k <= 14; k++) {
+    const date = addDays(todayStr, -k);
+    const cowBreakdown = cowRows.map((c) => ({ cowId: c.cowId, cowTag: c.cowTag, cowName: c.cowName, litres: c.litres(k) }));
+    initialMilkEntries.push({
+      id: `milk-cow-day-${k}`, farmId: 'farm-green-hills', date, session: 'total', mode: 'cow_level',
+      totalLitres: Math.round(cowBreakdown.reduce((sum, c) => sum + c.litres, 0) * 10) / 10, cowBreakdown, synced: true, createdAt: `${date}T19:00:00Z`,
+    });
+  }
+}
+
 // Last month's milk, one day total per day, a little more than went to the buyers (about 34 L delivered a day), so
 // "Produced vs sold" has a previous month to look at as well as today.
 const lastMonthMilkDays = Number(lastMonth.to.slice(8, 10));

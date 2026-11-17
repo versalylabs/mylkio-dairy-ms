@@ -23,7 +23,7 @@
 | Roadmap | Phases 1–9 complete and merged to `main`. Follow-ups complete: team logins (migration 0008), password reset by email, Kiswahili for the newest screens. |
 | Stack | Next.js 16, React 19, TypeScript, Tailwind CSS 3, Neon Postgres 18 and Neon Auth (managed Better Auth), Vercel hosting, installable offline-first PWA. |
 | Database | 10 migrations (0001–0010) applied on both the Neon `production` and `preview` branches (0010, produced vs sold, on 17 November 2026). Region Frankfurt (`aws-eu-central-1`). |
-| Tests | 444 automated tests in 38 files (Vitest, with in-memory Postgres via PGlite running the real migrations). `npm run build` and `npm run typecheck` pass. CI ("Validate") runs build, typecheck and tests on every pull request. |
+| Tests | 466 automated tests in 39 files (Vitest, with in-memory Postgres via PGlite running the real migrations). `npm run build` and `npm run typecheck` pass. CI ("Validate") runs build, typecheck and tests on every pull request. |
 | Languages | English and Kiswahili for the farmer's app screens. The website, Privacy/Terms, administration screens and the vet guide's clinical content are English only. |
 | Needs a person, not code | Real-phone tests; lawyer review of Privacy and Terms; Data Protection registration; a veterinarian's review of the vet guide (still DRAFT and hidden from farmers); native-speaker review of Kiswahili; backups decision (Neon history is only 6 hours, no snapshots); Neon Auth production email settings (own sender, application name, sign-out-on-reset); a real password-reset email and a real team invite tried end to end. |
 
@@ -137,6 +137,7 @@ Each cow profile includes ear tag/name, photo(s), breed, sex, date of birth or a
 - Overlaps already in data (legacy or merges) are not added together: the newest counts, the date is flagged and the uncounted litres listed.
 - 7-day average, change vs the previous 7 days, top producer and per-cow average use counted records only, averaged per recorded day. Only lactating cows appear in cow-level entry; cows under a milk withdrawal are flagged there.
 - Milk records are append-only: the only change after saving is a void.
+- **Milk drop alerts and the weekly cow ranking** (Farmer plan and up; only for farms that log milk per cow; workers see them). A "Needs your attention" item when a lactating cow's last 3 recorded days are 25% or more below her 7 recorded days before (never from farm-total records; skipped within 14 days of calving or with a dry-off reminder due within 30 days; it closes by itself when she is back within 10%; snooze and dismiss are kept on the phone). The Milk screen lists "Your cows this week" with an up, down or level mark. Thresholds are named constants to confirm with a vet before the pilot. See `docs/milk-drop.md`.
 - **Produced vs sold** (all plans; owner and manager): Home shows "Produced 120 L · Sold 96 L · 24 L not sold" under Milk sold today, and the Milk screen shows the same for today, this month and last month. Sold is litres delivered (accepted plus rejected) from deliveries that are not voided; not sold is shown only where milk is recorded; more sold than recorded asks the farmer to check the milk record. Tapping the not-sold figure opens an optional split (home use, calves, spoiled, other), stored as a `milkUse` record per day that never changes produced or sold. See `docs/produced-vs-sold.md`.
 
 ### 5.4 Buyers, Sales, and Deliveries
@@ -306,7 +307,7 @@ Positioning: “Know your cows, your milk, and who owes you—in one simple plac
 | Reminders as phone notifications | Yes | Yes | Yes | Not yet |
 | Symptom checker | No | Yes | Yes | Built; hidden until a vet approves it |
 | Cost per litre | No | Yes | Yes | Yes |
-| Milk drop alert and cow ranking | No | Yes | Yes | Not yet |
+| Milk drop alert and cow ranking | No | Yes | Yes | Yes |
 | Fertility flags | No | Yes | Yes | Not yet |
 | Reminders by SMS | No | Yes | Yes | Not yet |
 | Vets near you, team logins | No | No | Yes | Yes |
@@ -546,7 +547,7 @@ Product owner: Versaly. Brand note: verify “Mylkio” trademark, domain, and a
 
 ## 28. Quality, testing and releases
 
-- **Tests (444):** dates, milk rules, ledger, settlements, herd care, billing, plans and features, legal text, backup, photos, local store, sync core, password reset, app copy (language parity), vet checker/phone/review, security headers; **server tests** against the real migrations in PGlite (farm API, commercial, leads, usage, invites, site content, team: 26) ; **database tests** for sync, two-device scenarios, settlements. Each "known" system sentence and the screen-vs-database role rules have a test that fails if they drift.
+- **Tests (466):** dates, milk rules, ledger, settlements, herd care, billing, plans and features, legal text, backup, photos, local store, sync core, password reset, app copy (language parity), vet checker/phone/review, security headers; **server tests** against the real migrations in PGlite (farm API, commercial, leads, usage, invites, site content, team: 26) ; **database tests** for sync, two-device scenarios, settlements. Each "known" system sentence and the screen-vs-database role rules have a test that fails if they drift.
 - **CI:** the GitHub "Validate" workflow runs `npm ci`, `npm run build`, `npm run typecheck`, `npm test` on every pull request and on `main`.
 - **Release routine:** work on a branch; open a pull request; wait for **all three checks** (Vercel, Vercel Preview Comments, validate) to read SUCCESS; merge; confirm `/api/health` reads `ok` on all four lines and sign-in works. Never run `vercel --prod` as routine.
 - **Database changes:** additive migrations in `db/migrations/`, applied to the Neon `preview` branch, tested, then to `production` with the owner's go-ahead, recorded in `public.schema_migrations`. Apply a migration **before** deploying code that reads it (merging code first is safe for 0007 only because the endpoint falls back). `npm run db:migrate` (direct connection string) or the Neon SQL editor. Ten migrations: 0001 accounts and farms; 0002 record sync; 0003 leads; 0004 usage; 0005 vet directory; 0006 commercial admin; 0007 site content; 0008 team logins; 0009 new prices and the Custom plan; 0010 the split of unsold milk (`milkUse`).
@@ -601,6 +602,7 @@ Product owner: Versaly. Brand note: verify “Mylkio” trademark, domain, and a
 | `docs/site-content.md` | Website manager |
 | `docs/produced-vs-sold.md` | Produced vs sold and the optional split of unsold milk |
 | `docs/cost-per-litre.md` | Cost per litre on the Finance screen |
+| `docs/milk-drop.md` | Milk drop alerts and the weekly cow ranking |
 | `docs/team-logins.md` | Roles and invitations |
 | `docs/password-reset.md` | Reset flow and Neon settings |
 | `docs/kiswahili.md` | What is translated and what is not |

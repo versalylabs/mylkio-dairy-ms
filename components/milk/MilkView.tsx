@@ -4,6 +4,10 @@ import React, { useMemo, useState } from 'react';
 import { primaryPhoto } from '@/lib/photos';
 import { MilkEntry, Cow, Language, Delivery, MilkUse } from '@/types';
 import { ProducedSoldLine } from './ProducedSoldLine';
+import { CowRanking } from './CowRanking';
+import { LockedFeature } from '@/components/billing/LockedFeature';
+import { canUse } from '@/lib/plans';
+import { cowRanking, logsPerCow } from '@/lib/milk-drop';
 import { PRODUCED_COPY } from '@/lib/produced-copy';
 import { producedVsSold, splitInRange } from '@/lib/produced-sold';
 import { translations } from '@/lib/translations';
@@ -22,6 +26,8 @@ interface MilkViewProps {
   milkUse?: MilkUse[];
   showProducedVsSold?: boolean;
   onOpenMilkUse?: (date: string) => void;
+  /** What the plan includes (the cow ranking is a Farmer-plan feature). */
+  subscription?: { plan: string; status?: string; renewsAt?: string } | null;
 }
 
 export const MilkView: React.FC<MilkViewProps> = ({
@@ -34,6 +40,7 @@ export const MilkView: React.FC<MilkViewProps> = ({
   milkUse = [],
   showProducedVsSold = false,
   onOpenMilkUse,
+  subscription,
 }) => {
   const t = translations[lang];
   const sw = lang === 'sw';
@@ -152,6 +159,11 @@ export const MilkView: React.FC<MilkViewProps> = ({
           {soldFigures.state === 'ok' && <p className="text-xs text-gray-500">{pc.tapHint}</p>}
         </section>
       )}
+
+      {/* Your cows this week: only for farms that log milk per cow, Farmer plan and up */}
+      {logsPerCow(entries) && (canUse(subscription, 'milkDrop')
+        ? <CowRanking rows={cowRanking({ cows, milk: entries, today: todayStr })} lang={lang} />
+        : <LockedFeature feature="milkDrop" />)}
 
       {/* Production Summary Cards */}
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 [&>:last-child:nth-child(odd)]:col-span-2 lg:[&>:last-child:nth-child(odd)]:col-span-1">
