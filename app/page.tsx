@@ -593,6 +593,8 @@ export default function Home() {
           expenses={expenses}
           deliveries={deliveries}
           payments={payments}
+          milkEntries={milkEntries}
+          subscription={currentUser?.subscription}
           onOpenRecordExpense={() => setIsExpenseModalOpen(true)}
           onDeleteExpense={handleDeleteExpense}
           lang={lang}
