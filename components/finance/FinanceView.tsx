@@ -1,7 +1,8 @@
 'use client';
 
 import React, { useState } from 'react';
-import { ExpenseRecord, Delivery, PaymentRecord, ExpenseCategory, Language } from '@/types';
+import { ExpenseRecord, Delivery, PaymentRecord, ExpenseCategory, Language, MilkEntry } from '@/types';
+import { CostPerLitreCard } from './CostPerLitreCard';
 import { translations } from '@/lib/translations';
 import { farmToday, inRange, monthRange, previousMonthRange, type DateRange } from '@/lib/dates';
 import { cashReceived, expensesInRange, salesInRange } from '@/lib/ledger';
@@ -22,6 +23,8 @@ interface FinanceViewProps {
   expenses: ExpenseRecord[];
   deliveries: Delivery[];
   payments: PaymentRecord[];
+  milkEntries?: MilkEntry[];
+  subscription?: { plan: string; status?: string; renewsAt?: string } | null;
   onOpenRecordExpense: () => void;
   onDeleteExpense: (id: string) => void;
   lang: Language;
@@ -31,6 +34,8 @@ export const FinanceView: React.FC<FinanceViewProps> = ({
   expenses,
   deliveries,
   payments,
+  milkEntries = [],
+  subscription,
   onOpenRecordExpense,
   onDeleteExpense,
   lang,
@@ -112,6 +117,9 @@ export const FinanceView: React.FC<FinanceViewProps> = ({
           </button>
         ))}
       </div>
+
+      {/* Cost per litre: this month or last month, Farmer plan and above (owners and managers only: this is the money screen) */}
+      <CostPerLitreCard milk={milkEntries} deliveries={deliveries} expenses={expenses} subscription={subscription} lang={lang} />
 
       {/* KPI Cards: Revenue, Expenses, Net Profit */}
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">

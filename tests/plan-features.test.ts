@@ -83,18 +83,20 @@ describe('the locked-feature line', () => {
 
 describe('plan descriptions never promise what is not built', () => {
   it('mark a feature that is not built yet "coming soon", and the checker "coming after vet review" until a vet approves it', () => {
-    expect(FEATURES_COMING_SOON.has('costPerLitre')).toBe(true);
-    expect(featureLabel('costPerLitre', 'en', false)).toBe('Cost per litre (coming soon)');
+    expect(FEATURES_COMING_SOON.has('milkDrop')).toBe(true);
+    expect(featureLabel('milkDrop', 'en', false)).toBe('Milk drop alerts and cow ranking (coming soon)');
+    expect(featureLabel('costPerLitre', 'en', false)).toBe('Cost per litre'); // built
     expect(featureLabel('healthChecker', 'en', false)).toBe('Symptom checker (coming after vet review)');
     expect(featureLabel('healthChecker', 'en', true)).toBe('Symptom checker');
     expect(featureLabel('vetFinder', 'en', false)).toBe('Vets near you'); // built, and live
-    expect(featureLabel('costPerLitre', 'sw', false)).toContain(PLAN_TEXT.sw.comingSoon);
+    expect(featureLabel('milkDrop', 'sw', false)).toContain(PLAN_TEXT.sw.comingSoon);
   });
 
   it('list each plan on top of the one below it', () => {
     const farmer = planFeatureLines('farmer', 'en', false);
     expect(farmer[0]).toBe('Everything in Starter');
     expect(farmer).toContain('Symptom checker (coming after vet review)');
+    expect(farmer).toContain('Cost per litre');
     expect(farmer.join(' ')).not.toMatch(/Vets near you|Weekly owner summary/);
     const pro = planFeatureLines('farm_pro', 'en', false);
     expect(pro[0]).toBe('Everything in Farmer');
