@@ -10,6 +10,7 @@ const legacyPrefixes: Record<BucketName, string> = {
   milk: 'mylkio_milk_', deliveries: 'mylkio_deliv_', payments: 'mylkio_pay_',
   health: 'mylkio_health_', breeding: 'mylkio_breed_', expenses: 'mylkio_exp_',
   reminders: 'mylkio_rem_', statements: 'mylkio_stmt_', bills: 'mylkio_bill_', allocations: 'mylkio_alloc_',
+  milkUse: 'mylkio_muse_',
 };
 
 export type LegacySource = { farmId: string; name: string; counts: Partial<Record<BucketName, number>> };

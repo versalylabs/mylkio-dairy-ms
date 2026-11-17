@@ -1,6 +1,6 @@
 'use client';
 
-import { Cow, MilkEntry, Delivery, PaymentRecord, ExpenseRecord, HealthEvent, BreedingEvent, Farm, FarmReminder, CoopStatement, CustomerBill, PaymentAllocation } from '@/types';
+import { Cow, MilkEntry, Delivery, PaymentRecord, ExpenseRecord, HealthEvent, BreedingEvent, Farm, FarmReminder, CoopStatement, CustomerBill, PaymentAllocation, MilkUse } from '@/types';
 import { farmToday } from './dates';
 import { acceptedLitres, deliveryCharge } from './ledger';
 import { countedEntryIds } from './milk';
@@ -110,6 +110,7 @@ export const DataExporter = {
     statements: CoopStatement[];
     bills: CustomerBill[];
     allocations: PaymentAllocation[];
+    milkUse?: MilkUse[];
   }) {
     const content = JSON.stringify({ schemaVersion: BACKUP_SCHEMA_VERSION, exportedAt: new Date().toISOString(), ...backupData }, null, 2);
     downloadFile(content, `mylkio_full_farm_backup_${farmToday()}.json`, 'application/json');

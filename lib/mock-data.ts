@@ -16,6 +16,7 @@ import {
   CoopStatement,
   CustomerBill,
   PaymentAllocation,
+  MilkUse,
 } from '@/types';
 import { addDays, farmToday, monthRange, previousMonthRange } from './dates';
 import { PLANS, TRIAL_DAYS } from './plans';
@@ -350,6 +351,20 @@ const todayDeliveries: Delivery[] = [
   },
 ];
 
+// Last month's milk, one day total per day, a little more than went to the buyers (about 34 L delivered a day), so
+// "Produced vs sold" has a previous month to look at as well as today.
+const lastMonthMilkDays = Number(lastMonth.to.slice(8, 10));
+initialMilkEntries.push(...Array.from({ length: lastMonthMilkDays }, (_, i) => i + 1).map((day): MilkEntry => ({
+  id: `milk-lm-${day}`,
+  farmId: 'farm-green-hills',
+  date: lastMonthDay(day),
+  session: 'total',
+  mode: 'farm_total',
+  totalLitres: 38 + ((day * 3) % 5),
+  synced: true,
+  createdAt: `${lastMonthDay(day)}T18:00:00Z`,
+})));
+
 // A month of cooperative and household deliveries for last month.
 const lastMonthDays = Number(lastMonth.to.slice(8, 10));
 const coopRejections: Record<number, { litres: number; reason: string }> = {
@@ -434,6 +449,12 @@ export const initialStatements: CoopStatement[] = [
 
 export const initialBills: CustomerBill[] = [];
 export const initialAllocations: PaymentAllocation[] = [];
+
+// Where part of today's unsold milk went (home 4 L, calves 3 L), so the demo shows the optional split. The rest of
+// the unsold milk is left unassigned on purpose: nothing makes a farmer account for every litre.
+export const initialMilkUse: MilkUse[] = [
+  { id: `milkuse-${todayStr}`, farmId: 'farm-green-hills', date: todayStr, homeUse: 4, calves: 3, spoiled: 0, other: 0, createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() },
+];
 
 export const initialPayments: PaymentRecord[] = [
   {

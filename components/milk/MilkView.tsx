@@ -2,9 +2,12 @@
 
 import React, { useMemo, useState } from 'react';
 import { primaryPhoto } from '@/lib/photos';
-import { MilkEntry, Cow, Language } from '@/types';
+import { MilkEntry, Cow, Language, Delivery, MilkUse } from '@/types';
+import { ProducedSoldLine } from './ProducedSoldLine';
+import { PRODUCED_COPY } from '@/lib/produced-copy';
+import { producedVsSold, splitInRange } from '@/lib/produced-sold';
 import { translations } from '@/lib/translations';
-import { farmToday, formatFarmDate } from '@/lib/dates';
+import { farmToday, formatFarmDate, monthRange, previousMonthRange } from '@/lib/dates';
 import { cowYields, countedEntryIds, dailyProduction, datesNeedingReview, productionTrend } from '@/lib/milk';
 import { Milk, Plus, Award, Ban, TrendingUp, TrendingDown, AlertTriangle } from 'lucide-react';
 
@@ -14,6 +17,11 @@ interface MilkViewProps {
   onOpenRecordModal: () => void;
   onVoidEntry: (id: string, reason: string) => void;
   lang: Language;
+  /** Deliveries and the split of unsold milk. Only given to people who may see sales (a worker sees none of it). */
+  deliveries?: Delivery[];
+  milkUse?: MilkUse[];
+  showProducedVsSold?: boolean;
+  onOpenMilkUse?: (date: string) => void;
 }
 
 export const MilkView: React.FC<MilkViewProps> = ({
@@ -22,17 +30,28 @@ export const MilkView: React.FC<MilkViewProps> = ({
   onOpenRecordModal,
   onVoidEntry,
   lang,
+  deliveries = [],
+  milkUse = [],
+  showProducedVsSold = false,
+  onOpenMilkUse,
 }) => {
   const t = translations[lang];
   const sw = lang === 'sw';
   const [filterSession, setFilterSession] = useState<'all' | 'AM' | 'PM' | 'total'>('all');
   const [showVoided, setShowVoided] = useState(false);
+  const [soldPeriod, setSoldPeriod] = useState<'today' | 'this_month' | 'last_month'>('today');
 
   const todayStr = farmToday();
   const today = dailyProduction(entries, todayStr);
   const trend = productionTrend(entries, todayStr, 7);
   const review = datesNeedingReview(entries);
   const counted = useMemo(() => countedEntryIds(entries), [entries]);
+  const pc = PRODUCED_COPY[lang];
+  const soldRange = soldPeriod === 'today' ? { from: todayStr, to: todayStr } : soldPeriod === 'this_month' ? monthRange(todayStr) : previousMonthRange(todayStr);
+  const soldFigures = producedVsSold(entries, deliveries, soldRange);
+  const soldSplit = splitInRange(milkUse, entries, soldRange, soldFigures.notSold);
+  // The split is for one day: today, or (for a month) the most recent day that has milk recorded.
+  const splitDate = soldPeriod === 'today' ? todayStr : [...new Set(entries.filter((e) => !e.voidedAt && e.date >= soldRange.from && e.date <= soldRange.to).map((e) => e.date))].sort().pop();
 
   const topCows = cowYields(entries)
     .sort((a, b) => (b.averagePerDay ?? 0) - (a.averagePerDay ?? 0))
@@ -109,6 +128,29 @@ export const MilkView: React.FC<MilkViewProps> = ({
               : 'Void the incorrect record below so the day total is unambiguous.'}
           </p>
         </div>
+      )}
+
+      {/* Produced vs sold: for owners and managers (it uses deliveries, which a worker never sees) */}
+      {showProducedVsSold && (
+        <section aria-labelledby="produced-sold-heading" className="card space-y-3 p-4 sm:p-5">
+          <div className="flex flex-wrap items-center justify-between gap-2">
+            <h2 id="produced-sold-heading" className="text-base font-bold text-gray-900">{pc.heading}</h2>
+            <div className="flex flex-wrap gap-2" role="group" aria-label={pc.heading}>
+              {([['today', pc.periods.today], ['this_month', pc.periods.thisMonth], ['last_month', pc.periods.lastMonth]] as const).map(([key, label]) => (
+                <button key={key} type="button" aria-pressed={soldPeriod === key} onClick={() => setSoldPeriod(key)}
+                  className={`chip-btn ${soldPeriod === key ? '!border-sage !bg-sage !text-white' : ''}`}>{label}</button>
+              ))}
+            </div>
+          </div>
+          <ProducedSoldLine
+            figures={soldFigures}
+            split={soldSplit}
+            lang={lang}
+            isToday={soldPeriod === 'today'}
+            onOpenSplit={onOpenMilkUse && splitDate && soldFigures.state === 'ok' ? () => onOpenMilkUse(splitDate) : undefined}
+          />
+          {soldFigures.state === 'ok' && <p className="text-xs text-gray-500">{pc.tapHint}</p>}
+        </section>
       )}
 
       {/* Production Summary Cards */}
