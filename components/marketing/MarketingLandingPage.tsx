@@ -395,7 +395,7 @@ export const MarketingLandingPage: React.FC<MarketingLandingPageProps> = ({
             />
             <div className="max-w-md space-y-3">
               <p className="text-base leading-relaxed text-charcoal-light">
-                Most Kenyan dairy farmers lose money not from bad cows, but from missing records and unreconciled deliveries.
+                When records are scattered, it is harder to spot missing deliveries, follow up on payments, or see how costs affect income.
               </p>
               <a href="#features" className="group inline-flex items-center gap-1.5 whitespace-nowrap text-sm font-semibold text-sage">
                 <span className="link-slide">Explore all solutions</span> <ArrowRight className="nudge h-4 w-4" />
@@ -429,8 +429,8 @@ export const MarketingLandingPage: React.FC<MarketingLandingPageProps> = ({
             <SectionHeading
               align="left"
               eyebrow="About Mylkio"
-              title={<>Everything you need to run your dairy farm, <span className="text-sage">in one simple place.</span></>}
-              intro="From your first milk record to your monthly payments, Mylkio helps you stay organized and make more informed farming decisions."
+              title={<>Built around the work behind <span className="text-sage">every litre.</span></>}
+              intro="From morning milking to a monthly co-op statement, keep the records, reminders, and costs you need to run your farm with a clearer picture."
             />
             <ul className="mt-8 space-y-4">
               {ABOUT_POINTS.map((point) => (
@@ -485,8 +485,8 @@ export const MarketingLandingPage: React.FC<MarketingLandingPageProps> = ({
         <div className="container-page">
           <SectionHeading
             eyebrow="The complete solution"
-            title="Everything you need to run your dairy farm. In one place."
-            intro="From your first milk record to your monthly payments, Mylkio helps you stay organized and make more informed farming decisions."
+            title="Track milk, herd care, sales, and farm costs in one system."
+            intro="Record daily production, follow cow health and breeding, reconcile deliveries, and review expenses from your phone—even when signal is limited."
           />
           <div className="section-body grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
             {FEATURES.map(({ icon: Icon, tone, title, body, points }) => (
@@ -522,7 +522,7 @@ export const MarketingLandingPage: React.FC<MarketingLandingPageProps> = ({
               intro="Whether you sell to a cooperative or individual customers, Mylkio helps you maintain a clear record of milk delivered, payments received, and outstanding balances."
             />
             <p className="mt-8 rounded-2xl border border-white/20 bg-white/10 p-5 text-base leading-relaxed text-ivory backdrop-blur">
-              <strong className="text-gold">No more relying on memory to reconcile your milk sales.</strong> At month-end, simply pull up your logged deliveries against the cooperative slip to confirm accuracy before payment is finalized.
+              <strong className="text-gold">Keep a dated record of every delivery.</strong> At month-end, compare your Mylkio records with the co-op statement and follow up on any differences in litres, deductions, or payments.
             </p>
           </div>
 
@@ -957,7 +957,7 @@ export const MarketingLandingPage: React.FC<MarketingLandingPageProps> = ({
                 <span className="icon-tile"><FileText className="h-6 w-6" /></span>
                 <div>
                   <h3 id="checklist-title" className="font-display text-2xl font-medium leading-tight">Get our free dairy farm record-keeping checklist</h3>
-                  <p className="mt-2 text-base text-charcoal-muted">Enter where to send your checklist and instant download link.</p>
+                  <p className="mt-2 text-base text-charcoal-muted">Add your details to unlock an immediate download of the checklist.</p>
                 </div>
                 <div>
                   <label htmlFor="lead-name" className="field-label">Your name *</label>

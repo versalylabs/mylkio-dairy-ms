@@ -156,11 +156,11 @@ export function buildFaqs(prices?: Record<'starter' | 'farmer' | 'farm_pro', num
     },
     {
       q: 'How does Mylkio prevent cooperative payment disputes?',
-      a: 'Every delivery to your co-op or collection centre is saved with the date, shift, delivered litres, and driver deductions. At month-end, you have an exact delivery tally to compare against the cooperative payment slip, ensuring you are paid for every single drop.',
+      a: 'Each delivery to your co-op or collection centre is saved with its date, shift, litres, and deductions. At month-end, compare your delivery records with the payment slip and follow up on any differences.',
     },
     {
       q: 'How does the milk withdrawal period warning work?',
-      a: 'When you log a veterinary treatment (e.g. PenStrep for mastitis), Mylkio calculates the withdrawal period and displays a prominent warning banner on your dashboard and milk screen every morning until the withdrawal expires, preventing costly cooperative milk rejection penalties.',
+      a: 'When you log a veterinary treatment, Mylkio shows the withdrawal period on your dashboard and milk screen. Check the warning before recording or selling milk, and follow your veterinarian’s guidance on when it is safe to sell.',
     },
     {
       q: 'How much does Mylkio cost?',
