@@ -1,7 +1,9 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
-import { Cow, Buyer, MilkEntry, Delivery, PaymentRecord, FarmReminder, ExpenseRecord, Language, Farm, UserAccount, MilkUse, BreedingEvent } from '@/types';
+import { Cow, Buyer, MilkEntry, Delivery, PaymentRecord, FarmReminder, ExpenseRecord, Language, Farm, UserAccount, MilkUse, BreedingEvent, HealthEvent } from '@/types';
+import { WeeklySummaryCard } from './WeeklySummaryCard';
+import { weeklySummary } from '@/lib/weekly-summary';
 import { canUse } from '@/lib/plans';
 import { milkDropAlerts } from '@/lib/milk-drop';
 import { fertilityFlags } from '@/lib/fertility';
@@ -42,6 +44,8 @@ interface DashboardViewProps {
   milkUse?: MilkUse[];
   /** For milk drop alerts: a cow that has just calved is left alone. */
   breedingEvents?: BreedingEvent[];
+  /** For the weekly summary's "who recorded what". */
+  healthEvents?: HealthEvent[];
   /** Opens a cow's page (from a milk drop alert). */
   onOpenCow?: (cowId: string) => void;
   payments: PaymentRecord[];
@@ -76,6 +80,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
   deliveries,
   milkUse = [],
   breedingEvents = [],
+  healthEvents = [],
   onOpenCow,
   payments,
   expenses,
@@ -145,6 +150,9 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
   useEffect(() => { setHiddenAlerts(prune(farmKey, alertKey ? alertKey.split(',') : [])); }, [farmKey, alertKey]);
   const shownDrops = drops.filter((d) => !isHidden(hiddenAlerts[d.cowId], todayStr));
   const shownFlags = flags.filter((f) => !isHidden(hiddenAlerts[f.id], todayStr));
+  const weekly = money && canUse(user?.subscription, 'weeklySummary')
+    ? weeklySummary({ milk: milkEntries, deliveries, payments, health: healthEvents, breeding: breedingEvents, reminders, buyerBalances: buyers.map((b) => b.currentBalance), today: todayStr })
+    : null;
 
   // A withdrawal reminder whose end date has passed is over, so it leaves the list by itself.
   const currentReminders = reminders.filter((r) => r.completed || !isReminderDone(r, todayStr));
@@ -303,6 +311,9 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
         </div>
         </>}
       </div>
+
+      {/* Last week on your farm: Farm Pro and up, owners and managers (it is built from money) */}
+      {money && weekly && weekly.hasActivity && <WeeklySummaryCard summary={weekly} farmId={farmKey} farmName={farm?.name ?? ''} lang={lang} />}
 
       {/* What needs attention: open items first, a short list by default. */}
       <section aria-labelledby="attention-heading" className="bg-white rounded-3xl border border-gray-200 p-5 shadow-sm space-y-3">

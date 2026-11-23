@@ -518,6 +518,7 @@ export default function Home() {
           milkUse={milkUse}
           onOpenMilkUse={setMilkUseDate}
           breedingEvents={breedingEvents}
+          healthEvents={healthEvents}
           onOpenCow={(cowId) => { setOpenCowId(cowId); setActiveTab('herd'); }}
           onOpenRecordDelivery={() => setIsRecordDeliveryModalOpen(true)}
           onOpenRecordPayment={() => setIsRecordPaymentModalOpen(true)}
@@ -620,6 +621,7 @@ export default function Home() {
           user={currentUser}
           cowCount={liveCowCount(cows)}
           storage={{ recordCount: totalRecords, cows, onDownloadBackup: handleDownloadBackup, onShrinkPhotos: handleShrinkPhotos }}
+          reportData={{ cows, buyers, milk: milkEntries, deliveries, payments, expenses }}
           onLogout={handleLogout}
         />
       )}

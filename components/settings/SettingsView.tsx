@@ -7,6 +7,7 @@ import { AppStorage } from '@/lib/storage';
 import { LegacyDataImport } from './LegacyDataImport';
 import { StorageCard } from './StorageCard';
 import { TeamCard } from './TeamCard';
+import { FarmReportCard, type FarmReportData } from './FarmReportCard';
 import { ROLE_LABEL, ROLE_SUMMARY, canManageTeam, canSeeBilling, roleOrOwner } from '@/lib/team';
 import { PLANS, type PlanId } from '@/lib/plans';
 import { billingState, describeBilling, stateLabel } from '@/lib/billing';
@@ -33,6 +34,8 @@ interface SettingsViewProps {
     onDownloadBackup: () => void;
     onShrinkPhotos: () => Promise<{ shrunk: number; savedBytes: number }>;
   };
+  /** The records the farm report is built from (owners and managers). */
+  reportData?: FarmReportData;
   onLogout?: () => void;
 }
 
@@ -44,6 +47,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
   user,
   cowCount,
   storage,
+  reportData,
   onLogout,
 }) => {
   const t = translations[lang];
@@ -360,6 +364,10 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
 
       {storage && user && user.role !== 'super_admin' && role !== 'worker' && (
         <StorageCard farmId={farm.id} recordCount={storage.recordCount} cows={storage.cows} onDownloadBackup={storage.onDownloadBackup} onShrinkPhotos={storage.onShrinkPhotos} />
+      )}
+
+      {reportData && user && user.role !== 'super_admin' && role !== 'worker' && (
+        <FarmReportCard farm={farm} data={reportData} subscription={user.subscription} lang={lang} />
       )}
 
       {user && isOwner && user.role !== 'super_admin' && user.id !== 'usr-demo-01' && (

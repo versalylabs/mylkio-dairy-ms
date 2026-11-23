@@ -370,6 +370,7 @@ const todayDeliveries: Delivery[] = [
     initialMilkEntries.push({
       id: `milk-cow-day-${k}`, farmId: 'farm-green-hills', date, session: 'total', mode: 'cow_level',
       totalLitres: Math.round(cowBreakdown.reduce((sum, c) => sum + c.litres, 0) * 10) / 10, cowBreakdown, synced: true, createdAt: `${date}T19:00:00Z`,
+      recordedBy: k % 2 === 1 ? { id: 'usr-demo-01', name: 'James Kariuki' } : { id: 'usr-demo-mary', name: 'Mary Wanjiku' },
     });
   }
 }
@@ -479,6 +480,24 @@ export const initialMilkUse: MilkUse[] = [
   { id: `milkuse-${todayStr}`, farmId: 'farm-green-hills', date: todayStr, homeUse: 4, calves: 3, spoiled: 0, other: 0, createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() },
 ];
 
+// The last 14 days of deliveries (the co-op takes about 44 L a day, a household 2 L), so the weekly summary and this
+// month's figures have something to show. Today's deliveries are above.
+for (let k = 1; k <= 14; k++) {
+  const date = addDays(todayStr, -k);
+  const rejected = k === 5 ? 3 : 0;
+  initialDeliveries.push(
+    {
+      id: `del-recent-coop-${k}`, farmId: 'farm-green-hills', buyerId: 'buyer-baraka-coop', buyerName: 'Baraka Dairy Farmers Co-op', buyerType: 'cooperative',
+      date, litres: 44, ratePerLitre: 48, rejectedLitres: rejected, rejectionReason: rejected ? 'Arrived warm after collection time' : undefined,
+      adjustmentKSh: 0, expectedAmount: (44 - rejected) * 48, amountPaid: 0, balance: (44 - rejected) * 48, synced: true, createdAt: `${date}T07:30:00Z`,
+    },
+    {
+      id: `del-recent-mama-${k}`, farmId: 'farm-green-hills', buyerId: 'buyer-mama-wanjiku', buyerName: 'Mama Wanjiku (Household)', buyerType: 'household',
+      date, litres: 2, ratePerLitre: 60, rejectedLitres: 0, adjustmentKSh: 0, expectedAmount: 120, amountPaid: 0, balance: 120, synced: true, createdAt: `${date}T07:45:00Z`,
+    },
+  );
+}
+
 export const initialPayments: PaymentRecord[] = [
   {
     id: 'pay-001',
@@ -522,6 +541,12 @@ export const initialPayments: PaymentRecord[] = [
     createdAt: `${lastMonthDay(20)}T18:10:00Z`,
   },
 ];
+
+// Two recent payments (a co-op part payment and a household part payment), so last week has cash received as well as billing.
+initialPayments.push(
+  { id: 'pay-recent-1', farmId: 'farm-green-hills', buyerId: 'buyer-baraka-coop', buyerName: 'Baraka Dairy Farmers Co-op', date: addDays(todayStr, -3), amount: 15000, paymentMethod: 'bank', referenceNo: 'COOP-PART-1108', notes: 'Part payment on the month', synced: true, createdAt: `${addDays(todayStr, -3)}T11:00:00Z` },
+  { id: 'pay-recent-2', farmId: 'farm-green-hills', buyerId: 'buyer-mama-wanjiku', buyerName: 'Mama Wanjiku (Household)', date: addDays(todayStr, -5), amount: 1000, paymentMethod: 'mpesa', referenceNo: 'TJK9X1R2NB', notes: 'Part payment for milk', synced: true, createdAt: `${addDays(todayStr, -5)}T09:00:00Z` },
+);
 
 export const initialHealthEvents: HealthEvent[] = [
   {
@@ -780,9 +805,9 @@ export const initialAccounts: UserAccount[] = [
     name: 'James Kariuki',
     phone: '+254 712 345 678',
     subscription: {
-      plan: 'farmer',
+      plan: 'farm_pro',
       status: 'active',
-      monthlyPriceKsh: PLANS.farmer.priceKsh,
+      monthlyPriceKsh: PLANS.farm_pro.priceKsh,
       startDate: '2026-10-01',
       renewsAt: '2030-01-01',
     },

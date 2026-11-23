@@ -143,6 +143,7 @@ body {
 
 /* Printing a statement or bill: print only the open document, on plain paper. */
 @media print {
+  @page { size: A4; margin: 12mm; }
   body * { visibility: hidden !important; }
   .print-area, .print-area * { visibility: visible !important; }
   .print-area {

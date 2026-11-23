@@ -92,6 +92,9 @@ export interface MilkAllocation {
   wasteLitres: number;
 }
 
+/** Who saved a record, stamped on the phone that saved it (the phone's copy does not carry the server's updated_by). */
+export interface RecordedBy { id: string; name: string }
+
 export interface MilkEntry {
   id: string;
   farmId: string;
@@ -109,6 +112,8 @@ export interface MilkEntry {
   notes?: string;
   synced: boolean;
   createdAt: string;
+  /** Who saved it (for the weekly summary's "who recorded what"). Missing on records saved before this existed. */
+  recordedBy?: RecordedBy;
   /** Corrections never delete: a voided record stays visible but is not counted. */
   voidedAt?: string;
   voidReason?: string;
@@ -199,6 +204,7 @@ export interface HealthEvent {
   isWithdrawalActive?: boolean;
   notes?: string;
   createdAt: string;
+  recordedBy?: RecordedBy;
 }
 
 export type BreedingEventType = 
@@ -227,6 +233,7 @@ export interface BreedingEvent {
   calfSex2?: 'female' | 'male';
   notes?: string;
   createdAt: string;
+  recordedBy?: RecordedBy;
 }
 
 export type ExpenseCategory = 
