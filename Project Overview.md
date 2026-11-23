@@ -585,6 +585,7 @@ Product owner: Versaly. Brand note: verify “Mylkio” trademark, domain, and a
 - Kiswahili for the website, administration screens and (after vet review) the vet guide content.
 - Concurrent multi-phone load test; test over a real mobile network.
 - Cooperative portal and group onboarding (only if partner demand is validated).
+- **SACCO and area groups** with structured outbreak reports and official alerts (designed 23 November 2026, not built; see `docs/community-groups-design.md`).
 
 ## 31. Where the detail lives
 
@@ -606,6 +607,7 @@ Product owner: Versaly. Brand note: verify “Mylkio” trademark, domain, and a
 | `docs/milk-drop.md` | Milk drop alerts and the weekly cow ranking |
 | `docs/fertility-flags.md` | Fertility flags, days open and the calving interval |
 | `docs/weekly-summary-and-farm-report.md` | Weekly owner summary and the farm report for a bank or SACCO |
+| `docs/community-groups-design.md` | Designed, not built: SACCO and area groups with outbreak reports, for Farm Pro and Custom |
 | `docs/phase-8-fixes.md` | Plan-change history, attempt limits on codes, background photo shrinking, the new-farm start |
 | `docs/team-logins.md` | Roles and invitations |
 | `docs/password-reset.md` | Reset flow and Neon settings |
