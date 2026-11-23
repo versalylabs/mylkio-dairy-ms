@@ -1,5 +1,8 @@
 import {
   Activity,
+  HeartPulse,
+  MessagesSquare,
+  Stethoscope,
   Calendar,
   Banknote,
   Download,
@@ -31,6 +34,7 @@ export const ALL_LINKS = [
   NAV_LINKS[0],
   NAV_LINKS[1],
   { href: '#payments', label: 'Milk sales' },
+  { href: '#community', label: 'Community' },
   ...NAV_LINKS.slice(2),
 ];
 
@@ -105,6 +109,21 @@ export const FEATURES: Feature[] = [
     body: 'View useful summaries of milk production, sales, expenses, and farm activity. Export full CSV spreadsheets or complete database backups.',
     points: ['One-click CSV exports for bank and SACCO records', 'Instant full JSON database backup'],
   },
+  {
+    icon: HeartPulse, tone: 'gold', title: 'Notice a cow in trouble before it costs you milk',
+    body: 'Mylkio watches the records you already keep and flags a cow whose milk has dropped, or one that has not been served or keeps needing repeat service. They are prompts to go and look at the cow, never a diagnosis.',
+    points: ['Milk drop alerts and a weekly cow ranking (Farmer plan and up)', 'Fertility flags, days open and calving interval (Farmer plan and up)'],
+  },
+  {
+    icon: Stethoscope, tone: 'sage', title: 'Reach a vet quickly when it matters',
+    body: 'Keep your own vets one tap away, with call and WhatsApp buttons. Farm Pro farms can also look up vets for their county that Mylkio has confirmed by phone.',
+    points: ['Save up to 10 of your own vets, on every plan', 'A symptom checker and emergency-signs guide are being reviewed by a veterinarian before they are switched on'],
+  },
+  {
+    icon: MessagesSquare, tone: 'sage', title: 'Talk with the farms around you',
+    body: 'Join a group for your SACCO or area, set up by Mylkio so every group is a real one. Share news, ask questions and help each other, inside the app you already use.',
+    points: ['Community groups are part of Farm Pro and Custom', 'Your worker logins can read; owners and managers write'],
+  },
 ];
 
 export const STEPS = [
@@ -127,6 +146,28 @@ export const ABOUT_POINTS = [
   'Antibiotic milk withdrawal warnings prevent co-op penalties',
   'Reconcile cooperative delivery slips against expected payout',
 ];
+
+/** The Community section of the website. Only what is built and live: groups, invitations and a discussion. */
+export const COMMUNITY_SECTION = {
+  eyebrow: 'Community',
+  title: 'Your SACCO and your neighbours, in one place.',
+  intro: 'Farm Pro farms can join a group for their SACCO, cooperative or area. Mylkio creates every group and sends the invitation, so you know who you are talking to.',
+  points: [
+    'Ask a question or share news with the farms in your group',
+    'Mylkio staff set up each group for a real SACCO or area, so nobody can start a fake one',
+    'Your farm records are never shared: a post says only what you choose to type',
+    'Every group reminds members that neighbours give guidance, not a diagnosis, and that a sick animal needs a vet',
+    'Read it without signal: the last posts you read stay on your phone',
+  ],
+  /** An invented example, labelled as one on the page. */
+  example: {
+    group: 'Rongai Dairy SACCO',
+    posts: [
+      { who: 'A member farm', text: 'Anyone selling Rhodes grass hay this week? Looking for 20 bales.', replies: 2 },
+      { who: 'A member farm', text: 'The co-op truck collects an hour earlier on Friday.', replies: 0 },
+    ],
+  },
+};
 
 export const HERO_PROOF = [
   `${TRIAL_DAYS}-day free trial`,
@@ -161,6 +202,14 @@ export function buildFaqs(prices?: Record<'starter' | 'farmer' | 'farm_pro', num
     {
       q: 'How does the milk withdrawal period warning work?',
       a: 'When you log a veterinary treatment, Mylkio shows the withdrawal period on your dashboard and milk screen. Check the warning before recording or selling milk, and follow your veterinarian’s guidance on when it is safe to sell.',
+    },
+    {
+      q: 'What are Community groups?',
+      a: 'Community groups are part of the Farm Pro and Custom plans. Mylkio sets up a group for a SACCO, cooperative or area and sends its members an invitation link. Members can post, reply and read what the other farms in the group share. Your farm records are never shared with a group: a post says only what you choose to type. If you run a SACCO or cooperative and would like a group, talk to us.',
+    },
+    {
+      q: 'Can Mylkio tell me what is wrong with my cow?',
+      a: 'No. Mylkio is a record-keeping tool, not a vet. It points out patterns in your own records, such as a drop in a cow’s milk or a cow that has not been served, so you know where to look. The symptom checker and emergency-signs guide are still being reviewed by a veterinarian and are switched on only after that. If an animal is very sick, call a vet.',
     },
     {
       q: 'How much does Mylkio cost?',
