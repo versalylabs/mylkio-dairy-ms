@@ -2,6 +2,8 @@ import { z } from 'zod';
 import { body, endpoint, json, sameOrigin } from '@/lib/server/http';
 import { signedIn } from '@/lib/server/neon-auth';
 import { acceptInvite, getAccount } from '@/lib/server/farm-api';
+import { ApiError } from '@/lib/server/errors';
+import { ipHashOf, withAttemptLimit } from '@/lib/server/attempts';
 
 export const dynamic = 'force-dynamic';
 
@@ -23,6 +25,8 @@ export async function POST(request: Request) {
     const details = input.parse(await body(request));
     const existing = await getAccount(db, user.id);
     if (existing?.farmId) return json({ user: existing });
-    return json({ user: await acceptInvite(db, user, details) });
+    // A wrong, used, expired or withdrawn code is a 400 and counts as a wrong try; too many tries are held for a while.
+    const wrongCode = (error: unknown) => error instanceof ApiError && error.status === 400;
+    return json({ user: await withAttemptLimit(db, user.id, ipHashOf(request), 'join', wrongCode, () => acceptInvite(db, user, details)) });
   });
 }

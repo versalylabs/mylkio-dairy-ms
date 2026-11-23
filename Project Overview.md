@@ -22,8 +22,8 @@
 | Product | Live, in pilot-readiness. Invitation-only sign-up. No paying farmers are recorded in this document. |
 | Roadmap | Phases 1–9 complete and merged to `main`. Follow-ups complete: team logins (migration 0008), password reset by email, Kiswahili for the newest screens. |
 | Stack | Next.js 16, React 19, TypeScript, Tailwind CSS 3, Neon Postgres 18 and Neon Auth (managed Better Auth), Vercel hosting, installable offline-first PWA. |
-| Database | 10 migrations (0001–0010) applied on both the Neon `production` and `preview` branches (0010, produced vs sold, on 17 November 2026). Region Frankfurt (`aws-eu-central-1`). |
-| Tests | 517 automated tests in 42 files (Vitest, with in-memory Postgres via PGlite running the real migrations). `npm run build` and `npm run typecheck` pass. CI ("Validate") runs build, typecheck and tests on every pull request. |
+| Database | 11 migrations (0001–0011) applied on both the Neon `production` and `preview` branches (0011, plan-change history and attempt limits on codes, on 23 November 2026). Region Frankfurt (`aws-eu-central-1`). |
+| Tests | 541 automated tests in 45 files (Vitest, with in-memory Postgres via PGlite running the real migrations). `npm run build` and `npm run typecheck` pass. CI ("Validate") runs build, typecheck and tests on every pull request. |
 | Languages | English and Kiswahili for the farmer's app screens. The website, Privacy/Terms, administration screens and the vet guide's clinical content are English only. |
 | Needs a person, not code | Real-phone tests; lawyer review of Privacy and Terms; Data Protection registration; a veterinarian's review of the vet guide (still DRAFT and hidden from farmers); native-speaker review of Kiswahili; backups decision (Neon history is only 6 hours, no snapshots); Neon Auth production email settings (own sender, application name, sign-out-on-reset); a real password-reset email and a real team invite tried end to end. |
 
@@ -112,7 +112,7 @@ Cooperative data integrations, automated M-Pesa collection/reconciliation (the m
 - Demo/sample data and contextual help.
 
 **As built:**
-- **Sign-up is invitation-only during the pilot.** A farm can be created only with a code from the `SIGNUP_INVITE_CODES` setting (remove a code to revoke it). Codes should be long and random; they are not attempt-limited.
+- **Sign-up is invitation-only during the pilot.** A farm can be created only with a code from the `SIGNUP_INVITE_CODES` setting (remove a code to revoke it). Codes should be long and random; wrong tries are limited (8 per account and 30 per network address in 15 minutes, see section 22).
 - Sign-up form: name, phone (M-Pesa), farm name, county, sub-county, email, password (12 or more characters), plan choice, agreement to Terms and Privacy. Every new farm gets a **14-day free trial** with the full Farmer feature set, and starts clean with no demo data.
 - **"Explore the demo farm"** on the sign-in box opens a local-only sample farm (Green Hills Dairy Farm, Nakuru) with a full previous month of deliveries, a statement and bills. Demo data never leaves the phone.
 - **Language switch (EN / SW)** is on the sign-in box and in the app header.
@@ -475,7 +475,7 @@ Product owner: Versaly. Brand note: verify “Mylkio” trademark, domain, and a
 - The owner can change a role (effective immediately on the server) or remove a person (access ends immediately; what they recorded stays). A person already on a farm cannot join another until removed.
 - **Plan limit:** Farm Pro and Custom, owner plus five (six logins) by default; a Custom farm can have its own number, set by an administrator. Open invitations count. Starter and Farmer see an upgrade note. The limit lives in `team_limit()` / `team_limit_for_farm()` (SQL) and `TEAM_LOGINS` / `teamLoginsFor()` (`lib/team.ts`); change both together. Error code `MY402` means "plan full" (HTTP 409).
 - Administration lists and counts **owners only**, so a farm with four logins is one account in usage and billing.
-- **Limits:** a removed person's phone keeps what it already downloaded until they sign out; a role change shows on a person's screen the next time they open the app; invitation codes are not attempt-limited (about 49 bits, 7 days, needs a signed-in identity); not built: leaving a farm yourself, transferring ownership, per-person activity reports (`updated_by` is already kept).
+- **Limits:** a removed person's phone keeps what it already downloaded until they sign out; a role change shows on a person's screen the next time they open the app; wrong invitation codes are limited per account and per network address (8 and 30 wrong tries in 15 minutes, counted in `code_attempts`, the address kept only as a hash; about 49 bits, 7 days, needs a signed-in identity); not built: leaving a farm yourself, transferring ownership, per-person activity reports (`updated_by` is already kept).
 
 ## 23. Plans, billing and administration
 
@@ -510,7 +510,7 @@ Product owner: Versaly. Brand note: verify “Mylkio” trademark, domain, and a
 
 **Accepted risks**
 1. The app connects to Postgres as the database owner; there is no row-level security. Separation depends on server checks plus SQL membership checks. A bug that passed the wrong id would leak data, and anyone with `DATABASE_URL` could read everything: keep it only in Vercel. A later hardening step is a less-privileged database role plus row-level security.
-2. Pilot invitation codes and team invitation codes are not attempt-limited; use long random codes.
+2. Pilot invitation codes and team invitation codes are attempt-limited (migration 0011) but should still be long and random.
 3. No email check at sign-up yet; sign-in/sign-up rate limits are Neon Auth's, not visible to this code.
 4. Admin screens and the team screen have been tested with generated data and server tests, not yet seen on a real signed-in live account.
 
@@ -548,10 +548,10 @@ Product owner: Versaly. Brand note: verify “Mylkio” trademark, domain, and a
 
 ## 28. Quality, testing and releases
 
-- **Tests (517):** dates, milk rules, ledger, settlements, herd care, billing, plans and features, legal text, backup, photos, local store, sync core, password reset, app copy (language parity), vet checker/phone/review, security headers; **server tests** against the real migrations in PGlite (farm API, commercial, leads, usage, invites, site content, team: 26) ; **database tests** for sync, two-device scenarios, settlements. Each "known" system sentence and the screen-vs-database role rules have a test that fails if they drift.
+- **Tests (541):** dates, milk rules, ledger, settlements, herd care, billing, plans and features, legal text, backup, photos, local store, sync core, password reset, app copy (language parity), vet checker/phone/review, security headers; **server tests** against the real migrations in PGlite (farm API, commercial, leads, usage, invites, site content, team: 26) ; **database tests** for sync, two-device scenarios, settlements. Each "known" system sentence and the screen-vs-database role rules have a test that fails if they drift.
 - **CI:** the GitHub "Validate" workflow runs `npm ci`, `npm run build`, `npm run typecheck`, `npm test` on every pull request and on `main`.
 - **Release routine:** work on a branch; open a pull request; wait for **all three checks** (Vercel, Vercel Preview Comments, validate) to read SUCCESS; merge; confirm `/api/health` reads `ok` on all four lines and sign-in works. Never run `vercel --prod` as routine.
-- **Database changes:** additive migrations in `db/migrations/`, applied to the Neon `preview` branch, tested, then to `production` with the owner's go-ahead, recorded in `public.schema_migrations`. Apply a migration **before** deploying code that reads it (merging code first is safe for 0007 only because the endpoint falls back). `npm run db:migrate` (direct connection string) or the Neon SQL editor. Ten migrations: 0001 accounts and farms; 0002 record sync; 0003 leads; 0004 usage; 0005 vet directory; 0006 commercial admin; 0007 site content; 0008 team logins; 0009 new prices and the Custom plan; 0010 the split of unsold milk (`milkUse`).
+- **Database changes:** additive migrations in `db/migrations/`, applied to the Neon `preview` branch, tested, then to `production` with the owner's go-ahead, recorded in `public.schema_migrations`. Apply a migration **before** deploying code that reads it (merging code first is safe for 0007 only because the endpoint falls back). `npm run db:migrate` (direct connection string) or the Neon SQL editor. Eleven migrations: 0001 accounts and farms; 0002 record sync; 0003 leads; 0004 usage; 0005 vet directory; 0006 commercial admin; 0007 site content; 0008 team logins; 0009 new prices and the Custom plan; 0010 the split of unsold milk (`milkUse`); 0011 the plan-change history and attempt limits on codes.
 - **Checking a deployment:** `/api/health` verifies settings, the database connection, the schema and Neon Auth, never returns environment values, and hides technical detail in production.
 - **Rolling back:** an app problem is fixed by promoting the previous Vercel deployment (about a minute, no database change). A data problem needs care: a Neon restore discards newer valid records; with a 6-hour history window act within hours. A bad invitation code is removed from `SIGNUP_INVITE_CODES` and redeployed. Never delete the production Neon branch or switch Neon Auth off (that deletes every user).
 
@@ -577,11 +577,11 @@ Product owner: Versaly. Brand note: verify “Mylkio” trademark, domain, and a
 9. Test Farm Pro team behaviour with a worker account: no money visible, cannot add cows.
 
 **Product and engineering backlog**
-- Automatic M-Pesa payment, reminders sent by SMS/WhatsApp, annual and quarterly billing, a history of hand-made plan changes.
+- Automatic M-Pesa payment, reminders sent by SMS/WhatsApp, annual and quarterly billing.
 - Household delivery calendars and skipped-delivery tracking; undo-allocation button; calf weights and weaning; moving cows between lots; automatic cow status changes when a dry-off reminder is done; suggesting a withdrawal period from a medicine.
-- Leaving a farm yourself, transferring ownership, per-person activity reports; an attempt limit on invitation codes.
+- Leaving a farm yourself, transferring ownership, per-person activity reports.
 - Less-privileged database role with row-level security.
-- Existing cow photos are shrunk only when the farmer taps "Shrink photos".
+- Old cow photos are shrunk once, in the background, the next time the app is opened (the "Shrink photos" button stays).
 - Kiswahili for the website, administration screens and (after vet review) the vet guide content.
 - Concurrent multi-phone load test; test over a real mobile network.
 - Cooperative portal and group onboarding (only if partner demand is validated).
@@ -606,6 +606,7 @@ Product owner: Versaly. Brand note: verify “Mylkio” trademark, domain, and a
 | `docs/milk-drop.md` | Milk drop alerts and the weekly cow ranking |
 | `docs/fertility-flags.md` | Fertility flags, days open and the calving interval |
 | `docs/weekly-summary-and-farm-report.md` | Weekly owner summary and the farm report for a bank or SACCO |
+| `docs/phase-8-fixes.md` | Plan-change history, attempt limits on codes, background photo shrinking, the new-farm start |
 | `docs/team-logins.md` | Roles and invitations |
 | `docs/password-reset.md` | Reset flow and Neon settings |
 | `docs/kiswahili.md` | What is translated and what is not |

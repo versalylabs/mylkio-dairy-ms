@@ -3,7 +3,8 @@ import { body, endpoint, json, sameOrigin } from '@/lib/server/http';
 import { signedIn } from '@/lib/server/neon-auth';
 import { getAccount, onboard } from '@/lib/server/farm-api';
 import { ApiError } from '@/lib/server/errors';
-import { inviteAccepted } from '@/lib/server/invites';
+import { inviteAccepted, inviteRequired } from '@/lib/server/invites';
+import { ipHashOf, withAttemptLimit } from '@/lib/server/attempts';
 
 export const dynamic = 'force-dynamic';
 
@@ -30,9 +31,13 @@ export async function POST(request: Request) {
     // A user who already has a farm just gets it back; only creating a new farm needs a code.
     const existing = await getAccount(db, user.id);
     if (existing?.farmId) return json({ user: existing });
-    if (!inviteAccepted(inviteCode)) {
-      throw new ApiError(403, 'That invitation code is not valid. Check it, or ask Mylkio for one.');
-    }
-    return json({ user: await onboard(db, user, details) });
+    // While farm-start codes are required, wrong ones are counted and too many are held for a while.
+    const check = async () => {
+      if (!inviteAccepted(inviteCode)) throw new ApiError(403, 'That invitation code is not valid. Check it, or ask Mylkio for one.');
+      return onboard(db, user, details);
+    };
+    if (!inviteRequired()) return json({ user: await check() });
+    const wrongCode = (error: unknown) => error instanceof ApiError && error.status === 403;
+    return json({ user: await withAttemptLimit(db, user.id, ipHashOf(request), 'start', wrongCode, check) });
   });
 }

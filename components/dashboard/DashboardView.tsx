@@ -3,6 +3,7 @@
 import React, { useEffect, useState } from 'react';
 import { Cow, Buyer, MilkEntry, Delivery, PaymentRecord, FarmReminder, ExpenseRecord, Language, Farm, UserAccount, MilkUse, BreedingEvent, HealthEvent } from '@/types';
 import { WeeklySummaryCard } from './WeeklySummaryCard';
+import { FarmStart, isNewFarm } from './FarmStart';
 import { weeklySummary } from '@/lib/weekly-summary';
 import { canUse } from '@/lib/plans';
 import { milkDropAlerts } from '@/lib/milk-drop';
@@ -315,6 +316,18 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
       {/* Last week on your farm: Farm Pro and up, owners and managers (it is built from money) */}
       {money && weekly && weekly.hasActivity && <WeeklySummaryCard summary={weekly} farmId={farmKey} farmName={farm?.name ?? ''} lang={lang} />}
 
+      {/* A farm with no cows and no milk yet gets three first steps instead of an empty list. */}
+      {isNewFarm({ cows: cows.length, milk: milkEntries.length, openReminders: openReminders.length }) ? (
+        <FarmStart
+          lang={lang}
+          steps={([
+            canWrite(role, 'milk') && { id: 'milk' as const, done: false, onStart: onOpenRecordMilk },
+            canWrite(role, 'cows') && { id: 'cow' as const, done: false, onStart: onOpenAddCow },
+            canWrite(role, 'buyers') && { id: 'buyer' as const, done: buyers.length > 0, onStart: onOpenAddBuyer },
+          ] as const).filter((step): step is Exclude<typeof step, false> => step !== false)}
+        />
+      ) : (
+      <>
       {/* What needs attention: open items first, a short list by default. */}
       <section aria-labelledby="attention-heading" className="bg-white rounded-3xl border border-gray-200 p-5 shadow-sm space-y-3">
         <div className="flex items-center justify-between gap-3">
@@ -434,6 +447,8 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
           </button>
         )}
       </section>
+      </>
+      )}
 
       {money && <>
       {/* Financial Health Snapshot */}

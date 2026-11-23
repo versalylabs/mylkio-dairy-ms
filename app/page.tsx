@@ -24,6 +24,7 @@ import type { OpenTarget } from '@/lib/settlements';
 import { AppStorage } from '@/lib/storage';
 import { SecureAuth } from '@/lib/auth-client';
 import { CloudStore } from '@/lib/cloud-store';
+import { autoShrinkKey, photoSavings as photoSavingsOf, shouldAutoShrinkPhotos, shrinkCowPhotos } from '@/lib/photos';
 import { withLedgerBalances } from '@/lib/ledger';
 import { sessionLabel } from '@/lib/milk';
 import { producedVsSold, milkUseFor, emptySplit, type MilkUseSplit } from '@/lib/produced-sold';
@@ -49,7 +50,7 @@ import { SettingsView } from '@/components/settings/SettingsView';
 import { liveCowCount } from '@/lib/billing';
 import { DataExporter } from '@/lib/export';
 import { registerOfflineApp } from '@/lib/offline-ready';
-import { photoSavings, shrinkCowPhotos } from '@/lib/photos';
+import { photoSavings } from '@/lib/photos';
 import { PlatformAdminView } from '@/components/admin/PlatformAdminView';
 import { MarketingLandingPage } from '@/components/marketing/MarketingLandingPage';
 import { AuthModal } from '@/components/auth/AuthModal';
@@ -162,6 +163,36 @@ export default function Home() {
   useEffect(() => {
     if (!tabsFor(roleOrOwner(currentUser?.farmRole)).includes(activeTab)) setActiveTab('home');
   }, [currentUser?.farmRole, activeTab]);
+
+  // Old photos are shrunk once, in the background, the next time the app is opened on this phone (the button in
+  // Settings stays for doing it by hand). Skipped for the demo, for a worker, and once it has been done. This is a hook,
+  // so it must stay above the early returns below; it does its own work rather than calling functions defined later.
+  const autoShrinkStarted = React.useRef(false);
+  useEffect(() => {
+    if (autoShrinkStarted.current || !currentUser || cows.length === 0) return;
+    const farmId = impersonatedFarmId || currentUser.farmId || 'farm-green-hills';
+    let alreadyDone = false;
+    try { alreadyDone = window.localStorage.getItem(autoShrinkKey(farmId)) === '1'; } catch { /* treated as not done */ }
+    if (!shouldAutoShrinkPhotos({
+      demo: currentUser.id === 'usr-demo-01' || farmId === 'farm-green-hills',
+      canEditCows: canWrite(roleOrOwner(currentUser.farmRole), 'cows'),
+      alreadyDone, cowsLoaded: true,
+    })) return;
+    autoShrinkStarted.current = true;
+    const run = async () => {
+      try {
+        for (const cow of AppStorage.getCows(farmId)) {
+          if (!photoSavingsOf([cow]).large) continue;
+          const smaller = await shrinkCowPhotos(cow);
+          AppStorage.updateCow(cow.id, { photoUrl: undefined, photoUrls: smaller.photoUrls }, farmId);
+        }
+        window.localStorage.setItem(autoShrinkKey(farmId), '1');
+      } catch { autoShrinkStarted.current = false; /* try again the next time the app is opened */ }
+    };
+    const idle = (window as unknown as { requestIdleCallback?: (cb: () => void) => void }).requestIdleCallback;
+    if (idle) idle(() => void run()); else window.setTimeout(() => void run(), 3000);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [cows.length, currentUser?.id]);
 
   useEffect(() => {
     let cancelled = false;
