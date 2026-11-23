@@ -656,6 +656,7 @@ export default function Home() {
         <CommunityView
           user={currentUser}
           lang={lang}
+          farmCounty={farm.county}
           initialCode={groupCode || undefined}
           onCodeHandled={() => setGroupCode('')}
         />
