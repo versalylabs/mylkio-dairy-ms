@@ -10,6 +10,7 @@ import { FEATURE_NAMES, PLAN_TEXT } from '@/lib/plan-copy';
 import { PRODUCED_COPY } from '@/lib/produced-copy';
 import { COST_COPY } from '@/lib/cost-copy';
 import { DROP_COPY } from '@/lib/drop-copy';
+import { FERTILITY_COPY } from '@/lib/fertility-copy';
 
 /** Every entry of the English copy has a Kiswahili entry of the same kind (text, text-maker, or a group). */
 function sameShape(en: unknown, sw: unknown, where: string) {
@@ -24,7 +25,7 @@ function sameShape(en: unknown, sw: unknown, where: string) {
 }
 
 describe('every screen has both languages, entry for entry', () => {
-  for (const [name, copy] of Object.entries({ BILLING_COPY, STORAGE_COPY, SYNC_COPY, VET_COPY, AUTH_COPY, TEAM_COPY, RESET_COPY, PLAN_TEXT, FEATURE_NAMES, PRODUCED_COPY, COST_COPY, DROP_COPY })) {
+  for (const [name, copy] of Object.entries({ BILLING_COPY, STORAGE_COPY, SYNC_COPY, VET_COPY, AUTH_COPY, TEAM_COPY, RESET_COPY, PLAN_TEXT, FEATURE_NAMES, PRODUCED_COPY, COST_COPY, DROP_COPY, FERTILITY_COPY })) {
     it(name, () => sameShape(copy.en, copy.sw, name));
   }
 });

@@ -619,6 +619,28 @@ export const initialBreedingEvents: BreedingEvent[] = [
   },
 ];
 
+// Calvings and services, relative to today, so the demo shows both fertility flags: Cheyech calved 104 days ago and has
+// not been served; Amani calved 150 days ago and has been served three times without holding. Neema (confirmed in calf
+// by the record above) shows days open and a calving interval on her page.
+{
+  const base = { farmId: 'farm-green-hills' } as const;
+  const calve = (id: string, cowId: string, cowTag: string, cowName: string, date: string, tag: string): BreedingEvent =>
+    ({ ...base, id, cowId, cowTag, cowName, date, type: 'calving', calvingOutcome: 'heifer_calf', calfTag: tag, calfSex: 'female', createdAt: `${date}T08:00:00Z` });
+  const serve = (id: string, cowId: string, cowTag: string, cowName: string, date: string): BreedingEvent =>
+    ({ ...base, id, cowId, cowTag, cowName, date, type: 'insemination', sireOrProvider: 'KAGRC Friesian', pregnancyResult: 'negative', createdAt: `${date}T07:30:00Z` });
+  initialBreedingEvents.push(
+    calve('breed-d-neema-1', 'cow-2', 'GH-02', 'Neema', '2024-12-05', 'GH-N1'),
+    calve('breed-d-neema-2', 'cow-2', 'GH-02', 'Neema', '2025-12-20', 'GH-N2'),
+    calve('breed-d-cheyech-1', 'cow-5', 'GH-05', 'Cheyech', addDays(todayStr, -104 - 400), 'GH-C1'),
+    calve('breed-d-cheyech-2', 'cow-5', 'GH-05', 'Cheyech', addDays(todayStr, -104), 'GH-C2'),
+    calve('breed-d-amani-1', 'cow-4', 'GH-04', 'Amani', addDays(todayStr, -150 - 380), 'GH-A1'),
+    calve('breed-d-amani-2', 'cow-4', 'GH-04', 'Amani', addDays(todayStr, -150), 'GH-A2'),
+    serve('breed-d-amani-s1', 'cow-4', 'GH-04', 'Amani', addDays(todayStr, -95)),
+    serve('breed-d-amani-s2', 'cow-4', 'GH-04', 'Amani', addDays(todayStr, -73)),
+    serve('breed-d-amani-s3', 'cow-4', 'GH-04', 'Amani', addDays(todayStr, -50)),
+  );
+}
+
 export const initialExpenses: ExpenseRecord[] = [
   {
     id: 'exp-001',

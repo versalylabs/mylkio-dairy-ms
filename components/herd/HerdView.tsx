@@ -694,6 +694,7 @@ export const HerdView: React.FC<HerdViewProps> = ({
         breedingEvents={breedingEvents}
         milkEntries={milkEntries}
         lang={lang}
+        subscription={subscription}
       />
     </div>
   );

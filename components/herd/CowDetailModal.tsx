@@ -2,6 +2,10 @@
 
 import React, { useState } from 'react';
 import { Cow, HealthEvent, BreedingEvent, MilkEntry, Language } from '@/types';
+import { fertilityFacts } from '@/lib/fertility';
+import { FERTILITY_COPY } from '@/lib/fertility-copy';
+import { canUse } from '@/lib/plans';
+import { LockedFeature } from '@/components/billing/LockedFeature';
 import { translations } from '@/lib/translations';
 import { cowYields } from '@/lib/milk';
 import { daysBetween, farmToday, formatFarmDate } from '@/lib/dates';
@@ -37,6 +41,8 @@ interface CowDetailModalProps {
   breedingEvents: BreedingEvent[];
   milkEntries?: MilkEntry[];
   lang: Language;
+  /** What the plan includes (days open and the calving interval are a Farmer-plan feature). */
+  subscription?: { plan: string; status?: string; renewsAt?: string } | null;
 }
 
 export const CowDetailModal: React.FC<CowDetailModalProps> = ({
@@ -50,6 +56,7 @@ export const CowDetailModal: React.FC<CowDetailModalProps> = ({
   breedingEvents,
   milkEntries = [],
   lang,
+  subscription,
 }) => {
   const t = translations[lang];
   const [activePhotoIndex, setActivePhotoIndex] = useState(0);
@@ -65,6 +72,8 @@ export const CowDetailModal: React.FC<CowDetailModalProps> = ({
   // Filter cow specific events
   const cowHealth = healthEvents.filter((h) => h.cowId === cow.id);
   const cowBreeding = breedingEvents.filter((b) => b.cowId === cow.id);
+  const fertility = fertilityFacts(cow, breedingEvents, farmToday());
+  const fertilityText = FERTILITY_COPY[lang];
 
   // Active withdrawal
   const activeWithdrawal = cowHealth.find((h) => withdrawalState(h, farmToday()) === 'active');
@@ -463,6 +472,14 @@ export const CowDetailModal: React.FC<CowDetailModalProps> = ({
             {/* TAB CONTENT: Breeding History */}
             {activeTab === 'breeding' && (
               <div className="space-y-2.5 animate-fade-in">
+                {fertility.lastCalving !== null && (canUse(subscription, 'fertility') ? (
+                  (fertility.daysOpen !== null || fertility.calvingIntervalDays !== null) && (
+                    <div className="grid grid-cols-1 gap-2 rounded-xl border border-[#E8E4D8] bg-white p-3 text-sm font-semibold text-[#26332D] sm:grid-cols-2">
+                      {fertility.daysOpen !== null && <p>{fertilityText.daysOpen(fertility.daysOpen)}</p>}
+                      {fertility.calvingIntervalDays !== null && <p>{fertilityText.interval(fertility.calvingIntervalDays)}</p>}
+                    </div>
+                  )
+                ) : <LockedFeature feature="fertility" />)}
                 {cowBreeding.length === 0 ? (
                   <div className="p-5 bg-white rounded-2xl border border-[#E8E4D8] text-center text-xs text-[#879C91]">
                     No artificial insemination or calving events recorded for {cow.name || cow.tag}.
