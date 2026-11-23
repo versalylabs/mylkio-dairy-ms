@@ -53,6 +53,12 @@ import { LEDGER_VERSION, deliveryCharge, migrateLegacyLedger, receiptForDelivery
 import type { DateRange } from './dates';
 import { allowedAllocation, assertBillable, billedDeliveryIds, draftBill, openTargets, overlappingStatement, type OpenTarget } from './settlements';
 
+/** Who is saving a record, so the weekly summary can say who recorded what on a farm with a team. */
+function recorder(): { id: string; name: string } | undefined {
+  const u = SecureAuth.user();
+  return u ? { id: u.id, name: u.name } : undefined;
+}
+
 const bucketForPrefix: Record<string, BucketName> = {
   mylkio_farm_: 'farm', mylkio_cows_: 'cows', mylkio_buyers_: 'buyers', mylkio_milk_: 'milk',
   mylkio_deliv_: 'deliveries', mylkio_pay_: 'payments', mylkio_health_: 'health',
@@ -336,6 +342,7 @@ export const AppStorage = {
       farmId: targetFarmId,
       synced: false,
       createdAt: now,
+      recordedBy: recorder(),
     };
     const label = entryData.session === 'total' ? 'day total' : entryData.session;
     const updated = [
@@ -610,6 +617,7 @@ export const AppStorage = {
       id: crypto.randomUUID(),
       farmId: targetFarmId,
       createdAt: new Date().toISOString(),
+      recordedBy: recorder(),
     };
     const updated = [newEvent, ...events];
     this.saveTenantData(STORAGE_KEYS.HEALTH_PREFIX, targetFarmId, updated);
@@ -673,6 +681,7 @@ export const AppStorage = {
       id: crypto.randomUUID(),
       farmId: targetFarmId,
       createdAt: new Date().toISOString(),
+      recordedBy: recorder(),
     };
     const cow = this.getCows(targetFarmId).find((c) => c.id === newEvent.cowId);
 

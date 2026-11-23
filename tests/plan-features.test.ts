@@ -83,15 +83,16 @@ describe('the locked-feature line', () => {
 
 describe('plan descriptions never promise what is not built', () => {
   it('mark a feature that is not built yet "coming soon", and the checker "coming after vet review" until a vet approves it', () => {
-    expect(FEATURES_COMING_SOON.has('weeklySummary')).toBe(true);
-    expect(featureLabel('weeklySummary', 'en', false)).toBe('Weekly owner summary (coming soon)');
+    expect(FEATURES_COMING_SOON.has('reminderSms')).toBe(true);
+    expect(featureLabel('reminderSms', 'en', false)).toBe('SMS reminders (coming soon)');
+    expect(featureLabel('weeklySummary', 'en', false)).toBe('Weekly owner summary'); // built
     expect(featureLabel('fertility', 'en', false)).toBe('Fertility flags'); // built
     expect(featureLabel('milkDrop', 'en', false)).toBe('Milk drop alerts and cow ranking'); // built
     expect(featureLabel('costPerLitre', 'en', false)).toBe('Cost per litre'); // built
     expect(featureLabel('healthChecker', 'en', false)).toBe('Symptom checker (coming after vet review)');
     expect(featureLabel('healthChecker', 'en', true)).toBe('Symptom checker');
     expect(featureLabel('vetFinder', 'en', false)).toBe('Vets near you'); // built, and live
-    expect(featureLabel('weeklySummary', 'sw', false)).toContain(PLAN_TEXT.sw.comingSoon);
+    expect(featureLabel('reminderSms', 'sw', false)).toContain(PLAN_TEXT.sw.comingSoon);
   });
 
   it('list each plan on top of the one below it', () => {
