@@ -142,6 +142,20 @@ export async function adminUpdateSubscription(db: Db, actor: string, farmId: str
     [actor, farmId, plan, status, custom.monthlyPriceKsh ?? null, custom.note ?? null, custom.teamLimit ?? null], 'Administrator access required.');
 }
 
+export interface SubscriptionChange {
+  id: number | string;
+  changed_at: string;
+  changed_by_name: string | null;
+  source: 'admin' | 'payment' | 'payment_void';
+  before: Record<string, unknown>;
+  after: Record<string, unknown>;
+}
+
+/** Every plan, price and status change on a farm's subscription, newest first. Administrators only. */
+export async function adminSubscriptionHistory(db: Db, actor: string, farmId: string): Promise<SubscriptionChange[]> {
+  return run<SubscriptionChange>(db, 'select * from public.admin_subscription_history($1, $2)', [actor, farmId], 'Administrator access required.');
+}
+
 export interface LeadInput {
   name: string;
   phone: string;

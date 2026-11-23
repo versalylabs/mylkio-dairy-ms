@@ -125,6 +125,18 @@ export async function shrinkSavedPhoto(dataUrl: string): Promise<string> {
   return dataUrlBytes(smaller) < dataUrlBytes(dataUrl) ? smaller : dataUrl;
 }
 
+/** Remembers, per farm and per phone, that old photos have already been shrunk in the background. */
+export const autoShrinkKey = (farmId: string) => `mylkio_photos_auto_shrunk_${farmId}`;
+
+/**
+ * Whether the app should shrink this farm's old photos by itself, once, when it is opened. Only for a real farm (not
+ * the demo), for someone who may change cows (a worker may not), once the cows have loaded, and only if the farm has
+ * not already had it done on this phone. The "Shrink photos" button in Settings stays, for doing it by hand.
+ */
+export function shouldAutoShrinkPhotos(input: { demo: boolean; canEditCows: boolean; alreadyDone: boolean; cowsLoaded: boolean }): boolean {
+  return !input.demo && input.canEditCows && !input.alreadyDone && input.cowsLoaded;
+}
+
 /** What shrinking the saved photos of these cows would free, without changing anything. */
 export function photoSavings(cows: { photoUrl?: string; photoUrls?: string[] }[]): { photos: number; large: number; bytes: number } {
   let photos = 0; let large = 0; let bytes = 0;

@@ -6,6 +6,7 @@ import { Dialog } from '@/components/ui/Dialog';
 import { PLANS, type PlanId } from '@/lib/plans';
 import { formatKsh } from '@/lib/money';
 import { TEAM_LOGINS } from '@/lib/team';
+import { SOURCE_LABEL, describeChange, type ChangeSource } from '@/lib/subscription-history';
 import { billingState, describeBilling, STATE_LABEL, shortDate } from '@/lib/billing';
 import type { Subscription } from '@/types';
 
@@ -18,6 +19,7 @@ interface Payment {
   period_from: string; period_to: string; recorded_by_name: string | null; voided_at: string | null; void_reason: string | null;
 }
 interface Note { id: string; body: string; author_name: string | null; created_at: string }
+interface Change { id: number | string; changed_at: string; changed_by_name: string | null; source: ChangeSource; before: Record<string, unknown>; after: Record<string, unknown> }
 
 const METHOD_LABEL: Record<Method, string> = { mpesa: 'M-Pesa', cash: 'Cash', bank: 'Bank transfer', other: 'Other' };
 const todayInNairobi = () => new Intl.DateTimeFormat('en-CA', { timeZone: 'Africa/Nairobi' }).format(new Date());
@@ -40,6 +42,7 @@ export function AccountBillingDialog({ account, onClose, onChanged, startCustom 
   const price = account.subscription?.monthlyPriceKsh || PLANS[plan]?.priceKsh || 0;
   const [payments, setPayments] = useState<Payment[]>([]);
   const [notes, setNotes] = useState<Note[]>([]);
+  const [changes, setChanges] = useState<Change[]>([]);
   const [error, setError] = useState('');
   const [done, setDone] = useState('');
   const [busy, setBusy] = useState(false);
@@ -62,11 +65,12 @@ export function AccountBillingDialog({ account, onClose, onChanged, startCustom 
 
   const load = useCallback(async () => {
     try {
-      const [p, n] = await Promise.all([
+      const [p, n, h] = await Promise.all([
         call<{ payments: Payment[] }>(`/api/admin/payments?farmId=${farmId}`),
         call<{ notes: Note[] }>(`/api/admin/notes?farmId=${farmId}`),
+        call<{ changes: Change[] }>(`/api/admin/subscription-history?farmId=${farmId}`),
       ]);
-      setPayments(p.payments); setNotes(n.notes); setError('');
+      setPayments(p.payments); setNotes(n.notes); setChanges(h.changes); setError('');
     } catch (e) { setError((e as Error).message); }
   }, [farmId]);
   useEffect(() => { void load(); }, [load]);
@@ -180,6 +184,19 @@ export function AccountBillingDialog({ account, onClose, onChanged, startCustom 
           </li>)}
         </ul>
         {payments.some((p) => p.voided_at) && <p className="text-xs text-charcoal-muted">Voiding moves the paid-until date back by the months that payment added. Check the status afterwards.</p>}
+      </section>
+
+      <section aria-labelledby="history-heading" className="space-y-2">
+        <h3 id="history-heading" className="text-base font-bold">Plan, price and status history ({changes.length})</h3>
+        <p className="text-xs text-charcoal-muted">Every change made by hand, and what each payment did to the status and the paid-until date. It cannot be edited.</p>
+        {changes.length === 0 && <p className="text-sm text-charcoal-muted">No changes recorded yet. Changes made before this list existed are not in it.</p>}
+        <ul className="space-y-2">
+          {changes.map((c) => <li key={c.id} className="rounded-xl bg-ivory-muted/60 p-3 text-sm">
+            <p className="font-semibold">{SOURCE_LABEL[c.source] ?? c.source}</p>
+            <ul className="mt-0.5 list-disc pl-5 text-charcoal-light">{describeChange(c.before, c.after).map((line) => <li key={line}>{line}</li>)}</ul>
+            <p className="mt-1 text-xs text-charcoal-muted">{c.changed_by_name ?? 'Administrator'} · {new Date(c.changed_at).toLocaleString('en-KE', { timeZone: 'Africa/Nairobi', day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' })}</p>
+          </li>)}
+        </ul>
       </section>
 
       <section aria-labelledby="notes-heading" className="space-y-2">
