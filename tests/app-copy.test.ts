@@ -14,6 +14,7 @@ import { FERTILITY_COPY } from '@/lib/fertility-copy';
 import { WEEKLY_COPY } from '@/lib/weekly-copy';
 import { REPORT_COPY } from '@/lib/report-copy';
 import { START_COPY } from '@/lib/start-copy';
+import { COMMUNITY_COPY } from '@/lib/community-copy';
 
 /** Every entry of the English copy has a Kiswahili entry of the same kind (text, text-maker, or a group). */
 function sameShape(en: unknown, sw: unknown, where: string) {
@@ -28,7 +29,7 @@ function sameShape(en: unknown, sw: unknown, where: string) {
 }
 
 describe('every screen has both languages, entry for entry', () => {
-  for (const [name, copy] of Object.entries({ BILLING_COPY, STORAGE_COPY, SYNC_COPY, VET_COPY, AUTH_COPY, TEAM_COPY, RESET_COPY, PLAN_TEXT, FEATURE_NAMES, PRODUCED_COPY, COST_COPY, DROP_COPY, FERTILITY_COPY, WEEKLY_COPY, REPORT_COPY, START_COPY })) {
+  for (const [name, copy] of Object.entries({ BILLING_COPY, STORAGE_COPY, SYNC_COPY, VET_COPY, AUTH_COPY, TEAM_COPY, RESET_COPY, PLAN_TEXT, FEATURE_NAMES, PRODUCED_COPY, COST_COPY, DROP_COPY, FERTILITY_COPY, WEEKLY_COPY, REPORT_COPY, START_COPY, COMMUNITY_COPY })) {
     it(name, () => sameShape(copy.en, copy.sw, name));
   }
 });

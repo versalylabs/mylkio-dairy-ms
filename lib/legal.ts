@@ -5,7 +5,7 @@
 
 import { SUPPORT_EMAIL } from './contact';
 
-export const LEGAL_UPDATED = '15 November 2026';
+export const LEGAL_UPDATED = '23 November 2026';
 
 export interface LegalSection { heading: string; paragraphs?: string[]; bullets?: string[] }
 export interface LegalDocument { title: string; summary: string; sections: LegalSection[] }
@@ -43,6 +43,7 @@ export const PRIVACY: LegalDocument = {
         'When you use Mylkio: the times your account last used the system, so we can give support and see how many farms are active. This history is kept for about six months.',
         'Website enquiries: the name, phone number, county, herd size and message you send us through the contact form.',
         'Vets you save or suggest: a name and phone number. Your own vets are private to your farm. A suggested vet is checked by our team before anyone else can see it.',
+        'Community groups (Farm Pro and Custom): the posts and replies you write in a SACCO or area group, with your name, your farm name and the time. See "Community groups" below.',
         'Your plan payments: when you pay for a plan, our team records the amount, date, how it was paid, any M-Pesa or bank reference, and the period covered. Our team may also add short notes about your account, for example that we called you.',
       ],
     },
@@ -51,6 +52,14 @@ export const PRIVACY: LegalDocument = {
       paragraphs: [
         'The symptom checker works on your phone. What you tick, and any photo you take for it, stay on the phone unless you choose to share them (for example to a vet on WhatsApp) or to save a check to a cow\'s record.',
         'Mylkio also keeps a copy of your records in your phone\'s browser so it works without internet. If you share a phone, sign out when you finish.',
+      ],
+    },
+    {
+      heading: 'Community groups',
+      paragraphs: [
+        'Farm Pro and Custom farms can join a group for their SACCO or area. Mylkio staff create each group and send its members an invitation link. A group is the one place where something you write leaves your farm. Unlike your farm records, posts and replies are stored on our servers so the other farms in the group can read them.',
+        'The farms in a group can see what you post or reply, your name, your farm name and when you wrote it. People on your farm with a worker login can read the groups your farm is in but cannot write in them. Our staff can see which farms are in a group and how many, but do not read what members write. Nothing from your farm records is shared with a group: a post says only what you choose to type.',
+        'You can delete your own posts and replies, and leave a group at any time, choosing whether to delete what your farm wrote there. Posts and replies are also deleted when a farm is deleted. What you read in a group is kept on your phone so you can read it without internet, and is removed when you sign out. Posts in a group are guidance from neighbours, not veterinary advice.',
       ],
     },
     {
@@ -155,6 +164,7 @@ export const TERMS: LegalDocument = {
       bullets: [
         'Do not try to get into other farms\' records, break or overload the service, or use it for anything unlawful.',
         'Do not enter false or other people\'s details to mislead.',
+        'In a Community group, write only what you are happy for the other farms in it to read. Do not post abuse, other people\'s private details, medicine doses, or a rumour that a farm or a person has a disease. We may remove a post, or a farm from a group, that breaks this.',
         'We may pause an account that is misused, and we will tell you why.',
       ],
     },

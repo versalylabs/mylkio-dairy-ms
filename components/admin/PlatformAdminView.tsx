@@ -2,6 +2,7 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import type { Subscription } from '@/types';
 import { VetDirectoryAdmin } from './VetDirectoryAdmin';
+import { CommunityAdmin } from './CommunityAdmin';
 import { BillingBoard } from './BillingBoard';
 import { AccountBillingDialog } from './AccountBillingDialog';
 import { WebsiteContentAdmin } from './WebsiteContentAdmin';
@@ -97,7 +98,7 @@ export function PlatformAdminView({ onLogout }: Props) {
   // Set when an administrator picks Custom for a farm that is not on it yet: the dialog asks for the agreed price first.
   const [startCustom, setStartCustom] = useState(false);
   const [billingTick, setBillingTick] = useState(0);
-  const [tab, setTab] = useState<'overview' | 'accounts' | 'enquiries' | 'vets' | 'website'>('overview');
+  const [tab, setTab] = useState<'overview' | 'accounts' | 'enquiries' | 'vets' | 'community' | 'website'>('overview');
 
   const live = asAt === '';
   const asAtIso = useMemo(() => {
@@ -173,7 +174,7 @@ export function PlatformAdminView({ onLogout }: Props) {
       <button onClick={onLogout} className="btn btn-secondary">Sign out</button>
     </header>
     <nav aria-label="Administration sections" className="tab-strip">
-      {([['overview', 'Overview'], ['accounts', 'Accounts and billing'], ['enquiries', 'Enquiries'], ['vets', 'Vet directory'], ['website', 'Website']] as const).map(([key, label]) => (
+      {([['overview', 'Overview'], ['accounts', 'Accounts and billing'], ['enquiries', 'Enquiries'], ['vets', 'Vet directory'], ['community', 'Community'], ['website', 'Website']] as const).map(([key, label]) => (
         <button key={key} type="button" aria-current={tab === key ? 'page' : undefined} onClick={() => setTab(key)} className={`tab-btn ${tab === key ? 'tab-btn-active' : ''}`}>
           {label}
           {key === 'enquiries' && leads.some(l => l.status === 'new') && <span className="count-badge">{leads.filter(l => l.status === 'new').length}</span>}
@@ -257,6 +258,8 @@ export function PlatformAdminView({ onLogout }: Props) {
     </>}
 
     {tab === 'vets' && <VetDirectoryAdmin />}
+
+    {tab === 'community' && <CommunityAdmin />}
 
     {tab === 'website' && <WebsiteContentAdmin />}
 

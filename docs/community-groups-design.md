@@ -1,6 +1,6 @@
-# Community: SACCO and area groups (design, not yet built)
+# Community: SACCO and area groups (design; step 1 built)
 
-Status: designed 23 November 2026 with the owner. **Nothing here is built yet.** Build order is at the end.
+Status: designed 23 November 2026 with the owner. **Step 1 is built** (groups, invitation links, discussion; see [community-groups.md](community-groups.md)); steps 2 and 3 are not. Build order is at the end.
 
 ## The idea
 
@@ -57,9 +57,12 @@ Mylkio staff can post an **official alert** to every group in a county, written 
 2. **Outbreak reports.** The structured report with the vet guide's signs, area-only privacy with the group admin able to see the farm, the farm count, "we see this too" and "not here", the safety notice, the reporting contacts, and the Home alert. (Migration 0013.)
 3. **Moderation and official alerts.** Report a post, group admin tools, the staff review queue, official alerts to every group in a county, and unread counts. (Migration 0014.)
 
-## Still to decide before step 1
+## Decided for step 1 (23 November 2026, the recommended defaults)
 
-- Whether workers may read the groups (recommended: yes, read only; posting for the owner and managers).
-- The size of a group (recommended: up to 300 farms) and whether a farm may be in more than one group (recommended: yes, up to 5).
+- Workers may read the groups, read only; posting is for the owner and managers.
+- A group holds up to 300 farms, and a farm may be in up to 5 groups.
+
+## Still to decide
+
 - Who the first group admins are, and who in your team answers reports.
 - Wording of the Privacy paragraph and of the group rules members agree to on joining (a lawyer's review).

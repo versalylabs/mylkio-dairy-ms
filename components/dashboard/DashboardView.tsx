@@ -6,6 +6,7 @@ import { WeeklySummaryCard } from './WeeklySummaryCard';
 import { FarmStart, isNewFarm } from './FarmStart';
 import { weeklySummary } from '@/lib/weekly-summary';
 import { canUse } from '@/lib/plans';
+import type { AppTab } from '@/lib/team';
 import { milkDropAlerts } from '@/lib/milk-drop';
 import { fertilityFlags } from '@/lib/fertility';
 import { FERTILITY_COPY } from '@/lib/fertility-copy';
@@ -54,7 +55,7 @@ interface DashboardViewProps {
   reminders: FarmReminder[];
   onOpenMilkUse?: (date: string) => void;
   onToggleReminder: (id: string) => void;
-  onNavigate: (tab: 'home' | 'milk' | 'herd' | 'sales' | 'finance' | 'settings') => void;
+  onNavigate: (tab: AppTab) => void;
   onOpenRecordMilk: () => void;
   onOpenRecordDelivery: () => void;
   onOpenRecordPayment: () => void;

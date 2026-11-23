@@ -57,9 +57,10 @@ export const canSeeBilling = (role: FarmRole) => role === 'owner';
 /** Sales (buyers, deliveries, bills, statements) and finance (payments, expenses) are for owner and manager. */
 export const canSeeMoney = (role: FarmRole) => role === 'owner' || role === 'manager';
 
-export type AppTab = 'home' | 'milk' | 'herd' | 'sales' | 'finance' | 'settings';
+export type AppTab = 'home' | 'milk' | 'herd' | 'sales' | 'finance' | 'community' | 'settings';
+/** Community is in everyone's menu (a worker may read the groups); a farm whose plan lacks it sees one calm line there. */
 export const tabsFor = (role: FarmRole): AppTab[] =>
-  canSeeMoney(role) ? ['home', 'milk', 'herd', 'sales', 'finance', 'settings'] : ['home', 'milk', 'herd', 'settings'];
+  canSeeMoney(role) ? ['home', 'milk', 'herd', 'sales', 'finance', 'community', 'settings'] : ['home', 'milk', 'herd', 'community', 'settings'];
 
 // ── Invitation codes ─────────────────────────────────────────────────────────────────────────────────────
 

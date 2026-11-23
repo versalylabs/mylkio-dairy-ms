@@ -245,7 +245,7 @@ describe('the pieces the screens use', () => {
   });
 
   it('shows workers only the screens they can use', () => {
-    expect(tabsFor('worker')).toEqual(['home', 'milk', 'herd', 'settings']);
+    expect(tabsFor('worker')).toEqual(['home', 'milk', 'herd', 'community', 'settings']);
     expect(tabsFor('manager')).toContain('finance');
     expect(tabsFor('owner')).toContain('sales');
   });

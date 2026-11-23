@@ -11,7 +11,7 @@ const sub = (plan: string, status: string, offsetDays: number) => ({ plan, statu
 const TABLE: Record<FeatureId, 'starter' | 'farmer' | 'farm_pro'> = {
   illnessGuide: 'starter', seasonalCalendar: 'starter', producedVsSold: 'starter', reminderPush: 'starter',
   healthChecker: 'farmer', costPerLitre: 'farmer', milkDrop: 'farmer', fertility: 'farmer', reminderSms: 'farmer',
-  vetFinder: 'farm_pro', teamLogins: 'farm_pro', weeklySummary: 'farm_pro', farmReport: 'farm_pro',
+  vetFinder: 'farm_pro', teamLogins: 'farm_pro', weeklySummary: 'farm_pro', farmReport: 'farm_pro', community: 'farm_pro',
 };
 const RANK = { starter: 0, farmer: 1, farm_pro: 2 };
 
@@ -70,6 +70,7 @@ describe('the locked-feature line', () => {
     expect(lockedLine('costPerLitre', 'en')).toBe('Cost per litre is part of the Farmer plan.');
     expect(lockedLine('weeklySummary', 'en')).toBe('Weekly owner summary is part of the Farm Pro plan.');
     expect(lockedLine('vetFinder', 'en')).toBe('Vets near you is part of the Farm Pro plan.');
+    expect(lockedLine('community', 'en')).toBe('Community is part of the Farm Pro plan.');
     expect(lockedLine('costPerLitre', 'sw')).toBe('Gharama kwa lita ni sehemu ya mpango wa Farmer.');
   });
 
