@@ -14,12 +14,12 @@ export const FEATURE_NAMES: Record<Lang, Record<FeatureId, string>> = {
   en: {
     illnessGuide: 'Emergency-signs guide', seasonalCalendar: 'Seasonal calendar', producedVsSold: 'Produced vs sold', reminderPush: 'Phone reminders',
     healthChecker: 'Symptom checker', costPerLitre: 'Cost per litre', milkDrop: 'Milk drop alerts and cow ranking', fertility: 'Fertility flags',
-    reminderSms: 'SMS reminders', vetFinder: 'Vets near you', teamLogins: 'Team logins', weeklySummary: 'Weekly owner summary', farmReport: 'Farm report for a bank or SACCO',
+    reminderSms: 'SMS reminders', vetFinder: 'Vets near you', teamLogins: 'Team logins', weeklySummary: 'Weekly owner summary', farmReport: 'Farm report for a bank or SACCO', community: 'Community',
   },
   sw: {
     illnessGuide: 'Mwongozo wa dalili za dharura', seasonalCalendar: 'Kalenda ya misimu', producedVsSold: 'Yaliyozalishwa na yaliyouzwa', reminderPush: 'Vikumbusho kwenye simu',
     healthChecker: 'Kikagua dalili', costPerLitre: 'Gharama kwa lita', milkDrop: 'Tahadhari za maziwa kushuka na viwango vya ng’ombe', fertility: 'Tahadhari za uzazi',
-    reminderSms: 'Vikumbusho vya SMS', vetFinder: 'Madaktari wa mifugo karibu nawe', teamLogins: 'Akaunti za timu', weeklySummary: 'Muhtasari wa kila wiki kwa mmiliki', farmReport: 'Ripoti ya shamba kwa benki au SACCO',
+    reminderSms: 'Vikumbusho vya SMS', vetFinder: 'Madaktari wa mifugo karibu nawe', teamLogins: 'Akaunti za timu', weeklySummary: 'Muhtasari wa kila wiki kwa mmiliki', farmReport: 'Ripoti ya shamba kwa benki au SACCO', community: 'Jamii',
   },
 };
 
@@ -53,7 +53,7 @@ export const PLAN_TEXT = {
 const ADDED: Record<PlanId, FeatureId[]> = {
   starter: ['illnessGuide', 'seasonalCalendar', 'producedVsSold', 'reminderPush'],
   farmer: ['costPerLitre', 'milkDrop', 'fertility', 'reminderSms', 'healthChecker'],
-  farm_pro: ['vetFinder', 'teamLogins', 'weeklySummary', 'farmReport'],
+  farm_pro: ['vetFinder', 'teamLogins', 'weeklySummary', 'farmReport', 'community'],
   custom: [],
 };
 const BELOW: Partial<Record<PlanId, PlanId>> = { farmer: 'starter', farm_pro: 'farmer', custom: 'farm_pro' };

@@ -54,7 +54,9 @@ import { photoSavings } from '@/lib/photos';
 import { PlatformAdminView } from '@/components/admin/PlatformAdminView';
 import { MarketingLandingPage } from '@/components/marketing/MarketingLandingPage';
 import { AuthModal } from '@/components/auth/AuthModal';
-import { canSeeMoney, canWrite, roleOrOwner, tabsFor } from '@/lib/team';
+import { canSeeMoney, canWrite, roleOrOwner, tabsFor, type AppTab } from '@/lib/team';
+import { CommunityView } from '@/components/community/CommunityView';
+import { forgetAll as forgetCommunity } from '@/lib/community-client';
 
 export default function Home() {
   const [mounted, setMounted] = useState(false);
@@ -69,7 +71,9 @@ export default function Home() {
   const [authModalPlan, setAuthModalPlan] = useState<SubscriptionPlan>('farmer');
 
   // Farm data states
-  const [activeTab, setActiveTab] = useState<'home' | 'milk' | 'herd' | 'sales' | 'finance' | 'settings'>('home');
+  const [activeTab, setActiveTab] = useState<AppTab>('home');
+  // An invitation link to a Community group ("?community=CODE"): kept until the person is signed in, then handed to the Community screen.
+  const [groupCode, setGroupCode] = useState('');
   const [lang, setLang] = useState<Language>('en');
   const [farm, setFarm] = useState<Farm>(AppStorage.getFarm());
   const [cows, setCows] = useState<Cow[]>([]);
@@ -141,16 +145,23 @@ export default function Home() {
   };
 
   // Links that open the sign-in box: "?signin=1" (sign in), "?forgot=1" (reset step, from the reset page) and
-  // "?join=CODE" (a team invitation the farm owner shared).
+  // "?join=CODE" (a team invitation the farm owner shared). "?community=CODE" (a group invitation staff shared) opens the
+  // Community screen once the person is signed in, and the sign-in box first if they are not.
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     const invitation = params.get('join');
-    if (!params.has('signin') && !params.has('forgot') && !invitation) return;
-    if (invitation) { setJoinCode(invitation.slice(0, 40)); setAuthModalMode('join'); }
+    const group = params.get('community');
+    if (!params.has('signin') && !params.has('forgot') && !invitation && !group) return;
+    if (group) { setGroupCode(group.slice(0, 40)); setActiveTab('community'); setAuthModalMode('login'); }
+    else if (invitation) { setJoinCode(invitation.slice(0, 40)); setAuthModalMode('join'); }
     else setAuthModalMode(params.has('forgot') ? 'forgot' : 'login');
     setIsAuthModalOpen(true);
     window.history.replaceState(null, '', window.location.pathname);
   }, []);
+
+  // The sign-in box belongs to the signed-out page: once someone is signed in (for example after opening a group link
+  // while already signed in) it is closed, so it cannot reappear after they sign out.
+  useEffect(() => { if (currentUser) setIsAuthModalOpen(false); }, [currentUser]);
 
   // The locked-feature line (components/billing/LockedFeature.tsx) asks to open Settings, where the plan is.
   useEffect(() => {
@@ -276,6 +287,7 @@ export default function Home() {
   const handleLogout = async () => {
     try {
       await AppStorage.logout();
+      forgetCommunity();
       setCurrentUser(null);
       setImpersonatedFarmId(null);
       setAccountError('');
@@ -637,6 +649,15 @@ export default function Home() {
           onOpenRecordExpense={() => setIsExpenseModalOpen(true)}
           onDeleteExpense={handleDeleteExpense}
           lang={lang}
+        />
+      )}
+
+      {activeTab === 'community' && (
+        <CommunityView
+          user={currentUser}
+          lang={lang}
+          initialCode={groupCode || undefined}
+          onCodeHandled={() => setGroupCode('')}
         />
       )}
 

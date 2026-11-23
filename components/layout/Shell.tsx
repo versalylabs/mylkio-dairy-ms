@@ -5,14 +5,14 @@ import { planPillLabel } from '@/lib/billing';
 import { formatKshPerMonth } from '@/lib/money';
 import { Language, Farm, UserAccount } from '@/types';
 import { translations } from '@/lib/translations';
-import { ROLE_LABEL, roleOrOwner, tabsFor } from '@/lib/team';
+import { ROLE_LABEL, roleOrOwner, tabsFor, type AppTab } from '@/lib/team';
 import { SyncStatusBar } from '@/components/sync/SyncStatusBar';
 import { 
   Home, 
   Milk, 
   Users, 
   Truck, 
-  Receipt,
+  Receipt, MessagesSquare,
   Settings, 
   Globe, 
   Download,
@@ -25,8 +25,8 @@ import {
 
 interface ShellProps {
   children: React.ReactNode;
-  activeTab: 'home' | 'milk' | 'herd' | 'sales' | 'finance' | 'settings';
-  onTabChange: (tab: 'home' | 'milk' | 'herd' | 'sales' | 'finance' | 'settings') => void;
+  activeTab: AppTab;
+  onTabChange: (tab: AppTab) => void;
   lang: Language;
   onLanguageToggle: () => void;
   onOpenExport?: () => void;
@@ -63,6 +63,7 @@ export const Shell: React.FC<ShellProps> = ({
     { key: 'herd', label: t.nav.herd, icon: Users },
     { key: 'sales', label: t.nav.sales, icon: Truck },
     { key: 'finance', label: lang === 'sw' ? 'Fedha' : 'Finance', icon: Receipt },
+    { key: 'community', label: lang === 'sw' ? 'Jamii' : 'Community', icon: MessagesSquare },
     { key: 'settings', label: t.nav.more, icon: Settings },
   ] as const;
   const navItems = allNavItems.filter((item) => allowedTabs.includes(item.key));
@@ -288,14 +289,14 @@ export const Shell: React.FC<ShellProps> = ({
               <button
                 key={item.key}
                 onClick={() => onTabChange(item.key)}
-                className={`flex min-h-12 min-w-14 flex-col items-center justify-center py-1 px-2.5 rounded-xl transition-all ${
+                className={`flex min-h-12 min-w-0 flex-auto flex-col items-center justify-center py-1 px-0.5 rounded-xl transition-all ${
                   isActive
                     ? 'text-[#345C4A] font-bold'
                     : 'text-[#879C91] hover:text-[#26332D] font-medium'
                 }`}
               >
                 <Icon className={`w-5 h-5 ${isActive ? 'stroke-[2.5px] scale-105' : 'stroke-[1.75px]'}`} />
-                <span className="text-xs mt-0.5 tracking-tight">{item.label}</span>
+                <span className="mt-0.5 max-w-full truncate text-[11px] leading-tight tracking-tighter min-[360px]:text-xs min-[360px]:tracking-tight">{item.label}</span>
               </button>
             );
           })}

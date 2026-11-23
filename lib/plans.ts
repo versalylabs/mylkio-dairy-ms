@@ -48,6 +48,8 @@ export interface PlanFeatures {
   weeklySummary: boolean;
   /** A one-page farm report for a bank or SACCO. Farm Pro and up. */
   farmReport: boolean;
+  /** SACCO and area groups with a discussion (staff create the groups). Farm Pro and up, checked on the server. */
+  community: boolean;
 }
 
 export type FeatureId = Exclude<keyof PlanFeatures, 'healthChecksPerMonth'>;
@@ -64,7 +66,7 @@ export interface Plan {
 const STARTER_FEATURES: PlanFeatures = {
   illnessGuide: true, seasonalCalendar: true, producedVsSold: true, reminderPush: true,
   healthChecker: false, healthChecksPerMonth: 0, costPerLitre: false, milkDrop: false, fertility: false, reminderSms: false,
-  vetFinder: false, teamLogins: false, weeklySummary: false, farmReport: false,
+  vetFinder: false, teamLogins: false, weeklySummary: false, farmReport: false, community: false,
 };
 const FARMER_FEATURES: PlanFeatures = {
   ...STARTER_FEATURES,
@@ -72,7 +74,7 @@ const FARMER_FEATURES: PlanFeatures = {
 };
 const FARM_PRO_FEATURES: PlanFeatures = {
   ...FARMER_FEATURES,
-  healthChecksPerMonth: 40, vetFinder: true, teamLogins: true, weeklySummary: true, farmReport: true,
+  healthChecksPerMonth: 40, vetFinder: true, teamLogins: true, weeklySummary: true, farmReport: true, community: true,
 };
 
 export const PLANS: Record<PlanId, Plan> = {
