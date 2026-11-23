@@ -22,7 +22,7 @@
 | Product | Live, in pilot-readiness. Invitation-only sign-up. No paying farmers are recorded in this document. |
 | Roadmap | Phases 1–9 complete and merged to `main`. Follow-ups complete: team logins (migration 0008), password reset by email, Kiswahili for the newest screens. |
 | Stack | Next.js 16, React 19, TypeScript, Tailwind CSS 3, Neon Postgres 18 and Neon Auth (managed Better Auth), Vercel hosting, installable offline-first PWA. |
-| Database | 0001–0010 applied on both Neon branches; **0011 (plan-change history, attempt limits on codes) is applied on `preview` and waits for the owner's go-ahead on `production`**. Region Frankfurt (`aws-eu-central-1`). |
+| Database | 11 migrations (0001–0011) applied on both the Neon `production` and `preview` branches (0011, plan-change history and attempt limits on codes, on 23 November 2026). Region Frankfurt (`aws-eu-central-1`). |
 | Tests | 541 automated tests in 45 files (Vitest, with in-memory Postgres via PGlite running the real migrations). `npm run build` and `npm run typecheck` pass. CI ("Validate") runs build, typecheck and tests on every pull request. |
 | Languages | English and Kiswahili for the farmer's app screens. The website, Privacy/Terms, administration screens and the vet guide's clinical content are English only. |
 | Needs a person, not code | Real-phone tests; lawyer review of Privacy and Terms; Data Protection registration; a veterinarian's review of the vet guide (still DRAFT and hidden from farmers); native-speaker review of Kiswahili; backups decision (Neon history is only 6 hours, no snapshots); Neon Auth production email settings (own sender, application name, sign-out-on-reset); a real password-reset email and a real team invite tried end to end. |
