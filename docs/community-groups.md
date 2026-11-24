@@ -91,3 +91,25 @@ The signs and the emergency steps are the vet guide's DRAFT content, and the pro
 ## Not in step 2
 
 Moderation and "report this post", official alerts to every group in a county, unread counts (step 3, migration 0014); reporting to more than one group at once; photos; push notifications. Signs and emergency steps are English only until a vet has reviewed them, so those lines stay English in the Kiswahili screens.
+
+---
+
+# Step 3: moderation, official alerts and unread counts (as built)
+
+Built 24 November 2026 on branch `codex/community-moderation`. Migration `db/migrations/0014_community_moderation.sql`. **Not yet applied to `preview` or `production`.**
+
+## What it does
+
+- **Report a post.** Under any post or reply from another farm, anyone in the group (workers too) can tap **Report**, pick a reason (a rumour that a farm or person has a disease, abusive, someone's private details, spam, something else) and send it to Mylkio. One report per farm per item, at most 20 a day per farm. The writer is not told who reported it.
+- **Staff review queue** (Administration, Community tab, "Reported posts"): the reported text, the group, who wrote it, how many farms reported it and why. **Remove** deletes it for everyone; **Keep** closes the reports. This is the only place staff read what members write. Each decision is audited.
+- **The group admin** (owner or manager of a farm whose role in the group is admin) sees **Remove** under other farms' posts and replies, and a **Farms in this group** list with **Take out** for members (not their own farm, not another admin). Each is audited.
+- **Official alerts** (Administration, Community tab, "Official alerts"): staff post a title, the text, the source, the date it was published (up to a year back), an optional https link, and how many days to show it (1 to 90). It is pinned at the top of every group in that county, including groups created later, marked **Official** with its source, and shown on members' Home with Dismiss. Staff can withdraw it at once.
+- **Unread counts** on each group in the list: discussion posts from other farms, and official alerts, since this person last opened the group. Opening a group resets it. Each person on a farm has their own count.
+
+## Decisions
+
+"Mute a member" from the design was left out: the brief was "group admins can remove posts and members". Outbreak reports cannot be reported to staff (they hold no text); a farm withdraws its own, and the group admin can follow up with the farm. Official alerts are their own table, matched to groups by county, so one alert reaches every group there and no copies are made.
+
+## Going live
+
+Apply 0014 to `preview`, try it (report a post as one farm, settle it as staff; remove a post and a member as the group admin; post an official alert to the group's county; watch the unread badge), then apply to `production` with the owner's go-ahead and merge.
