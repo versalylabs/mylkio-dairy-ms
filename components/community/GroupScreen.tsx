@@ -8,6 +8,8 @@ import {
 } from '@/lib/community';
 import { COMMUNITY_COPY, type Lang } from '@/lib/community-copy';
 import { CommunityError, communityCall, describeError, forget, keep, readKept } from '@/lib/community-client';
+import { OutbreakAlerts } from './OutbreakAlerts';
+import { AdminReports } from './AdminReports';
 
 /** The newest page replaces what is shown at the top; older posts already loaded stay below it. */
 function merge(fresh: PostItem[], existing: PostItem[]): PostItem[] {
@@ -23,8 +25,8 @@ const errorText = (e: unknown, lang: Lang, fallback: string) => describeError(e,
  * looks for new posts every minute and when the app comes back to the front (there is no live connection). What was read
  * last is kept on the phone and shown when there is no signal; writing needs a connection and says so.
  */
-export function GroupScreen({ user, lang, group, canPost, onBack, onLeft }: {
-  user: UserAccount; lang: Lang; group: GroupSummary; canPost: boolean; onBack: () => void; onLeft: () => void;
+export function GroupScreen({ user, lang, group, canPost, farmCounty, onBack, onLeft }: {
+  user: UserAccount; lang: Lang; group: GroupSummary; canPost: boolean; farmCounty: string; onBack: () => void; onLeft: () => void;
 }) {
   const t = COMMUNITY_COPY[lang];
   const part = `feed_${group.id}`;
@@ -97,6 +99,7 @@ export function GroupScreen({ user, lang, group, canPost, onBack, onLeft }: {
     await communityCall(`/api/community/groups/${group.id}`, { method: 'DELETE', body: { deletePosts: alsoDelete } });
     // What this phone kept of the group goes too.
     forget(user.id, part);
+    forget(user.id, `alerts_${group.id}`);
     onLeft();
   });
 
@@ -119,6 +122,9 @@ export function GroupScreen({ user, lang, group, canPost, onBack, onLeft }: {
       </div>
 
       <p className="flex items-start gap-2 rounded-xl border border-gold-border bg-gold-subtle p-3 text-sm text-charcoal"><Info className="mt-0.5 h-4 w-4 shrink-0 text-gold-600" aria-hidden="true" />{t.rules}</p>
+
+      {/* Outbreak alerts sit above the discussion: counts by area, never a farm (docs/community-groups-design.md). */}
+      <OutbreakAlerts user={user} lang={lang} groupId={group.id} canPost={canPost} farmCounty={farmCounty} />
 
       {offline && <p role="status" className="flex items-center gap-2 rounded-xl bg-ivory-muted p-3 text-sm text-charcoal-light"><WifiOff className="h-4 w-4 shrink-0" />{t.offlineShowing}</p>}
       {error && <p role="alert" className="rounded-xl bg-red-50 p-3 text-sm text-red-800">{error}</p>}
@@ -161,6 +167,8 @@ export function GroupScreen({ user, lang, group, canPost, onBack, onLeft }: {
         </ul>
         {more && <button type="button" className="btn btn-secondary" disabled={loadingOlder} onClick={() => void older()}>{loadingOlder ? t.loadingOlder : t.olderPosts}</button>}
       </section>
+
+      {canPost && group.role === 'admin' && <AdminReports lang={lang} groupId={group.id} />}
 
       {canPost && (
         <section className="space-y-2 border-t border-ivory-border pt-4">

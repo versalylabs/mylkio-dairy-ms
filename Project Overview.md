@@ -22,8 +22,8 @@
 | Product | Live, in pilot-readiness. Invitation-only sign-up. No paying farmers are recorded in this document. |
 | Roadmap | Phases 1–9 complete and merged to `main`. Follow-ups complete: team logins (migration 0008), password reset by email, Kiswahili for the newest screens. |
 | Stack | Next.js 16, React 19, TypeScript, Tailwind CSS 3, Neon Postgres 18 and Neon Auth (managed Better Auth), Vercel hosting, installable offline-first PWA. |
-| Database | 12 migrations (0001–0012). 0001–0011 are applied on both the Neon `production` and `preview` branches (0011, plan-change history and attempt limits on codes, on 23 November 2026). **0012 (Community groups, step 1) is written and tested but not yet applied to either branch.** Region Frankfurt (`aws-eu-central-1`). |
-| Tests | 581 automated tests in 47 files (Vitest, with in-memory Postgres via PGlite running the real migrations). `npm run build` and `npm run typecheck` pass. CI ("Validate") runs build, typecheck and tests on every pull request. |
+| Database | 13 migrations (0001–0013). 0001–0012 are applied on the Neon `production` and `preview` branches (0012, Community groups step 1, on 23 November 2026). **0013 (outbreak reports, step 2) is written and tested but not yet applied to either branch.** Region Frankfurt (`aws-eu-central-1`). |
+| Tests | 621 automated tests in 50 files (Vitest, with in-memory Postgres via PGlite running the real migrations). `npm run build` and `npm run typecheck` pass. CI ("Validate") runs build, typecheck and tests on every pull request. |
 | Languages | English and Kiswahili for the farmer's app screens. The website, Privacy/Terms, administration screens and the vet guide's clinical content are English only. |
 | Needs a person, not code | Real-phone tests; lawyer review of Privacy and Terms; Data Protection registration; a veterinarian's review of the vet guide (still DRAFT and hidden from farmers); native-speaker review of Kiswahili; backups decision (Neon history is only 6 hours, no snapshots); Neon Auth production email settings (own sender, application name, sign-out-on-reset); a real password-reset email and a real team invite tried end to end. |
 
@@ -314,7 +314,7 @@ Positioning: “Know your cows, your milk, and who owes you—in one simple plac
 | Vets near you, team logins | No | No | Yes | Yes |
 | Weekly owner summary | No | No | Yes | Yes |
 | Farm report for a bank or SACCO | No | No | Yes | Yes |
-| Community: SACCO and area groups with a discussion (step 1 of 3) | No | No | Yes | Built; needs migration 0012 |
+| Community: SACCO and area groups with a discussion (step 1) and outbreak reports (step 2, closed on live farms until a vet approves the guide) | No | No | Yes | Step 1 live; step 2 built, needs migration 0013 |
 
 The trial keeps the Farmer set. When a trial has ended, a payment is over 7 days late or the plan is cancelled, every paid extra pauses and the farm falls back to the Starter set; records stay readable and exportable. A feature the plan lacks shows one calm line where it would appear ("Cost per litre is part of the Farmer plan." with a link to Settings), never a pop-up. Plan descriptions on the website, sign-up box and Settings are generated from the same table and mark a feature "coming soon" until its screen is built (`FEATURES_COMING_SOON`, removed one by one as each ships), and the symptom checker "coming after vet review" until a vet approves it.
 
@@ -451,6 +451,7 @@ Product owner: Versaly. Brand note: verify “Mylkio” trademark, domain, and a
 | `farms/:id/vets` | farm members | The farm's own saved vets |
 | `vets` | signed in | Vet directory (Farm Pro, checked on the server), suggest a vet |
 | `community/groups`, `community/groups/:id` (+ `/posts`), `community/posts/:id` (+ `/replies`), `community/replies/:id`, `community/join` | farm members on Farm Pro or Custom (plan checked in SQL); owner and manager write, worker reads | Community groups: my groups, a group's posts, threads, join with a code, leave, delete own posts |
+| `community/groups/:id/reports` (POST a report, GET for the group admin), `community/groups/:id/alerts` (counts, answers), `community/alerts` (Home) | as above; reporting needs the guide approved by a vet; the admin list only for a group admin | Outbreak reports: counts by area, "we see this too", the group admin's follow-up list |
 | `admin/community/groups`, `admin/community/groups/:id` | platform administrators | Create and edit groups, invitation links, farms in a group (counts and names only) |
 | `leads` | public | Website enquiry form (honeypot, strict fields, database rate limit) |
 | `site-content` | public | Contact, prices, testimonials, FAQs (cached 60 seconds, falls back to built-in wording) |
@@ -552,10 +553,10 @@ Product owner: Versaly. Brand note: verify “Mylkio” trademark, domain, and a
 
 ## 28. Quality, testing and releases
 
-- **Tests (581):** dates, milk rules, ledger, settlements, herd care, billing, plans and features, legal text, backup, photos, local store, sync core, password reset, app copy (language parity), vet checker/phone/review, security headers; **server tests** against the real migrations in PGlite (farm API, commercial, leads, usage, invites, site content, team: 26, community groups: 25) ; **database tests** for sync, two-device scenarios, settlements. Each "known" system sentence and the screen-vs-database role rules have a test that fails if they drift.
+- **Tests (621):** dates, milk rules, ledger, settlements, herd care, billing, plans and features, legal text, backup, photos, local store, sync core, password reset, app copy (language parity), vet checker/phone/review, security headers; **server tests** against the real migrations in PGlite (farm API, commercial, leads, usage, invites, site content, team: 26, community groups: 25, outbreak reports: 21) ; **database tests** for sync, two-device scenarios, settlements. Each "known" system sentence and the screen-vs-database role rules have a test that fails if they drift.
 - **CI:** the GitHub "Validate" workflow runs `npm ci`, `npm run build`, `npm run typecheck`, `npm test` on every pull request and on `main`.
 - **Release routine:** work on a branch; open a pull request; wait for **all three checks** (Vercel, Vercel Preview Comments, validate) to read SUCCESS; merge; confirm `/api/health` reads `ok` on all four lines and sign-in works. Never run `vercel --prod` as routine.
-- **Database changes:** additive migrations in `db/migrations/`, applied to the Neon `preview` branch, tested, then to `production` with the owner's go-ahead, recorded in `public.schema_migrations`. Apply a migration **before** deploying code that reads it (merging code first is safe for 0007 only because the endpoint falls back). `npm run db:migrate` (direct connection string) or the Neon SQL editor. Twelve migrations: 0001 accounts and farms; 0002 record sync; 0003 leads; 0004 usage; 0005 vet directory; 0006 commercial admin; 0007 site content; 0008 team logins; 0009 new prices and the Custom plan; 0010 the split of unsold milk (`milkUse`); 0011 the plan-change history and attempt limits on codes; 0012 Community groups, step 1 (not yet applied: see `docs/community-groups.md`).
+- **Database changes:** additive migrations in `db/migrations/`, applied to the Neon `preview` branch, tested, then to `production` with the owner's go-ahead, recorded in `public.schema_migrations`. Apply a migration **before** deploying code that reads it (merging code first is safe for 0007 only because the endpoint falls back). `npm run db:migrate` (direct connection string) or the Neon SQL editor. Thirteen migrations: 0001 accounts and farms; 0002 record sync; 0003 leads; 0004 usage; 0005 vet directory; 0006 commercial admin; 0007 site content; 0008 team logins; 0009 new prices and the Custom plan; 0010 the split of unsold milk (`milkUse`); 0011 the plan-change history and attempt limits on codes; 0012 Community groups, step 1; 0013 outbreak reports, step 2 (not yet applied: see `docs/community-groups.md`).
 - **Checking a deployment:** `/api/health` verifies settings, the database connection, the schema and Neon Auth, never returns environment values, and hides technical detail in production.
 - **Rolling back:** an app problem is fixed by promoting the previous Vercel deployment (about a minute, no database change). A data problem needs care: a Neon restore discards newer valid records; with a 6-hour history window act within hours. A bad invitation code is removed from `SIGNUP_INVITE_CODES` and redeployed. Never delete the production Neon branch or switch Neon Auth off (that deletes every user).
 
@@ -589,7 +590,7 @@ Product owner: Versaly. Brand note: verify “Mylkio” trademark, domain, and a
 - Kiswahili for the website, administration screens and (after vet review) the vet guide content.
 - Concurrent multi-phone load test; test over a real mobile network.
 - Cooperative portal and group onboarding (only if partner demand is validated).
-- **SACCO and area groups:** step 1 (groups, invitation links, discussion) is built, with migration 0012 waiting to be applied; step 2 (structured outbreak reports) and step 3 (moderation and official alerts) are not built. See `docs/community-groups-design.md` and `docs/community-groups.md`.
+- **SACCO and area groups:** step 1 (groups, invitation links, discussion) is live; step 2 (structured outbreak reports) is built, with migration 0013 waiting to be applied and reporting closed on live farms until a vet approves the health guide; step 3 (moderation and official alerts) is not built. See `docs/community-groups-design.md` and `docs/community-groups.md`.
 
 ## 31. Where the detail lives
 

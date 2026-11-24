@@ -7,6 +7,7 @@
 
 import { ApiError } from './errors';
 import type { Db } from './farm-api';
+import type { AlertAnswer, GroupAlerts, HomeAlert, ReportInput, ReporterRow } from '@/lib/community-outbreak';
 import { COMMUNITY_LIMITS, type AdminGroup, type AdminGroupMember, type AdminInvite, type GroupFeed, type GroupKind, type GroupList, type GroupRole, type PostThread } from '@/lib/community';
 
 export const COMMUNITY_PLAN_MESSAGE = 'Community groups are part of the Farm Pro plan.';
@@ -101,3 +102,23 @@ export const adminGroupMembers = (db: Db, actor: string, groupId: string) =>
 export async function adminRemoveGroupMember(db: Db, actor: string, groupId: string, farmId: string): Promise<void> {
   await run(db, 'select public.admin_remove_group_member($1, $2, $3)', [actor, groupId, farmId], ADMIN_ONLY);
 }
+
+// ---- Outbreak reports (migration 0013) ----
+
+export const REPORTS_CLOSED_MESSAGE = 'Outbreak reports open once a veterinarian has checked the health guide.';
+
+export const createOutbreakReport = (db: Db, actor: string, groupId: string, r: ReportInput) =>
+  one<string>(db, 'select public.create_outbreak_report($1, $2, $3::text[], $4, $5, $6::date, $7) as result', [actor, groupId, r.signs, r.animals, r.days, r.seenOn, r.vetSeen], { denied: WRITE_DENIED });
+
+export const groupAlerts = (db: Db, actor: string, groupId: string) =>
+  one<GroupAlerts>(db, 'select public.list_group_alerts($1, $2) as result', [actor, groupId], { denied: 'You are not a member of this group.' });
+
+export const homeAlerts = (db: Db, actor: string) =>
+  one<HomeAlert[]>(db, 'select public.my_group_alerts($1) as result', [actor], { denied: 'You do not have access to Community.' });
+
+export async function answerAlert(db: Db, actor: string, groupId: string, areaKey: string, sign: string, answer: AlertAnswer | null): Promise<void> {
+  await run(db, 'select public.answer_group_alert($1, $2, $3, $4, $5)', [actor, groupId, areaKey, sign, answer], { denied: WRITE_DENIED });
+}
+
+export const reportersForAdmin = (db: Db, actor: string, groupId: string) =>
+  one<ReporterRow[]>(db, 'select public.list_group_reports_for_admin($1, $2) as result', [actor, groupId], { denied: 'Only the admin of this group can see who reported.' });

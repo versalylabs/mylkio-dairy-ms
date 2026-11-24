@@ -1,9 +1,9 @@
-import { describe, expect, it } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 import { readFileSync } from 'node:fs';
 import path from 'node:path';
 import { COMMUNITY_LIMITS, agoLabel, charsLeft, cleanText, communityIncluded, groupLink, hasBadCharacters, newGroupCode, normaliseGroupCode } from '@/lib/community';
 import { COMMUNITY_COPY } from '@/lib/community-copy';
-import { CommunityError, describeError } from '@/lib/community-client';
+import { CommunityError, communityCall, describeError } from '@/lib/community-client';
 import { groupInput, inviteInput, joinInput, leaveInput, postInput, replyInput } from '@/lib/server/community-schemas';
 import { PRIVACY, TERMS } from '@/lib/legal';
 import { tabsFor } from '@/lib/team';
@@ -100,6 +100,25 @@ describe('time labels', () => {
     expect(agoLabel('2026-11-21T12:00:00Z', now, 'en')).toBe('2 days ago');
     expect(agoLabel('2026-11-23T11:30:00Z', now, 'sw')).toBe('dakika 30 zilizopita');
     expect(agoLabel('2026-10-01T12:00:00Z', now, 'en')).toMatch(/Oct/);
+  });
+});
+
+describe('requests the screens send', () => {
+  afterEach(() => vi.unstubAllGlobals());
+  const sent = async (init?: Parameters<typeof communityCall>[1]) => {
+    const fetchSpy = vi.fn(async () => new Response('{}', { status: 200 }));
+    vi.stubGlobal('fetch', fetchSpy);
+    await communityCall('/api/community/posts/x', init);
+    return (fetchSpy.mock.calls[0] as unknown as [string, RequestInit])[1];
+  };
+
+  // The server refuses every write without a JSON content type (sameOrigin in lib/server/http.ts): deleting a post, a reply
+  // or an outbreak report sends no body, and used to fail with 415.
+  it('marks every write as JSON, even a delete with no body, and leaves a read alone', async () => {
+    expect((await sent({ method: 'DELETE' })).headers).toEqual({ 'Content-Type': 'application/json' });
+    expect((await sent({ method: 'POST', body: { body: 'hi' } })).headers).toEqual({ 'Content-Type': 'application/json' });
+    expect((await sent()).headers).toBeUndefined();
+    expect((await sent({ method: 'DELETE' })).body).toBeUndefined();
   });
 });
 

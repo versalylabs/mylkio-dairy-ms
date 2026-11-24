@@ -16,8 +16,8 @@ const DEMO_USER = 'usr-demo-01';
  * discussion. Only Farm Pro and Custom farms have it (the server and the database check the plan; the locked line is
  * only the calm explanation). Mylkio staff create the groups; this screen never does.
  */
-export function CommunityView({ user, lang, initialCode, onCodeHandled }: {
-  user: UserAccount; lang: Lang; initialCode?: string; onCodeHandled?: () => void;
+export function CommunityView({ user, lang, farmCounty, initialCode, onCodeHandled }: {
+  user: UserAccount; lang: Lang; farmCounty: string; initialCode?: string; onCodeHandled?: () => void;
 }) {
   const t = COMMUNITY_COPY[lang];
   const demo = user.id === DEMO_USER;
@@ -59,7 +59,7 @@ export function CommunityView({ user, lang, initialCode, onCodeHandled }: {
   if (openGroup && current) {
     return (
       <GroupScreen
-        key={current.id} user={user} lang={lang} group={current} canPost={role !== 'worker' && (list?.canPost ?? false)}
+        key={current.id} user={user} lang={lang} group={current} farmCounty={farmCounty} canPost={role !== 'worker' && (list?.canPost ?? false)}
         onBack={() => { setOpenGroup(null); void load(); }}
         onLeft={() => { setOpenGroup(null); void load(); }}
       />

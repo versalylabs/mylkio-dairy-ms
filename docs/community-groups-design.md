@@ -1,6 +1,6 @@
-# Community: SACCO and area groups (design; step 1 built)
+# Community: SACCO and area groups (design; steps 1 and 2 built)
 
-Status: designed 23 November 2026 with the owner. **Step 1 is built** (groups, invitation links, discussion; see [community-groups.md](community-groups.md)); steps 2 and 3 are not. Build order is at the end.
+Status: designed 23 November 2026 with the owner. **Steps 1 and 2 are built** (groups, invitation links, discussion; outbreak reports; see [community-groups.md](community-groups.md)); step 3 is not. Build order is at the end.
 
 ## The idea
 

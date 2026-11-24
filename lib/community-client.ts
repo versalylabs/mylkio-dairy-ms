@@ -14,7 +14,8 @@ export async function communityCall<T>(url: string, init: { method?: 'GET' | 'PO
   try {
     response = await fetch(url, {
       method: init.method ?? 'GET', cache: 'no-store',
-      headers: init.body === undefined ? undefined : { 'Content-Type': 'application/json' },
+      // The server refuses any write without a JSON content type (sameOrigin), so a DELETE with no body sends it too.
+      headers: (init.method ?? 'GET') === 'GET' ? undefined : { 'Content-Type': 'application/json' },
       body: init.body === undefined ? undefined : JSON.stringify(init.body),
     });
   } catch {

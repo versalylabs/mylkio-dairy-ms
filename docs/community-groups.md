@@ -52,3 +52,42 @@ Choices made while building, to confirm: a post shows the writer's **name and fa
 ## Not in step 1
 
 Outbreak reports and their counts (step 2, migration 0013); moderation by group admins, "report this post" to staff, official alerts to every group in a county, unread counts and the Home alert (step 3, migration 0014); photos; push notifications.
+
+---
+
+# Step 2: outbreak reports (as built)
+
+Built 23 November 2026 on branch `codex/community-outbreak-reports`. Migration `db/migrations/0013_outbreak_reports.sql`. **Migration 0013 has not been applied to `preview` or `production`.** Reporting is also **closed on live farms** until a veterinarian approves the vet guide (see "Why reporting is closed" below), so even after the migration the form stays shut on production until then.
+
+## What a farmer sees
+
+- In a group, above the discussion: **Outbreak alerts**, counted by area for the last 7 days: "3 farms in Rongai report this week: *Blisters or sores in the mouth…*". No farm is ever named.
+- **Every alert carries the safety notice**: guidance from neighbours, not a diagnosis and not a vet, call a vet, never give or hold back treatment because of a report.
+- **A sign that sets off one of the guide's red flags shows the emergency steps first** (the guide's own "do now" list, with its urgency), before the counts, then the line that a notifiable disease must be reported to the county veterinary office, not only to the group, and a note when it can infect people.
+- One tap to answer, **"We see this too"** or **"Not here"** (tap again to take it back). Answers are counted and never named, and a farm that reported the same thing cannot answer it. Workers read the counts but cannot answer.
+- **Report signs on my farm** (owner and manager): tick signs from the guide's own list (up to 8), how many animals, for how many days, the date seen (up to 14 days back) and whether a vet has seen them. There is **no free text**, so a report cannot name a farm or a person. The form repeats "call a vet now", shows the emergency steps for what is ticked, and shows **who to call** (the guide's county contacts where it has them, otherwise its general reporting note) with the plain line that this group is not a reporting channel. The area is never typed: the database takes it from the farm's own profile (sub-county, else county).
+- **Your reports this week**, each with Withdraw (a false alarm stops counting at once).
+- **Home**: one item in "Needs your attention" when a group the farm belongs to has an open alert in the farm's own county that it did not report itself ("3 farms in Rongai report signs in Rongai Dairy SACCO"), with Snooze and Dismiss like the other alerts. It opens Community. Counts only.
+- **Group admin only**: "Reports for follow-up" lists the farm, the person's name and phone, the signs, animals, days, date and vet status for the last 30 days. It is the one place a farm is named; the database refuses anyone who is not an owner or manager of a farm that is an admin of that group, and **each look is written to the audit log** (`community.reporters.view`).
+
+## Rules and limits (database in 0013, app in `lib/community-outbreak.ts`; a test reads the SQL for the same numbers)
+
+1 to 8 signs, 1 to 500 animals, 0 to 60 days, seen in the last 14 days, 5 reports per farm per day. An alert counts the last 7 days; reports are deleted after 90 days and answers after 30. A farm counts once per area and sign however many reports it makes. Four 0012 functions were replaced so a report never appears as a discussion post, cannot be replied to, and does not count as the group's "last post".
+
+## Why reporting is closed on live farms
+
+The signs and the emergency steps are the vet guide's DRAFT content, and the project rule is that health wording is not shown to farmers until a named vet has approved it (`lib/vet/review.ts`, `docs/vet-and-illness-feature.md`). `outbreakReportsOpen()` is true only when an entry is approved or drafts are allowed (previews and local work, `NEXT_PUBLIC_SHOW_DRAFT_VET_CONTENT=true`). The report route checks it on the server too, and answers 403. So on production the group shows "Outbreak reports open once a veterinarian has checked the health guide" and no report can be made; the discussion works as before. When the first red-flag entry is approved the form opens by itself, with no code change.
+
+## Privacy
+
+`lib/legal.ts` has a new paragraph (what a report holds, who sees the farm, the audit of admin looks, 90 and 30 day retention, and that a report does not replace reporting to the authorities). **A lawyer should read it.** A count of one in a small area can point at a farm; the area is a sub-county, and a group admin can see the farm for follow-up, as agreed in the design.
+
+## Going live
+
+1. Apply 0013 to Neon `preview` (`npm run db:migrate`), then to `production` with a snapshot first and the owner's go-ahead, **before** merging the pull request.
+2. With drafts on (a preview deployment) try it: two farms in one group in one sub-county report, a third answers, the group admin sees who, a farm in another county sees nothing on Home.
+3. Reporting opens on live farms only after a veterinarian approves red-flag entries (named reviewer and date, in a pull request).
+
+## Not in step 2
+
+Moderation and "report this post", official alerts to every group in a county, unread counts (step 3, migration 0014); reporting to more than one group at once; photos; push notifications. Signs and emergency steps are English only until a vet has reviewed them, so those lines stay English in the Kiswahili screens.

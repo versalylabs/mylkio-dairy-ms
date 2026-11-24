@@ -7,6 +7,9 @@ import { FarmStart, isNewFarm } from './FarmStart';
 import { weeklySummary } from '@/lib/weekly-summary';
 import { canUse } from '@/lib/plans';
 import type { AppTab } from '@/lib/team';
+import { OUTBREAK_COPY } from '@/lib/outbreak-copy';
+import { communityCall, keep, readKept } from '@/lib/community-client';
+import { signLabel, type HomeAlert } from '@/lib/community-outbreak';
 import { milkDropAlerts } from '@/lib/milk-drop';
 import { fertilityFlags } from '@/lib/fertility';
 import { FERTILITY_COPY } from '@/lib/fertility-copy';
@@ -148,10 +151,32 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
   // her breeding records, so a new insemination or a positive pregnancy check closes them by itself.
   const fertText = FERTILITY_COPY[lang];
   const flags = canUse(user?.subscription, 'fertility') ? fertilityFlags({ cows, breeding: breedingEvents, today: todayStr }) : [];
-  const alertKey = [...drops.map((d) => d.cowId), ...flags.map((f) => f.id)].join(',');
+  // Community (Farm Pro and Custom): one item when a group this farm belongs to has an open outbreak alert in its own county
+  // that it did not report itself. Counts only, never a farm. The last answer is kept so it still shows without signal.
+  const outText = OUTBREAK_COPY[lang];
+  const communityOn = !!user && user.id !== 'usr-demo-01' && canUse(user.subscription, 'community');
+  const [communityAlerts, setCommunityAlerts] = useState<HomeAlert[]>([]);
+  useEffect(() => {
+    if (!communityOn || !user) { setCommunityAlerts([]); return; }
+    setCommunityAlerts(readKept<HomeAlert[]>(user.id, 'home_alerts') ?? []);
+    let cancelled = false;
+    const refresh = () => {
+      communityCall<{ alerts: HomeAlert[] }>('/api/community/alerts')
+        .then((result) => { if (!cancelled) { setCommunityAlerts(result.alerts); keep(user.id, 'home_alerts', result.alerts); } })
+        .catch(() => { /* no signal, or no groups: keep what is shown */ });
+    };
+    refresh();
+    const onVisible = () => { if (document.visibilityState === 'visible') refresh(); };
+    document.addEventListener('visibilitychange', onVisible);
+    return () => { cancelled = true; document.removeEventListener('visibilitychange', onVisible); };
+  }, [communityOn, user?.id]);
+  const communityId = (a: HomeAlert) => `community-${a.groupId}-${a.sign}-${a.area.toLowerCase().replace(/[^a-z0-9]+/g, '-')}`;
+  const alertKey = [...drops.map((d) => d.cowId), ...flags.map((f) => f.id), ...communityAlerts.map(communityId)].join(',');
   useEffect(() => { setHiddenAlerts(prune(farmKey, alertKey ? alertKey.split(',') : [])); }, [farmKey, alertKey]);
   const shownDrops = drops.filter((d) => !isHidden(hiddenAlerts[d.cowId], todayStr));
   const shownFlags = flags.filter((f) => !isHidden(hiddenAlerts[f.id], todayStr));
+  // One item for Community, the alert with the most farms behind it.
+  const topCommunity = communityAlerts.find((a) => !isHidden(hiddenAlerts[communityId(a)], todayStr));
   const weekly = money && canUse(user?.subscription, 'weeklySummary')
     ? weeklySummary({ milk: milkEntries, deliveries, payments, health: healthEvents, breeding: breedingEvents, reminders, buyerBalances: buyers.map((b) => b.currentBalance), today: todayStr })
     : null;
@@ -346,17 +371,32 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
             </div>
           </div>
           <span className="shrink-0 text-sm font-bold px-2.5 py-0.5 rounded-full bg-amber-100 text-amber-900">
-            {openReminders.length + shownDrops.length + shownFlags.length} {sw ? 'wazi' : 'open'}
+            {openReminders.length + shownDrops.length + shownFlags.length + (topCommunity ? 1 : 0)} {sw ? 'wazi' : 'open'}
           </span>
         </div>
 
-        {openReminders.length === 0 && shownDrops.length === 0 && shownFlags.length === 0 && (
+        {openReminders.length === 0 && shownDrops.length === 0 && shownFlags.length === 0 && !topCommunity && (
           <p className="rounded-2xl bg-[#EEF4EC] p-4 text-sm font-medium text-[#2B4A3B]">
             {sw ? 'Hakuna kinachohitaji umakini leo.' : 'Nothing needs your attention today.'}
           </p>
         )}
 
         <div className="space-y-2 pt-1">
+          {topCommunity && (
+            <div className="rounded-2xl border border-rose-200 bg-rose-50/60 p-3">
+              <button type="button" onClick={() => onNavigate('community')} aria-label={outText.homeOpen} className="block w-full text-left">
+                <span className="mb-1 inline-block rounded-full bg-rose-100 px-2 py-0.5 text-xs font-bold text-rose-900">{outText.homeTag}</span>
+                <span className="block text-sm font-bold text-gray-900">{outText.homeItem(topCommunity.farms, topCommunity.area, topCommunity.groupName)}</span>
+                <span className="mt-0.5 block text-sm text-gray-700">{signLabel(topCommunity.sign)}</span>
+                <span className="mt-0.5 block text-xs text-gray-600">{outText.homeSafety}</span>
+              </button>
+              <div className="mt-2 flex flex-wrap gap-2">
+                <button type="button" className="chip-btn" onClick={() => onNavigate('community')}>{outText.homeOpen}</button>
+                <button type="button" className="chip-btn" onClick={() => setHiddenAlerts(snoozeAlert(farmKey, communityId(topCommunity), todayStr))}>{dropText.snooze}</button>
+                <button type="button" className="chip-btn" onClick={() => setHiddenAlerts(dismissAlert(farmKey, communityId(topCommunity)))}>{dropText.dismiss}</button>
+              </div>
+            </div>
+          )}
           {shownDrops.map((alert) => {
             const name = alert.cowName ?? alert.cowTag;
             return (
