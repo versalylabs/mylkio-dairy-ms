@@ -1,4 +1,6 @@
 import { z } from 'zod';
+import { after } from 'next/server';
+import { notifyOutbreak, quietly, webPushSender } from '@/lib/server/push';
 import { body, endpoint, json, sameOrigin } from '@/lib/server/http';
 import { signedIn } from '@/lib/server/neon-auth';
 import { REPORTS_CLOSED_MESSAGE, createOutbreakReport, reportersForAdmin } from '@/lib/server/community-api';
@@ -23,7 +25,10 @@ export async function POST(request: Request, context: Context) {
     const { db, user } = await signedIn();
     if (!outbreakReportsOpen()) throw new ApiError(403, REPORTS_CLOSED_MESSAGE);
     const input = reportInput.parse(await body(request));
-    return json({ id: await createOutbreakReport(db, user.id, groupId, input) }, 201);
+    const id = await createOutbreakReport(db, user.id, groupId, input);
+    const send = webPushSender();
+    if (send) after(() => quietly(() => notifyOutbreak(db, id, send)));
+    return json({ id }, 201);
   });
 }
 
