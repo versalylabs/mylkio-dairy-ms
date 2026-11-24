@@ -94,7 +94,7 @@ const EVERYTHING: PlanFeatures = FARM_PRO_FEATURES;
  * list in the same pull request that ships it.
  */
 export const FEATURES_COMING_SOON: ReadonlySet<FeatureId> = new Set<FeatureId>([
-  'reminderPush', 'reminderSms',
+  'reminderSms',
 ]);
 
 /** The cheapest self-serve plan that includes a feature (so a locked line can name it). */

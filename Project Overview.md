@@ -22,8 +22,8 @@
 | Product | Live, in pilot-readiness. Invitation-only sign-up. No paying farmers are recorded in this document. |
 | Roadmap | Phases 1–9 complete and merged to `main`. Follow-ups complete: team logins (migration 0008), password reset by email, Kiswahili for the newest screens. |
 | Stack | Next.js 16, React 19, TypeScript, Tailwind CSS 3, Neon Postgres 18 and Neon Auth (managed Better Auth), Vercel hosting, installable offline-first PWA. |
-| Database | 14 migrations (0001–0014). 0001–0013 are applied on the Neon `production` and `preview` branches (0013, outbreak reports, on 24 November 2026). **0014 (Community moderation, official alerts, unread counts) is written and tested but not yet applied to either branch.** Region Frankfurt (`aws-eu-central-1`). |
-| Tests | 638 automated tests in 51 files (Vitest, with in-memory Postgres via PGlite running the real migrations). `npm run build` and `npm run typecheck` pass. CI ("Validate") runs build, typecheck and tests on every pull request. |
+| Database | 15 migrations (0001–0015). **0015 (phone reminders) is written and tested but not yet applied.** 0014 (Community moderation) is applied on both branches; 0001–0013 on the Neon `production` and `preview` branches (0013, outbreak reports, on 24 November 2026). **0014 (Community moderation, official alerts, unread counts) is written and tested but not yet applied to either branch.** Region Frankfurt (`aws-eu-central-1`). |
+| Tests | 647 automated tests in 52 files (Vitest, with in-memory Postgres via PGlite running the real migrations). `npm run build` and `npm run typecheck` pass. CI ("Validate") runs build, typecheck and tests on every pull request. |
 | Languages | English and Kiswahili for the farmer's app screens. The website, Privacy/Terms, administration screens and the vet guide's clinical content are English only. |
 | Needs a person, not code | Real-phone tests; lawyer review of Privacy and Terms; Data Protection registration; a veterinarian's review of the vet guide (still DRAFT and hidden from farmers); native-speaker review of Kiswahili; backups decision (Neon history is only 6 hours, no snapshots); Neon Auth production email settings (own sender, application name, sign-out-on-reset); a real password-reset email and a real team invite tried end to end. |
 
@@ -182,7 +182,7 @@ Two lightweight ledgers: **cooperative deliveries** and **household customers**.
 - Consequential, date-based reminders only: vaccination, deworming, calving, dry-off, heat/insemination follow-up, withdrawal ending, household payment due, expected cooperative statement/payment. FMD, LSD and deworming intervals are editable examples, never automatic medical schedules.
 - One consolidated in-app Today feed with dismiss/snooze; no generic nudges.
 
-**As built:** reminders live on Home and in the cow timeline, deduplicated per event. **No push, SMS or WhatsApp notifications are sent** (post-MVP). Administrators send billing follow-ups themselves from a prepared list (section 23).
+**As built:** reminders live on Home and in the cow timeline, deduplicated per event. **Phone reminders** (every plan): one morning notification of the reminders due today or overdue, turned on per phone in Settings (`docs/phone-reminders.md`). No SMS or WhatsApp messages are sent. Administrators send billing follow-ups themselves from a prepared list (section 23).
 
 ### 5.9 Reporting and Analytics
 **As built:** Home dashboard (today's milk, sold, cash received, outstanding balances, reminders, recent activity), Milk history and totals, Sales and buyer statements, Finance (revenue, expenses, surplus by period), Herd lists. CSV exports (milk, deliveries, expenses, herd; formula-injection safe), a full JSON backup and restore, and printable statements and bills. Estimates are never labelled as actuals. **Weekly owner summary and farm report** (Farm Pro and Custom; owner and manager): a Home card "Last week on your farm" (Monday to Sunday, Nairobi) with milk produced and its change, sold and not sold, billed and received, buyers owing, overdue reminders and who recorded what, shared by the owner on WhatsApp (never sent for them); and in Settings a one-page A4 farm report with a 12-month table (a dash for months with no records), the herd today, buyers by type and months of continuous milk records, footed "Not audited or verified by Mylkio" (`docs/weekly-summary-and-farm-report.md`). "Who recorded what" uses a name stamped on each milk, health and breeding record when it is saved (the phone's copy does not carry the server's `updated_by`), so it counts only records saved from now on. **Cost per litre** (Farmer plan and up; owner and manager) sits at the top of Finance for this month or last month: expenses divided by counted litres produced, set against the price billed for accepted litres and the feed share of costs, shown only with at least 14 days of milk and an expense, and worded "about" (`docs/cost-per-litre.md`).
@@ -305,7 +305,7 @@ Positioning: “Know your cows, your milk, and who owes you—in one simple plac
 | Core app: herd, milk, sales, payments, finance, reminders, offline, export | Yes | Yes | Yes | Yes |
 | Emergency-signs guide, seasonal calendar, My vets | Yes | Yes | Yes | Yes |
 | Produced vs sold | Yes | Yes | Yes | Yes (migration 0010) |
-| Reminders as phone notifications | Yes | Yes | Yes | Not yet |
+| Reminders as phone notifications | Yes | Yes | Yes | Yes (migration 0015) |
 | Symptom checker | No | Yes | Yes | Built; hidden until a vet approves it |
 | Cost per litre | No | Yes | Yes | Yes |
 | Milk drop alert and cow ranking | No | Yes | Yes | Yes |
@@ -553,7 +553,7 @@ Product owner: Versaly. Brand note: verify “Mylkio” trademark, domain, and a
 
 ## 28. Quality, testing and releases
 
-- **Tests (638):** dates, milk rules, ledger, settlements, herd care, billing, plans and features, legal text, backup, photos, local store, sync core, password reset, app copy (language parity), vet checker/phone/review, security headers; **server tests** against the real migrations in PGlite (farm API, commercial, leads, usage, invites, site content, team: 26, community groups: 25, outbreak reports: 22, moderation: 12) ; **database tests** for sync, two-device scenarios, settlements. Each "known" system sentence and the screen-vs-database role rules have a test that fails if they drift.
+- **Tests (647):** dates, milk rules, ledger, settlements, herd care, billing, plans and features, legal text, backup, photos, local store, sync core, password reset, app copy (language parity), vet checker/phone/review, security headers; **server tests** against the real migrations in PGlite (farm API, commercial, leads, usage, invites, site content, team: 26, community groups: 25, outbreak reports: 22, moderation: 12) ; **database tests** for sync, two-device scenarios, settlements. Each "known" system sentence and the screen-vs-database role rules have a test that fails if they drift.
 - **CI:** the GitHub "Validate" workflow runs `npm ci`, `npm run build`, `npm run typecheck`, `npm test` on every pull request and on `main`.
 - **Release routine:** work on a branch; open a pull request; wait for **all three checks** (Vercel, Vercel Preview Comments, validate) to read SUCCESS; merge; confirm `/api/health` reads `ok` on all four lines and sign-in works. Never run `vercel --prod` as routine.
 - **Database changes:** additive migrations in `db/migrations/`, applied to the Neon `preview` branch, tested, then to `production` with the owner's go-ahead, recorded in `public.schema_migrations`. Apply a migration **before** deploying code that reads it (merging code first is safe for 0007 only because the endpoint falls back). `npm run db:migrate` (direct connection string) or the Neon SQL editor. Fourteen migrations: 0001 accounts and farms; 0002 record sync; 0003 leads; 0004 usage; 0005 vet directory; 0006 commercial admin; 0007 site content; 0008 team logins; 0009 new prices and the Custom plan; 0010 the split of unsold milk (`milkUse`); 0011 the plan-change history and attempt limits on codes; 0012 Community groups, step 1; 0013 outbreak reports, step 2; 0014 moderation, official alerts and unread counts, step 3 (not yet applied: see `docs/community-groups.md`).
@@ -615,6 +615,7 @@ Product owner: Versaly. Brand note: verify “Mylkio” trademark, domain, and a
 | `docs/community-groups-design.md` | The design of SACCO and area groups with outbreak reports, for Farm Pro and Custom |
 | `docs/community-groups.md` | Step 1 as built: groups, invitations, discussion, limits, staff screens |
 | `docs/phase-8-fixes.md` | Plan-change history, attempt limits on codes, background photo shrinking, the new-farm start |
+| `docs/phone-reminders.md` | The morning phone notification of due reminders, its Vercel settings and daily job |
 | `docs/team-logins.md` | Roles and invitations |
 | `docs/password-reset.md` | Reset flow and Neon settings |
 | `docs/kiswahili.md` | What is translated and what is not |

@@ -80,3 +80,23 @@ self.addEventListener('message', (event) => {
       })
   );
 });
+
+// Phone reminders (db/migrations/0015): the morning summary the server sends. It carries a title, a text and the page to open.
+self.addEventListener('push', (event) => {
+  let message = { title: 'Mylkio', body: '', url: '/' };
+  try { message = { ...message, ...event.data.json() }; } catch { /* a push without readable data still shows a plain notice */ }
+  event.waitUntil(self.registration.showNotification(message.title, {
+    body: message.body, icon: '/icon.svg', badge: '/icon.svg', tag: 'mylkio-reminders', data: { url: message.url },
+  }));
+});
+
+// Tapping it opens Mylkio (or brings an open window to the front) on that page. Only this site's own pages.
+self.addEventListener('notificationclick', (event) => {
+  event.notification.close();
+  const path = typeof event.notification.data?.url === 'string' && event.notification.data.url.startsWith('/') ? event.notification.data.url : '/';
+  event.waitUntil(self.clients.matchAll({ type: 'window', includeUncontrolled: true }).then((windows) => {
+    const open = windows.find((w) => new URL(w.url).origin === self.location.origin);
+    if (open) { open.navigate(path).catch(() => {}); return open.focus(); }
+    return self.clients.openWindow(path);
+  }));
+});

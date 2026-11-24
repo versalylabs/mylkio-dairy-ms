@@ -86,6 +86,7 @@ describe('plan descriptions never promise what is not built', () => {
   it('mark a feature that is not built yet "coming soon", and the checker "coming after vet review" until a vet approves it', () => {
     expect(FEATURES_COMING_SOON.has('reminderSms')).toBe(true);
     expect(featureLabel('reminderSms', 'en', false)).toBe('SMS reminders (coming soon)');
+    expect(featureLabel('reminderPush', 'en', false)).toBe('Phone reminders'); // built
     expect(featureLabel('weeklySummary', 'en', false)).toBe('Weekly owner summary'); // built
     expect(featureLabel('fertility', 'en', false)).toBe('Fertility flags'); // built
     expect(featureLabel('milkDrop', 'en', false)).toBe('Milk drop alerts and cow ranking'); // built

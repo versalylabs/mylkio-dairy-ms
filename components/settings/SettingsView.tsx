@@ -7,6 +7,7 @@ import { AppStorage } from '@/lib/storage';
 import { LegacyDataImport } from './LegacyDataImport';
 import { StorageCard } from './StorageCard';
 import { TeamCard } from './TeamCard';
+import { PhoneRemindersCard } from './PhoneRemindersCard';
 import { FarmReportCard, type FarmReportData } from './FarmReportCard';
 import { ROLE_LABEL, ROLE_SUMMARY, canManageTeam, canSeeBilling, roleOrOwner } from '@/lib/team';
 import { PLANS, type PlanId } from '@/lib/plans';
@@ -229,6 +230,8 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
       {user && canManageTeam(role) && user.id !== 'usr-demo-01' && user.role !== 'super_admin' && (
         <TeamCard farmId={user.farmId} farmName={farm.name} planId={user.subscription.plan} lang={lang} />
       )}
+
+      {user && user.id !== 'usr-demo-01' && user.role !== 'super_admin' && <PhoneRemindersCard lang={lang} />}
 
       {user && !isOwner && (
         <div className="bg-white rounded-2xl border border-gray-200/90 p-5 shadow-sm">
