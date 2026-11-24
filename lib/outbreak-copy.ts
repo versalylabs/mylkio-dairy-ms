@@ -17,7 +17,7 @@ export interface OutbreakCopy {
   reportingTitle: string; reportingNote: string; reportingContacts: string; cancel: string;
   closed: string;
   // the group admin
-  adminTitle: string; adminIntro: string; adminEmpty: string; seenOnDate: (date: string) => string; animalsLine: (n: number, days: number) => string; vetLine: (v: string) => string;
+  adminTitle: string; adminShow: string; adminIntro: string; adminEmpty: string; seenOnDate: (date: string) => string; animalsLine: (n: number, days: number) => string; vetLine: (v: string) => string;
   // Home
   homeTag: string; homeItem: (farms: number, area: string, group: string) => string; homeOpen: string; homeSafety: string;
   // errors
@@ -48,7 +48,7 @@ export const OUTBREAK_COPY: Record<Lang, OutbreakCopy> = {
     reportingNote: 'This group is not a reporting channel. A suspected notifiable disease (for example foot-and-mouth disease or lumpy skin disease) must be reported to your sub-county veterinary officer or the county veterinary office.',
     reportingContacts: 'Who to call', cancel: 'Cancel',
     closed: 'Outbreak reports open once a veterinarian has checked the health guide. Until then, call a vet if you are worried about an animal.',
-    adminTitle: 'Reports for follow-up', adminIntro: 'You can see which farm reported because you look after this group. Use it only to follow up with the farm. Do not share it in the group.',
+    adminTitle: 'Reports for follow-up', adminShow: 'Show who reported', adminIntro: 'You can see which farm reported because you look after this group. Use it only to follow up with the farm. Do not share it in the group.',
     adminEmpty: 'No reports in the last 30 days.', seenOnDate: (date) => `Seen ${date}`,
     animalsLine: (n, days) => `${n === 1 ? '1 animal' : `${n} animals`}, unwell for ${days === 1 ? '1 day' : `${days} days`}`,
     vetLine: (v) => `Vet: ${v}`,
@@ -79,7 +79,7 @@ export const OUTBREAK_COPY: Record<Lang, OutbreakCopy> = {
     reportingNote: 'Kikundi hiki si njia ya kuripoti. Ugonjwa unaoshukiwa kuwa wa kuripotiwa (kwa mfano homa ya miguu na midomo au ugonjwa wa ngozi ya uvimbe) lazima uripotiwe kwa afisa wa mifugo wa kaunti ndogo au ofisi ya mifugo ya kaunti.',
     reportingContacts: 'Wapigie simu', cancel: 'Ghairi',
     closed: 'Ripoti za mlipuko zitafunguliwa daktari wa mifugo atakapokuwa ameukagua mwongozo wa afya. Hadi hapo, mwite daktari wa mifugo ukiwa na wasiwasi kuhusu mnyama.',
-    adminTitle: 'Ripoti za kufuatilia', adminIntro: 'Unaweza kuona shamba lililoripoti kwa sababu unasimamia kikundi hiki. Litumie kufuatilia shamba tu. Usilishiriki kwenye kikundi.',
+    adminTitle: 'Ripoti za kufuatilia', adminShow: 'Onyesha walioripoti', adminIntro: 'Unaweza kuona shamba lililoripoti kwa sababu unasimamia kikundi hiki. Litumie kufuatilia shamba tu. Usilishiriki kwenye kikundi.',
     adminEmpty: 'Hakuna ripoti katika siku 30 zilizopita.', seenOnDate: (date) => `Imeonekana ${date}`,
     animalsLine: (n, days) => `${n === 1 ? 'mnyama 1' : `wanyama ${n}`}, wagonjwa kwa ${days === 1 ? 'siku 1' : `siku ${days}`}`,
     vetLine: (v) => `Daktari: ${v}`,

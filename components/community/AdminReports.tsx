@@ -33,7 +33,7 @@ export function AdminReports({ lang, groupId }: { lang: Lang; groupId: string })
       <h2 id="followup-heading" className="text-base font-bold text-charcoal">{t.adminTitle}</h2>
       <p className="text-sm text-charcoal-light">{t.adminIntro}</p>
       {error && <p role="alert" className="rounded-xl bg-red-50 p-3 text-sm text-red-800">{error}</p>}
-      {!rows && <button type="button" className="btn btn-secondary" disabled={busy} onClick={() => void show()}>{busy ? '…' : t.adminTitle}</button>}
+      {!rows && <button type="button" className="btn btn-secondary" disabled={busy} onClick={() => void show()}>{busy ? '…' : t.adminShow}</button>}
       {rows && rows.length === 0 && <p className="text-sm text-charcoal-muted">{t.adminEmpty}</p>}
       {rows && rows.length > 0 && (
         <ul className="divide-y divide-ivory-border">
