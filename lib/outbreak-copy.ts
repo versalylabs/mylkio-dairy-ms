@@ -10,7 +10,7 @@ export interface OutbreakCopy {
   farmsReport: (farms: number, area: string) => string;
   safety: string; notifiable: string; humanRisk: string; doThisFirst: string; callVetNow: string;
   weSeeThis: string; notHere: string; counts: (also: number, notHere: number) => string; youReported: string; answerSaved: string;
-  yourReports: string; withdraw: string; withdrawConfirm: string; reportedSigns: (n: number) => string;
+  yourReports: string; withdraw: string; withdrawConfirm: string;
   // the report
   reportButton: string; formTitle: string; formIntro: string; tickSigns: string; maxSigns: string; animals: string; days: string; seenOn: string;
   vetSeen: string; vetYes: string; vetCalled: string; vetNo: string; submit: string; sending: string; sent: string; needSign: string;
@@ -38,7 +38,6 @@ export const OUTBREAK_COPY: Record<Lang, OutbreakCopy> = {
     counts: (also, notHere) => `${also} say they see this too · ${notHere} say not here`,
     youReported: 'Your farm reported this.', answerSaved: 'Your answer is counted. Nobody is named.',
     yourReports: 'Your reports this week', withdraw: 'Withdraw', withdrawConfirm: 'Withdraw this report? It stops being counted in the alerts.',
-    reportedSigns: (n) => (n === 1 ? '1 sign' : `${n} signs`),
     reportButton: 'Report signs on my farm', formTitle: 'Report signs on your farm',
     formIntro: 'Tell your group what you are seeing so neighbours can watch for it. Members see only the area and the signs, never your farm. Only this group’s admin can see which farm made a report, to follow up with you.',
     tickSigns: 'Which signs do you see?', maxSigns: 'Choose up to 8 signs.', animals: 'How many animals?', days: 'For how many days?', seenOn: 'Date you saw it',
@@ -69,7 +68,6 @@ export const OUTBREAK_COPY: Record<Lang, OutbreakCopy> = {
     counts: (also, notHere) => `${also} wanasema wanaona hivi pia · ${notHere} wanasema si hapa`,
     youReported: 'Shamba lako liliripoti hili.', answerSaved: 'Jibu lako limehesabiwa. Hakuna anayetajwa.',
     yourReports: 'Ripoti zako wiki hii', withdraw: 'Ondoa', withdrawConfirm: 'Kuondoa ripoti hii? Itaacha kuhesabiwa kwenye tahadhari.',
-    reportedSigns: (n) => (n === 1 ? 'dalili 1' : `dalili ${n}`),
     reportButton: 'Ripoti dalili kwenye shamba langu', formTitle: 'Ripoti dalili kwenye shamba lako',
     formIntro: 'Waambie kikundi chako unachoona ili majirani wawe macho. Wanachama wanaona eneo na dalili tu, kamwe si shamba lako. Msimamizi wa kikundi hiki pekee ndiye anayeweza kuona shamba lililoripoti, ili akufuatilie.',
     tickSigns: 'Unaona dalili zipi?', maxSigns: 'Chagua hadi dalili 8.', animals: 'Wanyama wangapi?', days: 'Kwa siku ngapi?', seenOn: 'Tarehe uliyoona',

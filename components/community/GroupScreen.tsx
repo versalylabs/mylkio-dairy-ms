@@ -107,6 +107,7 @@ export function GroupScreen({ user, lang, group, canPost, farmCounty, onBack, on
     // What this phone kept of the group goes too.
     forget(user.id, part);
     forget(user.id, `alerts_${group.id}`);
+    posts.forEach((p) => forget(user.id, `thread_${p.id}`));
     onLeft();
   });
 
