@@ -178,7 +178,8 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
     document.addEventListener('visibilitychange', onVisible);
     return () => { cancelled = true; document.removeEventListener('visibilitychange', onVisible); };
   }, [communityOn, user?.id]);
-  const communityId = (a: HomeAlert) => `community-${a.groupId}-${a.sign}-${a.area.toLowerCase().replace(/[^a-z0-9]+/g, '-')}`;
+  // The farm count is in the id: dismissing "3 farms" does not hide it when it becomes 9.
+  const communityId = (a: HomeAlert) => `community-${a.groupId}-${a.sign}-${a.area.toLowerCase().replace(/[^a-z0-9]+/g, '-')}-${a.farms}`;
   const alertKey = [...drops.map((d) => d.cowId), ...flags.map((f) => f.id), ...communityAlerts.map(communityId), ...officialAlerts.map((a) => `official-${a.id}`)].join(',');
   useEffect(() => { setHiddenAlerts(prune(farmKey, alertKey ? alertKey.split(',') : [])); }, [farmKey, alertKey]);
   const shownDrops = drops.filter((d) => !isHidden(hiddenAlerts[d.cowId], todayStr));
