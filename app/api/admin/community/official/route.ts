@@ -1,5 +1,7 @@
 import { z } from 'zod';
+import { after } from 'next/server';
 import { body, endpoint, json, sameOrigin } from '@/lib/server/http';
+import { notifyOfficialAlert, quietly, webPushSender } from '@/lib/server/push';
 import { signedIn } from '@/lib/server/neon-auth';
 import { adminCreateOfficialAlert, adminListOfficialAlerts, adminWithdrawOfficialAlert } from '@/lib/server/community-api';
 import { officialAlertInput } from '@/lib/server/community-schemas';
@@ -18,7 +20,11 @@ export async function POST(request: Request) {
   return endpoint(async () => {
     sameOrigin(request);
     const { db, user } = await signedIn();
-    return json({ id: await adminCreateOfficialAlert(db, user.id, officialAlertInput.parse(await body(request))) }, 201);
+    const input = officialAlertInput.parse(await body(request));
+    const id = await adminCreateOfficialAlert(db, user.id, input);
+    const send = webPushSender();
+    if (send) after(() => quietly(() => notifyOfficialAlert(db, { id, title: input.title, sourceName: input.sourceName }, send)));
+    return json({ id }, 201);
   });
 }
 

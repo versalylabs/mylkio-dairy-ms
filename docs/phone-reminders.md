@@ -26,8 +26,17 @@ Built 24 November 2026 on branch `codex/phone-reminders`. Migration `db/migratio
 - The job sends one by one in a single run (a `shortcut:` comment in `lib/server/push.ts`); fine for a pilot's few hundred phones.
 - A notification shows the titles of reminders, which can include a cow's name and a payment: visible on a locked phone's screen if the phone shows notification text.
 - The reminders sent are those saved to the cloud; one created on a phone with no signal is included once it has synced.
-- Not built: a chosen time per farm, SMS reminders (needs a paid SMS provider), notifications for Community alerts.
+- Not built: a chosen time per farm, SMS reminders (needs a paid SMS provider).
 
 ## Tests
 
 `tests/server/push.test.ts` (against the real migrations): saving and removing phones, the 5-phone limit, which reminders each phone gets (worker without payments), nothing on an empty day, once a day, forgetting gone phones, the cron secret, and the wording.
+
+## Community alerts as notifications (migration 0016)
+
+Built 25 November 2026 on branch `codex/alert-notifications`. Uses the same phones and keys as the reminders; nothing to set up.
+
+- **Official alert:** as soon as staff post one, every phone (owner, manager or worker) of every farm in a group of that county gets "Official alert: <title>" with the source. Each alert is its own notification. A withdrawn or expired alert reaches nobody.
+- **Outbreak report:** the phones of the group's *other* farms in the *same county* as the report get "Outbreak alert: <area>" with the group, the sign, and "Guidance from neighbours, not a diagnosis. Call a vet if you are worried." Only for a sign **new in that area this week**: later reports of the same thing change the count in the app but do not ring every phone again. The reporting farm is never notified. (Reporting stays closed on live farms until a vet approves the guide, so in practice only official alerts are sent on production for now.)
+- Sent right after the request with Next.js `after()`, so posting is never slowed or failed by a phone; a failure is logged. Phones reported gone are forgotten, as for reminders.
+- Tests: `tests/server/alert-notifications.test.ts`.

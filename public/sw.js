@@ -86,7 +86,7 @@ self.addEventListener('push', (event) => {
   let message = { title: 'Mylkio', body: '', url: '/' };
   try { message = { ...message, ...event.data.json() }; } catch { /* a push without readable data still shows a plain notice */ }
   event.waitUntil(self.registration.showNotification(message.title, {
-    body: message.body, icon: '/icon.svg', badge: '/icon.svg', tag: 'mylkio-reminders', data: { url: message.url },
+    body: message.body, icon: '/icon.svg', badge: '/icon.svg', tag: message.tag || 'mylkio-reminders', data: { url: message.url },
   }));
 });
 

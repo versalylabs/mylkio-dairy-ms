@@ -6,6 +6,7 @@ import type { Db } from './farm-api';
 import { ApiError } from './errors';
 import { SUPPORT_EMAIL } from '@/lib/contact';
 import { digestMessage, type DigestMessage, type DigestReminder, type Lang } from '@/lib/reminder-push';
+import { officialMessage, outbreakMessage } from '@/lib/alert-push';
 
 export interface PushTarget { endpoint: string; keys: { p256dh: string; auth: string } }
 
@@ -49,23 +50,47 @@ export interface RunResult { sent: number; dropped: number; failed: number }
  * push service says are gone (404 or 410). Any other failure is left for tomorrow's run. `day` is today in Nairobi.
  * shortcut: sends one by one in a single run, fine for a pilot's few hundred phones; batch it if it nears the time limit.
  */
-export async function sendMorningReminders(db: Db, day: string, send: Sender): Promise<RunResult> {
-  const rows = await db.query<{ subscription_id: string; endpoint: string; p256dh: string; auth: string; language: string; reminders: DigestReminder[] }>(
-    'select * from public.push_digest_due($1::date)', [day]);
+type Row = { subscription_id: string; endpoint: string; p256dh: string; auth: string; language: string };
+const langOf = (row: Row): Lang => (row.language === 'sw' ? 'sw' : 'en');
+
+/** Sends each row its message, forgets phones the push service says are gone, and returns the ids that were sent. */
+async function deliver<R extends Row>(db: Db, rows: R[], messageFor: (row: R) => DigestMessage, send: Sender) {
   const sent: string[] = []; const gone: string[] = []; let failed = 0;
   for (const row of rows) {
-    const lang: Lang = row.language === 'sw' ? 'sw' : 'en';
     try {
-      await send({ endpoint: row.endpoint, keys: { p256dh: row.p256dh, auth: row.auth } }, digestMessage(row.reminders, lang, day));
+      await send({ endpoint: row.endpoint, keys: { p256dh: row.p256dh, auth: row.auth } }, messageFor(row));
       sent.push(row.subscription_id);
     } catch (error) {
       const status = (error as { statusCode?: number } | null)?.statusCode;
       if (status === 404 || status === 410) gone.push(row.subscription_id); else failed++;
     }
   }
-  if (sent.length) await db.query('select public.mark_push_sent($1::uuid[], $2::date)', [sent, day]);
   if (gone.length) await db.query('select public.drop_push_subscriptions($1::uuid[])', [gone]);
-  return { sent: sent.length, dropped: gone.length, failed };
+  return { sent, result: { sent: sent.length, dropped: gone.length, failed } };
+}
+
+export async function sendMorningReminders(db: Db, day: string, send: Sender): Promise<RunResult> {
+  const rows = await db.query<Row & { reminders: DigestReminder[] }>('select * from public.push_digest_due($1::date)', [day]);
+  const { sent, result } = await deliver(db, rows, (row) => digestMessage(row.reminders, langOf(row), day), send);
+  if (sent.length) await db.query('select public.mark_push_sent($1::uuid[], $2::date)', [sent, day]);
+  return result;
+}
+
+/** Right after staff post an official alert: every phone of every farm in a group of that county. */
+export async function notifyOfficialAlert(db: Db, alert: { id: string; title: string; sourceName: string }, send: Sender): Promise<RunResult> {
+  const rows = await db.query<Row>('select * from public.push_targets_for_official($1)', [alert.id]);
+  return (await deliver(db, rows, (row) => officialMessage(alert, langOf(row)), send)).result;
+}
+
+/** Right after an outbreak report: the group's other farms in that county, only for signs new in that area this week. */
+export async function notifyOutbreak(db: Db, postId: string, send: Sender): Promise<RunResult> {
+  const rows = await db.query<Row & { area: string; group_name: string; signs: string[] }>('select * from public.push_targets_for_outbreak($1)', [postId]);
+  return (await deliver(db, rows, (row) => outbreakMessage(row.area, row.group_name, row.signs, langOf(row)), send)).result;
+}
+
+/** Runs a notification job after the response is sent; a failure is logged, never shown to the person who posted. */
+export async function quietly(job: () => Promise<unknown>): Promise<void> {
+  try { await job(); } catch (error) { console.error('Mylkio alert notification failed:', (error as Error)?.message ?? error); }
 }
 
 /** Vercel Cron sends "Authorization: Bearer <CRON_SECRET>". Anything else is refused, and so is a missing or short secret. */

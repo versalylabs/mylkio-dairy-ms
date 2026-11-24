@@ -4,7 +4,7 @@
 export type Lang = 'en' | 'sw';
 
 export interface DigestReminder { title: string; type: string; dueDate: string }
-export interface DigestMessage { title: string; body: string; url: string }
+export interface DigestMessage { title: string; body: string; url: string; tag?: string }
 
 /** How many reminder titles the notification lists before "and N more". */
 export const DIGEST_LISTED = 3;
