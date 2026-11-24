@@ -294,3 +294,16 @@ describe('reporting stays closed until a veterinarian has approved the guide', (
     expect(outbreakReportsOpen(true)).toBe(true);
   });
 });
+
+describe('old reports are really deleted', () => {
+  it('removes reports older than 90 days when any farm opens Home, not only when someone reports', async () => {
+    await clearReports();
+    await createOutbreakReport(db, 'bob', g.id, report());
+    await answerAlert(db, 'cyn', g.id, 'rongai', 'blisters_mouth', 'also');
+    await pg.query(`update public.group_posts set created_at = now() - interval '91 days' where kind = 'outbreak'`);
+    await pg.query(`update public.group_alert_answers set answered_at = now() - interval '31 days'`);
+    await homeAlerts(db, 'dan');
+    expect((await pg.query(`select count(*)::int as n from public.group_posts where kind = 'outbreak'`)).rows[0]).toEqual({ n: 0 });
+    expect((await pg.query(`select count(*)::int as n from public.group_alert_answers`)).rows[0]).toEqual({ n: 0 });
+  });
+});

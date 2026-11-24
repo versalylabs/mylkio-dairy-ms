@@ -4,7 +4,6 @@ import { Phone, Send } from 'lucide-react';
 import { OUTBREAK_COPY, type Lang } from '@/lib/outbreak-copy';
 import { CommunityError, communityCall } from '@/lib/community-client';
 import { REPORT_LIMITS, flagsForSigns, signGroups, type VetSeen } from '@/lib/community-outbreak';
-import { CALL_A_VET_NOW, REPORTING_NOTE } from '@/lib/vet/red-flags';
 import { contactsFor } from '@/lib/vet/contacts';
 import { telHref } from '@/lib/vet/phone';
 import { addDays, farmToday } from '@/lib/dates';
@@ -55,7 +54,7 @@ export function ReportForm({ lang, groupId, farmCounty, onCancel, onSent }: {
       <div>
         <h3 id="report-heading" className="text-lg font-bold text-charcoal">{t.formTitle}</h3>
         <p className="mt-1 text-sm text-charcoal-light">{t.formIntro}</p>
-        <p className="mt-2 rounded-xl bg-rose-50 p-3 text-sm font-semibold text-rose-900">{CALL_A_VET_NOW}</p>
+        <p className="mt-2 rounded-xl bg-rose-50 p-3 text-sm font-semibold text-rose-900">{t.callVetNow}</p>
       </div>
 
       {error && <p role="alert" className="rounded-xl bg-red-50 p-3 text-sm text-red-800">{error}</p>}
@@ -125,7 +124,7 @@ export function ReportForm({ lang, groupId, farmCounty, onCancel, onSent }: {
         <h4 className="text-sm font-bold text-charcoal">{t.reportingTitle}</h4>
         <p className="text-sm text-charcoal">{t.reportingNote}</p>
         {guide.notifiable && <p className="text-sm font-semibold text-rose-900">{t.notifiable}</p>}
-        {contacts ? (
+        {contacts && (
           <div className="space-y-2">
             <p className="text-xs font-semibold uppercase tracking-wider text-charcoal-muted">{t.reportingContacts}</p>
             <ul className="space-y-2">
@@ -138,7 +137,7 @@ export function ReportForm({ lang, groupId, farmCounty, onCancel, onSent }: {
               ))}
             </ul>
           </div>
-        ) : <p className="text-sm text-charcoal-light">{REPORTING_NOTE}</p>}
+        )}
       </div>
 
       <div className="flex flex-wrap gap-2">

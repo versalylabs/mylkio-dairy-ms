@@ -99,6 +99,7 @@ export function GroupScreen({ user, lang, group, canPost, farmCounty, onBack, on
     await communityCall(`/api/community/groups/${group.id}`, { method: 'DELETE', body: { deletePosts: alsoDelete } });
     // What this phone kept of the group goes too.
     forget(user.id, part);
+    forget(user.id, `alerts_${group.id}`);
     onLeft();
   });
 

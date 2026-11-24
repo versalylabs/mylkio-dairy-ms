@@ -141,6 +141,14 @@ begin
   return created;
 end $$;
 
+-- Old reports and answers are not kept: reports 90 days, answers 30 days. Runs when a report is made and whenever a farm
+-- opens Home (my_group_alerts), so it happens at least daily while anyone uses Community, as the Privacy notice says.
+create function public.purge_outbreak_data() returns void
+language sql as $$
+  delete from public.group_posts where kind = 'outbreak' and created_at < now() - interval '90 days';
+  delete from public.group_alert_answers where answered_at < now() - interval '30 days';
+$$;
+
 -- ───────────── Making a report (owner and manager of a member farm) ─────────────
 
 -- The sign ids are checked against the vet guide's list by the server (the list lives in the app); the database checks their
@@ -176,9 +184,7 @@ begin
           jsonb_build_object('signs', to_jsonb(p_signs), 'animals', p_animals, 'days', p_days, 'seenOn', p_seen_on, 'vetSeen', p_vet_seen, 'county', left(coalesce(county, place), 120)))
   returning id into created;
 
-  -- Old reports and answers are not kept: reports 90 days, answers 30 days.
-  delete from public.group_posts where kind = 'outbreak' and created_at < now() - interval '90 days';
-  delete from public.group_alert_answers where answered_at < now() - interval '30 days';
+  perform public.purge_outbreak_data();
   return created;
 end $$;
 
@@ -232,10 +238,11 @@ end $$;
 
 -- For the Home screen: the open alerts, across all of a farm's groups, in the farm's own county, that it did not report itself.
 create function public.my_group_alerts(p_actor text) returns jsonb
-language plpgsql stable as $$
+language plpgsql as $$
 declare farm uuid; my_county text;
 begin
   farm := public.community_farm(p_actor);
+  perform public.purge_outbreak_data();
   select lower(btrim(f.data ->> 'county')) into my_county from public.farms f where f.id = farm;
   return coalesce((
     select jsonb_agg(x.item order by (x.item ->> 'farms')::int desc, x.item ->> 'latestAt' desc)

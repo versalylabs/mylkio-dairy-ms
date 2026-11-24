@@ -6,7 +6,6 @@ import { REFRESH_SECONDS, agoLabel } from '@/lib/community';
 import { OUTBREAK_COPY, type Lang } from '@/lib/outbreak-copy';
 import { CommunityError, communityCall, keep, readKept } from '@/lib/community-client';
 import { outbreakReportsOpen, redFlagsForSign, signLabel, type AlertAnswer, type AlertCluster, type GroupAlerts } from '@/lib/community-outbreak';
-import { CALL_A_VET_NOW } from '@/lib/vet/red-flags';
 import { URGENCY_PHRASE } from '@/lib/vet/checker';
 import { ReportForm } from './ReportForm';
 
@@ -105,7 +104,7 @@ export function OutbreakAlerts({ user, lang, groupId, canPost, farmCounty }: {
                     <ul className="mt-1 list-disc space-y-1 pl-5 text-sm text-charcoal">{flag.doNow.map((step) => <li key={step}>{step}</li>)}</ul>
                   </div>
                 ))}
-                {flags.length === 0 && <p className="text-sm text-charcoal-light">{CALL_A_VET_NOW}</p>}
+                {flags.length === 0 && <p className="text-sm text-charcoal-light">{t.callVetNow}</p>}
                 {notifiable && <p className="flex items-start gap-2 text-sm font-semibold text-rose-900"><AlertTriangle className="mt-0.5 h-4 w-4 shrink-0" aria-hidden="true" />{t.notifiable}{humanRisk ? ` ${t.humanRisk}` : ''}</p>}
 
                 <p className="text-sm text-charcoal-light">{t.counts(c.also, c.notHere)}</p>
