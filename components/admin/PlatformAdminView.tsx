@@ -3,6 +3,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import type { Subscription } from '@/types';
 import { VetDirectoryAdmin } from './VetDirectoryAdmin';
 import { CommunityAdmin } from './CommunityAdmin';
+import { FlagQueueAdmin, OfficialAlertsAdmin } from './CommunityModerationAdmin';
 import { BillingBoard } from './BillingBoard';
 import { AccountBillingDialog } from './AccountBillingDialog';
 import { WebsiteContentAdmin } from './WebsiteContentAdmin';
@@ -259,7 +260,7 @@ export function PlatformAdminView({ onLogout }: Props) {
 
     {tab === 'vets' && <VetDirectoryAdmin />}
 
-    {tab === 'community' && <CommunityAdmin />}
+    {tab === 'community' && <div className="space-y-10"><FlagQueueAdmin /><OfficialAlertsAdmin /><CommunityAdmin /></div>}
 
     {tab === 'website' && <WebsiteContentAdmin />}
 

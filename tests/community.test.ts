@@ -1,10 +1,10 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { readFileSync } from 'node:fs';
 import path from 'node:path';
-import { COMMUNITY_LIMITS, agoLabel, charsLeft, cleanText, communityIncluded, groupLink, hasBadCharacters, newGroupCode, normaliseGroupCode } from '@/lib/community';
+import { COMMUNITY_LIMITS, FLAG_REASONS, agoLabel, charsLeft, cleanText, communityIncluded, groupLink, hasBadCharacters, newGroupCode, normaliseGroupCode } from '@/lib/community';
 import { COMMUNITY_COPY } from '@/lib/community-copy';
 import { CommunityError, communityCall, describeError } from '@/lib/community-client';
-import { groupInput, inviteInput, joinInput, leaveInput, postInput, replyInput } from '@/lib/server/community-schemas';
+import { flagInput, groupInput, inviteInput, joinInput, leaveInput, officialAlertInput, postInput, replyInput } from '@/lib/server/community-schemas';
 import { PRIVACY, TERMS } from '@/lib/legal';
 import { tabsFor } from '@/lib/team';
 import { featuresFor } from '@/lib/plans';
@@ -100,6 +100,34 @@ describe('time labels', () => {
     expect(agoLabel('2026-11-21T12:00:00Z', now, 'en')).toBe('2 days ago');
     expect(agoLabel('2026-11-23T11:30:00Z', now, 'sw')).toBe('dakika 30 zilizopita');
     expect(agoLabel('2026-10-01T12:00:00Z', now, 'en')).toMatch(/Oct/);
+  });
+});
+
+describe('reporting a post and official alerts', () => {
+  const sql = readFileSync(path.resolve(__dirname, '../db/migrations/0014_community_moderation.sql'), 'utf8');
+  const id = '11111111-1111-4111-8111-111111111111';
+
+  it('offers the same report reasons the database accepts', () => {
+    expect(sql).toContain(`reason in (${FLAG_REASONS.map((r) => `'${r}'`).join(', ')})`);
+    expect(flagInput.safeParse({ postId: id, reason: 'rumour' }).success).toBe(true);
+    expect(flagInput.safeParse({ replyId: id, reason: 'spam' }).success).toBe(true);
+    expect(flagInput.safeParse({ postId: id, replyId: id, reason: 'spam' }).success).toBe(false);
+    expect(flagInput.safeParse({ postId: id, reason: 'gossip' }).success).toBe(false);
+  });
+
+  it('needs a source for an official alert, and an https link if any', () => {
+    const ok = { county: 'Nakuru', title: 'FMD confirmed', body: 'Do not move cattle.', sourceName: 'County vet office', sourceDate: '2026-11-20' };
+    expect(officialAlertInput.parse(ok)).toMatchObject({ days: 30 });
+    expect(officialAlertInput.parse({ ...ok, sourceUrl: '' }).sourceUrl).toBeUndefined();
+    expect(officialAlertInput.safeParse({ ...ok, sourceUrl: 'https://nakuru.go.ke/n' }).success).toBe(true);
+    expect(officialAlertInput.safeParse({ ...ok, sourceUrl: 'http://nakuru.go.ke/n' }).success).toBe(false);
+    expect(officialAlertInput.safeParse({ ...ok, sourceName: '' }).success).toBe(false);
+    expect(officialAlertInput.safeParse({ ...ok, days: 91 }).success).toBe(false);
+  });
+
+  it('tells farms in the Privacy notice that staff see reported posts', () => {
+    const text = PRIVACY.sections.flatMap((s) => [...(s.paragraphs ?? []), ...(s.bullets ?? [])]).join('\n');
+    expect(text).toMatch(/except a post or reply that a member reports to us/);
   });
 });
 

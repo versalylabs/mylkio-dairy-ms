@@ -2,6 +2,8 @@
 // translator can read it in one place and a test can check nothing is missing (tests/app-copy.test.ts).
 // Kiswahili here is a first draft and needs a native speaker, like the rest (docs/kiswahili.md).
 
+import type { FlagReason } from './community';
+
 export type Lang = 'en' | 'sw';
 
 export interface CommunityCopy {
@@ -24,6 +26,10 @@ export interface CommunityCopy {
   loading: string; loadError: string; actionError: string; offlineShowing: string; offlineWrite: string;
   // what the server said, in the farmer's language
   badInvite: string; tooMany: string; groupFull: string; tooManyGroups: string; noAccess: string; notInPlan: string;
+  // step 3: reporting a post, the group admin, official alerts, unread
+  report: string; reportWhy: string; reasons: Record<FlagReason, string>; reportSend: string; reported: string;
+  adminRemove: string; adminRemoveConfirm: string; membersTitle: string; membersIntro: string; showMembers: string; takeOut: string; takeOutConfirm: (farm: string) => string;
+  unread: (n: number) => string; officialTitle: string; officialBadge: string; officialSource: (source: string, date: string) => string; officialRead: string;
 }
 
 export const COMMUNITY_COPY: Record<Lang, CommunityCopy> = {
@@ -58,6 +64,14 @@ export const COMMUNITY_COPY: Record<Lang, CommunityCopy> = {
     tooMany: 'You are posting a lot. Please wait a little before posting again.',
     groupFull: 'This group is full.', tooManyGroups: 'A farm can be in up to 5 groups. Leave one before joining another.',
     noAccess: 'You cannot do that in this group. Only the farm owner or a manager can post or join.', notInPlan: 'Community is part of the Farm Pro plan.',
+    report: 'Report', reportWhy: 'Why are you reporting this to Mylkio?',
+    reasons: { rumour: 'A rumour that a farm or person has a disease', abuse: 'Rude or abusive', private: 'Someone\'s private details', spam: 'Selling or spam', other: 'Something else' },
+    reportSend: 'Send to Mylkio', reported: 'Thank you. Mylkio staff will look at it. The writer is not told who reported it.',
+    adminRemove: 'Remove', adminRemoveConfirm: 'Remove this for everyone in the group? This cannot be undone.',
+    membersTitle: 'Farms in this group', membersIntro: 'Only you see this list, as the group\'s admin.', showMembers: 'Show farms', takeOut: 'Take out',
+    takeOutConfirm: (farm) => `Take ${farm} out of this group? They lose access at once and need a new invitation to return.`,
+    unread: (n) => (n === 1 ? '1 new' : `${n} new`), officialTitle: 'Official alerts', officialBadge: 'Official',
+    officialSource: (source, date) => `Source: ${source}, ${date}`, officialRead: 'Read the notice',
   },
   sw: {
     title: 'Jamii',
@@ -90,5 +104,13 @@ export const COMMUNITY_COPY: Record<Lang, CommunityCopy> = {
     tooMany: 'Unatuma jumbe nyingi. Tafadhali subiri kidogo kabla ya kutuma tena.',
     groupFull: 'Kikundi hiki kimejaa.', tooManyGroups: 'Shamba linaweza kuwa kwenye vikundi hadi 5. Ondoka kwenye kimoja kabla ya kujiunga na kingine.',
     noAccess: 'Huwezi kufanya hivyo kwenye kikundi hiki. Mmiliki wa shamba au meneja pekee ndiye anayeweza kutuma ujumbe au kujiunga.', notInPlan: 'Jamii ni sehemu ya mpango wa Farm Pro.',
+    report: 'Ripoti', reportWhy: 'Kwa nini unaripoti hili kwa Mylkio?',
+    reasons: { rumour: 'Uvumi kwamba shamba au mtu ana ugonjwa', abuse: 'Matusi au lugha mbaya', private: 'Taarifa za faragha za mtu', spam: 'Matangazo ya biashara au barua taka', other: 'Kitu kingine' },
+    reportSend: 'Tuma kwa Mylkio', reported: 'Asante. Wafanyakazi wa Mylkio watalikagua. Mwandishi haambiwi aliyeripoti.',
+    adminRemove: 'Ondoa', adminRemoveConfirm: 'Kuondoa hili kwa kila mtu kwenye kikundi? Haiwezi kurudishwa.',
+    membersTitle: 'Mashamba kwenye kikundi hiki', membersIntro: 'Wewe pekee unaona orodha hii, kama msimamizi wa kikundi.', showMembers: 'Onyesha mashamba', takeOut: 'Ondoa',
+    takeOutConfirm: (farm) => `Kumwondoa ${farm} kwenye kikundi hiki? Atapoteza ufikiaji mara moja na atahitaji mwaliko mpya ili arudi.`,
+    unread: (n) => `mpya ${n}`, officialTitle: 'Tahadhari rasmi', officialBadge: 'Rasmi',
+    officialSource: (source, date) => `Chanzo: ${source}, ${date}`, officialRead: 'Soma tangazo',
   },
 };

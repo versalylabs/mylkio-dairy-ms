@@ -27,6 +27,8 @@ export const REFRESH_SECONDS = 60;
 export interface GroupSummary {
   id: string; name: string; kind: GroupKind; county: string; description: string | null; role: GroupRole;
   members: number; lastPostAt: string | null;
+  /** Discussion posts from other farms and official alerts since this person last opened the group. */
+  unread: number;
 }
 export interface GroupList { canPost: boolean; groups: GroupSummary[] }
 
@@ -35,7 +37,7 @@ export interface PostItem {
   authorName: string; farmName: string; mine: boolean; replyCount: number;
 }
 export interface GroupFeed {
-  group: Omit<GroupSummary, 'lastPostAt'>; canPost: boolean; posts: PostItem[]; more: boolean;
+  group: Omit<GroupSummary, 'lastPostAt' | 'unread'>; canPost: boolean; posts: PostItem[]; more: boolean;
 }
 export interface ReplyItem { id: string; body: string; createdAt: string; authorName: string; farmName: string; mine: boolean }
 export interface PostThread {
@@ -47,6 +49,21 @@ export interface AdminGroup {
   members: number; openInvites: number;
 }
 export interface AdminInvite { id: string; role: GroupRole; label: string | null; uses: number; maxUses: number; createdAt: string; expiresAt: string }
+/** Why a post was reported to staff. Mirrors the check in 0014. */
+export type FlagReason = 'rumour' | 'abuse' | 'private' | 'spam' | 'other';
+export const FLAG_REASONS: readonly FlagReason[] = ['rumour', 'abuse', 'private', 'spam', 'other'];
+
+/** A source-cited alert from Mylkio staff to every group in a county. */
+export interface OfficialAlert { id: string; title: string; body: string; sourceName: string; sourceUrl: string | null; sourceDate: string; createdAt: string; county: string }
+export interface AdminOfficialAlert extends OfficialAlert { expiresAt: string; withdrawn: boolean; active: boolean; groups: number }
+/** One reported post or reply in the staff review queue. */
+export interface AdminFlag {
+  postId: string | null; replyId: string | null; groupName: string; county: string; body: string; writtenAt: string;
+  authorName: string; farmName: string; reports: number; reasons: FlagReason[]; firstReportedAt: string;
+}
+/** A member farm as the group's admin sees it. */
+export interface GroupMemberRow { farmId: string; farmName: string; area: string; role: GroupRole; joinedAt: string }
+
 export interface AdminGroupMember { farmId: string; farmName: string; county: string | null; subCounty: string | null; role: GroupRole; joinedAt: string }
 
 /** Does this subscription include Community? The server checks this too; a hidden menu is never the protection. */

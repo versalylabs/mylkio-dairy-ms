@@ -6,6 +6,7 @@
 // and the emergency steps are DRAFT until a veterinarian approves them (lib/vet/review.ts), so reporting stays closed on
 // live farms until then (see outbreakReportsOpen): health wording is never shown to farmers before it has been checked.
 
+import type { OfficialAlert } from './community';
 import { RED_FLAGS, SIGNS, screenRedFlags, type RedFlag, type Sign } from './vet/red-flags';
 import { draftContentAllowed, visibleEntries } from './vet/review';
 
@@ -32,7 +33,7 @@ export interface AlertCluster {
   iReported: boolean; also: number; notHere: number; myAnswer: AlertAnswer | null;
 }
 export interface MyReport { id: string; createdAt: string; signs: string[]; animals: number }
-export interface GroupAlerts { canAnswer: boolean; clusters: AlertCluster[]; mine: MyReport[] }
+export interface GroupAlerts { canAnswer: boolean; official: OfficialAlert[]; clusters: AlertCluster[]; mine: MyReport[] }
 export interface HomeAlert { groupId: string; groupName: string; area: string; sign: string; farms: number; latestAt: string }
 
 /** What the group's admin sees for follow-up: the only place a reporting farm is named. */

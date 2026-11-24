@@ -10,6 +10,8 @@ import type { AppTab } from '@/lib/team';
 import { OUTBREAK_COPY } from '@/lib/outbreak-copy';
 import { communityCall, keep, readKept } from '@/lib/community-client';
 import { signLabel, type HomeAlert } from '@/lib/community-outbreak';
+import type { OfficialAlert } from '@/lib/community';
+import { COMMUNITY_COPY } from '@/lib/community-copy';
 import { milkDropAlerts } from '@/lib/milk-drop';
 import { fertilityFlags } from '@/lib/fertility';
 import { FERTILITY_COPY } from '@/lib/fertility-copy';
@@ -156,13 +158,19 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
   const outText = OUTBREAK_COPY[lang];
   const communityOn = !!user && user.id !== 'usr-demo-01' && canUse(user.subscription, 'community');
   const [communityAlerts, setCommunityAlerts] = useState<HomeAlert[]>([]);
+  const [officialAlerts, setOfficialAlerts] = useState<OfficialAlert[]>([]);
   useEffect(() => {
-    if (!communityOn || !user) { setCommunityAlerts([]); return; }
+    if (!communityOn || !user) { setCommunityAlerts([]); setOfficialAlerts([]); return; }
     setCommunityAlerts(readKept<HomeAlert[]>(user.id, 'home_alerts') ?? []);
+    setOfficialAlerts(readKept<OfficialAlert[]>(user.id, 'home_official') ?? []);
     let cancelled = false;
     const refresh = () => {
-      communityCall<{ alerts: HomeAlert[] }>('/api/community/alerts')
-        .then((result) => { if (!cancelled) { setCommunityAlerts(result.alerts); keep(user.id, 'home_alerts', result.alerts); } })
+      communityCall<{ alerts: HomeAlert[]; official?: OfficialAlert[] }>('/api/community/alerts')
+        .then((result) => {
+          if (cancelled) return;
+          setCommunityAlerts(result.alerts); keep(user.id, 'home_alerts', result.alerts);
+          setOfficialAlerts(result.official ?? []); keep(user.id, 'home_official', result.official ?? []);
+        })
         .catch(() => { /* no signal, or no groups: keep what is shown */ });
     };
     refresh();
@@ -171,12 +179,14 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
     return () => { cancelled = true; document.removeEventListener('visibilitychange', onVisible); };
   }, [communityOn, user?.id]);
   const communityId = (a: HomeAlert) => `community-${a.groupId}-${a.sign}-${a.area.toLowerCase().replace(/[^a-z0-9]+/g, '-')}`;
-  const alertKey = [...drops.map((d) => d.cowId), ...flags.map((f) => f.id), ...communityAlerts.map(communityId)].join(',');
+  const alertKey = [...drops.map((d) => d.cowId), ...flags.map((f) => f.id), ...communityAlerts.map(communityId), ...officialAlerts.map((a) => `official-${a.id}`)].join(',');
   useEffect(() => { setHiddenAlerts(prune(farmKey, alertKey ? alertKey.split(',') : [])); }, [farmKey, alertKey]);
   const shownDrops = drops.filter((d) => !isHidden(hiddenAlerts[d.cowId], todayStr));
   const shownFlags = flags.filter((f) => !isHidden(hiddenAlerts[f.id], todayStr));
   // One item for Community, the alert with the most farms behind it.
   const topCommunity = communityAlerts.find((a) => !isHidden(hiddenAlerts[communityId(a)], todayStr));
+  const topOfficial = [...officialAlerts].sort((a, b) => b.createdAt.localeCompare(a.createdAt)).find((a) => !isHidden(hiddenAlerts[`official-${a.id}`], todayStr));
+  const offText = COMMUNITY_COPY[lang];
   const weekly = money && canUse(user?.subscription, 'weeklySummary')
     ? weeklySummary({ milk: milkEntries, deliveries, payments, health: healthEvents, breeding: breedingEvents, reminders, buyerBalances: buyers.map((b) => b.currentBalance), today: todayStr })
     : null;
@@ -371,17 +381,30 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
             </div>
           </div>
           <span className="shrink-0 text-sm font-bold px-2.5 py-0.5 rounded-full bg-amber-100 text-amber-900">
-            {openReminders.length + shownDrops.length + shownFlags.length + (topCommunity ? 1 : 0)} {sw ? 'wazi' : 'open'}
+            {openReminders.length + shownDrops.length + shownFlags.length + (topCommunity ? 1 : 0) + (topOfficial ? 1 : 0)} {sw ? 'wazi' : 'open'}
           </span>
         </div>
 
-        {openReminders.length === 0 && shownDrops.length === 0 && shownFlags.length === 0 && !topCommunity && (
+        {openReminders.length === 0 && shownDrops.length === 0 && shownFlags.length === 0 && !topCommunity && !topOfficial && (
           <p className="rounded-2xl bg-[#EEF4EC] p-4 text-sm font-medium text-[#2B4A3B]">
             {sw ? 'Hakuna kinachohitaji umakini leo.' : 'Nothing needs your attention today.'}
           </p>
         )}
 
         <div className="space-y-2 pt-1">
+          {topOfficial && (
+            <div className="rounded-2xl border border-sage-300 bg-sage/10 p-3">
+              <button type="button" onClick={() => onNavigate('community')} aria-label={offText.officialRead} className="block w-full text-left">
+                <span className="mb-1 inline-block rounded-full bg-sage px-2 py-0.5 text-xs font-bold text-white">{offText.officialBadge.toUpperCase()}</span>
+                <span className="block text-sm font-bold text-gray-900">{topOfficial.title}</span>
+                <span className="mt-0.5 block text-xs text-gray-600">{offText.officialSource(topOfficial.sourceName, topOfficial.sourceDate)}</span>
+              </button>
+              <div className="mt-2 flex flex-wrap gap-2">
+                <button type="button" className="chip-btn" onClick={() => onNavigate('community')}>{offText.officialRead}</button>
+                <button type="button" className="chip-btn" onClick={() => setHiddenAlerts(dismissAlert(farmKey, `official-${topOfficial.id}`))}>{dropText.dismiss}</button>
+              </div>
+            </div>
+          )}
           {topCommunity && (
             <div className="rounded-2xl border border-rose-200 bg-rose-50/60 p-3">
               <button type="button" onClick={() => onNavigate('community')} aria-label={outText.homeOpen} className="block w-full text-left">

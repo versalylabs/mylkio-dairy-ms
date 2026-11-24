@@ -8,7 +8,7 @@
 import { ApiError } from './errors';
 import type { Db } from './farm-api';
 import type { AlertAnswer, GroupAlerts, HomeAlert, ReportInput, ReporterRow } from '@/lib/community-outbreak';
-import { COMMUNITY_LIMITS, type AdminGroup, type AdminGroupMember, type AdminInvite, type GroupFeed, type GroupKind, type GroupList, type GroupRole, type PostThread } from '@/lib/community';
+import { COMMUNITY_LIMITS, type AdminFlag, type AdminOfficialAlert, type FlagReason, type GroupMemberRow, type OfficialAlert, type AdminGroup, type AdminGroupMember, type AdminInvite, type GroupFeed, type GroupKind, type GroupList, type GroupRole, type PostThread } from '@/lib/community';
 
 export const COMMUNITY_PLAN_MESSAGE = 'Community groups are part of the Farm Pro plan.';
 
@@ -122,3 +122,49 @@ export async function answerAlert(db: Db, actor: string, groupId: string, areaKe
 
 export const reportersForAdmin = (db: Db, actor: string, groupId: string) =>
   one<ReporterRow[]>(db, 'select public.list_group_reports_for_admin($1, $2) as result', [actor, groupId], { denied: 'Only the admin of this group can see who reported.' });
+
+// ---- Moderation, official alerts and unread counts (migration 0014) ----
+
+/** Reports a discussion post or reply to Mylkio staff. Anyone in the group may; not their own farm's. */
+export async function flagItem(db: Db, actor: string, item: { postId?: string; replyId?: string }, reason: FlagReason): Promise<void> {
+  await run(db, 'select public.flag_group_item($1, $2, $3, $4)', [actor, item.postId ?? null, item.replyId ?? null, reason], { denied: 'You are not a member of this group.' });
+}
+
+const GROUP_ADMIN_ONLY = { denied: 'Only the admin of this group can do this.' };
+
+export async function moderateRemoveItem(db: Db, actor: string, groupId: string, item: { postId?: string; replyId?: string }): Promise<void> {
+  await run(db, 'select public.moderate_remove_item($1, $2, $3, $4)', [actor, groupId, item.postId ?? null, item.replyId ?? null], GROUP_ADMIN_ONLY);
+}
+
+export async function moderateRemoveMember(db: Db, actor: string, groupId: string, farmId: string): Promise<void> {
+  await run(db, 'select public.moderate_remove_member($1, $2, $3)', [actor, groupId, farmId], GROUP_ADMIN_ONLY);
+}
+
+export const groupMembersForAdmin = (db: Db, actor: string, groupId: string) =>
+  one<GroupMemberRow[]>(db, 'select public.list_group_members_for_admin($1, $2) as result', [actor, groupId], GROUP_ADMIN_ONLY);
+
+export async function markGroupRead(db: Db, actor: string, groupId: string): Promise<void> {
+  await run(db, 'select public.mark_group_read($1, $2)', [actor, groupId], { denied: 'You are not a member of this group.' });
+}
+
+export const myOfficialAlerts = (db: Db, actor: string) =>
+  one<OfficialAlert[]>(db, 'select public.my_official_alerts($1) as result', [actor], { denied: 'You do not have access to Community.' });
+
+export const adminListFlags = (db: Db, actor: string) => one<AdminFlag[]>(db, 'select public.admin_list_flags($1) as result', [actor], ADMIN_ONLY);
+
+export async function adminResolveFlags(db: Db, actor: string, item: { postId?: string; replyId?: string }, action: 'remove' | 'keep'): Promise<void> {
+  await run(db, 'select public.admin_resolve_flags($1, $2, $3, $4)', [actor, item.postId ?? null, item.replyId ?? null, action], ADMIN_ONLY);
+}
+
+export interface OfficialAlertInput { county: string; title: string; body: string; sourceName: string; sourceUrl?: string; sourceDate: string; days: number }
+
+export const adminCreateOfficialAlert = (db: Db, actor: string, a: OfficialAlertInput) =>
+  one<string>(db, 'select public.admin_create_official_alert($1, $2, $3, $4, $5, $6, $7::date, $8) as result',
+    [actor, a.county, a.title, a.body, a.sourceName, a.sourceUrl ?? null, a.sourceDate, a.days], ADMIN_ONLY);
+
+export const adminListOfficialAlerts = (db: Db, actor: string) =>
+  one<AdminOfficialAlert[]>(db, 'select public.admin_list_official_alerts($1) as result', [actor], ADMIN_ONLY);
+
+export async function adminWithdrawOfficialAlert(db: Db, actor: string, id: string): Promise<void> {
+  await run(db, 'select public.admin_withdraw_official_alert($1, $2)', [actor, id], ADMIN_ONLY);
+}

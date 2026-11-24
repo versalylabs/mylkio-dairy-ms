@@ -10,6 +10,8 @@ import { COMMUNITY_COPY, type Lang } from '@/lib/community-copy';
 import { CommunityError, communityCall, describeError, forget, keep, readKept } from '@/lib/community-client';
 import { OutbreakAlerts } from './OutbreakAlerts';
 import { AdminReports } from './AdminReports';
+import { AdminMembers } from './AdminMembers';
+import { ItemActions } from './ItemActions';
 
 /** The newest page replaces what is shown at the top; older posts already loaded stay below it. */
 function merge(fresh: PostItem[], existing: PostItem[]): PostItem[] {
@@ -30,6 +32,7 @@ export function GroupScreen({ user, lang, group, canPost, farmCounty, onBack, on
 }) {
   const t = COMMUNITY_COPY[lang];
   const part = `feed_${group.id}`;
+  const isAdmin = canPost && group.role === 'admin';
   const [feed, setFeed] = useState<GroupFeed | null>(() => readKept<GroupFeed>(user.id, part));
   const [posts, setPosts] = useState<PostItem[]>(() => readKept<GroupFeed>(user.id, part)?.posts ?? []);
   const [more, setMore] = useState(() => readKept<GroupFeed>(user.id, part)?.more ?? false);
@@ -57,6 +60,10 @@ export function GroupScreen({ user, lang, group, canPost, farmCounty, onBack, on
       else setError(errorText(e, lang, t.loadError));
     }
   }, [group.id, user.id, part, lang, t.loadError]);
+
+  useEffect(() => {
+    communityCall(`/api/community/groups/${group.id}/read`, { method: 'POST' }).catch(() => { /* the count just stays */ });
+  }, [group.id]);
 
   useEffect(() => {
     void load();
@@ -104,7 +111,7 @@ export function GroupScreen({ user, lang, group, canPost, farmCounty, onBack, on
   });
 
   if (thread) {
-    return <ThreadScreen user={user} lang={lang} postId={thread} canPost={canPost} onBack={() => { setThread(null); void load(); }}
+    return <ThreadScreen user={user} lang={lang} postId={thread} canPost={canPost} groupId={group.id} isAdmin={isAdmin} onBack={() => { setThread(null); void load(); }}
       onDeleted={() => { setThread(null); void load(); }} />;
   }
 
@@ -162,13 +169,16 @@ export function GroupScreen({ user, lang, group, canPost, farmCounty, onBack, on
               </div>
               <p className="mt-2 whitespace-pre-wrap break-words text-base text-charcoal">{p.body}</p>
               <button type="button" className="btn btn-secondary mt-3 !min-h-10" onClick={() => setThread(p.id)}><MessageSquare className="h-4 w-4" />{t.replies(p.replyCount)}</button>
+              <ItemActions lang={lang} groupId={group.id} item={{ postId: p.id }} mine={p.mine} isAdmin={isAdmin}
+                onRemoved={() => { setPosts((list) => list.filter((x) => x.id !== p.id)); void load(); }} />
             </li>
           ))}
         </ul>
         {more && <button type="button" className="btn btn-secondary" disabled={loadingOlder} onClick={() => void older()}>{loadingOlder ? t.loadingOlder : t.olderPosts}</button>}
       </section>
 
-      {canPost && group.role === 'admin' && <AdminReports lang={lang} groupId={group.id} />}
+      {isAdmin && <AdminReports lang={lang} groupId={group.id} />}
+      {isAdmin && <AdminMembers lang={lang} groupId={group.id} />}
 
       {canPost && (
         <section className="space-y-2 border-t border-ivory-border pt-4">
@@ -180,8 +190,8 @@ export function GroupScreen({ user, lang, group, canPost, farmCounty, onBack, on
   );
 }
 
-function ThreadScreen({ user, lang, postId, canPost, onBack, onDeleted }: {
-  user: UserAccount; lang: Lang; postId: string; canPost: boolean; onBack: () => void; onDeleted: () => void;
+function ThreadScreen({ user, lang, postId, canPost, groupId, isAdmin, onBack, onDeleted }: {
+  user: UserAccount; lang: Lang; postId: string; canPost: boolean; groupId: string; isAdmin: boolean; onBack: () => void; onDeleted: () => void;
 }) {
   const t = COMMUNITY_COPY[lang];
   const part = `thread_${postId}`;
@@ -238,6 +248,7 @@ function ThreadScreen({ user, lang, postId, canPost, onBack, onDeleted }: {
               )}
             </div>
             <p className="mt-2 whitespace-pre-wrap break-words text-base text-charcoal">{thread.post.body}</p>
+            <ItemActions lang={lang} groupId={groupId} item={{ postId }} mine={thread.post.mine} isAdmin={isAdmin} onRemoved={() => { forget(user.id, part); onDeleted(); }} />
           </article>
 
           <section aria-label={t.replies(thread.replies.length)} className="space-y-3">
@@ -258,6 +269,7 @@ function ThreadScreen({ user, lang, postId, canPost, onBack, onDeleted }: {
                     )}
                   </div>
                   <p className="mt-1 whitespace-pre-wrap break-words text-base text-charcoal">{r.body}</p>
+                  <ItemActions lang={lang} groupId={groupId} item={{ replyId: r.id }} mine={r.mine} isAdmin={isAdmin} onRemoved={() => void load()} />
                 </li>
               ))}
             </ul>

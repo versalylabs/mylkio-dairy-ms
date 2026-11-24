@@ -1,6 +1,7 @@
 'use client';
 import { useCallback, useEffect, useState } from 'react';
-import { AlertTriangle, ShieldAlert, ThumbsUp, WifiOff } from 'lucide-react';
+import { AlertTriangle, ExternalLink, Megaphone, ShieldAlert, ThumbsUp, WifiOff } from 'lucide-react';
+import { COMMUNITY_COPY } from '@/lib/community-copy';
 import type { UserAccount } from '@/types';
 import { REFRESH_SECONDS, agoLabel } from '@/lib/community';
 import { OUTBREAK_COPY, type Lang } from '@/lib/outbreak-copy';
@@ -67,8 +68,28 @@ export function OutbreakAlerts({ user, lang, groupId, canPost, farmCounty }: {
   const now = Date.now();
   const open = outbreakReportsOpen();
 
+  const official = data?.official ?? []; // a copy kept before step 3 has none
+  const c = COMMUNITY_COPY[lang];
+  const day = (iso: string) => new Date(`${iso.slice(0, 10)}T00:00:00Z`).toLocaleDateString(lang === 'sw' ? 'sw-KE' : 'en-KE', { day: 'numeric', month: 'short', year: 'numeric', timeZone: 'UTC' });
+
   return (
     <section aria-labelledby="alerts-heading" className="space-y-3">
+      {official.length > 0 && (
+        <div className="space-y-3" aria-labelledby="official-heading">
+          <h2 id="official-heading" className="flex items-center gap-2 font-display text-xl font-medium text-charcoal"><Megaphone className="h-5 w-5 text-sage" aria-hidden="true" />{c.officialTitle}</h2>
+          <ul className="space-y-3">
+            {official.map((a) => (
+              <li key={a.id} className="card border-sage-300 p-4">
+                <span className="rounded-full bg-sage px-2.5 py-0.5 text-xs font-bold text-white">{c.officialBadge}</span>
+                <p className="mt-2 text-base font-bold text-charcoal">{a.title}</p>
+                <p className="mt-1 whitespace-pre-wrap break-words text-sm text-charcoal">{a.body}</p>
+                <p className="mt-2 text-xs text-charcoal-muted">{c.officialSource(a.sourceName, day(a.sourceDate))}</p>
+                {a.sourceUrl && <a href={a.sourceUrl} target="_blank" rel="noopener noreferrer" className="mt-1 inline-flex items-center gap-1 text-sm font-semibold text-sage underline"><ExternalLink className="h-3.5 w-3.5" />{c.officialRead}</a>}
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
       <div>
         <h2 id="alerts-heading" className="flex items-center gap-2 font-display text-xl font-medium text-charcoal"><ShieldAlert className="h-5 w-5 text-gold-600" aria-hidden="true" />{t.alertsTitle}</h2>
         <p className="mt-1 text-sm text-charcoal-muted">{t.alertsIntro}</p>

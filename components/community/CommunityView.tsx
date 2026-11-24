@@ -84,7 +84,7 @@ export function CommunityView({ user, lang, farmCounty, initialCode, onCodeHandl
                 <div className="flex items-start gap-3">
                   <div className="icon-tile !h-11 !w-11"><Users className="h-5 w-5" /></div>
                   <div className="min-w-0">
-                    <p className="truncate font-bold text-charcoal">{g.name}</p>
+                    <p className="flex items-center gap-2 font-bold text-charcoal"><span className="truncate">{g.name}</span>{g.unread > 0 && <span className="shrink-0 rounded-full bg-sage px-2 py-0.5 text-xs font-bold text-white">{t.unread(g.unread)}</span>}</p>
                     <p className="text-sm text-charcoal-muted">{GROUP_KIND_LABEL[g.kind][lang]} · {g.county} · {t.members(g.members)}</p>
                     {g.role === 'admin' && <p className="mt-1 inline-flex items-center gap-1 text-xs font-semibold text-sage"><ShieldCheck className="h-3.5 w-3.5" />{t.groupAdmin}</p>}
                     <p className="mt-1 flex items-center gap-1 text-xs text-charcoal-muted"><MessageSquare className="h-3.5 w-3.5" />{g.lastPostAt ? t.lastActive(agoLabel(g.lastPostAt, Date.now(), lang)) : t.noPostsYet}</p>
