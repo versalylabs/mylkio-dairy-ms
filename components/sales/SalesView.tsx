@@ -8,6 +8,8 @@ import { StatementsPanel } from './StatementsPanel';
 import { BillsPanel } from './BillsPanel';
 import { AccountStatementDialog, BillDialog } from './PrintableDocuments';
 import { AllocatePaymentDialog } from './AllocatePaymentDialog';
+import { MoneyOwedPanel } from './MoneyOwedPanel';
+import { OWED_COPY } from '@/lib/owed-copy';
 import { translations } from '@/lib/translations';
 import { farmToday, formatFarmDate, monthRange } from '@/lib/dates';
 import { acceptedLitres, cashReceived, deliveryCharge, possibleDuplicatePayments, salesInRange, summariseBalances } from '@/lib/ledger';
@@ -30,6 +32,7 @@ import {
   FileText,
   Receipt,
   Link2,
+  Clock,
 } from 'lucide-react';
 
 interface SalesViewProps {
@@ -52,6 +55,7 @@ interface SalesViewProps {
   onCreateBill: (buyerId: string, range: { from: string; to: string }, dueDate?: string) => void;
   onVoidBill: (id: string, reason: string) => void;
   onAllocate: (paymentId: string, target: OpenTarget, amount: number) => boolean;
+  subscription?: { plan: string; status?: string; renewsAt?: string } | null;
   lang: Language;
 }
 
@@ -75,10 +79,11 @@ export const SalesView: React.FC<SalesViewProps> = ({
   onCreateBill,
   onVoidBill,
   onAllocate,
+  subscription,
   lang,
 }) => {
   const t = translations[lang];
-  const [activeTab, setActiveTab] = useState<'deliveries' | 'payments' | 'statements' | 'bills' | 'buyers'>('deliveries');
+  const [activeTab, setActiveTab] = useState<'deliveries' | 'payments' | 'owed' | 'statements' | 'bills' | 'buyers'>('deliveries');
   const [statementOpen, setStatementOpen] = useState(false);
   const [accountBuyer, setAccountBuyer] = useState<Buyer | null>(null);
   const [printBill, setPrintBill] = useState<CustomerBill | null>(null);
@@ -237,6 +242,14 @@ export const SalesView: React.FC<SalesViewProps> = ({
           <span className="count-badge">
             {payments.filter((p) => !p.voidedAt).length}
           </span>
+        </button>
+
+        <button
+          onClick={() => setActiveTab('owed')}
+          className={`tab-btn ${activeTab === 'owed' ? 'tab-btn-active' : ''}`}
+        >
+          <Clock className="w-4 h-4" />
+          <span>{OWED_COPY[lang].tab}</span>
         </button>
 
         {(['statements', 'bills'] as const).map((tab) => (
@@ -499,6 +512,10 @@ export const SalesView: React.FC<SalesViewProps> = ({
             ? `KSh ${totalUnallocated.toLocaleString()} ya malipo haijaunganishwa na taarifa au bili. Bado inapunguza salio la mnunuzi.`
             : `KSh ${totalUnallocated.toLocaleString()} of payments is not linked to a statement or bill. It still reduces each buyer's balance.`}
         </p>
+      )}
+
+      {activeTab === 'owed' && (
+        <MoneyOwedPanel buyers={buyers} deliveries={deliveries} payments={payments} statements={statements} subscription={subscription} lang={lang} />
       )}
 
       {activeTab === 'statements' && (

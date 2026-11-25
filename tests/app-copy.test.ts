@@ -9,6 +9,7 @@ import { RESET_COPY } from '@/lib/password-reset';
 import { FEATURE_NAMES, PLAN_TEXT } from '@/lib/plan-copy';
 import { PRODUCED_COPY } from '@/lib/produced-copy';
 import { COST_COPY } from '@/lib/cost-copy';
+import { OWED_COPY } from '@/lib/owed-copy';
 import { DROP_COPY } from '@/lib/drop-copy';
 import { FERTILITY_COPY } from '@/lib/fertility-copy';
 import { WEEKLY_COPY } from '@/lib/weekly-copy';
@@ -31,7 +32,7 @@ function sameShape(en: unknown, sw: unknown, where: string) {
 }
 
 describe('every screen has both languages, entry for entry', () => {
-  for (const [name, copy] of Object.entries({ BILLING_COPY, STORAGE_COPY, SYNC_COPY, VET_COPY, AUTH_COPY, TEAM_COPY, RESET_COPY, PLAN_TEXT, FEATURE_NAMES, PRODUCED_COPY, COST_COPY, DROP_COPY, FERTILITY_COPY, WEEKLY_COPY, REPORT_COPY, START_COPY, COMMUNITY_COPY, OUTBREAK_COPY, PUSH_COPY })) {
+  for (const [name, copy] of Object.entries({ BILLING_COPY, STORAGE_COPY, SYNC_COPY, VET_COPY, AUTH_COPY, TEAM_COPY, RESET_COPY, PLAN_TEXT, FEATURE_NAMES, PRODUCED_COPY, COST_COPY, OWED_COPY, DROP_COPY, FERTILITY_COPY, WEEKLY_COPY, REPORT_COPY, START_COPY, COMMUNITY_COPY, OUTBREAK_COPY, PUSH_COPY })) {
     it(name, () => sameShape(copy.en, copy.sw, name));
   }
 });

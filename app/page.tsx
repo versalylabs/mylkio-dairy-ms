@@ -635,6 +635,7 @@ export default function Home() {
           onCreateBill={handleCreateBill}
           onVoidBill={(id, reason) => run(() => AppStorage.voidBill(id, reason, currentTargetFarmId), lang === 'sw' ? 'Bili imebatilishwa' : 'Bill voided. Its deliveries can be billed again.')}
           onAllocate={handleAllocate}
+          subscription={currentUser?.subscription}
           lang={lang}
         />
       )}
