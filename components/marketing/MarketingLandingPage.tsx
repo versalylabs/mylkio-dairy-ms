@@ -7,8 +7,6 @@ import { hasDialableNumber } from '@/lib/contact';
 import { planFeatureLines } from '@/lib/plan-copy';
 import {
   AlertTriangle,
-  ArrowRight,
-  Calendar,
   Check,
   CheckCircle2,
   ChevronDown,
@@ -19,15 +17,10 @@ import {
   Menu,
   MessageCircle,
   MessageSquare,
-  Milk,
   Phone,
-  Play,
-  ShieldCheck,
-  Smartphone,
-  Tractor,
   X,
 } from 'lucide-react';
-import { ABOUT_POINTS, ALL_LINKS, COMMUNITY_SECTION, FEATURES, HERO_PROOF, NAV_LINKS, PREVIEW_TABS, PROBLEMS, SAMPLE_TESTIMONIALS, STEPS, buildFaqs, type PreviewTab } from './content';
+import { ALL_LINKS, COMMUNITY_SECTION, FEATURES, HERO_PROOF, NAV_LINKS, PREVIEW_TABS, PROBLEMS, SAMPLE_TESTIMONIALS, STEPS, buildFaqs, type PreviewTab } from './content';
 import { useSiteContent } from '@/components/site/SiteContentProvider';
 import { phoneHref, priceOf, whatsappDigits } from '@/lib/site-content';
 
@@ -81,16 +74,51 @@ Get full digital automation with Mylkio: https://mylkio.co.ke
 Support Phone & WhatsApp: ${contact.phone}
 Support Email: ${contact.email}`;
 
-/** Eyebrow, serif headline and intro, shared by every section so they read as one system. */
-function SectionHeading({ eyebrow, title, intro, align = 'center', light = false }: {
-  eyebrow: string; title: React.ReactNode; intro?: string; align?: 'center' | 'left'; light?: boolean;
-}) {
+/** Every section heading: Quicksand set heavy and tight, no label above it. */
+function SectionHeading({ title, align = 'left', light = false }: { title: React.ReactNode; align?: 'center' | 'left'; light?: boolean }) {
   return (
-    <div className={`${align === 'center' ? 'mx-auto text-center' : ''} max-w-3xl`}>
-      <span className={`eyebrow ${light ? 'eyebrow-light' : ''}`}>{eyebrow}</span>
-      <h2 className={`mt-4 font-display text-display-lg [text-wrap:balance] ${light ? 'text-white' : 'text-charcoal'}`}>{title}</h2>
-      {intro && <p className={`mt-5 text-base leading-relaxed sm:text-lg ${align === 'center' ? 'mx-auto max-w-2xl' : ''} ${light ? 'text-ivory/85' : 'text-charcoal-light'}`}>{intro}</p>}
+    <h2 className={`max-w-3xl font-display text-display-lg [text-wrap:balance] ${align === 'center' ? 'mx-auto text-center' : ''} ${light ? 'text-white' : 'text-charcoal'}`}>{title}</h2>
+  );
+}
+
+/** The hero photo: a Holstein on pasture (Unsplash), sized per screen. */
+const HERO_PHOTO = 'https://images.unsplash.com/photo-1570042225831-d98fa7577f1e?auto=format&fit=crop';
+const SEC = 'py-16 sm:py-20 lg:py-24';
+/** The slip-yellow button, used only on the forest ground. */
+const CHIT_BTN = 'btn bg-chit text-forest hover:-translate-y-0.5 hover:bg-chit-deep focus-visible:ring-chit focus-visible:ring-offset-forest';
+
+/** The page's one bold element: a co-op delivery slip, perforated along the top. Used twice, no more. */
+function Slip({ className = '', children }: { className?: string; children: React.ReactNode }) {
+  return (
+    <div className={`relative drop-shadow-[0_24px_40px_rgba(10,25,18,0.35)] ${className}`}>
+      <div className="slip-paper rounded-b-xl bg-chit px-6 pb-6 pt-7 text-forest sm:px-7">{children}</div>
     </div>
+  );
+}
+
+/** One line of a slip: the label, a dotted leader, and the figure. */
+function Leader({ k, v, tone = '' }: { k: string; v: string; tone?: string }) {
+  return (
+    <div className={`flex items-baseline gap-2 ${tone}`}>
+      <dt className="whitespace-nowrap">{k}</dt>
+      <span aria-hidden className="min-w-4 flex-1 translate-y-[-0.2em] border-b-2 border-dotted border-forest/25" />
+      <dd className="whitespace-nowrap font-bold tabular-nums">{v}</dd>
+    </div>
+  );
+}
+
+/** A round rubber stamp pressed onto a slip. Decorative: the words are also on the slip. */
+function Stamp({ label, className = '' }: { label: string; className?: string }) {
+  return (
+    <svg viewBox="0 0 120 120" aria-hidden className={`pointer-events-none opacity-90 mix-blend-multiply ${className}`}>
+      <defs><path id={`stamp-${label}`} d="M60 60 m-41 0 a41 41 0 1 1 82 0 a41 41 0 1 1 -82 0" /></defs>
+      <circle cx="60" cy="60" r="56" fill="none" stroke="currentColor" strokeWidth="3" />
+      <circle cx="60" cy="60" r="31" fill="none" stroke="currentColor" strokeWidth="1.5" />
+      <text fill="currentColor" fontSize="11.5" fontWeight="700" letterSpacing="2.2">
+        <textPath href={`#stamp-${label}`}>{`MYLKIO  ✦  ${label.toUpperCase()}  ✦`}</textPath>
+      </text>
+      <path d="M47 61 l9 9 l18 -20" fill="none" stroke="currentColor" strokeWidth="5" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
   );
 }
 
@@ -244,49 +272,41 @@ export const MarketingLandingPage: React.FC<MarketingLandingPageProps> = ({
   }
 
   const startTrial = (plan?: SelfServePlanId) => onOpenAuth('signup', plan);
+  const solidHeader = scrolled || menuOpen;
 
   return (
-    <div id="top" className="min-h-screen overflow-x-clip bg-ivory font-sans text-charcoal antialiased selection:bg-sage/15">
-      {/* ───────────── Header ───────────── */}
-      <header className={`fixed inset-x-0 top-0 z-50 transition-all duration-300 ${scrolled || menuOpen ? 'border-b border-ivory-border bg-ivory/90 shadow-soft backdrop-blur-xl' : 'border-b border-transparent'}`}>
+    <div id="top" className="min-h-screen overflow-x-clip bg-milk font-sans font-medium text-charcoal antialiased selection:bg-chit/60">
+      {/* ───────────── Header: clear over the dark hero, milk-white once the page scrolls ───────────── */}
+      <header className={`fixed inset-x-0 top-0 z-50 transition-colors duration-300 ${solidHeader ? 'border-b border-rule bg-milk/95 backdrop-blur-xl' : 'border-b border-transparent'}`}>
         <div className="container-page flex h-16 items-center justify-between gap-4 lg:h-20">
           <a href="#top" className="flex shrink-0 items-center gap-3" aria-label="Mylkio home">
-            <span className="flex h-10 w-10 items-center justify-center rounded-full bg-charcoal font-display text-lg font-medium text-white">M</span>
+            <span className="flex h-10 w-10 items-center justify-center rounded-full bg-chit font-display text-xl font-bold text-forest">M</span>
             <span className="leading-tight">
-              <span className="flex items-center gap-2">
-                <span className="font-display text-xl font-medium tracking-tight">Mylkio</span>
-                <span className="hidden rounded-full bg-sage/10 px-2 py-0.5 text-xs font-semibold uppercase tracking-wider text-sage sm:inline">Kenya</span>
-              </span>
-              <span className="hidden whitespace-nowrap text-xs text-charcoal-muted xl:block">A product by Versaly</span>
+              <span className={`block font-display text-xl font-bold tracking-tight ${solidHeader ? 'text-charcoal' : 'text-white'}`}>Mylkio</span>
+              <span className={`hidden whitespace-nowrap text-xs font-semibold xl:block ${solidHeader ? 'text-charcoal-muted' : 'text-white/70'}`}>by Versaly, for Kenyan dairy</span>
             </span>
           </a>
 
           <nav aria-label="Main" className="hidden items-center gap-8 lg:flex">
             {NAV_LINKS.map((link) => (
-              <a key={link.href} href={link.href} className="link-slide whitespace-nowrap text-sm font-medium text-charcoal hover:text-sage">{link.label}</a>
+              <a key={link.href} href={link.href} className={`link-slide whitespace-nowrap text-sm font-semibold ${solidHeader ? 'text-charcoal hover:text-sage' : 'text-white/90 hover:text-white'}`}>{link.label}</a>
             ))}
           </nav>
 
-          <div className="hidden items-center gap-3 lg:flex">
-            <button onClick={() => onOpenAuth('login')} className="btn btn-ghost">Sign in</button>
-            <button onClick={onExploreDemo} className="btn btn-secondary hidden xl:inline-flex">
-              <Tractor className="h-4 w-4 text-sage" />
-              <span>Explore demo</span>
-            </button>
-            <button onClick={() => startTrial()} className="btn btn-primary">
-              <span>Start free trial</span>
-              <ArrowRight className="h-4 w-4" />
-            </button>
+          <div className="hidden items-center gap-2 lg:flex">
+            <button onClick={() => onOpenAuth('login')} className={`btn ${solidHeader ? 'btn-ghost' : 'text-white hover:bg-white/10'}`}>Sign in</button>
+            <button onClick={onExploreDemo} className={`btn hidden xl:inline-flex ${solidHeader ? 'btn-secondary' : 'btn-on-dark'}`}>Explore demo</button>
+            <button onClick={() => startTrial()} className={solidHeader ? 'btn btn-primary' : CHIT_BTN}>Start free trial</button>
           </div>
 
           <div className="flex items-center gap-1 lg:hidden">
-            <button onClick={() => onOpenAuth('login')} className="btn btn-ghost px-3">Sign in</button>
+            <button onClick={() => onOpenAuth('login')} className={`btn px-3 ${solidHeader ? 'btn-ghost' : 'text-white hover:bg-white/10'}`}>Sign in</button>
             <button
               onClick={() => setMenuOpen((open) => !open)}
               aria-expanded={menuOpen}
               aria-controls="mobile-menu"
               aria-label={menuOpen ? 'Close menu' : 'Open menu'}
-              className="flex h-11 w-11 items-center justify-center rounded-full text-charcoal hover:bg-sage/10"
+              className={`flex h-11 w-11 items-center justify-center rounded-full ${solidHeader ? 'text-charcoal hover:bg-sage/10' : 'text-white hover:bg-white/10'}`}
             >
               {menuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
             </button>
@@ -294,210 +314,154 @@ export const MarketingLandingPage: React.FC<MarketingLandingPageProps> = ({
         </div>
 
         {menuOpen && (
-          <div id="mobile-menu" className="max-h-[calc(100dvh-4rem)] animate-fade-in overflow-y-auto border-t border-ivory-border bg-ivory lg:hidden">
-            <div className="container-page space-y-1 py-4">
+          <div id="mobile-menu" className="max-h-[calc(100dvh-4rem)] animate-fade-in overflow-y-auto border-t border-rule bg-milk lg:hidden">
+            <div className="container-page py-4">
               {ALL_LINKS.map((link) => (
-                <a key={link.href} href={link.href} onClick={() => setMenuOpen(false)} className="flex min-h-12 items-center justify-between rounded-xl px-3 text-lg font-medium text-charcoal hover:bg-sage/10">
+                <a key={link.href} href={link.href} onClick={() => setMenuOpen(false)} className="flex min-h-14 items-center justify-between border-b border-rule px-1 text-lg font-semibold text-charcoal">
                   <span>{link.label}</span>
                   <ChevronRight className="h-5 w-5 text-charcoal-subtle" />
                 </a>
               ))}
-              <div className="grid grid-cols-1 gap-3 pt-4 sm:grid-cols-2">
-                <button onClick={() => { setMenuOpen(false); onExploreDemo(); }} className="btn btn-secondary btn-lg">
-                  <Tractor className="h-5 w-5 text-sage" />
-                  <span>Explore demo farm</span>
-                </button>
-                <button onClick={() => { setMenuOpen(false); startTrial(); }} className="btn btn-primary btn-lg">
-                  <span>Start free trial</span>
-                  <ArrowRight className="h-5 w-5" />
-                </button>
+              <div className="grid grid-cols-1 gap-3 pt-5 sm:grid-cols-2">
+                <button onClick={() => { setMenuOpen(false); onExploreDemo(); }} className="btn btn-secondary btn-lg">Explore the demo farm</button>
+                <button onClick={() => { setMenuOpen(false); startTrial(); }} className="btn btn-primary btn-lg">Start free trial</button>
               </div>
             </div>
           </div>
         )}
       </header>
 
-      {/* ───────────── Hero ───────────── */}
-      <section className="relative flex flex-col justify-center overflow-hidden pt-24 sm:pt-28 lg:min-h-[min(100svh,56rem)] lg:pt-32">
-        {/* A faded photo of Holstein cows at the feed barrier behind the headline. Decorative only: low opacity keeps the text easy to read, and it fades out towards the bottom so it melts into the page. */}
-        <div
+      {/* ───────────── Hero: the pasture under a flat forest wash, and the day's milk slip ───────────── */}
+      <section className="relative isolate bg-forest text-white">
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
+          src={`${HERO_PHOTO}&w=1600&q=70`}
+          srcSet={`${HERO_PHOTO}&w=800&q=60 800w, ${HERO_PHOTO}&w=1600&q=70 1600w, ${HERO_PHOTO}&w=2400&q=70 2400w`}
+          sizes="100vw"
+          alt=""
           aria-hidden
-          className="pointer-events-none absolute inset-x-0 top-0 h-[36rem] bg-cover bg-[position:40%_42%] lg:bottom-0 lg:h-auto opacity-[0.14] [mask-image:linear-gradient(to_bottom,black_50%,transparent_96%)] sm:bg-[position:center_42%]"
-          style={{ backgroundImage: "url('/images/hero-dairy.jpg')" }}
+          fetchPriority="high"
+          className="absolute inset-0 -z-10 h-full w-full object-cover object-[35%_50%]"
         />
-        <div aria-hidden className="pointer-events-none absolute -right-40 -top-40 h-[34rem] w-[34rem] rounded-full bg-sage-200/50 blur-3xl" />
-        <div aria-hidden className="pointer-events-none absolute -left-40 top-1/2 h-[26rem] w-[26rem] rounded-full bg-gold-200/40 blur-3xl" />
+        <div aria-hidden className="absolute inset-0 -z-10 bg-forest/70 lg:bg-gradient-to-r lg:from-forest/90 lg:from-25% lg:via-forest/55 lg:to-forest/5" />
 
-        <div className="container-page relative pb-24 pt-4 sm:pb-28 lg:pb-32 lg:pt-6">
-          <div className="mx-auto max-w-5xl animate-rise text-center">
-            <h1 className="font-display text-display-xl text-charcoal [text-wrap:balance]">
-              Your dairy farm. <span className="whitespace-nowrap text-sage">Under control.</span>
+        <div className="container-page grid grid-cols-1 items-center gap-14 pb-16 pt-28 sm:pt-32 lg:min-h-[min(100svh,54rem)] lg:grid-cols-12 lg:gap-10 lg:pb-20 lg:pt-28">
+          <div className="lg:col-span-7">
+            <h1 className="font-display text-display-xl text-white lg:text-[clamp(3.5rem,1rem+3.9vw,4.75rem)] [text-wrap:balance]">
+              Every litre counted. Every shilling accounted for.
             </h1>
-
-            <p className="mx-auto mt-6 max-w-2xl text-lg font-medium leading-relaxed text-charcoal sm:mt-7 sm:text-xl">
+            <p className="mt-6 max-w-xl text-lg leading-relaxed text-white/85 sm:text-xl">
               Track every litre of milk, manage your cows, and know where your farm income goes, all from your phone.
             </p>
-            <p className="mx-auto mt-4 max-w-xl text-base leading-relaxed text-charcoal-light">
-              Mylkio brings your milk records, cow health, breeding activities, sales, and farm expenses into one simple system built for everyday dairy farming. No complicated paperwork. No scattered records. Just a clearer picture of your farm.
-            </p>
-
-            <div className="mx-auto mt-9 flex max-w-sm flex-col items-stretch justify-center gap-3 sm:mt-10 sm:max-w-none sm:flex-row sm:items-center sm:gap-4">
-              <button onClick={() => startTrial()} className="btn btn-primary btn-lg group w-full sm:w-auto">
-                <span>Start managing your farm</span>
-                <ArrowRight className="nudge h-5 w-5" />
-              </button>
-              <button onClick={onExploreDemo} className="btn btn-secondary btn-lg group w-full sm:w-auto">
-                <Play className="h-4 w-4 fill-sage text-sage transition-transform duration-300 ease-premium group-hover:scale-125" />
-                <span>See how Mylkio works</span>
-              </button>
+            <div className="mt-9 flex flex-col gap-3 sm:flex-row sm:items-center">
+              <button onClick={() => startTrial()} className={`${CHIT_BTN} btn-lg w-full sm:w-auto`}>Start managing your farm</button>
+              <button onClick={onExploreDemo} className="btn btn-lg btn-on-dark w-full sm:w-auto">See how Mylkio works</button>
             </div>
-
-            <ul className="mt-10 flex flex-col items-center gap-2.5 sm:mt-12 sm:flex-row sm:flex-wrap sm:justify-center sm:gap-x-0 sm:gap-y-2">
-              {HERO_PROOF.map((item) => (
-                <li key={item} className="flex items-center gap-2 whitespace-nowrap text-sm font-medium text-charcoal-light sm:px-6 sm:[&:not(:first-child)]:border-l sm:[&:not(:first-child)]:border-ivory-border">
-                  <CheckCircle2 className="h-4 w-4 text-sage" />
-                  {item}
-                </li>
-              ))}
-            </ul>
+            <p className="mt-8 text-sm font-semibold text-white/70">{HERO_PROOF.join(". ")}.</p>
           </div>
-        </div>
-      </section>
 
-      {/* Facts ribbon */}
-      <section aria-label="Highlights" className="container-page relative z-10 -mt-10 sm:-mt-14">
-        <div className="card grid grid-cols-1 gap-6 p-6 sm:grid-cols-2 sm:p-8 lg:grid-cols-4 lg:gap-0 lg:divide-x lg:divide-ivory-border">
-          {[
-            { icon: Smartphone, title: 'Offline', text: 'Saves records without signal', gold: false },
-            { icon: Milk, title: '1 entry', text: "Logs the day's milk total", gold: false },
-            { icon: ShieldCheck, title: 'Co-op', text: 'Statements checked against your records', gold: true },
-            { icon: Calendar, title: `${TRIAL_DAYS} days`, text: 'Full free trial', gold: false },
-          ].map(({ icon: Icon, title, text, gold }) => (
-            <div key={title} className="flex items-center gap-4 lg:px-7 lg:first:pl-0 lg:last:pr-0">
-              <span className={`icon-tile ${gold ? 'icon-tile-gold' : ''}`}><Icon className="h-6 w-6" /></span>
-              <div>
-                <p className="whitespace-nowrap font-display text-2xl font-medium">{title}</p>
-                <p className="text-sm text-charcoal-muted">{text}</p>
+          {/* The right side tells the morning in two objects: the reminder on the phone, then the day's slip. */}
+          <div className="relative mx-auto w-full max-w-sm pt-20 sm:pt-24 lg:col-span-5 lg:mr-0 lg:max-w-[27rem] lg:pt-28 xl:max-w-[30rem]">
+            <div className="absolute left-0 right-8 top-0 z-10 rotate-[2deg] animate-rise rounded-2xl bg-white/95 p-4 text-charcoal shadow-[0_24px_50px_-20px_rgba(10,25,18,0.6)] backdrop-blur sm:-left-10 sm:right-12 lg:-left-6 lg:right-14 lg:p-5" style={{ animationDelay: '0.25s' }}>
+              <div className="flex items-center gap-2.5">
+                <span aria-hidden className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-forest text-sm font-bold text-chit">M</span>
+                <p className="text-sm font-bold">Mylkio</p>
+                <p className="ml-auto text-xs font-semibold text-charcoal-muted">6:30 AM</p>
               </div>
+              <p className="mt-2 font-bold leading-snug">2 reminders today (1 overdue)</p>
+              <p className="text-sm text-charcoal-light">Deworm calves; Vaccinate Zawadi</p>
             </div>
-          ))}
-        </div>
-      </section>
-
-      {/* ───────────── Problems ───────────── */}
-      <section className="section">
-        <div className="container-page">
-          <div className="flex flex-col gap-8 lg:flex-row lg:items-end lg:justify-between">
-            <SectionHeading
-              align="left"
-              eyebrow="Sound familiar?"
-              title={<>Running a dairy farm is hard enough. Your records <span className="text-sage">shouldn&apos;t make it harder.</span></>}
-            />
-            <div className="max-w-md space-y-3">
-              <p className="text-base leading-relaxed text-charcoal-light">
-                When records are scattered, it is harder to spot missing deliveries, follow up on payments, or see how costs affect income.
-              </p>
-              <a href="#features" className="group inline-flex items-center gap-1.5 whitespace-nowrap text-sm font-semibold text-sage">
-                <span className="link-slide">Explore all solutions</span> <ArrowRight className="nudge h-4 w-4" />
-              </a>
-            </div>
-          </div>
-
-          <div className="section-body grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
-            {PROBLEMS.map(({ icon: Icon, tone, title, body, href, tab }) => (
-              <article key={title} className="card card-hover group flex flex-col justify-between gap-5 p-6">
-                <div className="space-y-4">
-                  <span className={`icon-tile ${tone === 'gold' ? 'icon-tile-gold' : ''}`}><Icon className="h-6 w-6" /></span>
-                  <h3 className="text-lg font-semibold text-charcoal">{title}</h3>
-                  <p className="text-base leading-relaxed text-charcoal-light">{body}</p>
-                </div>
-                <a href={href} onClick={() => setPreviewTab(tab)} className="inline-flex w-fit items-center gap-1 whitespace-nowrap text-sm font-semibold text-sage">
-                  See how Mylkio helps <ChevronRight className="nudge h-4 w-4" />
-                </a>
-              </article>
-            ))}
-          </div>
-
-          <p className="mt-10 text-center font-display text-2xl text-charcoal">There&apos;s a simpler way to manage it all.</p>
-        </div>
-      </section>
-
-      {/* ───────────── About ───────────── */}
-      <section className="section bg-white">
-        <div className="container-page grid grid-cols-1 items-center gap-10 lg:grid-cols-2 lg:gap-14">
-          <div>
-            <SectionHeading
-              align="left"
-              eyebrow="About Mylkio"
-              title={<>Built around the work behind <span className="text-sage">every litre.</span></>}
-              intro="From morning milking to a monthly co-op statement, keep the records, reminders, and costs you need to run your farm with a clearer picture."
-            />
-            <ul className="mt-8 space-y-4">
-              {ABOUT_POINTS.map((point) => (
-                <li key={point} className="flex items-start gap-3 text-base text-charcoal">
-                  <CheckCircle2 className="mt-0.5 h-5 w-5 shrink-0 text-sage" />
-                  <span>{point}</span>
-                </li>
-              ))}
-            </ul>
-            <button onClick={() => startTrial()} className="btn btn-primary btn-lg mt-10 w-full sm:w-auto">
-              <span>Start {TRIAL_DAYS}-day free trial</span>
-              <ArrowRight className="h-5 w-5" />
-            </button>
-          </div>
-
-          <div className="relative overflow-hidden rounded-3xl border border-ivory-border shadow-lift">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
-              src="https://images.unsplash.com/photo-1570042225831-d98fa7577f1e?auto=format&fit=crop&w=1200&q=80"
-              alt="Dairy cows on a Kenyan farm"
-              width={1200}
-              height={900}
-              loading="lazy"
-              className="aspect-[4/5] w-full object-cover sm:aspect-[4/3]"
-            />
-            <div aria-hidden className="absolute inset-0 bg-gradient-to-t from-charcoal/80 via-charcoal/10 to-transparent" />
-            <div className="absolute inset-x-4 bottom-4 rounded-2xl border border-white/40 bg-white/95 p-4 shadow-lift backdrop-blur sm:inset-x-6 sm:bottom-6 sm:p-5">
-              <div className="flex items-center justify-between gap-3 border-b border-ivory-border pb-3">
-                <span className="truncate text-sm font-semibold">Green Hills Dairy • Nakuru</span>
-                <span className="hidden shrink-0 whitespace-nowrap rounded-full bg-sage/10 px-2.5 py-0.5 text-xs font-semibold text-sage sm:inline">● Synced offline</span>
+            <Slip className="rotate-[-1.5deg] animate-rise">
+              <div className="flex items-baseline justify-between gap-3 border-b border-dashed border-forest/30 pb-3">
+                <p className="text-lg font-bold">Green Hills Dairy</p>
+                <p className="whitespace-nowrap text-sm font-semibold text-forest/70">Tue 24 Nov</p>
               </div>
-              <dl className="grid grid-cols-3 gap-2 pt-3 text-center">
-                {[
-                  { k: 'Today (L)', v: '42.5', c: 'text-charcoal' },
-                  { k: 'Co-op (L)', v: '34.0', c: 'text-sage' },
-                  { k: 'Month (KSh)', v: '48,200', c: 'text-gold-600' },
-                ].map(({ k, v, c }) => (
-                  <div key={k}>
-                    <dt className="whitespace-nowrap text-xs font-semibold uppercase tracking-wide text-charcoal-muted">{k}</dt>
-                    <dd className={`text-lg font-bold tabular-nums sm:text-xl ${c}`}>{v}</dd>
-                  </div>
-                ))}
+              <dl className="space-y-2.5 py-4 text-[0.95rem]">
+                <Leader k="Morning milking" v="24.0 L" />
+                <Leader k="Evening milking" v="18.5 L" />
+                <Leader k="To Baraka Co-op" v="34.0 L" />
+                <Leader k="Household and calves" v="8.5 L" />
               </dl>
-              <p className="mt-2 text-center text-xs text-charcoal-muted">Sample farm data</p>
-            </div>
+              <div className="flex items-baseline justify-between gap-3 border-t-2 border-forest pt-3">
+                <p className="font-semibold">Owed at KSh 50 a litre</p>
+                <p className="whitespace-nowrap font-display text-2xl font-bold tabular-nums">KSh 1,700</p>
+              </div>
+              <p className="mt-3 text-xs font-semibold text-forest/60">Sample farm data</p>
+              <Stamp className="absolute -bottom-10 -right-4 h-24 w-24 -rotate-12 text-sage sm:-right-8" label="Synced offline" />
+            </Slip>
           </div>
         </div>
       </section>
 
-      {/* ───────────── Features ───────────── */}
-      <section id="features" className="section scroll-mt-20">
+      {/* ───────────── The problem, beside a farm that has it sorted ───────────── */}
+      <section className={SEC}>
+        <div className="container-page grid grid-cols-1 gap-12 lg:grid-cols-12 lg:gap-16">
+          <div className="lg:col-span-7">
+            <SectionHeading title="Running a dairy farm is hard enough. Your records shouldn't make it harder." />
+            <p className="mt-5 max-w-xl text-lg leading-relaxed text-charcoal-light">
+              When records are scattered, it is harder to spot missing deliveries, follow up on payments, or see how costs affect income.
+            </p>
+            <ul className="mt-10 border-b border-rule">
+              {PROBLEMS.map(({ icon: Icon, title, body, href, tab }) => (
+                <li key={title} className="grid grid-cols-[2rem_1fr] gap-x-4 border-t border-rule py-6 sm:grid-cols-[2.5rem_1fr]">
+                  <Icon aria-hidden strokeWidth={1.5} className="mt-0.5 h-7 w-7 text-sage" />
+                  <div>
+                    <h3 className="text-xl font-bold tracking-tight text-charcoal">{title}</h3>
+                    <p className="mt-2 max-w-xl leading-relaxed text-charcoal-light">{body}</p>
+                    <a href={href} onClick={() => setPreviewTab(tab)} className="link-slide mt-3 inline-block text-sm font-bold text-sage">See how Mylkio helps</a>
+                  </div>
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          <figure className="lg:col-span-5">
+            <div className="relative overflow-hidden rounded-2xl lg:sticky lg:top-28">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src="/images/hero-dairy.jpg" alt="Holstein cows at the feed barrier on a dairy farm" width={1200} height={800} loading="lazy" className="aspect-[4/5] w-full object-cover" />
+              <div className="absolute inset-x-4 bottom-4 rounded-xl bg-white p-4 sm:inset-x-5 sm:bottom-5">
+                <div className="flex items-center justify-between gap-3 border-b border-rule pb-3">
+                  <span className="truncate text-sm font-bold">Green Hills Dairy, Nakuru</span>
+                  <span className="whitespace-nowrap text-xs font-bold text-sage">Synced offline</span>
+                </div>
+                <dl className="grid grid-cols-3 gap-2 pt-3">
+                  {[
+                    { k: 'Today', v: '42.5 L' },
+                    { k: 'To co-op', v: '34.0 L' },
+                    { k: 'This month', v: 'KSh 48,200' },
+                  ].map(({ k, v }) => (
+                    <div key={k}>
+                      <dt className="whitespace-nowrap text-xs font-semibold text-charcoal-muted">{k}</dt>
+                      <dd className="whitespace-nowrap text-base font-bold tabular-nums sm:text-lg">{v}</dd>
+                    </div>
+                  ))}
+                </dl>
+              </div>
+            </div>
+            <figcaption className="mt-3 text-sm text-charcoal-muted">Sample farm data. There&apos;s a simpler way to manage it all.</figcaption>
+          </figure>
+        </div>
+      </section>
+
+      {/* ───────────── Features: an index, not a wall of cards ───────────── */}
+      <section id="features" className={`${SEC} scroll-mt-20 bg-white`}>
         <div className="container-page">
-          <SectionHeading
-            eyebrow="The complete solution"
-            title="Track milk, herd care, sales, and farm costs in one system."
-            intro="Record daily production, follow cow health and breeding, reconcile deliveries, and review expenses from your phone—even when signal is limited."
-          />
-          <div className="section-body grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
-            {FEATURES.map(({ icon: Icon, tone, title, body, points }) => (
-              <article key={title} className="card card-hover flex flex-col p-7">
-                <span className={`icon-tile ${tone === 'gold' ? 'icon-tile-gold' : ''}`}><Icon className="h-6 w-6" /></span>
-                <h3 className="mt-5 text-lg font-semibold leading-snug text-charcoal">{title}</h3>
-                <p className="mt-3 text-base leading-relaxed text-charcoal-light">{body}</p>
-                <ul className="mt-5 space-y-2.5 border-t border-ivory-border pt-5">
+          <div className="grid grid-cols-1 gap-6 lg:grid-cols-12 lg:items-end">
+            <div className="lg:col-span-7"><SectionHeading title="Milk, herd care, sales and farm costs in one system." /></div>
+            <p className="max-w-md text-lg leading-relaxed text-charcoal-light lg:col-span-5 lg:justify-self-end">
+              Record daily production, follow cow health and breeding, reconcile deliveries, and review expenses from your phone, even when signal is limited.
+            </p>
+          </div>
+          <div className="mt-14 grid grid-cols-1 gap-x-10 gap-y-12 md:grid-cols-2 lg:grid-cols-3">
+            {FEATURES.map(({ icon: Icon, title, body, points }) => (
+              <article key={title} className="border-t border-rule pt-6">
+                <Icon aria-hidden strokeWidth={1.5} className="h-8 w-8 text-sage" />
+                <h3 className="mt-5 text-xl font-bold leading-snug tracking-tight text-charcoal">{title}</h3>
+                <p className="mt-3 leading-relaxed text-charcoal-light">{body}</p>
+                <ul className="mt-4 space-y-2">
                   {points.map((point) => (
-                    <li key={point} className="flex items-start gap-2.5 text-sm text-charcoal-light">
-                      <Check className="mt-0.5 h-4 w-4 shrink-0 text-sage" />
+                    <li key={point} className="flex items-start gap-2.5 text-sm text-charcoal-muted">
+                      <Check className="mt-0.5 h-4 w-4 shrink-0 text-sage" strokeWidth={2.5} />
                       <span>{point}</span>
                     </li>
                   ))}
@@ -508,75 +472,52 @@ export const MarketingLandingPage: React.FC<MarketingLandingPageProps> = ({
         </div>
       </section>
 
-      {/* ───────────── Milk payments ───────────── */}
-      <section id="payments" className="section relative scroll-mt-20 overflow-hidden bg-sage text-white">
-        <div aria-hidden className="pointer-events-none absolute -right-32 -top-32 h-96 w-96 rounded-full bg-white/10 blur-3xl" />
-        <div aria-hidden className="pointer-events-none absolute -bottom-40 -left-32 h-96 w-96 rounded-full bg-gold/20 blur-3xl" />
-        <div className="container-page relative grid grid-cols-1 items-center gap-10 lg:grid-cols-12 lg:gap-14">
-          <div className="lg:col-span-7">
-            <SectionHeading
-              align="left"
-              light
-              eyebrow="Milk payments"
-              title={<>Delivered the milk? <span className="text-gold">Keep track of every shilling you&apos;re owed.</span></>}
-              intro="Whether you sell to a cooperative or individual customers, Mylkio helps you maintain a clear record of milk delivered, payments received, and outstanding balances."
-            />
-            <p className="mt-8 rounded-2xl border border-white/20 bg-white/10 p-5 text-base leading-relaxed text-ivory backdrop-blur">
-              <strong className="text-gold">Keep a dated record of every delivery.</strong> At month-end, compare your Mylkio records with the co-op statement and follow up on any differences in litres, deductions, or payments.
+      {/* ───────────── Milk payments: the statement, as a slip ───────────── */}
+      <section id="payments" className={`${SEC} scroll-mt-20 bg-forest text-white`}>
+        <div className="container-page grid grid-cols-1 items-center gap-14 lg:grid-cols-12">
+          <div className="lg:col-span-6">
+            <SectionHeading light title="Delivered the milk? Keep track of every shilling you're owed." />
+            <p className="mt-5 max-w-xl text-lg leading-relaxed text-white/80">
+              Whether you sell to a cooperative or individual customers, Mylkio keeps a clear record of milk delivered, payments received, and outstanding balances.
+            </p>
+            <p className="mt-8 max-w-xl border-l-2 border-chit pl-5 leading-relaxed text-white/85">
+              <strong className="font-bold text-chit">Keep a dated record of every delivery.</strong> At month-end, compare your Mylkio records with the co-op statement and follow up on any differences in litres, deductions, or payments.
             </p>
           </div>
 
-          <div className="lg:col-span-5">
-            <div className="rounded-3xl bg-white p-6 text-charcoal shadow-lift sm:p-8">
-              <div className="flex items-start justify-between gap-3 border-b border-ivory-border pb-4">
-                <div className="min-w-0">
-                  <p className="text-xs font-semibold uppercase tracking-wider text-charcoal-muted">Monthly statement (example)</p>
-                  <h3 className="mt-1 text-base font-semibold">Baraka Dairy Farmers Co-op</h3>
-                </div>
-                <span className="shrink-0 rounded-full bg-sage/10 px-2.5 py-0.5 text-xs font-semibold text-sage">Reconciled</span>
+          <div className="lg:col-span-6">
+            <Slip className="mx-auto max-w-md rotate-[1deg] lg:mr-0">
+              <div className="border-b border-dashed border-forest/30 pb-4">
+                <p className="text-sm font-semibold text-forest/70">Monthly statement, example</p>
+                <h3 className="mt-1 text-xl font-bold">Baraka Dairy Farmers Co-op</h3>
               </div>
-              <dl className="space-y-3 pt-4 text-sm">
-                {[
-                  ['Milk delivered', '850 litres'],
-                  ['Agreed price', 'KSh 50 per litre'],
-                  ['Gross value', 'KSh 42,500'],
-                ].map(([k, v]) => (
-                  <div key={k} className="flex flex-wrap items-center justify-between gap-x-4 gap-y-0.5 border-b border-ivory-border pb-3">
-                    <dt className="whitespace-nowrap text-charcoal-muted">{k}</dt>
-                    <dd className="whitespace-nowrap font-semibold">{v}</dd>
-                  </div>
-                ))}
-                <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-0.5 border-b border-ivory-border pb-3 text-rose-800">
-                  <dt className="whitespace-nowrap">Recorded deductions</dt>
-                  <dd className="whitespace-nowrap font-semibold">− KSh 2,500</dd>
-                </div>
-                <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1 pt-1">
-                  <dt className="whitespace-nowrap font-semibold">Expected net payment</dt>
-                  <dd className="whitespace-nowrap font-display text-3xl font-medium text-sage">KSh 40,000</dd>
-                </div>
+              <dl className="space-y-3 py-5">
+                <Leader k="Milk delivered" v="850 litres" />
+                <Leader k="Agreed price" v="KSh 50 a litre" />
+                <Leader k="Gross value" v="KSh 42,500" />
+                <Leader k="Recorded deductions" v="− KSh 2,500" tone="text-[#8E2A22]" />
               </dl>
-              <p className="mt-5 rounded-xl border border-ivory-border bg-ivory p-3 text-center text-xs italic text-charcoal-muted">
-                Illustrative monthly reconciliation example calculated from logged deliveries.
-              </p>
-            </div>
+              <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1 border-t-2 border-forest pt-4">
+                <p className="font-bold">Expected net payment</p>
+                <p className="whitespace-nowrap font-display text-4xl font-bold tabular-nums">KSh 40,000</p>
+              </div>
+              <p className="mt-4 text-xs font-semibold text-forest/60">Illustrative reconciliation, calculated from logged deliveries.</p>
+              <Stamp className="absolute -right-4 -top-14 h-28 w-28 rotate-12 text-sage sm:-right-10" label="Reconciled" />
+            </Slip>
           </div>
         </div>
       </section>
 
       {/* ───────────── Community ───────────── */}
-      <section id="community" className="section scroll-mt-20 bg-white">
-        <div className="container-page grid grid-cols-1 items-center gap-10 lg:grid-cols-12 lg:gap-14">
-          <div className="lg:col-span-7">
-            <SectionHeading
-              align="left"
-              eyebrow={COMMUNITY_SECTION.eyebrow}
-              title={COMMUNITY_SECTION.title}
-              intro={COMMUNITY_SECTION.intro}
-            />
-            <ul className="mt-8 space-y-3.5">
+      <section id="community" className={`${SEC} scroll-mt-20`}>
+        <div className="container-page grid grid-cols-1 items-center gap-14 lg:grid-cols-12">
+          <div className="lg:order-2 lg:col-span-7">
+            <SectionHeading title={COMMUNITY_SECTION.title} />
+            <p className="mt-5 max-w-xl text-lg leading-relaxed text-charcoal-light">{COMMUNITY_SECTION.intro}</p>
+            <ul className="mt-8 border-b border-rule">
               {COMMUNITY_SECTION.points.map((point) => (
-                <li key={point} className="flex items-start gap-3 text-base text-charcoal-light">
-                  <Check className="mt-1 h-4 w-4 shrink-0 text-sage" />
+                <li key={point} className="flex items-start gap-3 border-t border-rule py-3.5 text-charcoal-light">
+                  <Check className="mt-1 h-4 w-4 shrink-0 text-sage" strokeWidth={2.5} />
                   <span>{point}</span>
                 </li>
               ))}
@@ -587,133 +528,142 @@ export const MarketingLandingPage: React.FC<MarketingLandingPageProps> = ({
             </div>
           </div>
 
-          <div className="lg:col-span-5">
-            <div className="rounded-3xl border border-ivory-border bg-ivory p-6 shadow-lift sm:p-8">
-              <div className="flex items-start justify-between gap-3 border-b border-ivory-border pb-4">
+          <div className="lg:order-1 lg:col-span-5">
+            <div className="rounded-2xl border border-rule bg-white p-5 sm:p-7">
+              <div className="flex items-center gap-3 border-b border-rule pb-4">
+                <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-sage text-white"><MessageSquare className="h-5 w-5" /></span>
                 <div className="min-w-0">
-                  <p className="text-xs font-semibold uppercase tracking-wider text-charcoal-muted">Community group (example)</p>
-                  <h3 className="mt-1 text-base font-semibold">{COMMUNITY_SECTION.example.group}</h3>
+                  <h3 className="truncate text-lg font-bold">{COMMUNITY_SECTION.example.group}</h3>
+                  <p className="text-sm text-charcoal-muted">Set up by Mylkio. An example group.</p>
                 </div>
-                <span className="shrink-0 rounded-full bg-sage/10 px-2.5 py-0.5 text-xs font-semibold text-sage">Set up by Mylkio</span>
               </div>
-              <ul className="space-y-3 pt-4">
-                {COMMUNITY_SECTION.example.posts.map((post) => (
-                  <li key={post.text} className="rounded-2xl border border-ivory-border bg-white p-4">
-                    <p className="text-xs font-semibold text-charcoal-muted">{post.who}</p>
-                    <p className="mt-1 text-sm text-charcoal">{post.text}</p>
-                    <p className="mt-2 flex items-center gap-1.5 text-xs text-sage"><MessageSquare className="h-3.5 w-3.5" />{post.replies === 0 ? 'Reply' : `${post.replies} replies`}</p>
+              <ul className="space-y-4 pt-5">
+                {COMMUNITY_SECTION.example.posts.map((post, i) => (
+                  <li key={post.text} className={`max-w-[88%] ${i % 2 ? 'ml-auto' : ''}`}>
+                    <div className={`rounded-2xl px-4 py-3 ${i % 2 ? 'rounded-br-md bg-sage text-white' : 'rounded-bl-md bg-milk text-charcoal'}`}>
+                      <p className={`text-xs font-bold ${i % 2 ? 'text-white/75' : 'text-charcoal-muted'}`}>{post.who}</p>
+                      <p className="mt-1">{post.text}</p>
+                    </div>
+                    <p className={`mt-1.5 text-xs font-semibold text-sage ${i % 2 ? 'text-right' : ''}`}>{post.replies === 0 ? 'Reply' : `${post.replies} replies`}</p>
                   </li>
                 ))}
               </ul>
-              <p className="mt-5 rounded-xl border border-ivory-border bg-white p-3 text-center text-xs italic text-charcoal-muted">
-                Illustrative example. Guidance from neighbours is not a diagnosis: call a vet for a sick animal.
+              <p className="mt-5 border-t border-rule pt-4 text-xs text-charcoal-muted">
+                Guidance from neighbours is not a diagnosis: call a vet for a sick animal.
               </p>
             </div>
           </div>
         </div>
       </section>
 
-      {/* ───────────── How it works ───────────── */}
-      <section id="how-it-works" className="section scroll-mt-20">
+      {/* ───────────── How it works: a real sequence, so it is numbered ───────────── */}
+      <section id="how-it-works" className={`${SEC} scroll-mt-20 bg-white`}>
         <div className="container-page">
-          <SectionHeading eyebrow="How it works" title="From notebook to organized farm records in three simple steps." />
-          <ol className="section-body relative grid grid-cols-1 gap-6 md:grid-cols-3">
-            <div aria-hidden className="absolute left-[16%] right-[16%] top-10 hidden h-px bg-gradient-to-r from-transparent via-gold to-transparent md:block" />
+          <SectionHeading title="From notebook to organised farm records in three steps." />
+          <ol className="mt-12 grid grid-cols-1 gap-10 md:grid-cols-3 md:gap-8">
             {STEPS.map((step, index) => (
-              <li key={step.title} className="card card-hover group relative p-8 text-center">
-                <span className="mx-auto flex h-14 w-14 transition-transform duration-500 ease-premium group-hover:scale-110 items-center justify-center rounded-full bg-sage font-display text-2xl font-medium text-white shadow-glow ring-8 ring-ivory">{index + 1}</span>
-                <h3 className="mt-6 text-lg font-semibold">{step.title}</h3>
-                <p className="mt-3 text-base leading-relaxed text-charcoal-light">{step.body}</p>
+              <li key={step.title} className="border-t-2 border-forest pt-6">
+                <span className="font-display text-5xl font-bold tabular-nums text-sage">{index + 1}</span>
+                <h3 className="mt-4 text-xl font-bold tracking-tight">{step.title}</h3>
+                <p className="mt-2 leading-relaxed text-charcoal-light">{step.body}</p>
               </li>
             ))}
           </ol>
-          <div className="mt-10 text-center">
-            <button onClick={() => startTrial()} className="btn btn-primary btn-lg">
-              <span>Get started with Mylkio</span>
-              <ArrowRight className="h-5 w-5" />
-            </button>
-          </div>
+          <button onClick={() => startTrial()} className="btn btn-primary btn-lg mt-12">Get started with Mylkio</button>
         </div>
       </section>
 
-      {/* ───────────── Product preview ───────────── */}
-      <section id="preview" className="section scroll-mt-20 bg-white">
-        <div className="container-page">
-          <SectionHeading eyebrow="Product preview" title="See what a more organized dairy farm looks like." />
-
-          {/* Tabs scroll sideways on a phone rather than wrapping. */}
-          <div className="section-body -mx-4 overflow-x-auto px-4 pb-2 [scrollbar-width:none] sm:mx-0 sm:px-0 [&::-webkit-scrollbar]:hidden">
-            <div role="tablist" aria-label="Product preview" className="mx-auto flex w-max gap-1 rounded-full border border-ivory-border bg-ivory p-1.5">
-              {PREVIEW_TABS.map((tab) => (
-                <button
-                  key={tab.key}
-                  role="tab"
-                  aria-selected={previewTab === tab.key}
-                  onClick={() => setPreviewTab(tab.key)}
-                  className={`min-h-11 whitespace-nowrap rounded-full px-5 text-sm font-semibold transition-all ${previewTab === tab.key ? 'bg-sage text-white shadow-soft' : 'text-charcoal-muted hover:text-charcoal'}`}
-                >
-                  {tab.label}
-                </button>
-              ))}
+      {/* ───────────── Product preview: the app as people use it, on a phone ───────────── */}
+      <section id="preview" className={`${SEC} scroll-mt-20 overflow-hidden`}>
+        <div className="container-page grid grid-cols-1 items-center gap-12 lg:grid-cols-12 lg:gap-16">
+          <div className="lg:col-span-6">
+            <SectionHeading title="See what a more organised dairy farm looks like." />
+            <div role="tablist" aria-label="Product preview" aria-orientation="vertical" className="mt-10 border-b border-rule">
+              {PREVIEW_TABS.map((tab) => {
+                const on = previewTab === tab.key;
+                return (
+                  <button
+                    key={tab.key}
+                    role="tab"
+                    id={`preview-tab-${tab.key}`}
+                    aria-selected={on}
+                    aria-controls="preview-panel"
+                    onClick={() => setPreviewTab(tab.key)}
+                    className={`group grid w-full grid-cols-[1fr_auto] items-center gap-x-4 border-t border-rule py-4 text-left transition-colors ${on ? '' : 'hover:text-sage'}`}
+                  >
+                    <span className={`text-xl font-bold tracking-tight ${on ? 'text-charcoal' : 'text-charcoal-muted group-hover:text-sage'}`}>{tab.label}</span>
+                    <span aria-hidden className={`h-2.5 w-2.5 rounded-full transition-colors ${on ? 'bg-chit-deep ring-4 ring-chit/40' : 'bg-rule'}`} />
+                    {on && <span className="col-span-2 mt-1.5 max-w-md animate-fade-in leading-relaxed text-charcoal-light">{PREVIEW_NOTES[tab.key]}</span>}
+                  </button>
+                );
+              })}
             </div>
           </div>
 
-          <div className="mx-auto mt-8 max-w-4xl overflow-hidden rounded-3xl border border-ivory-border bg-ivory shadow-lift">
-            <div className="flex items-center gap-2 border-b border-ivory-border bg-white px-5 py-3.5">
-              <span className="h-3 w-3 rounded-full bg-rose-300" /><span className="h-3 w-3 rounded-full bg-gold" /><span className="h-3 w-3 rounded-full bg-sage-300" />
-              <span className="ml-3 truncate text-sm text-charcoal-muted">Mylkio · Sample farm</span>
-            </div>
-            <div role="tabpanel" className="animate-fade-in p-6 sm:p-9" key={previewTab}>
-              <PreviewPanel tab={previewTab} />
+          <div className="lg:col-span-6">
+            <div className="relative mx-auto w-full max-w-[330px]">
+              <div aria-hidden className="absolute -inset-x-16 top-16 bottom-8 -z-10 rounded-full bg-sage-200/60 blur-3xl" />
+              <div className="rounded-[2.75rem] bg-forest p-2.5 shadow-[0_40px_80px_-30px_rgba(20,41,31,0.55)]">
+                <div className="overflow-hidden rounded-[2.25rem] bg-milk">
+                  <div className="bg-forest px-5 pb-4 pt-3 text-white">
+                    <div aria-hidden className="mx-auto mb-3 h-1.5 w-16 rounded-full bg-white/20" />
+                    <p className="text-xs font-semibold text-white/60">Green Hills Dairy, Nakuru</p>
+                    <p className="text-lg font-bold">{PREVIEW_TABS.find((t) => t.key === previewTab)?.label}</p>
+                  </div>
+                  <div role="tabpanel" id="preview-panel" aria-labelledby={`preview-tab-${previewTab}`} className="h-[400px] animate-fade-in overflow-hidden p-4" key={previewTab}>
+                    <PreviewPanel tab={previewTab} />
+                  </div>
+                  <div aria-hidden className="grid grid-cols-5 border-t border-rule bg-white px-1 py-2.5">
+                    {PREVIEW_TABS.map((tab) => (
+                      <span key={tab.key} className={`truncate px-0.5 text-center text-[0.65rem] font-bold ${tab.key === previewTab ? 'text-sage' : 'text-charcoal-subtle'}`}>{tab.label.split(' ').pop()}</span>
+                    ))}
+                  </div>
+                </div>
+              </div>
+              <p className="mt-4 text-center text-sm text-charcoal-muted">Sample farm data</p>
             </div>
           </div>
         </div>
       </section>
 
       {/* ───────────── Pricing ───────────── */}
-      <section id="pricing" className="section scroll-mt-20">
+      <section id="pricing" className={`${SEC} scroll-mt-20 bg-white`}>
         <div className="container-page">
-          <SectionHeading
-            eyebrow="Pricing"
-            title="Simple pricing for farms of every size."
-            intro="Whether you're managing a few cows or a growing dairy farm, Mylkio has a suitable option."
-          />
-          <div className="section-body grid grid-cols-1 items-stretch gap-6 pt-3 md:grid-cols-2 xl:grid-cols-4">
+          <div className="grid grid-cols-1 gap-6 lg:grid-cols-12 lg:items-end">
+            <div className="lg:col-span-7"><SectionHeading title="Simple pricing for farms of every size." /></div>
+            <p className="max-w-md text-lg leading-relaxed text-charcoal-light lg:col-span-5 lg:justify-self-end">
+              Every plan starts with a {TRIAL_DAYS}-day free trial. Pay monthly once it ends.
+            </p>
+          </div>
+          <div className="mt-12 grid grid-cols-1 items-stretch gap-5 md:grid-cols-2 xl:grid-cols-4">
             {PLAN_ORDER.map((id) => {
               const plan = PLANS[id];
               const copy = PLAN_COPY[id];
+              const on = copy.featured;
               return (
-                <article
-                  key={id}
-                  className={`card relative flex flex-col p-6 sm:p-8 ${copy.featured ? 'border-2 border-sage shadow-lift transition-all duration-500 ease-premium hover:shadow-glow lg:-translate-y-3 lg:hover:-translate-y-4' : 'card-hover'}`}
-                >
-                  {copy.featured && (
-                    <span className="absolute -top-3.5 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-full bg-gold px-4 py-1 text-xs font-bold uppercase tracking-wider text-charcoal shadow-soft">
-                      Recommended
-                    </span>
-                  )}
-                  <p className="eyebrow">{plan.name}</p>
-                  <h3 className="mt-3 text-xl font-semibold">{copy.headline}</h3>
-                  <p className="mt-2 text-base text-charcoal-muted">{copy.blurb}</p>
-
-                  <div className="mt-6 border-y border-ivory-border py-6">
-                    <p className="flex items-baseline gap-1.5 whitespace-nowrap">
-                      <span className="font-display text-[clamp(2rem,8.5vw,3rem)] font-medium tracking-tight sm:text-5xl">{formatKsh(priceOf(prices, id))}</span>
-                      <span className="text-base text-charcoal-muted">/ month</span>
-                    </p>
-                    <p className="mt-2 text-sm text-charcoal-muted">Pay monthly once your free trial ends</p>
+                <article key={id} className={`relative flex flex-col rounded-2xl p-6 sm:p-7 ${on ? 'bg-forest text-white' : 'border border-rule bg-milk'}`}>
+                  <div className="flex items-center justify-between gap-3">
+                    <p className={`font-bold ${on ? 'text-chit' : 'text-sage'}`}>{plan.name}</p>
+                    {on && <span className="whitespace-nowrap rounded-full bg-chit px-3 py-1 text-xs font-bold text-forest">Recommended</span>}
                   </div>
+                  <h3 className="mt-2 text-xl font-bold tracking-tight">{copy.headline}</h3>
+                  <p className={`mt-1 text-sm ${on ? 'text-white/75' : 'text-charcoal-muted'}`}>{copy.blurb}</p>
 
-                  <ul className="mt-6 flex-1 space-y-3.5">
+                  <p className={`mt-6 flex items-baseline gap-1.5 whitespace-nowrap border-y py-5 ${on ? 'border-white/15' : 'border-rule'}`}>
+                    <span className="font-display text-[2.25rem] font-bold leading-none tracking-tight tabular-nums">{formatKsh(priceOf(prices, id))}</span>
+                    <span className={`text-sm ${on ? "text-white/70" : "text-charcoal-muted"}`}>a month</span>
+                  </p>
+
+                  <ul className="mt-6 flex-1 space-y-3">
                     {[copy.points[0], ...planFeatureLines(id), ...copy.points.slice(1)].map((point) => (
-                      <li key={point} className="flex items-start gap-3 text-base text-charcoal-light">
-                        <Check className="mt-1 h-4 w-4 shrink-0 text-sage" />
+                      <li key={point} className={`flex items-start gap-2.5 text-[0.95rem] ${on ? 'text-white/85' : 'text-charcoal-light'}`}>
+                        <Check className={`mt-1 h-4 w-4 shrink-0 ${on ? 'text-chit' : 'text-sage'}`} strokeWidth={2.5} />
                         <span>{point}</span>
                       </li>
                     ))}
                   </ul>
 
-                  <button onClick={() => startTrial(id)} className={`btn btn-lg mt-8 w-full ${copy.featured ? 'btn-primary' : 'btn-secondary'}`}>
+                  <button onClick={() => startTrial(id)} className={`btn btn-lg mt-8 w-full ${on ? CHIT_BTN : 'btn-secondary'}`}>
                     Start {TRIAL_DAYS}-day free trial
                   </button>
                 </article>
@@ -721,18 +671,15 @@ export const MarketingLandingPage: React.FC<MarketingLandingPageProps> = ({
             })}
 
             {/* Custom: quoted per farm, never chosen at sign-up */}
-            <article className="card card-hover relative flex flex-col p-6 sm:p-8">
-              <p className="eyebrow">{PLANS.custom.name}</p>
-              <h3 className="mt-3 text-xl font-semibold">For cooperatives and very large farms</h3>
-              <p className="mt-2 text-base text-charcoal-muted">A plan shaped around your farm or group, with a price agreed with you.</p>
-              <div className="mt-6 border-y border-ivory-border py-6">
-                <p className="whitespace-nowrap font-display text-[clamp(2rem,8.5vw,3rem)] font-medium tracking-tight sm:text-5xl">Talk to us</p>
-                <p className="mt-2 text-sm text-charcoal-muted">Quoted per farm</p>
-              </div>
-              <ul className="mt-6 flex-1 space-y-3.5">
+            <article className="relative flex flex-col rounded-2xl border border-dashed border-sage/50 p-6 sm:p-7">
+              <p className="font-bold text-sage">{PLANS.custom.name}</p>
+              <h3 className="mt-2 text-xl font-bold tracking-tight">For cooperatives and very large farms</h3>
+              <p className="mt-1 text-sm text-charcoal-muted">A plan shaped around your farm or group, with a price agreed with you.</p>
+              <p className="mt-6 whitespace-nowrap border-y border-rule py-5 font-display text-[2.5rem] font-bold leading-none tracking-tight">Talk to us</p>
+              <ul className="mt-6 flex-1 space-y-3">
                 {['Everything in Farm Pro', 'Team size set for your farm', 'Monthly price agreed with you', 'Anything beyond this is quoted and agreed with you first'].map((point) => (
-                  <li key={point} className="flex items-start gap-3 text-base text-charcoal-light">
-                    <Check className="mt-1 h-4 w-4 shrink-0 text-sage" />
+                  <li key={point} className="flex items-start gap-2.5 text-[0.95rem] text-charcoal-light">
+                    <Check className="mt-1 h-4 w-4 shrink-0 text-sage" strokeWidth={2.5} />
                     <span>{point}</span>
                   </li>
                 ))}
@@ -746,28 +693,22 @@ export const MarketingLandingPage: React.FC<MarketingLandingPageProps> = ({
 
       {/* ───────────── Farmer stories (real or clearly marked examples) ───────────── */}
       {approvedTestimonials.length > 0 && (
-        <section className="section bg-white">
+        <section className={SEC}>
           <div className="container-page">
-            <SectionHeading
-              eyebrow={onlySamples ? 'Sample stories' : 'Farmer stories'}
-              title={onlySamples ? 'Built with Kenyan dairy farmers in mind.' : 'What dairy farmers say about Mylkio.'}
-              intro={!onlySamples ? (someSamples ? 'Feedback from farmers using Mylkio. Any story marked as an example is illustrative and not a real review.' : 'Feedback from farmers using Mylkio.') : 'These are example stories written to show how a farm could use Mylkio. They are not reviews from customers, and the names and figures are illustrative. Real farmer feedback will appear here once pilot farms agree to share it.'}
-            />
-            <div className="section-body grid grid-cols-1 gap-6 md:grid-cols-3">
+            <SectionHeading title={onlySamples ? 'Built with Kenyan dairy farmers in mind.' : 'What dairy farmers say about Mylkio.'} />
+            <p className="mt-5 max-w-2xl leading-relaxed text-charcoal-light">
+              {!onlySamples ? (someSamples ? 'Feedback from farmers using Mylkio. Any story marked as an example is illustrative and not a real review.' : 'Feedback from farmers using Mylkio.') : 'These are example stories written to show how a farm could use Mylkio. They are not reviews from customers, and the names and figures are illustrative. Real farmer feedback will appear here once pilot farms agree to share it.'}
+            </p>
+            <div className="mt-12 grid grid-cols-1 gap-10 md:grid-cols-3 md:gap-8">
               {approvedTestimonials.map((t) => (
-                <figure key={t.id} className="card card-hover flex flex-col justify-between gap-6 bg-ivory p-7">
+                <figure key={t.id} className="flex flex-col justify-between gap-6 border-t border-rule pt-6">
                   <div>
-                    {t.sample && <span className="inline-block whitespace-nowrap rounded-full border border-gold/50 bg-gold/15 px-3 py-1 text-xs font-bold uppercase tracking-wider text-gold-600">
-                      Example, not a real review
-                    </span>}
-                    <blockquote className="mt-4 border-l-2 border-sage pl-4 font-display text-lg leading-relaxed text-charcoal">
-                      &ldquo;{t.quote}&rdquo;
-                    </blockquote>
+                    {t.sample && <span className="inline-block whitespace-nowrap rounded-full bg-chit/70 px-3 py-1 text-xs font-bold text-forest">Example, not a real review</span>}
+                    <blockquote className="mt-4 text-xl font-semibold leading-snug tracking-tight text-charcoal">&ldquo;{t.quote}&rdquo;</blockquote>
                   </div>
-                  <figcaption className="border-t border-ivory-border pt-4">
-                    <p className="text-base font-semibold">{t.farmerName}{t.sample && <span className="font-normal text-charcoal-muted"> (example)</span>}</p>
-                    <p className="text-sm font-medium text-sage">{[t.farmName, t.county].filter(Boolean).join(' • ')}</p>
-                    <p className="text-sm text-charcoal-muted">{t.cowsCount} cows</p>
+                  <figcaption>
+                    <p className="font-bold">{t.farmerName}{t.sample && <span className="font-medium text-charcoal-muted"> (example)</span>}</p>
+                    <p className="text-sm text-charcoal-muted">{[t.farmName, t.county].filter(Boolean).join(', ')}, {t.cowsCount} cows</p>
                   </figcaption>
                 </figure>
               ))}
@@ -777,25 +718,17 @@ export const MarketingLandingPage: React.FC<MarketingLandingPageProps> = ({
       )}
 
       {/* ───────────── Free checklist ───────────── */}
-      <section className="relative overflow-hidden py-12 sm:py-14 lg:py-16">
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img
-          src="https://images.unsplash.com/photo-1570042225831-d98fa7577f1e?auto=format&fit=crop&w=1920&q=70"
-          alt=""
-          aria-hidden
-          loading="lazy"
-          className="absolute inset-0 h-full w-full object-cover"
-        />
-        <div aria-hidden className="absolute inset-0 bg-gradient-to-b from-ivory/85 via-ivory/90 to-ivory/85" />
-        <div className="container-page relative">
-          <div className="mx-auto max-w-3xl space-y-5 rounded-3xl border border-ivory-border bg-white p-8 text-center shadow-lift sm:p-12">
-            <span className="eyebrow justify-center">Free resource</span>
-            <h2 className="font-display text-display-md [text-wrap:balance]">Not ready for software yet? Start with better farm records.</h2>
-            <p className="mx-auto max-w-xl text-base leading-relaxed text-charcoal-light">
-              Get our free dairy farm record-keeping checklist covering daily milk production, milk deliveries, cow health dates, breeding activities, farm expenses, and customer payments.
-            </p>
-            <div className="pt-2">
-              <button onClick={() => setChecklistOpen(true)} className="btn btn-primary btn-lg">
+      <section className="pb-16 sm:pb-20">
+        <div className="container-page">
+          <div className="grid grid-cols-1 items-center gap-6 rounded-2xl border border-rule bg-white p-7 sm:p-10 lg:grid-cols-12">
+            <div className="lg:col-span-8">
+              <h2 className="font-display text-display-md [text-wrap:balance]">Not ready for software yet? Start with better farm records.</h2>
+              <p className="mt-3 max-w-2xl leading-relaxed text-charcoal-light">
+                Get our free dairy farm record-keeping checklist covering daily milk production, milk deliveries, cow health dates, breeding activities, farm expenses, and customer payments.
+              </p>
+            </div>
+            <div className="lg:col-span-4 lg:justify-self-end">
+              <button onClick={() => setChecklistOpen(true)} className="btn btn-primary btn-lg w-full sm:w-auto">
                 <Download className="h-5 w-5" />
                 <span>Get the free checklist</span>
               </button>
@@ -805,27 +738,29 @@ export const MarketingLandingPage: React.FC<MarketingLandingPageProps> = ({
       </section>
 
       {/* ───────────── FAQs ───────────── */}
-      <section id="faqs" className="section scroll-mt-20">
-        <div className="container-page max-w-3xl">
-          <SectionHeading eyebrow="FAQs" title="Frequently asked questions" />
-          <div className="section-body space-y-3">
+      <section id="faqs" className={`${SEC} scroll-mt-20 bg-white`}>
+        <div className="container-page grid grid-cols-1 gap-10 lg:grid-cols-12">
+          <div className="lg:col-span-4">
+            <SectionHeading title="Questions farmers ask us" />
+          </div>
+          <div className="border-b border-rule lg:col-span-8">
             {faqs.map((faq, index) => {
               const open = openFaq === index;
               return (
-                <div key={faq.q} className={`card overflow-hidden transition-colors ${open ? 'border-sage-300' : ''}`}>
+                <div key={faq.q} className="border-t border-rule">
                   <h3>
                     <button
                       onClick={() => setOpenFaq(open ? null : index)}
                       aria-expanded={open}
                       aria-controls={`faq-${index}`}
-                      className="flex min-h-14 w-full items-center justify-between gap-4 px-6 py-4 text-left text-base font-semibold text-charcoal"
+                      className="flex min-h-16 w-full items-center justify-between gap-4 py-4 text-left text-lg font-bold text-charcoal hover:text-sage"
                     >
                       <span>{faq.q}</span>
                       <ChevronDown className={`h-5 w-5 shrink-0 text-sage transition-transform duration-300 ${open ? 'rotate-180' : ''}`} />
                     </button>
                   </h3>
                   {open && (
-                    <div id={`faq-${index}`} className="animate-fade-in border-t border-ivory-border px-6 pb-6 pt-4 text-base leading-relaxed text-charcoal-light">
+                    <div id={`faq-${index}`} className="animate-fade-in max-w-2xl pb-6 leading-relaxed text-charcoal-light">
                       {faq.a}
                     </div>
                   )}
@@ -837,158 +772,141 @@ export const MarketingLandingPage: React.FC<MarketingLandingPageProps> = ({
       </section>
 
       {/* ───────────── Contact ───────────── */}
-      <section id="contact" className="section scroll-mt-20 bg-white">
-        <div className="container-page">
-          <SectionHeading
-            eyebrow="Contact and support"
-            title="Talk directly with our Kenyan team."
-            intro="Have questions about getting your farm started, cooperative payment tracking, or subscribing? We are here to help."
-          />
-
-          <div className="section-body mx-auto grid grid-cols-1 max-w-5xl items-start gap-8 lg:grid-cols-12">
-            <div className="space-y-4 lg:col-span-5">
+      <section id="contact" className={`${SEC} scroll-mt-20`}>
+        <div className="container-page grid grid-cols-1 items-start gap-12 lg:grid-cols-12">
+          <div className="lg:col-span-5">
+            <SectionHeading title="Talk directly with our Kenyan team." />
+            <p className="mt-5 max-w-md text-lg leading-relaxed text-charcoal-light">
+              Questions about getting your farm started, cooperative payment tracking, or subscribing? We are here to help.
+            </p>
+            <ul className="mt-8 border-b border-rule">
               {[
-                { href: phoneHref(contact), icon: Phone, label: 'Direct phone', value: contact.phone, note: 'Monday – Saturday, 7:00 AM – 7:00 PM', gold: false, external: false },
-                ...(hasWhatsapp ? [{ href: whatsappUrl as string | undefined, icon: MessageSquare, label: 'WhatsApp line', value: contact.whatsapp, note: 'Quick responses on setup and questions', gold: true, external: true }] : []),
-                { href: `mailto:${contact.email}` as string | undefined, icon: Mail, label: 'Email inquiry', value: contact.email, note: 'For cooperative partnerships and billing', gold: false, external: false },
-              ].map(({ href, icon: Icon, label, value, note, gold, external }) => (
-                <a
-                  key={label}
-                  {...(href ? { href } : {})}
-                  {...(external ? { target: '_blank', rel: 'noopener noreferrer' } : {})}
-                  className="card card-hover group flex items-center gap-4 p-5"
-                >
-                  <span className={`icon-tile transition-colors group-hover:bg-sage group-hover:text-white ${gold ? 'icon-tile-gold' : ''}`}><Icon className="h-5 w-5" /></span>
-                  <span className="min-w-0">
-                    <span className="block text-xs font-semibold uppercase tracking-wider text-charcoal-muted">{label}</span>
-                    <span className="block truncate text-base font-semibold">{value}</span>
-                    <span className="block text-sm text-charcoal-muted">{note}</span>
-                  </span>
-                </a>
+                { href: phoneHref(contact), icon: Phone, label: 'Call us', value: contact.phone, note: 'Monday to Saturday, 7:00 AM to 7:00 PM', external: false },
+                ...(hasWhatsapp ? [{ href: whatsappUrl as string | undefined, icon: MessageSquare, label: 'WhatsApp', value: contact.whatsapp, note: 'Quick answers on setup and questions', external: true }] : []),
+                { href: `mailto:${contact.email}` as string | undefined, icon: Mail, label: 'Email', value: contact.email, note: 'For cooperative partnerships and billing', external: false },
+              ].map(({ href, icon: Icon, label, value, note, external }) => (
+                <li key={label} className="border-t border-rule">
+                  <a
+                    {...(href ? { href } : {})}
+                    {...(external ? { target: '_blank', rel: 'noopener noreferrer' } : {})}
+                    className="group grid grid-cols-[2rem_1fr] gap-x-3 py-4"
+                  >
+                    <Icon aria-hidden strokeWidth={1.75} className="mt-0.5 h-6 w-6 text-sage" />
+                    <span className="min-w-0">
+                      <span className="block text-sm font-semibold text-charcoal-muted">{label}</span>
+                      <span className="block truncate text-lg font-bold group-hover:text-sage">{value}</span>
+                      <span className="block text-sm text-charcoal-muted">{note}</span>
+                    </span>
+                  </a>
+                </li>
               ))}
-            </div>
+            </ul>
+          </div>
 
-            <div className="card p-6 sm:p-8 lg:col-span-7">
-              <h3 className="font-display text-2xl font-medium">Send us a message</h3>
-              <p className="mb-6 mt-1 text-base text-charcoal-muted">Fill in the details below and our team will get back to you shortly.</p>
+          <div className="rounded-2xl border border-rule bg-white p-6 sm:p-8 lg:col-span-7">
+            <h3 className="font-display text-2xl font-bold tracking-tight">Send us a message</h3>
+            <p className="mb-6 mt-1 text-charcoal-muted">Fill in the details below and our team will get back to you shortly.</p>
 
-              <form onSubmit={handleContactSubmit} className="space-y-4">
-                {contactError && (
-                  <div role="alert" className="rounded-2xl border border-red-200 bg-red-50 p-4 text-sm font-medium text-red-800">
-                    {contactError}{' '}
-                    {hasWhatsapp ? <a href={whatsappUrl} target="_blank" rel="noopener noreferrer" className="font-bold underline">Message us on WhatsApp</a> : <a href={`mailto:${contact.email}`} className="font-bold underline">Email us</a>}
-                  </div>
-                )}
-                {contactSubmitted && (
-                  <div role="status" className="flex items-start gap-2 rounded-2xl border border-sage-300 bg-sage/10 p-4 text-sm font-medium text-charcoal">
-                    <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-sage" />
-                    <span>Thank you! Your message has been received. Our team will contact you shortly via phone or WhatsApp.</span>
-                  </div>
-                )}
-
-                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                  <div>
-                    <label htmlFor="contact-name" className="field-label">Your name *</label>
-                    <input id="contact-name" type="text" required value={contactName} onChange={(e) => setContactName(e.target.value)} placeholder="e.g. John Mwangi" className="field" autoComplete="name" />
-                  </div>
-                  <div>
-                    <label htmlFor="contact-phone" className="field-label">Phone / WhatsApp *</label>
-                    <input id="contact-phone" type="tel" required value={contactPhone} onChange={(e) => setContactPhone(e.target.value)} placeholder="e.g. 0718 123 456" className="field" autoComplete="tel" />
-                  </div>
+            <form onSubmit={handleContactSubmit} className="space-y-4">
+              {contactError && (
+                <div role="alert" className="rounded-xl border border-red-200 bg-red-50 p-4 text-sm font-semibold text-red-800">
+                  {contactError}{' '}
+                  {hasWhatsapp ? <a href={whatsappUrl} target="_blank" rel="noopener noreferrer" className="font-bold underline">Message us on WhatsApp</a> : <a href={`mailto:${contact.email}`} className="font-bold underline">Email us</a>}
                 </div>
-                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                  <div>
-                    <label htmlFor="contact-county" className="field-label">County / location</label>
-                    <input id="contact-county" type="text" value={contactCounty} onChange={(e) => setContactCounty(e.target.value)} placeholder="e.g. Nakuru, Kiambu, Meru" className="field" />
-                  </div>
-                  <div>
-                    <label htmlFor="contact-herd" className="field-label">Estimated herd size</label>
-                    <select id="contact-herd" value={contactCows} onChange={(e) => setContactCows(e.target.value)} className="field">
-                      <option value="1-5">1 – 5 cows (Starter)</option>
-                      <option value="6-15">6 – 15 cows (Farmer)</option>
-                      <option value="16-30">16 – 30 cows (Pro)</option>
-                      <option value="31+">31+ cows (Commercial)</option>
-                      <option value="cooperative">Dairy cooperative / group</option>
-                    </select>
-                  </div>
+              )}
+              {contactSubmitted && (
+                <div role="status" className="flex items-start gap-2 rounded-xl border border-sage-300 bg-sage/10 p-4 text-sm font-semibold text-charcoal">
+                  <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-sage" />
+                  <span>Thank you! Your message has been received. Our team will contact you shortly via phone or WhatsApp.</span>
+                </div>
+              )}
+
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                <div>
+                  <label htmlFor="contact-name" className="field-label">Your name *</label>
+                  <input id="contact-name" type="text" required value={contactName} onChange={(e) => setContactName(e.target.value)} placeholder="e.g. John Mwangi" className="field" autoComplete="name" />
                 </div>
                 <div>
-                  <label htmlFor="contact-message" className="field-label">Message or question</label>
-                  <textarea id="contact-message" rows={4} value={contactMessage} onChange={(e) => setContactMessage(e.target.value)} placeholder="Tell us about your dairy farm or ask any questions" className="field" />
+                  <label htmlFor="contact-phone" className="field-label">Phone / WhatsApp *</label>
+                  <input id="contact-phone" type="tel" required value={contactPhone} onChange={(e) => setContactPhone(e.target.value)} placeholder="e.g. 0718 123 456" className="field" autoComplete="tel" />
                 </div>
-                <button type="submit" disabled={contactSending} className="btn btn-primary btn-lg w-full sm:w-auto">
-                  <span>{contactSending ? 'Sending…' : 'Send message'}</span>
-                  <ArrowRight className="h-5 w-5" />
-                </button>
-                <p className="text-sm text-charcoal-muted">We use your details only to reply to you. See our <a href="/privacy" className="font-semibold text-sage underline">Privacy notice</a>.</p>
-              </form>
-            </div>
+              </div>
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                <div>
+                  <label htmlFor="contact-county" className="field-label">County / location</label>
+                  <input id="contact-county" type="text" value={contactCounty} onChange={(e) => setContactCounty(e.target.value)} placeholder="e.g. Nakuru, Kiambu, Meru" className="field" />
+                </div>
+                <div>
+                  <label htmlFor="contact-herd" className="field-label">Estimated herd size</label>
+                  <select id="contact-herd" value={contactCows} onChange={(e) => setContactCows(e.target.value)} className="field">
+                    <option value="1-5">1 – 5 cows (Starter)</option>
+                    <option value="6-15">6 – 15 cows (Farmer)</option>
+                    <option value="16-30">16 – 30 cows (Pro)</option>
+                    <option value="31+">31+ cows (Commercial)</option>
+                    <option value="cooperative">Dairy cooperative / group</option>
+                  </select>
+                </div>
+              </div>
+              <div>
+                <label htmlFor="contact-message" className="field-label">Message or question</label>
+                <textarea id="contact-message" rows={4} value={contactMessage} onChange={(e) => setContactMessage(e.target.value)} placeholder="Tell us about your dairy farm or ask any questions" className="field" />
+              </div>
+              <button type="submit" disabled={contactSending} className="btn btn-primary btn-lg w-full sm:w-auto">
+                {contactSending ? 'Sending…' : 'Send message'}
+              </button>
+              <p className="text-sm text-charcoal-muted">We use your details only to reply to you. See our <a href="/privacy" className="font-bold text-sage underline">Privacy notice</a>.</p>
+            </form>
           </div>
         </div>
       </section>
 
-      {/* ───────────── Final call to action ───────────── */}
-      <section className="section">
-        <div className="container-page">
-          <div className="relative overflow-hidden rounded-[2rem] bg-sage px-6 py-12 text-center text-white shadow-lift sm:px-12 sm:py-16">
-            <div aria-hidden className="pointer-events-none absolute -right-24 -top-24 h-72 w-72 rounded-full bg-white/10 blur-3xl" />
-            <div aria-hidden className="pointer-events-none absolute -bottom-28 -left-20 h-72 w-72 rounded-full bg-gold/25 blur-3xl" />
-            <div className="relative mx-auto max-w-2xl">
+      {/* ───────────── Final call to action, then the footer, on one forest ground ───────────── */}
+      <footer className="bg-forest text-white">
+        <div className="container-page pb-10 pt-16 sm:pt-20">
+          <div className="relative flex flex-col gap-8 border-b border-white/15 pb-14 lg:flex-row lg:items-end lg:justify-between">
+            <div className="max-w-2xl">
               <h2 className="font-display text-display-lg [text-wrap:balance]">Your farm deserves better than guesswork.</h2>
-              <p className="mx-auto mt-5 max-w-lg text-lg leading-relaxed text-ivory/85">
+              <p className="mt-5 max-w-lg text-lg leading-relaxed text-white/75">
                 Bring your cows, milk records, farm activities, and payments into one simple place with Mylkio.
               </p>
-              <div className="mt-9 flex flex-col items-center justify-center gap-3 sm:flex-row">
-                <button onClick={() => startTrial()} className="btn btn-lg w-full bg-white text-sage-700 shadow-soft hover:bg-ivory sm:w-auto">
-                  <span>Start managing your farm</span>
-                  <ArrowRight className="h-5 w-5" />
-                </button>
-                {hasWhatsapp ? <a href={whatsappUrl} target="_blank" rel="noreferrer" className="btn btn-lg btn-on-dark w-full sm:w-auto">
-                  <MessageCircle className="h-5 w-5" />
-                  <span>Talk to our team</span>
-                </a> : <a href="#contact" className="btn btn-lg btn-on-dark w-full sm:w-auto">
-                  <MessageCircle className="h-5 w-5" />
-                  <span>Talk to our team</span>
-                </a>}
-              </div>
-              <p className="mt-8 text-sm text-ivory/75">Mylkio is developed by Versaly, building practical software solutions for Kenyan dairy farmers.</p>
+            </div>
+            <div className="flex flex-col gap-3 sm:flex-row">
+              <button onClick={() => startTrial()} className={`${CHIT_BTN} btn-lg w-full sm:w-auto`}>Start managing your farm</button>
+              {hasWhatsapp
+                ? <a href={whatsappUrl} target="_blank" rel="noreferrer" className="btn btn-lg btn-on-dark w-full sm:w-auto"><MessageCircle className="h-5 w-5" /><span>Talk to our team</span></a>
+                : <a href="#contact" className="btn btn-lg btn-on-dark w-full sm:w-auto"><MessageCircle className="h-5 w-5" /><span>Talk to our team</span></a>}
             </div>
           </div>
-        </div>
-      </section>
 
-      {/* ───────────── Footer ───────────── */}
-      <footer className="bg-sage-900 text-ivory">
-        <div className="container-page py-12">
-          <div className="grid grid-cols-1 gap-10 md:grid-cols-[1.4fr_1fr_1fr]">
+          <div className="grid grid-cols-1 gap-10 pt-12 md:grid-cols-[1.4fr_1fr_1fr]">
             <div>
               <div className="flex items-center gap-3">
-                <span className="flex h-10 w-10 items-center justify-center rounded-full bg-white font-display text-lg font-medium text-sage">M</span>
-                <span className="font-display text-xl font-medium">Mylkio</span>
+                <span className="flex h-10 w-10 items-center justify-center rounded-full bg-chit font-display text-xl font-bold text-forest">M</span>
+                <span className="font-display text-xl font-bold">Mylkio</span>
               </div>
-              <p className="mt-4 max-w-xs text-base leading-relaxed text-sage-200">Smarter dairy farming, made simple. A product by Versaly.</p>
+              <p className="mt-4 max-w-xs leading-relaxed text-white/70">Smarter dairy farming, made simple. Mylkio is developed by Versaly, building practical software for Kenyan dairy farmers.</p>
             </div>
             <nav aria-label="Footer">
-              <p className="text-xs font-semibold uppercase tracking-[0.16em] text-gold">Explore</p>
+              <p className="font-bold text-chit">Explore</p>
               <ul className="mt-4 space-y-2.5">
                 {ALL_LINKS.map((link) => (
-                  <li key={link.href}><a href={link.href} className="link-slide whitespace-nowrap text-base text-ivory/85 hover:text-gold">{link.label}</a></li>
+                  <li key={link.href}><a href={link.href} className="link-slide whitespace-nowrap text-white/80 hover:text-white">{link.label}</a></li>
                 ))}
               </ul>
             </nav>
             <div>
-              <p className="text-xs font-semibold uppercase tracking-[0.16em] text-gold">Get in touch</p>
-              <ul className="mt-4 space-y-2.5 text-base">
-                <li>{phoneHref(contact) ? <a href={phoneHref(contact)} className="whitespace-nowrap text-ivory/85 transition-colors hover:text-gold">{contact.phone}</a> : <span className="text-ivory/85">{contact.phone}</span>}</li>
-                <li><a href={`mailto:${contact.email}`} className="break-all text-ivory/85 transition-colors hover:text-gold">{contact.email}</a></li>
+              <p className="font-bold text-chit">Get in touch</p>
+              <ul className="mt-4 space-y-2.5">
+                <li>{phoneHref(contact) ? <a href={phoneHref(contact)} className="whitespace-nowrap text-white/80 hover:text-white">{contact.phone}</a> : <span className="text-white/80">{contact.phone}</span>}</li>
+                <li><a href={`mailto:${contact.email}`} className="break-all text-white/80 hover:text-white">{contact.email}</a></li>
               </ul>
             </div>
           </div>
-          <div className="mt-10 flex flex-col gap-2 border-t border-white/10 pt-6 text-sm text-sage-200 sm:flex-row sm:items-center sm:justify-between">
+          <div className="mt-12 flex flex-col gap-2 border-t border-white/15 pt-6 text-sm text-white/60 sm:flex-row sm:items-center sm:justify-between">
             <span>© {new Date().getFullYear()} Mylkio by Versaly. Built for Kenyan dairy farmers.</span>
             <span className="flex flex-wrap gap-x-5 gap-y-1">
-              <a href="/privacy" className="link-slide whitespace-nowrap hover:text-gold">Privacy notice</a>
-              <a href="/terms" className="link-slide whitespace-nowrap hover:text-gold">Terms of use</a>
+              <a href="/privacy" className="link-slide whitespace-nowrap hover:text-white">Privacy notice</a>
+              <a href="/terms" className="link-slide whitespace-nowrap hover:text-white">Terms of use</a>
             </span>
           </div>
         </div>
@@ -1052,93 +970,120 @@ export const MarketingLandingPage: React.FC<MarketingLandingPageProps> = ({
   );
 };
 
-/** The five product-preview panels. Every figure is sample data. */
-function PreviewPanel({ tab }: { tab: PreviewTab }) {
-  const head = (title: string, badge: React.ReactNode) => (
-    <div className="flex flex-wrap items-center justify-between gap-3 border-b border-ivory-border pb-4">
-      <h3 className="text-lg font-semibold">{title}</h3>
-      {badge}
-    </div>
-  );
-  const pill = (text: string, tone: 'sage' | 'rose' = 'sage') => (
-    <span className={`whitespace-nowrap rounded-full border px-3 py-1 text-xs font-bold ${tone === 'rose' ? 'border-rose-200 bg-rose-50 text-rose-800' : 'border-sage-300 bg-sage/10 text-sage'}`}>{text}</span>
-  );
+/** What each preview screen is for, shown beside the phone. */
+const PREVIEW_NOTES: Record<PreviewTab, string> = {
+  dashboard: "At a glance: today's milk, active cows, co-op deliveries, and the next vet follow-up.",
+  milk: 'Record the farm total in under 20 seconds, or log cow by cow, with morning and evening summaries.',
+  herd: 'Ear tags, breed, pregnancy status and lactation count, with a warning while a cow is on a milk withdrawal.',
+  sales: 'Deliveries to your co-op and direct customers, with what each one has paid and still owes.',
+  finance: 'Milk income against feed, vet and labour costs, so you see what the farm really earns.',
+};
 
+/** The five preview screens, drawn for the phone frame. Every figure is sample data. */
+function PreviewPanel({ tab }: { tab: PreviewTab }) {
+  const box = 'rounded-xl border border-rule bg-white p-3.5';
   if (tab === 'dashboard') {
     return (
-      <div className="space-y-6">
-        {head('Dashboard overview', <span className="text-sm font-semibold text-sage">Green Hills Dairy, Nakuru</span>)}
-        <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+      <div className="space-y-3">
+        <div className="grid grid-cols-2 gap-2.5">
           {[
-            { k: "Today's milk", v: '42 L', c: 'text-charcoal' },
-            { k: 'Active cows', v: '6', c: 'text-charcoal' },
-            { k: 'Month sales', v: 'KSh 38,500', c: 'text-sage' },
-            { k: 'Next activity', v: 'Pregnancy check', c: 'text-charcoal' },
-          ].map(({ k, v, c }) => (
-            <div key={k} className="rounded-2xl border border-ivory-border bg-white p-4">
-              <p className="text-xs font-semibold uppercase tracking-wider text-charcoal-muted">{k}</p>
-              <p className={`mt-1 text-xl font-bold tabular-nums sm:text-2xl ${c}`}>{v}</p>
+            { k: "Today's milk", v: '42 L' },
+            { k: 'Active cows', v: '6' },
+            { k: 'Month sales', v: 'KSh 38,500' },
+            { k: 'To the co-op', v: '34 L' },
+          ].map(({ k, v }) => (
+            <div key={k} className={box}>
+              <p className="text-xs font-semibold text-charcoal-muted">{k}</p>
+              <p className="mt-0.5 whitespace-nowrap text-lg font-bold tabular-nums">{v}</p>
             </div>
           ))}
         </div>
-        <p className="text-base text-charcoal-light">At a glance: today&apos;s milk totals, active cow counts, co-op deliveries, and upcoming veterinary follow-ups.</p>
+        <div className={box}>
+          <p className="text-xs font-semibold text-charcoal-muted">Next activity</p>
+          <p className="mt-0.5 font-bold">Pregnancy check, Zawadi</p>
+          <p className="text-sm text-charcoal-muted">Due Thursday</p>
+        </div>
+        <div className={`${box} flex items-end gap-1.5`} aria-hidden>
+          {[30, 34, 33, 38, 36, 41, 42].map((h, i) => (
+            <span key={i} className={`flex-1 rounded-t ${i === 6 ? 'bg-sage' : 'bg-sage-200'}`} style={{ height: `${h * 1.6}px` }} />
+          ))}
+        </div>
       </div>
     );
   }
   if (tab === 'milk') {
     return (
-      <div className="space-y-6">
-        {head('Daily milk production logging', <span className="text-sm font-semibold text-sage">Fast entry under 20 seconds</span>)}
-        <div className="space-y-2 rounded-2xl border border-ivory-border bg-white p-5">
-          <div className="flex justify-between gap-4 font-semibold">
-            <span>Morning milking</span>
-            <span className="whitespace-nowrap text-sage">24.0 litres</span>
+      <div className="space-y-3">
+        {[
+          { shift: 'Morning milking', l: '24.0 L', parts: ['18 L to Baraka Co-op', '4 L to Green Garden Hotel', '2 L household and calves'] },
+          { shift: 'Evening milking', l: '18.0 L', parts: ['16 L to Baraka Co-op', '2 L household and calves'] },
+        ].map(({ shift, l, parts }) => (
+          <div key={shift} className={box}>
+            <div className="flex items-baseline justify-between gap-3">
+              <p className="font-bold">{shift}</p>
+              <p className="whitespace-nowrap text-lg font-bold tabular-nums text-sage">{l}</p>
+            </div>
+            <ul className="mt-2 space-y-1 border-t border-rule pt-2 text-sm text-charcoal-muted">
+              {parts.map((p) => <li key={p}>{p}</li>)}
+            </ul>
           </div>
-          <p className="text-sm text-charcoal-muted">Allocation: 18 L to Baraka Co-op • 4 L direct to Green Garden Hotel • 2 L household and calves</p>
-        </div>
-        <p className="text-base text-charcoal-light">Quick farm-total recording or cow-by-cow logging with morning and evening summaries.</p>
+        ))}
+        <p className="rounded-xl bg-sage px-4 py-3 text-center font-bold text-white">Record milk</p>
       </div>
     );
   }
   if (tab === 'herd') {
     return (
-      <div className="space-y-6">
-        {head('Cow profiles and antibiotic withdrawal safety', pill('Active warning', 'rose'))}
-        <div className="space-y-1.5 rounded-2xl border border-rose-200 bg-rose-50 p-5">
-          <p className="flex items-center gap-2 font-semibold text-rose-900"><AlertTriangle className="h-5 w-5 shrink-0 text-rose-600" />Amani (GH-04): milk withdrawal active until Oct 26</p>
-          <p className="text-sm text-charcoal-light">PenStrep administered Oct 22. Milk must NOT be sold to the cooperative collection centre.</p>
+      <div className="space-y-3">
+        <div className="rounded-xl border border-rose-200 bg-rose-50 p-3.5">
+          <p className="flex items-start gap-2 font-bold text-rose-900"><AlertTriangle className="mt-0.5 h-4 w-4 shrink-0 text-rose-600" />Amani (GH-04): do not sell milk until Oct 26</p>
+          <p className="mt-1 text-sm text-charcoal-light">PenStrep given Oct 22. Milk withdrawal is active.</p>
         </div>
-        <p className="text-base text-charcoal-light">Ear-tag identification, breed, pregnancy status, lactation count, and safety warnings.</p>
+        {[
+          { n: 'Zawadi', t: 'GH-01, Friesian', s: 'In calf, 5 months' },
+          { n: 'Baraka', t: 'GH-02, Ayrshire', s: 'Lactation 3' },
+          { n: 'Neema', t: 'GH-03, Friesian', s: 'Served 12 days ago' },
+        ].map(({ n, t, s: st }) => (
+          <div key={n} className={`${box} flex items-center justify-between gap-3`}>
+            <div>
+              <p className="font-bold">{n}</p>
+              <p className="text-sm text-charcoal-muted">{t}</p>
+            </div>
+            <p className="text-right text-xs font-bold text-sage">{st}</p>
+          </div>
+        ))}
       </div>
     );
   }
   if (tab === 'sales') {
     return (
-      <div className="space-y-6">
-        {head('Milk deliveries and buyer records', pill('Reconciled'))}
-        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-          {[
-            { n: 'Baraka Dairy Co-op', d: 'Daily pickup • KSh 50/L', s: 'Pending: KSh 40,000' },
-            { n: 'Green Garden Hotel', d: 'Direct customer • KSh 60/L', s: 'Paid: KSh 7,200 (M-Pesa)' },
-          ].map(({ n, d, s }) => (
-            <div key={n} className="rounded-2xl border border-ivory-border bg-white p-5">
-              <p className="font-semibold">{n}</p>
-              <p className="text-sm text-charcoal-muted">{d}</p>
-              <p className="mt-1 font-semibold text-sage">{s}</p>
-            </div>
-          ))}
-        </div>
+      <div className="space-y-3">
+        {[
+          { n: 'Baraka Dairy Co-op', d: 'Daily pickup, KSh 50 a litre', s: 'Owed: KSh 40,000', owed: true },
+          { n: 'Green Garden Hotel', d: 'Direct customer, KSh 60 a litre', s: 'Paid: KSh 7,200 by M-Pesa', owed: false },
+        ].map(({ n, d, s: st, owed }) => (
+          <div key={n} className={box}>
+            <p className="font-bold">{n}</p>
+            <p className="text-sm text-charcoal-muted">{d}</p>
+            <p className={`mt-2 border-t border-rule pt-2 font-bold ${owed ? 'text-charcoal' : 'text-sage'}`}>{st}</p>
+          </div>
+        ))}
+        <p className="rounded-xl border border-dashed border-sage/50 px-4 py-3 text-center text-sm font-bold text-sage">Statement matches your records</p>
       </div>
     );
   }
   return (
-    <div className="space-y-6">
-      {head('Farm finances and operating margin', pill('Profitable'))}
-      <dl className="space-y-3 rounded-2xl border border-ivory-border bg-white p-5 text-base">
-        <div className="flex justify-between gap-4"><dt className="text-charcoal-muted">Total milk sales revenue</dt><dd className="whitespace-nowrap font-semibold">KSh 47,200</dd></div>
-        <div className="flex justify-between gap-4 text-rose-800"><dt>Operating expenses (feed, vet, labour)</dt><dd className="whitespace-nowrap font-semibold">− KSh 16,800</dd></div>
-        <div className="flex justify-between gap-4 border-t border-ivory-border pt-3 text-lg font-semibold"><dt>Net farm operating profit</dt><dd className="whitespace-nowrap text-sage">KSh 30,400</dd></div>
+    <div className="space-y-3">
+      <dl className={`${box} space-y-2.5 text-sm`}>
+        <div className="flex justify-between gap-3"><dt className="text-charcoal-muted">Milk sales</dt><dd className="whitespace-nowrap font-bold">KSh 47,200</dd></div>
+        <div className="flex justify-between gap-3"><dt className="text-charcoal-muted">Feed</dt><dd className="whitespace-nowrap font-bold text-rose-800">− KSh 11,400</dd></div>
+        <div className="flex justify-between gap-3"><dt className="text-charcoal-muted">Vet and medicine</dt><dd className="whitespace-nowrap font-bold text-rose-800">− KSh 2,600</dd></div>
+        <div className="flex justify-between gap-3"><dt className="text-charcoal-muted">Labour</dt><dd className="whitespace-nowrap font-bold text-rose-800">− KSh 2,800</dd></div>
       </dl>
+      <div className="rounded-xl bg-forest p-4 text-white">
+        <p className="text-sm font-semibold text-white/70">What the farm earned this month</p>
+        <p className="mt-1 text-3xl font-bold tabular-nums">KSh 30,400</p>
+      </div>
     </div>
   );
 }

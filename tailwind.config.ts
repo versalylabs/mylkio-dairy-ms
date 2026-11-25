@@ -11,6 +11,12 @@ const config: Config = {
       colors: {
         background: "var(--background)",
         foreground: "var(--foreground)",
+        // The website's ledger palette: a deep forest for dark bands, a cool milk-white page,
+        // the yellow of a co-op delivery slip (used sparingly), and the hairline that replaces shadows.
+        forest: { DEFAULT: "#14291F", soft: "#1E3A2D" },
+        milk: "#F8F8F3",
+        chit: { DEFAULT: "#F4DC7A", deep: "#E9C94F" },
+        rule: "#DDE2D6",
         // Sage & Ivory Design System Tokens
         sage: {
           DEFAULT: "#345C4A",
@@ -142,15 +148,15 @@ const config: Config = {
       },
       fontFamily: {
         sans: ["var(--font-sans)", "-apple-system", "BlinkMacSystemFont", "Segoe UI", "Roboto", "sans-serif"],
-        // Editorial serif for headlines on the website, sign-in and administration.
-        display: ["var(--font-display)", "Georgia", "Cambria", "serif"],
+        // Headlines use the same Versaly face as the body (Quicksand), set heavier and tighter.
+        display: ["var(--font-sans)", "-apple-system", "BlinkMacSystemFont", "Segoe UI", "Roboto", "sans-serif"],
       },
       // Fluid type: headings scale smoothly between a 320px phone and a wide desktop,
       // so they never need a different size per breakpoint or wrap awkwardly.
       fontSize: {
-        "display-xl": ["clamp(2.5rem, 1.1rem + 6.4vw, 6.25rem)", { lineHeight: "1.02", letterSpacing: "-0.03em", fontWeight: "500" }],
-        "display-lg": ["clamp(2rem, 1.35rem + 2.8vw, 3.5rem)", { lineHeight: "1.08", letterSpacing: "-0.02em", fontWeight: "500" }],
-        "display-md": ["clamp(1.625rem, 1.3rem + 1.4vw, 2.375rem)", { lineHeight: "1.15", letterSpacing: "-0.015em", fontWeight: "500" }],
+        "display-xl": ["clamp(2.5rem, 1.2rem + 5.4vw, 5.5rem)", { lineHeight: "1.0", letterSpacing: "-0.035em", fontWeight: "700" }],
+        "display-lg": ["clamp(2rem, 1.4rem + 2.4vw, 3.25rem)", { lineHeight: "1.06", letterSpacing: "-0.03em", fontWeight: "700" }],
+        "display-md": ["clamp(1.5rem, 1.25rem + 1.1vw, 2.125rem)", { lineHeight: "1.15", letterSpacing: "-0.02em", fontWeight: "700" }],
       },
       keyframes: {
         rise: { "0%": { opacity: "0", transform: "translateY(14px)" }, "100%": { opacity: "1", transform: "translateY(0)" } },

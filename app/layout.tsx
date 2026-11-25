@@ -1,21 +1,14 @@
 import type { Metadata, Viewport } from "next";
-import { Fraunces, Inter } from "next/font/google";
+import { Quicksand } from "next/font/google";
 import "./globals.css";
 import { SITE_NAME, SITE_TAGLINE, SITE_URL } from "@/lib/site";
 import { SiteContentProvider } from "@/components/site/SiteContentProvider";
 
-const inter = Inter({
+// Quicksand is the Versaly brand face. It is a variable font (300–700): one file covers every weight.
+const quicksand = Quicksand({
   subsets: ["latin"],
   display: "swap",
-  // Inter is a variable font: one file covers every weight, so no weight list.
   variable: "--font-sans",
-});
-
-// An editorial serif for headlines; Inter stays for everything people read and tap.
-const fraunces = Fraunces({
-  subsets: ["latin"],
-  display: "swap",
-  variable: "--font-display",
 });
 
 export const metadata: Metadata = {
@@ -64,7 +57,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={`${inter.variable} ${fraunces.variable} scroll-smooth`}>
+    <html lang="en" className={`${quicksand.variable} scroll-smooth`}>
       <body className="antialiased bg-[#FAF9F5] text-[#26332D] selection:bg-[#A8BFA5]/30 selection:text-[#26332D]">
         <SiteContentProvider>{children}</SiteContentProvider>
       </body>

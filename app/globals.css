@@ -259,3 +259,9 @@ body {
   .btn-primary::after, .btn-gold::after { display: none; }
   *, *::before, *::after { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important; scroll-behavior: auto !important; }
 }
+
+/* The website's delivery slip: a row of half-circle perforations torn along its top edge. */
+.slip-paper {
+  -webkit-mask: radial-gradient(circle at 8px 0, transparent 5px, #000 5.5px) 0 0 / 16px 100% repeat-x;
+  mask: radial-gradient(circle at 8px 0, transparent 5px, #000 5.5px) 0 0 / 16px 100% repeat-x;
+}
