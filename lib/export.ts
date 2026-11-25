@@ -63,7 +63,7 @@ export const DataExporter = {
   },
 
   exportExpensesToCSV(expenses: ExpenseRecord[]) {
-    const headers = ['Date', 'Category', 'Description', 'Amount (KSh)', 'Payment Method', 'Reference Code', 'Notes'];
+    const headers = ['Date', 'Category', 'Description', 'Amount (KSh)', 'Payment Method', 'Reference Code', 'Notes', 'Feed Type', 'Quantity', 'Unit'];
     const rows = expenses.map((exp) => [
       exp.date,
       exp.category,
@@ -72,6 +72,9 @@ export const DataExporter = {
       exp.paymentMethod,
       exp.referenceNo || '',
       `"${(exp.notes || '').replace(/"/g, '""')}"`,
+      exp.feedType || '',
+      exp.quantity ?? '',
+      exp.unit || '',
     ]);
 
     const csvContent = [headers.join(','), ...rows.map((r) => r.join(','))].join('\n');

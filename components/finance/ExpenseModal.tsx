@@ -1,7 +1,9 @@
 'use client';
 
 import React, { useState } from 'react';
-import { ExpenseRecord, ExpenseCategory, Language } from '@/types';
+import { ExpenseRecord, ExpenseCategory, FeedType, FeedUnit, Language } from '@/types';
+import { FEED_TYPES, FEED_UNITS } from '@/lib/feed-cost';
+import { FEED_COPY, FEED_UNIT_NAMES } from '@/lib/feed-copy';
 import { farmToday } from '@/lib/dates';
 import { translations } from '@/lib/translations';
 import { X, Check, Receipt, Smartphone, Banknote, CreditCard, AlertCircle } from 'lucide-react';
@@ -29,6 +31,10 @@ export const ExpenseModal: React.FC<ExpenseModalProps> = ({
   const [paymentMethod, setPaymentMethod] = useState<'cash' | 'mpesa' | 'bank'>('mpesa');
   const [referenceNo, setReferenceNo] = useState('');
   const [notes, setNotes] = useState('');
+  // Feed only: what was bought and how much, for the feed cost card.
+  const [feedType, setFeedType] = useState<FeedType | ''>('');
+  const [quantity, setQuantity] = useState('');
+  const [unit, setUnit] = useState<FeedUnit>('bag');
   const [error, setError] = useState('');
 
   if (!isOpen) return null;
@@ -53,6 +59,8 @@ export const ExpenseModal: React.FC<ExpenseModalProps> = ({
       paymentMethod,
       referenceNo: referenceNo.trim() || undefined,
       notes: notes.trim() || undefined,
+      ...(category === 'feed' && feedType ? { feedType } : {}),
+      ...(category === 'feed' && parseFloat(quantity) > 0 ? { quantity: parseFloat(quantity), unit } : {}),
     });
 
     // Reset
@@ -60,6 +68,8 @@ export const ExpenseModal: React.FC<ExpenseModalProps> = ({
     setAmount('');
     setReferenceNo('');
     setNotes('');
+    setFeedType('');
+    setQuantity('');
     setError('');
     onClose();
   };
@@ -130,6 +140,28 @@ export const ExpenseModal: React.FC<ExpenseModalProps> = ({
               </select>
             </div>
           </div>
+
+          {category === 'feed' && (
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-[1.4fr_1fr_1fr]">
+              <div>
+                <label htmlFor="feed-type" className="field-label">{FEED_COPY[lang].form.type}</label>
+                <select id="feed-type" value={feedType} onChange={(e) => setFeedType(e.target.value as FeedType | '')} className="field">
+                  <option value="">{FEED_COPY[lang].form.optional}</option>
+                  {FEED_TYPES.map((ft) => <option key={ft} value={ft}>{FEED_COPY[lang].types[ft]}</option>)}
+                </select>
+              </div>
+              <div>
+                <label htmlFor="feed-qty" className="field-label">{FEED_COPY[lang].form.quantity}</label>
+                <input id="feed-qty" type="number" inputMode="decimal" step="any" min="0" value={quantity} onChange={(e) => setQuantity(e.target.value)} placeholder={FEED_COPY[lang].form.optional} className="field" />
+              </div>
+              <div>
+                <label htmlFor="feed-unit" className="field-label">{FEED_COPY[lang].form.unit}</label>
+                <select id="feed-unit" value={unit} onChange={(e) => setUnit(e.target.value as FeedUnit)} className="field">
+                  {FEED_UNITS.map((u) => <option key={u} value={u}>{FEED_UNIT_NAMES[lang][u]}</option>)}
+                </select>
+              </div>
+            </div>
+          )}
 
           <div>
             <label className="field-label">
