@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import { ExpenseRecord, Delivery, PaymentRecord, ExpenseCategory, Language, MilkEntry } from '@/types';
 import { CostPerLitreCard } from './CostPerLitreCard';
+import { FeedCostCard } from './FeedCostCard';
 import { translations } from '@/lib/translations';
 import { farmToday, inRange, monthRange, previousMonthRange, type DateRange } from '@/lib/dates';
 import { cashReceived, expensesInRange, salesInRange } from '@/lib/ledger';
@@ -120,6 +121,7 @@ export const FinanceView: React.FC<FinanceViewProps> = ({
 
       {/* Cost per litre: this month or last month, Farmer plan and above (owners and managers only: this is the money screen) */}
       <CostPerLitreCard milk={milkEntries} deliveries={deliveries} expenses={expenses} subscription={subscription} lang={lang} />
+      <FeedCostCard milk={milkEntries} deliveries={deliveries} expenses={expenses} subscription={subscription} lang={lang} />
 
       {/* KPI Cards: Revenue, Expenses, Net Profit */}
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">

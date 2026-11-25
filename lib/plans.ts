@@ -36,6 +36,8 @@ export interface PlanFeatures {
   costPerLitre: boolean;
   /** A cow whose milk has dropped, and a ranking of the cows this week. Farmer and up. */
   milkDrop: boolean;
+  /** Feed cost per litre, the margin left after feed, and where the feed money went (Finance). Farmer and up. */
+  feedCost: boolean;
   /** How late each buyer's unpaid money is, and what co-ops deduct before paying. Farmer and up (every plan sees who owes what). */
   paymentAgeing: boolean;
   /** Cows not served, and cows served again and again without holding. Farmer and up. */
@@ -67,12 +69,12 @@ export interface Plan {
 
 const STARTER_FEATURES: PlanFeatures = {
   illnessGuide: true, seasonalCalendar: true, producedVsSold: true, reminderPush: true,
-  healthChecker: false, healthChecksPerMonth: 0, costPerLitre: false, paymentAgeing: false, milkDrop: false, fertility: false, reminderSms: false,
+  healthChecker: false, healthChecksPerMonth: 0, costPerLitre: false, feedCost: false, paymentAgeing: false, milkDrop: false, fertility: false, reminderSms: false,
   vetFinder: false, teamLogins: false, weeklySummary: false, farmReport: false, community: false,
 };
 const FARMER_FEATURES: PlanFeatures = {
   ...STARTER_FEATURES,
-  healthChecker: true, healthChecksPerMonth: 10, costPerLitre: true, paymentAgeing: true, milkDrop: true, fertility: true, reminderSms: true,
+  healthChecker: true, healthChecksPerMonth: 10, costPerLitre: true, feedCost: true, paymentAgeing: true, milkDrop: true, fertility: true, reminderSms: true,
 };
 const FARM_PRO_FEATURES: PlanFeatures = {
   ...FARMER_FEATURES,

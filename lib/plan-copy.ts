@@ -13,12 +13,12 @@ export const symptomCheckerLive = () => visibleEntries(CONDITIONS).length > 0;
 export const FEATURE_NAMES: Record<Lang, Record<FeatureId, string>> = {
   en: {
     illnessGuide: 'Emergency-signs guide', seasonalCalendar: 'Seasonal calendar', producedVsSold: 'Produced vs sold', reminderPush: 'Phone reminders',
-    healthChecker: 'Symptom checker', costPerLitre: 'Cost per litre', paymentAgeing: 'Late payment tracking and co-op deductions', milkDrop: 'Milk drop alerts and cow ranking', fertility: 'Fertility flags',
+    healthChecker: 'Symptom checker', costPerLitre: 'Cost per litre', feedCost: 'Feed cost per litre and margin over feed', paymentAgeing: 'Late payment tracking and co-op deductions', milkDrop: 'Milk drop alerts and cow ranking', fertility: 'Fertility flags',
     reminderSms: 'SMS reminders', vetFinder: 'Vets near you', teamLogins: 'Team logins', weeklySummary: 'Weekly owner summary', farmReport: 'Farm report for a bank or SACCO', community: 'Community',
   },
   sw: {
     illnessGuide: 'Mwongozo wa dalili za dharura', seasonalCalendar: 'Kalenda ya misimu', producedVsSold: 'Yaliyozalishwa na yaliyouzwa', reminderPush: 'Vikumbusho kwenye simu',
-    healthChecker: 'Kikagua dalili', costPerLitre: 'Gharama kwa lita', paymentAgeing: 'Ufuatiliaji wa malipo yaliyochelewa na makato ya ushirika', milkDrop: 'Tahadhari za maziwa kushuka na viwango vya ng’ombe', fertility: 'Tahadhari za uzazi',
+    healthChecker: 'Kikagua dalili', costPerLitre: 'Gharama kwa lita', feedCost: 'Gharama ya chakula kwa lita na faida baada ya chakula', paymentAgeing: 'Ufuatiliaji wa malipo yaliyochelewa na makato ya ushirika', milkDrop: 'Tahadhari za maziwa kushuka na viwango vya ng’ombe', fertility: 'Tahadhari za uzazi',
     reminderSms: 'Vikumbusho vya SMS', vetFinder: 'Madaktari wa mifugo karibu nawe', teamLogins: 'Akaunti za timu', weeklySummary: 'Muhtasari wa kila wiki kwa mmiliki', farmReport: 'Ripoti ya shamba kwa benki au SACCO', community: 'Jamii',
   },
 };
@@ -52,7 +52,7 @@ export const PLAN_TEXT = {
 /** The features each plan adds on top of the one before it. Starter adds the base set; Custom adds nothing to Farm Pro. */
 const ADDED: Record<PlanId, FeatureId[]> = {
   starter: ['illnessGuide', 'seasonalCalendar', 'producedVsSold', 'reminderPush'],
-  farmer: ['costPerLitre', 'paymentAgeing', 'milkDrop', 'fertility', 'reminderSms', 'healthChecker'],
+  farmer: ['costPerLitre', 'feedCost', 'paymentAgeing', 'milkDrop', 'fertility', 'reminderSms', 'healthChecker'],
   farm_pro: ['vetFinder', 'teamLogins', 'weeklySummary', 'farmReport', 'community'],
   custom: [],
 };

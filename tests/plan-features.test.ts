@@ -10,7 +10,7 @@ const sub = (plan: string, status: string, offsetDays: number) => ({ plan, statu
 /** Build spec, Change 2: which plan has which feature. */
 const TABLE: Record<FeatureId, 'starter' | 'farmer' | 'farm_pro'> = {
   illnessGuide: 'starter', seasonalCalendar: 'starter', producedVsSold: 'starter', reminderPush: 'starter',
-  healthChecker: 'farmer', costPerLitre: 'farmer', paymentAgeing: 'farmer', milkDrop: 'farmer', fertility: 'farmer', reminderSms: 'farmer',
+  healthChecker: 'farmer', costPerLitre: 'farmer', feedCost: 'farmer', paymentAgeing: 'farmer', milkDrop: 'farmer', fertility: 'farmer', reminderSms: 'farmer',
   vetFinder: 'farm_pro', teamLogins: 'farm_pro', weeklySummary: 'farm_pro', farmReport: 'farm_pro', community: 'farm_pro',
 };
 const RANK = { starter: 0, farmer: 1, farm_pro: 2 };

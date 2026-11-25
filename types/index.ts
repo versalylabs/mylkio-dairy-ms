@@ -244,6 +244,10 @@ export type ExpenseCategory =
   | 'maintenance'
   | 'other';
 
+/** What a feed expense bought (Finance, feed cost per litre). */
+export type FeedType = 'dairy_meal' | 'hay' | 'silage' | 'fodder' | 'minerals' | 'other';
+export type FeedUnit = 'bag' | 'bale' | 'kg' | 'tonne' | 'load';
+
 export interface ExpenseRecord {
   id: string;
   farmId: string;
@@ -254,6 +258,10 @@ export interface ExpenseRecord {
   paymentMethod: 'cash' | 'mpesa' | 'bank';
   referenceNo?: string;
   notes?: string;
+  /** Feed expenses only: what was bought and how much (optional; older records have none). */
+  feedType?: FeedType;
+  quantity?: number;
+  unit?: FeedUnit;
   createdAt: string;
 }
 
