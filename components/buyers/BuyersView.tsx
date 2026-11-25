@@ -64,7 +64,7 @@ export const BuyersView: React.FC<BuyersViewProps> = ({
       {/* Summary Card */}
       <div className="bg-gradient-to-br from-dairy-900 to-dairy-800 rounded-2xl p-5 text-white shadow-md flex items-center justify-between">
         <div className="space-y-1">
-          <span className="text-xs font-semibold uppercase tracking-wider text-dairy-200">
+          <span className="text-xs font-semibold text-dairy-200">
             {lang === 'sw' ? 'Jumla ya Madeni ya Maziwa (Deni)' : 'Total Outstanding Receivables'}
           </span>
           <div className="text-2xl sm:text-3xl font-extrabold tracking-tight">
@@ -143,7 +143,7 @@ export const BuyersView: React.FC<BuyersViewProps> = ({
               <div>
                 <div className="flex items-start justify-between gap-2">
                   <div className="flex items-center space-x-2.5">
-                    <div className={`p-2 rounded-xl ${buyer.type === 'cooperative' ? 'bg-[#A8BFA5]/25 text-[#345C4A]' : 'bg-[#FAF5EB] text-[#C6A76A] border border-[#E5D5B5]'}`}>
+                    <div className={`p-2 rounded-xl ${buyer.type === 'cooperative' ? 'bg-[#A8BFA5]/25 text-[#345C4A]' : 'bg-[#FCF6DC] text-[#8A6A10] border border-[#EED98E]'}`}>
                       {buyer.type === 'cooperative' ? (
                         <Building2 className="w-5 h-5" />
                       ) : (
@@ -179,7 +179,7 @@ export const BuyersView: React.FC<BuyersViewProps> = ({
                     <span className="text-xs text-gray-400 block font-medium">
                       {t.buyers.balance}
                     </span>
-                    <span className={`text-base font-extrabold ${buyer.currentBalance > 0 ? 'text-[#b39252]' : 'text-gray-700'}`}>
+                    <span className={`text-base font-extrabold ${buyer.currentBalance > 0 ? 'text-[#8A6A10]' : 'text-gray-700'}`}>
                       KSh {buyer.currentBalance.toLocaleString()}
                     </span>
                   </div>

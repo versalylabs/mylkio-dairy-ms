@@ -32,7 +32,7 @@ function Card({ title, help, savedInfo, dirty, busy, saveLabel = 'Save changes',
   return <section className="card space-y-4 p-5 sm:p-6">
     <div className="flex flex-wrap items-start justify-between gap-3">
       <div className="min-w-0">
-        <h3 className="font-display text-xl font-medium">{title}</h3>
+        <h3 className="font-display text-xl font-bold">{title}</h3>
         <p className="mt-1 max-w-2xl text-sm text-charcoal-light">{help}</p>
       </div>
       <p className={`whitespace-nowrap rounded-full px-3 py-1 text-xs font-semibold ${savedInfo ? 'bg-sage/10 text-sage' : 'bg-ivory-muted text-charcoal-muted'}`}>
@@ -214,7 +214,7 @@ export function WebsiteContentAdmin() {
   return <section aria-labelledby="website-heading" className="space-y-6">
     <div className="flex flex-wrap items-end justify-between gap-3">
       <div>
-        <h2 id="website-heading" className="font-display text-2xl font-medium">Website content</h2>
+        <h2 id="website-heading" className="font-display text-2xl font-bold">Website content</h2>
         <p className="mt-1 max-w-2xl text-sm text-charcoal-light">Change what visitors see on the live site. Nothing here touches farmers&apos; records. Each part has a built-in version you can go back to, and earlier versions are kept in the database.</p>
       </div>
       <a className="btn btn-secondary" href="/" target="_blank" rel="noopener noreferrer"><ExternalLink className="h-4 w-4" />View the website</a>

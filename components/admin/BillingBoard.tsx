@@ -71,14 +71,14 @@ export function BillingBoard({ accounts, refreshKey, onOpen }: { accounts: Board
   return (
     <section aria-labelledby="billing-heading" className="space-y-4">
       <div>
-        <h2 id="billing-heading" className="font-display text-2xl font-medium">Billing and follow-up</h2>
+        <h2 id="billing-heading" className="font-display text-2xl font-bold">Billing and follow-up</h2>
         <p className="mt-1 max-w-2xl text-sm text-charcoal-light">Mylkio takes no automatic payments. When someone pays you, open their account and record it: that moves their paid-until date and keeps the history.</p>
       </div>
       {error && <p role="alert" className="rounded-xl bg-red-50 p-3 text-sm text-red-800">{error}</p>}
 
       <div className="grid grid-cols-1 gap-3 md:grid-cols-3">
-        <div className="card p-4"><p className="text-sm text-charcoal-light">Received this month</p><p className="mt-1 whitespace-nowrap font-display text-[1.65rem] font-medium tabular-nums sm:text-3xl">{thisMonth ? ksh(thisMonth.amountKsh) : '…'}</p><p className="mt-1 text-xs text-charcoal-muted">{thisMonth ? `${thisMonth.payments} ${thisMonth.payments === 1 ? 'payment' : 'payments'}` : ''}</p></div>
-        <div className="card p-4"><p className="text-sm text-charcoal-light">Received last month</p><p className="mt-1 whitespace-nowrap font-display text-[1.65rem] font-medium tabular-nums sm:text-3xl">{lastMonth ? ksh(lastMonth.amountKsh) : '…'}</p><p className="mt-1 text-xs text-charcoal-muted">{lastMonth ? `${lastMonth.payments} ${lastMonth.payments === 1 ? 'payment' : 'payments'}` : ''}</p></div>
+        <div className="card p-4"><p className="text-sm text-charcoal-light">Received this month</p><p className="mt-1 whitespace-nowrap font-display text-[1.65rem] font-bold tabular-nums sm:text-3xl">{thisMonth ? ksh(thisMonth.amountKsh) : '…'}</p><p className="mt-1 text-xs text-charcoal-muted">{thisMonth ? `${thisMonth.payments} ${thisMonth.payments === 1 ? 'payment' : 'payments'}` : ''}</p></div>
+        <div className="card p-4"><p className="text-sm text-charcoal-light">Received last month</p><p className="mt-1 whitespace-nowrap font-display text-[1.65rem] font-bold tabular-nums sm:text-3xl">{lastMonth ? ksh(lastMonth.amountKsh) : '…'}</p><p className="mt-1 text-xs text-charcoal-muted">{lastMonth ? `${lastMonth.payments} ${lastMonth.payments === 1 ? 'payment' : 'payments'}` : ''}</p></div>
         <div className="card p-4">
           <p className="text-sm text-charcoal-light">Last six months</p>
           <div className="mt-3 flex h-16 items-end gap-1.5" role="img" aria-label={`Money received by month: ${months.map((m) => `${monthName(m.month)} ${ksh(m.amountKsh)}`).join(', ')}`}>

@@ -97,7 +97,7 @@ export const BuyerModal: React.FC<BuyerModalProps> = ({
         {/* Header */}
         <div className="flex items-center justify-between p-5 border-b border-gray-100 sticky top-0 bg-white z-10">
           <div>
-            <h2 className="font-display text-xl font-medium text-charcoal">
+            <h2 className="font-display text-xl font-bold text-charcoal">
               {buyerToEdit ? (lang === 'sw' ? 'Badilisha Mnunuzi' : 'Edit Buyer Details') : t.buyerModal.titleNew}
             </h2>
             <p className="text-xs text-gray-500 mt-0.5">

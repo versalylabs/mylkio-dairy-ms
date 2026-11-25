@@ -70,11 +70,11 @@ export const ExpenseModal: React.FC<ExpenseModalProps> = ({
         {/* Header */}
         <div className="flex items-center justify-between p-5 border-b border-gray-100 sticky top-0 bg-white z-10">
           <div className="flex items-center space-x-2.5">
-            <div className="w-10 h-10 rounded-2xl bg-[#FAF9F5] text-[#345C4A] border border-gray-200 flex items-center justify-center">
+            <div className="w-10 h-10 rounded-2xl bg-[#F8F8F3] text-[#345C4A] border border-gray-200 flex items-center justify-center">
               <Receipt className="w-5 h-5" />
             </div>
             <div>
-              <h2 className="font-display text-xl font-medium text-charcoal">
+              <h2 className="font-display text-xl font-bold text-charcoal">
                 {lang === 'sw' ? 'Rekodi Gharama za Shamba' : 'Record Farm Expense'}
               </h2>
               <p className="text-xs text-gray-500">
@@ -147,7 +147,7 @@ export const ExpenseModal: React.FC<ExpenseModalProps> = ({
 
           {/* Amount Input */}
           <div className="bg-slate-50 p-4 rounded-2xl border border-slate-200 space-y-2">
-            <label className="block text-xs font-bold uppercase tracking-wider text-slate-700">
+            <label className="block text-xs font-bold text-slate-700">
               {lang === 'sw' ? 'Kiasi Kilichotumika (KSh) *' : 'Total Expense Amount (KSh) *'}
             </label>
             <div className="relative">

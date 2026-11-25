@@ -46,7 +46,7 @@ function localInputValue(date: Date) {
 function Stat({ label, value, note, tone = 'plain' }: { label: string; value: string | number; note?: string; tone?: 'plain' | 'good' }) {
   return <div className={`rounded-2xl border p-4 ${tone === 'good' ? 'border-sage-300 bg-sage/10' : 'border-ivory-border bg-white shadow-soft'}`}>
     <p className="text-sm text-charcoal-light">{label}</p>
-    <p className="mt-1 whitespace-nowrap font-display text-[1.65rem] font-medium tabular-nums sm:text-4xl">{value}</p>
+    <p className="mt-1 whitespace-nowrap font-display text-[1.65rem] font-bold tabular-nums sm:text-4xl">{value}</p>
     {note && <p className="mt-1 text-xs text-charcoal-muted">{note}</p>}
   </div>;
 }
@@ -186,7 +186,7 @@ export function PlatformAdminView({ onLogout }: Props) {
 
     {tab === 'overview' && <section aria-labelledby="usage-heading" className="space-y-4">
       <div className="flex flex-wrap items-end justify-between gap-4">
-        <div><h2 id="usage-heading" className="font-display text-2xl font-medium">Usage {live ? 'right now' : 'as at a chosen time'}</h2>
+        <div><h2 id="usage-heading" className="font-display text-2xl font-bold">Usage {live ? 'right now' : 'as at a chosen time'}</h2>
           <p className="mt-1 text-sm text-charcoal-light">{usage ? `${live ? 'Live, as at' : 'As at'} ${dateTime(usage.asAt)} (Nairobi time)` : 'Loading…'}{live ? ' · refreshes every minute' : ''}</p></div>
         <div className="flex flex-wrap items-end gap-2">
           <label className="text-sm">As at
@@ -230,7 +230,7 @@ export function PlatformAdminView({ onLogout }: Props) {
 
     <section aria-labelledby="accounts-heading" className="space-y-3">
       <div className="flex flex-wrap items-center justify-between gap-3">
-        <h2 id="accounts-heading" className="font-display text-2xl font-medium">Farm accounts ({visible.length}{visible.length !== farmers.length ? ` of ${farmers.length}` : ''})</h2>
+        <h2 id="accounts-heading" className="font-display text-2xl font-bold">Farm accounts ({visible.length}{visible.length !== farmers.length ? ` of ${farmers.length}` : ''})</h2>
         <button className="btn btn-secondary" disabled={visible.length === 0} onClick={() => downloadAccounts(visible)}>Download list (CSV)</button>
       </div>
       <div className="flex flex-wrap items-end gap-3">
@@ -265,7 +265,7 @@ export function PlatformAdminView({ onLogout }: Props) {
     {tab === 'website' && <WebsiteContentAdmin />}
 
     {tab === 'enquiries' && <section aria-labelledby="leads-heading" className="space-y-3">
-      <h2 id="leads-heading" className="font-display text-2xl font-medium">Website enquiries ({leads.filter(l => l.status === 'new').length} new)</h2>
+      <h2 id="leads-heading" className="font-display text-2xl font-bold">Website enquiries ({leads.filter(l => l.status === 'new').length} new)</h2>
       {leads.length === 0 && <p className="text-sm">No enquiries yet.</p>}
       {leads.map(lead => <article key={lead.id} className="flex flex-wrap items-start justify-between gap-4 card p-4">
         <div className="min-w-0"><h3 className="font-bold">{lead.name}</h3>

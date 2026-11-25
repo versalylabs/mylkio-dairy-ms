@@ -159,9 +159,9 @@ export const SalesView: React.FC<SalesViewProps> = ({
       {/* Summary KPI Cards */}
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 [&>:last-child:nth-child(odd)]:col-span-2 lg:[&>:last-child:nth-child(odd)]:col-span-1">
         {/* Outstanding Receivables */}
-        <div className="bg-[#FAF5EB] rounded-3xl p-5 border border-[#E5D5B5] shadow-xs flex items-center justify-between gap-3 text-[#26332D]">
+        <div className="bg-[#FCF6DC] rounded-3xl p-5 border border-[#EED98E] shadow-xs flex items-center justify-between gap-3 text-[#26332D]">
           <div>
-            <span className="text-xs font-bold uppercase tracking-wider text-[#b39252]">
+            <span className="text-xs font-bold text-[#8A6A10]">
               {lang === 'sw' ? 'Deni Linalodaiwa' : 'Outstanding Receivables'}
             </span>
             <div className="text-2xl sm:text-3xl font-extrabold text-[#26332D] mt-2 whitespace-nowrap">
@@ -172,7 +172,7 @@ export const SalesView: React.FC<SalesViewProps> = ({
               {owed.advancesHeld > 0 && (sw ? ` · Malipo ya mapema KSh ${owed.advancesHeld.toLocaleString()}` : ` · KSh ${owed.advancesHeld.toLocaleString()} held as advances`)}
             </p>
           </div>
-          <div className="p-3 bg-white text-[#C6A76A] rounded-2xl shadow-2xs border border-[#E5D5B5]">
+          <div className="p-3 bg-white text-[#8A6A10] rounded-2xl shadow-2xs border border-[#EED98E]">
             <Wallet className="w-7 h-7" />
           </div>
         </div>
@@ -180,7 +180,7 @@ export const SalesView: React.FC<SalesViewProps> = ({
         {/* Milk Delivered */}
         <div className="bg-white rounded-3xl p-5 border border-gray-200 shadow-xs flex items-center justify-between gap-3">
           <div>
-            <span className="text-xs font-semibold uppercase tracking-wider text-gray-500">
+            <span className="text-xs font-semibold text-gray-500">
               {sw ? `Yaliyokubaliwa — ${monthName}` : `Accepted in ${monthName}`}
             </span>
             <div className="text-2xl sm:text-3xl font-extrabold text-gray-900 mt-2 whitespace-nowrap">
@@ -199,7 +199,7 @@ export const SalesView: React.FC<SalesViewProps> = ({
         {/* Cash & M-Pesa Received */}
         <div className="bg-white rounded-3xl p-5 border border-gray-200 shadow-sm flex items-center justify-between">
           <div>
-            <span className="text-xs font-semibold uppercase tracking-wider text-gray-500">
+            <span className="text-xs font-semibold text-gray-500">
               {sw ? `Pesa iliyopokelewa — ${monthName}` : `Received in ${monthName}`}
             </span>
             <div className="text-2xl sm:text-3xl font-extrabold text-dairy-800 mt-2 whitespace-nowrap">
@@ -297,7 +297,7 @@ export const SalesView: React.FC<SalesViewProps> = ({
                       <span className={`px-2 py-0.5 rounded-md text-xs font-semibold ${
                         del.buyerType === 'cooperative'
                           ? 'bg-[#A8BFA5]/25 text-[#345C4A]'
-                          : 'bg-[#FAF5EB] text-[#26332D] border border-[#E5D5B5]'
+                          : 'bg-[#FCF6DC] text-[#26332D] border border-[#EED98E]'
                       } whitespace-nowrap`}>
                         {del.buyerType === 'cooperative' ? 'Co-op' : 'Household'}
                       </span>
@@ -400,7 +400,7 @@ export const SalesView: React.FC<SalesViewProps> = ({
                       <span className="font-bold text-sm text-gray-900">
                         {pay.buyerName}
                       </span>
-                      <span className="px-2 py-0.5 rounded-md text-xs font-bold uppercase tracking-wider bg-[#FAF5EB] text-[#26332D] border border-[#E5D5B5] flex items-center gap-1 whitespace-nowrap">
+                      <span className="px-2 py-0.5 rounded-md text-xs font-bold bg-[#FCF6DC] text-[#26332D] border border-[#EED98E] flex items-center gap-1 whitespace-nowrap">
                         {pay.paymentMethod === 'mpesa' && <Smartphone className="w-3 h-3" />}
                         {pay.paymentMethod === 'cash' && <Banknote className="w-3 h-3" />}
                         {pay.paymentMethod === 'bank' && <CreditCard className="w-3 h-3" />}

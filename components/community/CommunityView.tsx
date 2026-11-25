@@ -74,7 +74,7 @@ export function CommunityView({ user, lang, farmCounty, initialCode, onCodeHandl
       {notice && <p role="status" className="rounded-xl bg-sage/10 p-3 text-sm text-charcoal">{notice}</p>}
 
       <section aria-labelledby="my-groups-heading" className="space-y-3">
-        <h2 id="my-groups-heading" className="font-display text-xl font-medium text-charcoal">{t.yourGroups}</h2>
+        <h2 id="my-groups-heading" className="font-display text-xl font-bold text-charcoal">{t.yourGroups}</h2>
         {!list && !error && !offline && <p className="text-sm text-charcoal-muted">{t.loading}</p>}
         {list && list.groups.length === 0 && <p className="rounded-2xl border border-ivory-border bg-white p-4 text-sm text-charcoal-light shadow-soft">{role === 'worker' ? t.noGroupsWorker : t.noGroups}</p>}
         <ul className="grid gap-3 sm:grid-cols-2">

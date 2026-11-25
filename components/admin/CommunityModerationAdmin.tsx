@@ -42,7 +42,7 @@ export function FlagQueueAdmin() {
 
   return (
     <section aria-labelledby="flags-heading" className="space-y-3">
-      <h2 id="flags-heading" className="flex items-center gap-2 font-display text-2xl font-medium"><ShieldAlert className="h-6 w-6 text-gold-600" />Reported posts ({flags.length})</h2>
+      <h2 id="flags-heading" className="flex items-center gap-2 font-display text-2xl font-bold"><ShieldAlert className="h-6 w-6 text-gold-600" />Reported posts ({flags.length})</h2>
       <p className="max-w-2xl text-sm text-charcoal-light">What members reported to Mylkio. This is the only place you read what members write. Remove it if it breaks the group rules (a rumour that a farm or person has a disease, abuse, someone&apos;s private details, spam); otherwise keep it. The writer is not told who reported it.</p>
       {error && <p role="alert" className="rounded-xl bg-red-50 p-3 text-sm text-red-800">{error}</p>}
       {flags.length === 0 && !error && <p className="text-sm text-charcoal-muted">Nothing is waiting.</p>}
@@ -95,7 +95,7 @@ export function OfficialAlertsAdmin() {
     <section aria-labelledby="official-admin-heading" className="space-y-3">
       <div className="flex flex-wrap items-end justify-between gap-3">
         <div>
-          <h2 id="official-admin-heading" className="flex items-center gap-2 font-display text-2xl font-medium"><Megaphone className="h-6 w-6 text-sage" />Official alerts</h2>
+          <h2 id="official-admin-heading" className="flex items-center gap-2 font-display text-2xl font-bold"><Megaphone className="h-6 w-6 text-sage" />Official alerts</h2>
           <p className="mt-1 max-w-2xl text-sm text-charcoal-light">Pinned at the top of every group in a county, and shown on members&apos; Home. Write only what an official source published, and give that source and its date.</p>
         </div>
         {!form && <button type="button" className="btn btn-primary" onClick={() => setForm(emptyAlert())}>Post an official alert</button>}

@@ -108,11 +108,11 @@ export const CowDetailModal: React.FC<CowDetailModalProps> = ({
       case 'lactating':
         return { label: lang === 'sw' ? 'Inakamuliwa (Lactating)' : 'Lactating', class: 'bg-[#A8BFA5]/25 text-[#26332D] border-[#A8BFA5]/40' };
       case 'dry':
-        return { label: lang === 'sw' ? 'Haikamuliwi (Dry)' : 'Dry Cow', class: 'bg-[#FAF5EB] text-[#b39252] border-[#E5D5B5]' };
+        return { label: lang === 'sw' ? 'Haikamuliwi (Dry)' : 'Dry Cow', class: 'bg-[#FCF6DC] text-[#8A6A10] border-[#EED98E]' };
       case 'pregnant_heifer':
-        return { label: lang === 'sw' ? 'Mtamba Mjamzito' : 'Pregnant Heifer', class: 'bg-[#FAF5EB] text-[#b39252] border-[#E5D5B5]' };
+        return { label: lang === 'sw' ? 'Mtamba Mjamzito' : 'Pregnant Heifer', class: 'bg-[#FCF6DC] text-[#8A6A10] border-[#EED98E]' };
       case 'calf':
-        return { label: lang === 'sw' ? 'Ndama' : 'Calf', class: 'bg-[#FAF9F5] text-[#26332D] border-[#E8E4D8]' };
+        return { label: lang === 'sw' ? 'Ndama' : 'Calf', class: 'bg-[#F8F8F3] text-[#26332D] border-[#DDE2D6]' };
       case 'sick':
         return { label: lang === 'sw' ? 'Inatibiwa' : 'Under Treatment', class: 'bg-rose-50 text-rose-800 border-rose-200' };
       case 'sold':
@@ -126,20 +126,20 @@ export const CowDetailModal: React.FC<CowDetailModalProps> = ({
 
   return (
     <div className="fixed inset-0 z-50 flex items-end justify-center bg-charcoal/60 p-0 backdrop-blur-sm animate-fade-in sm:items-center sm:p-4 overflow-y-auto">
-      <div className="bg-[#FAF9F5] rounded-3xl w-full max-w-2xl max-h-[92vh] overflow-y-auto shadow-2xl border border-[#E8E4D8] flex flex-col text-[#26332D]">
+      <div className="bg-[#F8F8F3] rounded-3xl w-full max-w-2xl max-h-[92vh] overflow-y-auto shadow-2xl border border-[#DDE2D6] flex flex-col text-[#26332D]">
         
         {/* Top Header Ribbon */}
-        <div className="p-4 sm:p-5 border-b border-[#E8E4D8] bg-white sticky top-0 z-20 flex items-center justify-between">
+        <div className="p-4 sm:p-5 border-b border-[#DDE2D6] bg-white sticky top-0 z-20 flex items-center justify-between">
           <div className="flex items-center space-x-3">
             <span className="px-3 py-1.5 bg-[#345C4A] text-white font-mono font-bold text-sm sm:text-base rounded-xl shadow-xs">
               {cow.tag}
             </span>
             <div>
               <div className="flex items-center gap-2">
-                <h2 className="font-display text-xl font-medium text-charcoal">
+                <h2 className="font-display text-xl font-bold text-charcoal">
                   {cow.name || cow.tag}
                 </h2>
-                <span className="text-xs font-semibold text-[#5D7368] bg-[#FAF9F5] px-2.5 py-0.5 rounded-full border border-[#E8E4D8]">
+                <span className="text-xs font-semibold text-[#5D7368] bg-[#F8F8F3] px-2.5 py-0.5 rounded-full border border-[#DDE2D6]">
                   {cow.breed}
                 </span>
               </div>
@@ -156,7 +156,7 @@ export const CowDetailModal: React.FC<CowDetailModalProps> = ({
                 onClose();
                 onEdit(cow);
               }}
-              className="p-2 sm:px-3 sm:py-1.5 rounded-xl border border-[#E8E4D8] bg-[#FAF9F5] hover:bg-[#F2EFE7] text-xs font-bold text-[#26332D] transition-colors flex items-center gap-1.5 shadow-2xs"
+              className="p-2 sm:px-3 sm:py-1.5 rounded-xl border border-[#DDE2D6] bg-[#F8F8F3] hover:bg-[#EEF0E8] text-xs font-bold text-[#26332D] transition-colors flex items-center gap-1.5 shadow-2xs"
               title="Edit Cow"
             >
               <Edit3 className="w-3.5 h-3.5 text-[#345C4A]" />
@@ -165,7 +165,7 @@ export const CowDetailModal: React.FC<CowDetailModalProps> = ({
 )}
             <button
               onClick={onClose}
-              className="p-2 text-[#879C91] hover:text-[#26332D] hover:bg-[#F2EFE7] rounded-full transition-colors"
+              className="p-2 text-[#879C91] hover:text-[#26332D] hover:bg-[#EEF0E8] rounded-full transition-colors"
               title="Close"
             >
               <X className="w-5 h-5" />
@@ -198,7 +198,7 @@ export const CowDetailModal: React.FC<CowDetailModalProps> = ({
           {/* Photo Gallery & Carousel */}
           {photos.length > 0 ? (
             <div className="space-y-2.5">
-              <div className="relative h-64 sm:h-80 w-full rounded-2xl overflow-hidden bg-black/90 shadow-sm border border-[#E8E4D8] group">
+              <div className="relative h-64 sm:h-80 w-full rounded-2xl overflow-hidden bg-black/90 shadow-sm border border-[#DDE2D6] group">
                 <img
                   src={photos[activePhotoIndex]}
                   alt={`${cow.name || cow.tag} - Photo ${activePhotoIndex + 1}`}
@@ -241,7 +241,7 @@ export const CowDetailModal: React.FC<CowDetailModalProps> = ({
                       className={`relative w-16 h-16 rounded-xl overflow-hidden border-2 shrink-0 transition-all ${
                         activePhotoIndex === idx 
                           ? 'border-[#345C4A] ring-2 ring-[#345C4A]/30 scale-102' 
-                          : 'border-[#E8E4D8] opacity-70 hover:opacity-100'
+                          : 'border-[#DDE2D6] opacity-70 hover:opacity-100'
                       }`}
                     >
                       <img src={p} alt={`Thumbnail ${idx + 1}`} className="w-full h-full object-cover" />
@@ -280,8 +280,8 @@ export const CowDetailModal: React.FC<CowDetailModalProps> = ({
 
           {/* Quick Metrics Bar */}
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
-            <div className="bg-white p-3.5 rounded-2xl border border-[#E8E4D8] space-y-1">
-              <span className="text-xs font-semibold text-[#879C91] uppercase tracking-wider block">
+            <div className="bg-white p-3.5 rounded-2xl border border-[#DDE2D6] space-y-1">
+              <span className="text-xs font-semibold text-[#879C91] block">
                 Status
               </span>
               <span className={`inline-flex items-center px-2 py-0.5 rounded-md text-xs font-bold border ${badge.class} whitespace-nowrap`}>
@@ -289,8 +289,8 @@ export const CowDetailModal: React.FC<CowDetailModalProps> = ({
               </span>
             </div>
 
-            <div className="bg-white p-3.5 rounded-2xl border border-[#E8E4D8] space-y-1">
-              <span className="text-xs font-semibold text-[#879C91] uppercase tracking-wider block">
+            <div className="bg-white p-3.5 rounded-2xl border border-[#DDE2D6] space-y-1">
+              <span className="text-xs font-semibold text-[#879C91] block">
                 {t.herd.parity}
               </span>
               <span className="text-sm font-black text-[#26332D]">
@@ -298,8 +298,8 @@ export const CowDetailModal: React.FC<CowDetailModalProps> = ({
               </span>
             </div>
 
-            <div className="bg-white p-3.5 rounded-2xl border border-[#E8E4D8] space-y-1">
-              <span className="text-xs font-semibold text-[#879C91] uppercase tracking-wider block">
+            <div className="bg-white p-3.5 rounded-2xl border border-[#DDE2D6] space-y-1">
+              <span className="text-xs font-semibold text-[#879C91] block">
                 Age / DOB
               </span>
               <span className="text-sm font-black text-[#26332D] truncate block">
@@ -307,11 +307,11 @@ export const CowDetailModal: React.FC<CowDetailModalProps> = ({
               </span>
             </div>
 
-            <div className="bg-white p-3.5 rounded-2xl border border-[#E8E4D8] space-y-1">
-              <span className="text-xs font-semibold text-[#879C91] uppercase tracking-wider block">
+            <div className="bg-white p-3.5 rounded-2xl border border-[#DDE2D6] space-y-1">
+              <span className="text-xs font-semibold text-[#879C91] block">
                 Breeding
               </span>
-              <span className={`text-xs font-bold block ${cow.isPregnant ? 'text-[#C6A76A]' : 'text-[#5D7368]'}`}>
+              <span className={`text-xs font-bold block ${cow.isPregnant ? 'text-[#8A6A10]' : 'text-[#5D7368]'}`}>
                 {cow.isPregnant ? 'Confirmed Pregnant' : 'Open / Not Pregnant'}
               </span>
             </div>
@@ -319,13 +319,13 @@ export const CowDetailModal: React.FC<CowDetailModalProps> = ({
 
           {/* Expected Calving Countdown Card */}
           {cow.expectedCalvingDate && (
-            <div className="p-4 bg-[#FAF5EB] border border-[#E5D5B5] rounded-2xl flex items-center justify-between">
+            <div className="p-4 bg-[#FCF6DC] border border-[#EED98E] rounded-2xl flex items-center justify-between">
               <div className="flex items-center space-x-3">
-                <div className="p-2.5 bg-white text-[#C6A76A] rounded-xl shadow-2xs">
+                <div className="p-2.5 bg-white text-[#8A6A10] rounded-xl shadow-2xs">
                   <Calendar className="w-5 h-5" />
                 </div>
                 <div>
-                  <span className="text-xs font-bold uppercase tracking-wider text-[#b39252]">
+                  <span className="text-xs font-bold text-[#8A6A10]">
                     {lang === 'sw' ? 'Tarehe Inayotarajiwa ya Kuzaa' : 'Expected Calving Countdown'}
                   </span>
                   <div className="text-sm font-black text-[#26332D] mt-0.5">
@@ -336,7 +336,7 @@ export const CowDetailModal: React.FC<CowDetailModalProps> = ({
 
               {daysUntilCalving !== null && (
                 <div className="text-right">
-                  <span className="px-3 py-1 bg-white border border-[#E5D5B5] rounded-full text-xs font-extrabold text-[#b39252] shadow-2xs">
+                  <span className="px-3 py-1 bg-white border border-[#EED98E] rounded-full text-xs font-extrabold text-[#8A6A10] shadow-2xs">
                     {daysUntilCalving > 0 
                       ? `${daysUntilCalving} days left` 
                       : daysUntilCalving === 0 
@@ -350,13 +350,13 @@ export const CowDetailModal: React.FC<CowDetailModalProps> = ({
 
           {/* Milk Performance Snapshot (if lactating or has history) */}
           {cowMilkHistory.length > 0 && (
-            <div className="bg-white p-4 rounded-2xl border border-[#E8E4D8] space-y-3">
+            <div className="bg-white p-4 rounded-2xl border border-[#DDE2D6] space-y-3">
               <div className="flex items-center justify-between">
                 <div className="flex items-center space-x-2">
                   <div className="p-1.5 bg-[#f3f7f4] text-[#345C4A] rounded-lg">
                     <Milk className="w-4 h-4" />
                   </div>
-                  <h4 className="text-xs font-bold uppercase tracking-wider text-[#26332D]">
+                  <h4 className="text-xs font-bold text-[#26332D]">
                     {lang === 'sw' ? 'Uzalishaji wa Maziwa wa Karibuni' : 'Recent Milking Records'}
                   </h4>
                 </div>
@@ -371,7 +371,7 @@ export const CowDetailModal: React.FC<CowDetailModalProps> = ({
 
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 pt-1">
                 {cowMilkHistory.slice(0, 4).map((entry, idx) => (
-                  <div key={idx} className="p-2.5 bg-[#FAF9F5] rounded-xl border border-[#E8E4D8] text-center">
+                  <div key={idx} className="p-2.5 bg-[#F8F8F3] rounded-xl border border-[#DDE2D6] text-center">
                     <span className="text-xs text-[#5D7368] block">{formatFarmDate(entry.date, lang)}</span>
                     <span className="text-sm font-black text-[#26332D] mt-0.5 block">{entry.litres.toFixed(1)} L</span>
                   </div>
@@ -409,8 +409,8 @@ export const CowDetailModal: React.FC<CowDetailModalProps> = ({
             {activeTab === 'overview' && (
               <div className="space-y-3 animate-fade-in">
                 {cow.notes ? (
-                  <div className="p-4 bg-white rounded-2xl border border-[#E8E4D8]">
-                    <span className="text-xs font-bold uppercase tracking-wider text-[#879C91] block mb-1">
+                  <div className="p-4 bg-white rounded-2xl border border-[#DDE2D6]">
+                    <span className="text-xs font-bold text-[#879C91] block mb-1">
                       Farmer Notes & Behavior
                     </span>
                     <p className="text-xs text-[#3D4F46] leading-relaxed italic">
@@ -418,18 +418,18 @@ export const CowDetailModal: React.FC<CowDetailModalProps> = ({
                     </p>
                   </div>
                 ) : (
-                  <div className="p-4 bg-white rounded-2xl border border-[#E8E4D8] text-xs text-[#879C91]">
+                  <div className="p-4 bg-white rounded-2xl border border-[#DDE2D6] text-xs text-[#879C91]">
                     No specific notes recorded for this animal yet. Click &apos;Edit&apos; to add temperament, feed preference, or pedigree notes.
                   </div>
                 )}
 
                 <div className="grid grid-cols-2 gap-3 text-xs">
-                  <div className="p-3 bg-white rounded-xl border border-[#E8E4D8]">
-                    <span className="text-xs text-[#879C91] uppercase font-semibold block">Sire (Father)</span>
+                  <div className="p-3 bg-white rounded-xl border border-[#DDE2D6]">
+                    <span className="text-xs text-[#879C91] font-semibold block">Sire (Father)</span>
                     <span className="font-bold text-[#26332D] mt-0.5 block">{cow.sire || 'Not specified'}</span>
                   </div>
-                  <div className="p-3 bg-white rounded-xl border border-[#E8E4D8]">
-                    <span className="text-xs text-[#879C91] uppercase font-semibold block">Dam (Mother Tag)</span>
+                  <div className="p-3 bg-white rounded-xl border border-[#DDE2D6]">
+                    <span className="text-xs text-[#879C91] font-semibold block">Dam (Mother Tag)</span>
                     <span className="font-bold text-[#26332D] mt-0.5 block">{cow.damId || 'Not specified'}</span>
                   </div>
                 </div>
@@ -440,12 +440,12 @@ export const CowDetailModal: React.FC<CowDetailModalProps> = ({
             {activeTab === 'health' && (
               <div className="space-y-2.5 animate-fade-in">
                 {cowHealth.length === 0 ? (
-                  <div className="p-5 bg-white rounded-2xl border border-[#E8E4D8] text-center text-xs text-[#879C91]">
+                  <div className="p-5 bg-white rounded-2xl border border-[#DDE2D6] text-center text-xs text-[#879C91]">
                     No veterinary treatments or health issues recorded for {cow.name || cow.tag}.
                   </div>
                 ) : (
                   cowHealth.map((item) => (
-                    <div key={item.id} className="p-3.5 bg-white rounded-xl border border-[#E8E4D8] space-y-1">
+                    <div key={item.id} className="p-3.5 bg-white rounded-xl border border-[#DDE2D6] space-y-1">
                       <div className="flex items-center justify-between">
                         <span className="font-bold text-xs text-[#26332D]">
                           {item.diagnosis || item.medicineName || healthTypeLabel(item.type)}
@@ -474,19 +474,19 @@ export const CowDetailModal: React.FC<CowDetailModalProps> = ({
               <div className="space-y-2.5 animate-fade-in">
                 {fertility.lastCalving !== null && (canUse(subscription, 'fertility') ? (
                   (fertility.daysOpen !== null || fertility.calvingIntervalDays !== null) && (
-                    <div className="grid grid-cols-1 gap-2 rounded-xl border border-[#E8E4D8] bg-white p-3 text-sm font-semibold text-[#26332D] sm:grid-cols-2">
+                    <div className="grid grid-cols-1 gap-2 rounded-xl border border-[#DDE2D6] bg-white p-3 text-sm font-semibold text-[#26332D] sm:grid-cols-2">
                       {fertility.daysOpen !== null && <p>{fertilityText.daysOpen(fertility.daysOpen)}</p>}
                       {fertility.calvingIntervalDays !== null && <p>{fertilityText.interval(fertility.calvingIntervalDays)}</p>}
                     </div>
                   )
                 ) : <LockedFeature feature="fertility" />)}
                 {cowBreeding.length === 0 ? (
-                  <div className="p-5 bg-white rounded-2xl border border-[#E8E4D8] text-center text-xs text-[#879C91]">
+                  <div className="p-5 bg-white rounded-2xl border border-[#DDE2D6] text-center text-xs text-[#879C91]">
                     No artificial insemination or calving events recorded for {cow.name || cow.tag}.
                   </div>
                 ) : (
                   cowBreeding.map((item) => (
-                    <div key={item.id} className="p-3.5 bg-white rounded-xl border border-[#E8E4D8] space-y-1">
+                    <div key={item.id} className="p-3.5 bg-white rounded-xl border border-[#DDE2D6] space-y-1">
                       <div className="flex items-center justify-between">
                         <span className="font-bold text-xs text-[#26332D]">
                           {item.type.replace('_', ' ').toUpperCase()} {item.sireOrProvider ? `— ${item.sireOrProvider}` : ''}
@@ -494,7 +494,7 @@ export const CowDetailModal: React.FC<CowDetailModalProps> = ({
                         <span className="text-xs text-[#879C91]">{item.date}</span>
                       </div>
                       {item.expectedCalvingDate && (
-                        <p className="text-xs text-[#b39252] font-semibold">
+                        <p className="text-xs text-[#8A6A10] font-semibold">
                           Expected Calving: {item.expectedCalvingDate}
                         </p>
                       )}
@@ -507,7 +507,7 @@ export const CowDetailModal: React.FC<CowDetailModalProps> = ({
           </div>
 
           {/* Quick Footer Action Buttons */}
-          <div className="pt-4 border-t border-[#E8E4D8] flex flex-wrap items-center justify-between gap-2.5">
+          <div className="pt-4 border-t border-[#DDE2D6] flex flex-wrap items-center justify-between gap-2.5">
             <div className="flex items-center gap-2">
               {onOpenRecordHealth && (
                 <button
@@ -516,7 +516,7 @@ export const CowDetailModal: React.FC<CowDetailModalProps> = ({
                     onClose();
                     onOpenRecordHealth();
                   }}
-                  className="px-3 py-2 rounded-xl border border-[#E8E4D8] bg-white hover:bg-[#F2EFE7] text-[#26332D] text-xs font-semibold flex items-center gap-1.5 transition-colors"
+                  className="px-3 py-2 rounded-xl border border-[#DDE2D6] bg-white hover:bg-[#EEF0E8] text-[#26332D] text-xs font-semibold flex items-center gap-1.5 transition-colors"
                 >
                   <Stethoscope className="w-3.5 h-3.5 text-[#345C4A]" />
                   <span>Log Treatment</span>
@@ -529,9 +529,9 @@ export const CowDetailModal: React.FC<CowDetailModalProps> = ({
                     onClose();
                     onOpenRecordBreeding();
                   }}
-                  className="px-3 py-2 rounded-xl border border-[#E8E4D8] bg-white hover:bg-[#F2EFE7] text-[#26332D] text-xs font-semibold flex items-center gap-1.5 transition-colors"
+                  className="px-3 py-2 rounded-xl border border-[#DDE2D6] bg-white hover:bg-[#EEF0E8] text-[#26332D] text-xs font-semibold flex items-center gap-1.5 transition-colors"
                 >
-                  <Dna className="w-3.5 h-3.5 text-[#C6A76A]" />
+                  <Dna className="w-3.5 h-3.5 text-[#8A6A10]" />
                   <span>Log AI / Breeding</span>
                 </button>
               )}
@@ -554,7 +554,7 @@ export const CowDetailModal: React.FC<CowDetailModalProps> = ({
               <button
                 type="button"
                 onClick={onClose}
-                className="px-4 py-2 bg-white hover:bg-[#F2EFE7] border border-[#E8E4D8] text-[#26332D] rounded-xl text-xs font-semibold transition-colors"
+                className="px-4 py-2 bg-white hover:bg-[#EEF0E8] border border-[#DDE2D6] text-[#26332D] rounded-xl text-xs font-semibold transition-colors"
               >
                 Close
               </button>

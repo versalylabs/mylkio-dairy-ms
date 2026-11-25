@@ -61,8 +61,8 @@ export function ResetPasswordScreen() {
       <header className="border-b border-ivory-border bg-white/80 backdrop-blur">
         <div className="container-page flex items-center justify-between gap-4 py-4">
           <Link href="/" className="flex items-center gap-3 whitespace-nowrap" aria-label="Mylkio home">
-            <span className="flex h-10 w-10 items-center justify-center rounded-full bg-sage font-display text-lg font-medium text-white">M</span>
-            <span className="font-display text-xl font-medium">Mylkio</span>
+            <span className="flex h-10 w-10 items-center justify-center rounded-full bg-sage font-display text-lg font-bold text-white">M</span>
+            <span className="font-display text-xl font-bold">Mylkio</span>
           </Link>
           <button type="button" onClick={switchLanguage} className="btn btn-ghost">{t.language}</button>
         </div>
@@ -75,7 +75,7 @@ export function ResetPasswordScreen() {
           {ready && done && (
             <div role="status" className="space-y-4 text-center">
               <CheckCircle2 className="mx-auto h-10 w-10 text-sage" aria-hidden />
-              <h1 className="font-display text-2xl font-medium">{t.doneTitle}</h1>
+              <h1 className="font-display text-2xl font-bold">{t.doneTitle}</h1>
               <p className="text-base text-charcoal-light">{t.doneBody}</p>
               <Link href="/?signin=1" className="btn btn-primary btn-lg w-full">{t.signIn}</Link>
             </div>
@@ -84,7 +84,7 @@ export function ResetPasswordScreen() {
           {ready && !done && broken && (
             <div role="alert" className="space-y-4 text-center">
               <AlertCircle className="mx-auto h-10 w-10 text-gold-600" aria-hidden />
-              <h1 className="font-display text-2xl font-medium">{t.brokenTitle}</h1>
+              <h1 className="font-display text-2xl font-bold">{t.brokenTitle}</h1>
               <p className="text-base text-charcoal-light">{t.brokenBody}</p>
               <Link href="/?forgot=1" className="btn btn-primary btn-lg w-full">{t.askAgain}</Link>
               <Link href="/" className="btn btn-ghost w-full">{t.home}</Link>
@@ -94,7 +94,7 @@ export function ResetPasswordScreen() {
           {ready && !done && !broken && token && (
             <form onSubmit={submit} className="space-y-5" noValidate>
               <div>
-                <h1 className="font-display text-2xl font-medium">{t.newTitle}</h1>
+                <h1 className="font-display text-2xl font-bold">{t.newTitle}</h1>
                 <p className="mt-2 text-sm text-charcoal-light">{t.newIntro}</p>
               </div>
               {error && (

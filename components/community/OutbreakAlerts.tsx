@@ -76,7 +76,7 @@ export function OutbreakAlerts({ user, lang, groupId, canPost, farmCounty }: {
     <section aria-labelledby="alerts-heading" className="space-y-3">
       {official.length > 0 && (
         <div className="space-y-3" aria-labelledby="official-heading">
-          <h2 id="official-heading" className="flex items-center gap-2 font-display text-xl font-medium text-charcoal"><Megaphone className="h-5 w-5 text-sage" aria-hidden="true" />{c.officialTitle}</h2>
+          <h2 id="official-heading" className="flex items-center gap-2 font-display text-xl font-bold text-charcoal"><Megaphone className="h-5 w-5 text-sage" aria-hidden="true" />{c.officialTitle}</h2>
           <ul className="space-y-3">
             {official.map((a) => (
               <li key={a.id} className="card border-sage-300 p-4">
@@ -91,7 +91,7 @@ export function OutbreakAlerts({ user, lang, groupId, canPost, farmCounty }: {
         </div>
       )}
       <div>
-        <h2 id="alerts-heading" className="flex items-center gap-2 font-display text-xl font-medium text-charcoal"><ShieldAlert className="h-5 w-5 text-gold-600" aria-hidden="true" />{t.alertsTitle}</h2>
+        <h2 id="alerts-heading" className="flex items-center gap-2 font-display text-xl font-bold text-charcoal"><ShieldAlert className="h-5 w-5 text-gold-600" aria-hidden="true" />{t.alertsTitle}</h2>
         <p className="mt-1 text-sm text-charcoal-muted">{t.alertsIntro}</p>
       </div>
       {offline && <p role="status" className="flex items-center gap-2 rounded-xl bg-ivory-muted p-3 text-sm text-charcoal-light"><WifiOff className="h-4 w-4 shrink-0" />{COMMUNITY_OFFLINE_SHOWING[lang]}</p>}

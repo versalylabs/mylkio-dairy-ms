@@ -105,11 +105,11 @@ export const RecordPaymentModal: React.FC<RecordPaymentModalProps> = ({
         {/* Header */}
         <div className="flex items-center justify-between p-5 border-b border-gray-100 sticky top-0 bg-white z-10">
           <div className="flex items-center space-x-2.5">
-            <div className="w-10 h-10 rounded-2xl bg-[#FAF5EB] text-[#C6A76A] border border-[#E5D5B5] flex items-center justify-center">
+            <div className="w-10 h-10 rounded-2xl bg-[#FCF6DC] text-[#8A6A10] border border-[#EED98E] flex items-center justify-center">
               <Wallet className="w-5 h-5" />
             </div>
             <div>
-              <h2 className="font-display text-xl font-medium text-charcoal">
+              <h2 className="font-display text-xl font-bold text-charcoal">
                 {lang === 'sw' ? 'Rekodi Malipo Yaliyopokelewa' : 'Record Payment Receipt'}
               </h2>
               <p className="text-xs text-gray-500">
@@ -128,7 +128,7 @@ export const RecordPaymentModal: React.FC<RecordPaymentModalProps> = ({
         {/* Form Body */}
         <form onSubmit={handleSubmit} className="p-5 space-y-4">
           {buyers.length === 0 && (
-            <div className="p-3 bg-[#FAF5EB] border border-[#E5D5B5] text-[#26332D] rounded-xl text-xs font-semibold">
+            <div className="p-3 bg-[#FCF6DC] border border-[#EED98E] text-[#26332D] rounded-xl text-xs font-semibold">
               {lang === 'sw' ? 'Hakuna mnunuzi aliyesajiliwa bado. Tafadhali ongeza mnunuzi kwanza.' : 'No buyers or cooperatives registered yet. Please add a buyer in the Sales tab first.'}
             </div>
           )}
@@ -207,7 +207,7 @@ export const RecordPaymentModal: React.FC<RecordPaymentModalProps> = ({
 
           {/* Amount Received */}
           <div className="bg-slate-50 p-4 rounded-2xl border border-slate-200 space-y-2">
-            <label className="block text-xs font-bold uppercase tracking-wider text-slate-700">
+            <label className="block text-xs font-bold text-slate-700">
               {lang === 'sw' ? 'Kiasi Kilichopokelewa (KSh) *' : 'Amount Received (KSh) *'}
             </label>
             <div className="relative">

@@ -35,7 +35,7 @@ export const MilkPlaceholder: React.FC<MilkPlaceholderProps> = ({
       </p>
 
       <div className="mt-8 p-5 bg-white rounded-2xl border border-slate-200 text-left shadow-sm space-y-3">
-        <h3 className="text-xs font-bold uppercase tracking-wider text-slate-400">
+        <h3 className="text-xs font-bold text-slate-400">
           {lang === 'sw' ? 'Vipengele vitakavyojumuishwa kwenye Awamu ya 2:' : 'Upcoming in Phase 2 (Core Daily Operations):'}
         </h3>
         <ul className="text-xs text-slate-700 space-y-2">

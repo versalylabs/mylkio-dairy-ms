@@ -126,10 +126,10 @@ export const FinanceView: React.FC<FinanceViewProps> = ({
         {/* Total Billed Revenue */}
         <div className="bg-white rounded-3xl p-5 border border-gray-200 shadow-xs flex flex-col justify-between">
           <div className="flex items-center justify-between">
-            <span className="text-xs font-semibold text-gray-500 uppercase tracking-wider">
+            <span className="text-xs font-semibold text-gray-500">
               {sw ? 'Mauzo Yaliyodaiwa' : 'Milk Billed'}
             </span>
-            <div className="p-2 bg-[#FAF5EB] text-[#C6A76A] rounded-xl border border-[#E5D5B5]">
+            <div className="p-2 bg-[#FCF6DC] text-[#8A6A10] rounded-xl border border-[#EED98E]">
               <Banknote className="w-4 h-4" />
             </div>
           </div>
@@ -146,7 +146,7 @@ export const FinanceView: React.FC<FinanceViewProps> = ({
         {/* Cash Collected */}
         <div className="bg-white rounded-3xl p-5 border border-gray-200 shadow-xs flex flex-col justify-between">
           <div className="flex items-center justify-between">
-            <span className="text-xs font-semibold text-gray-500 uppercase tracking-wider">
+            <span className="text-xs font-semibold text-gray-500">
               {lang === 'sw' ? 'Pesa Zilizopokelewa' : 'Cash Collected'}
             </span>
             <div className="p-2 bg-[#A8BFA5]/20 text-[#345C4A] rounded-xl">
@@ -166,10 +166,10 @@ export const FinanceView: React.FC<FinanceViewProps> = ({
         {/* Total Expenses */}
         <div className="bg-white rounded-3xl p-5 border border-gray-200 shadow-xs flex flex-col justify-between">
           <div className="flex items-center justify-between">
-            <span className="text-xs font-semibold text-gray-500 uppercase tracking-wider">
+            <span className="text-xs font-semibold text-gray-500">
               {lang === 'sw' ? 'Jumla ya Gharama' : 'Total Farm Costs'}
             </span>
-            <div className="p-2 bg-[#FAF9F5] text-[#26332D] rounded-xl border border-gray-200">
+            <div className="p-2 bg-[#F8F8F3] text-[#26332D] rounded-xl border border-gray-200">
               <Receipt className="w-4 h-4" />
             </div>
           </div>
@@ -187,17 +187,17 @@ export const FinanceView: React.FC<FinanceViewProps> = ({
         <div className={`rounded-3xl p-5 text-white shadow-xs flex flex-col justify-between ${
           netMargin >= 0 
             ? 'bg-gradient-to-br from-[#345C4A] via-[#274537] to-[#1d3329]'
-            : 'bg-[#26332D] border border-[#3D4F46]'
+            : 'bg-[#14291F] border border-[#3D4F46]'
         }`}>
           <div className="flex items-center justify-between">
-            <span className="text-xs font-semibold uppercase tracking-wider text-[#FAF5EB]/90">
+            <span className="text-xs font-semibold text-[#FCF6DC]/90">
               {lang === 'sw' ? 'Faida Halisi (Margin)' : 'Net Farm Margin'}
             </span>
             <div className="p-2 bg-white/10 rounded-xl">
               {netMargin >= 0 ? (
                 <TrendingUp className="w-4 h-4 text-[#A8BFA5]" />
               ) : (
-                <TrendingDown className="w-4 h-4 text-[#FAF5EB]" />
+                <TrendingDown className="w-4 h-4 text-[#FCF6DC]" />
               )}
             </div>
           </div>
@@ -205,7 +205,7 @@ export const FinanceView: React.FC<FinanceViewProps> = ({
             <div className="text-2xl font-black whitespace-nowrap">
               KSh {netMargin.toLocaleString()}
             </div>
-            <div className="text-xs text-[#FAF5EB]/80 mt-0.5">
+            <div className="text-xs text-[#FCF6DC]/80 mt-0.5">
               {periodLabel} · {netMargin >= 0 ? (sw ? 'mauzo yaliyodaiwa ukiondoa gharama' : 'billed milk less expenses') : (sw ? 'gharama zimezidi mauzo' : 'expenses exceed billed milk')}
             </div>
           </div>
@@ -228,7 +228,7 @@ export const FinanceView: React.FC<FinanceViewProps> = ({
             { key: 'maintenance', label: 'Maintenance', amount: categoryTotals.maintenance },
             { key: 'other', label: 'Other Ops', amount: categoryTotals.other },
           ].map((cat) => (
-            <div key={cat.key} className="bg-[#FAF9F5] border border-[#E8E4D8] tile-hover p-3 rounded-2xl flex flex-col justify-between">
+            <div key={cat.key} className="bg-[#F8F8F3] border border-[#DDE2D6] tile-hover p-3 rounded-2xl flex flex-col justify-between">
               <span className="text-xs font-semibold text-[#5D7368]">{cat.label}</span>
               <span className="text-base font-extrabold text-[#26332D] mt-1">
                 KSh {cat.amount.toLocaleString()}
@@ -284,7 +284,7 @@ export const FinanceView: React.FC<FinanceViewProps> = ({
                     <span className="font-bold text-sm text-gray-900">
                       {exp.description}
                     </span>
-                    <span className="px-2 py-0.5 rounded-md text-xs font-bold uppercase tracking-wider bg-gray-100 text-gray-700 whitespace-nowrap">
+                    <span className="px-2 py-0.5 rounded-md text-xs font-bold bg-gray-100 text-gray-700 whitespace-nowrap">
                       {exp.category}
                     </span>
                     <span className="text-xs text-gray-400 font-medium">
