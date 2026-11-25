@@ -225,9 +225,9 @@ export const AuthModal: React.FC<AuthModalProps> = ({
             </button>
 
             <div className="relative flex items-center gap-3">
-              <span className="flex h-11 w-11 items-center justify-center rounded-full bg-white font-display text-xl font-medium text-sage">M</span>
+              <span className="flex h-11 w-11 items-center justify-center rounded-full bg-white font-display text-xl font-bold text-sage">M</span>
               <div>
-                <h2 id="auth-title" className="font-display text-2xl font-medium leading-tight">Mylkio</h2>
+                <h2 id="auth-title" className="font-display text-2xl font-bold leading-tight">Mylkio</h2>
                 <p className="text-sm text-sage-200">{t.tagline}</p>
               </div>
             </div>
@@ -279,7 +279,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
 
                 <div className="relative py-1">
                   <div className="absolute inset-0 flex items-center"><div className="w-full border-t border-ivory-border" /></div>
-                  <p className="relative mx-auto w-fit bg-white px-3 text-xs font-semibold uppercase tracking-wider text-charcoal-muted">{t.orSample}</p>
+                  <p className="relative mx-auto w-fit bg-white px-3 text-xs font-semibold text-charcoal-muted">{t.orSample}</p>
                 </div>
 
                 <button type="button" onClick={handleDemoLogin} className="btn btn-secondary btn-lg w-full">
@@ -321,7 +321,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
 
                 {SecureAuth.inviteRequired() && (
                   <div>
-                    <IconField id="signup-invite" label={t.invitation} type="text" required autoComplete="off" autoCapitalize="characters" value={inviteCode} onChange={(e) => setInviteCode(e.target.value)} placeholder={t.invitationPlaceholder} className="uppercase tracking-wide" />
+                    <IconField id="signup-invite" label={t.invitation} type="text" required autoComplete="off" autoCapitalize="characters" value={inviteCode} onChange={(e) => setInviteCode(e.target.value)} placeholder={t.invitationPlaceholder} className="" />
                     <p className="mt-1.5 text-sm text-charcoal-muted">{t.invitationHint}</p>
                   </div>
                 )}
@@ -387,7 +387,7 @@ function JoinFarm({ code, onCode, name, onName, phone, onPhone, email, onEmail, 
   return (
     <form onSubmit={onSubmit} className="space-y-5">
       <div>
-        <h3 className="font-display text-xl font-medium">{t.joinTitle}</h3>
+        <h3 className="font-display text-xl font-bold">{t.joinTitle}</h3>
         <p className="mt-2 text-sm text-charcoal-light">{t.joinIntro}</p>
       </div>
       <div>
@@ -419,7 +419,7 @@ function ForgotPassword({ email, onEmail, sent, loading, onSubmit, onBack }: {
   if (sent) {
     return (
       <div role="status" className="space-y-4">
-        <h3 className="font-display text-xl font-medium">{t.sentTitle}</h3>
+        <h3 className="font-display text-xl font-bold">{t.sentTitle}</h3>
         <p className="text-base text-charcoal-light">{t.sentBody(RESET_LINK_MINUTES)}</p>
         <p className="text-sm text-charcoal-muted">{t.noEmail}</p>
         {hasDialableNumber(contact.whatsapp) && <a className="btn btn-secondary w-full" href={whatsappLink(contact.whatsapp, 'Hello Mylkio, I cannot reset my password.')} target="_blank" rel="noopener noreferrer">{t.whatsapp}</a>}
@@ -430,7 +430,7 @@ function ForgotPassword({ email, onEmail, sent, loading, onSubmit, onBack }: {
   return (
     <form onSubmit={onSubmit} className="space-y-5">
       <div>
-        <h3 className="font-display text-xl font-medium">{t.forgotTitle}</h3>
+        <h3 className="font-display text-xl font-bold">{t.forgotTitle}</h3>
         <p className="mt-2 text-sm text-charcoal-light">{t.forgotIntro}</p>
       </div>
       <IconField id="forgot-email" label="Email" icon={Mail} type="email" required autoComplete="email" value={email} onChange={(e) => onEmail(e.target.value)} placeholder="farmer@dairy.co.ke" />

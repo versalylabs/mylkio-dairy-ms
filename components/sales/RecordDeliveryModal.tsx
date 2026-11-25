@@ -124,7 +124,7 @@ export const RecordDeliveryModal: React.FC<RecordDeliveryModalProps> = ({
               <Truck className="w-5 h-5" />
             </div>
             <div>
-              <h2 className="font-display text-xl font-medium text-charcoal">
+              <h2 className="font-display text-xl font-bold text-charcoal">
                 {lang === 'sw' ? 'Rekodi Utoaji wa Maziwa' : 'Record Milk Delivery'}
               </h2>
               <p className="text-xs text-gray-500">
@@ -143,8 +143,8 @@ export const RecordDeliveryModal: React.FC<RecordDeliveryModalProps> = ({
         {/* Form Body */}
         <form onSubmit={handleSubmit} className="p-5 space-y-4">
           {buyers.length === 0 && (
-            <div className="p-3 bg-[#FAF5EB] border border-[#E5D5B5] text-[#26332D] rounded-xl text-xs font-semibold flex items-center gap-2">
-              <AlertCircle className="w-4 h-4 text-[#C6A76A] shrink-0" />
+            <div className="p-3 bg-[#FCF6DC] border border-[#EED98E] text-[#26332D] rounded-xl text-xs font-semibold flex items-center gap-2">
+              <AlertCircle className="w-4 h-4 text-[#8A6A10] shrink-0" />
               <span>{lang === 'sw' ? 'Hakuna mnunuzi aliyesajiliwa bado. Tafadhali ongeza mnunuzi kwanza.' : 'No buyers or cooperatives registered yet. Please add a buyer in the Sales tab first.'}</span>
             </div>
           )}
@@ -206,7 +206,7 @@ export const RecordDeliveryModal: React.FC<RecordDeliveryModalProps> = ({
 
           {/* Litres Delivered */}
           <div className="bg-slate-50 p-4 rounded-2xl border border-slate-200 space-y-3">
-            <label className="block text-xs font-bold uppercase tracking-wider text-slate-700">
+            <label className="block text-xs font-bold text-slate-700">
               {lang === 'sw' ? 'Lita Zilizopelekwa *' : 'Litres Delivered *'}
             </label>
             <div className="relative">
@@ -283,12 +283,12 @@ export const RecordDeliveryModal: React.FC<RecordDeliveryModalProps> = ({
           )}
 
           {/* Real-time Calculation Summary */}
-          <div className="p-3.5 bg-[#FAF9F5] border border-[#E8E4D8] rounded-2xl space-y-2 text-xs">
+          <div className="p-3.5 bg-[#F8F8F3] border border-[#DDE2D6] rounded-2xl space-y-2 text-xs">
             <div className="flex items-center justify-between text-[#26332D] font-medium">
               <span>{lang === 'sw' ? 'Lita zilizokubaliwa:' : 'Accepted litres (billed):'}</span>
               <span className="font-bold">{acceptedLitres.toFixed(1)} L</span>
             </div>
-            <div className="flex items-center justify-between text-[#26332D] font-semibold text-sm pt-1 border-t border-[#E8E4D8]">
+            <div className="flex items-center justify-between text-[#26332D] font-semibold text-sm pt-1 border-t border-[#DDE2D6]">
               <span>{lang === 'sw' ? 'Kiasi Kinachotarajiwa:' : 'Expected Amount:'}</span>
               <span className="font-black text-[#345C4A]">KSh {expectedAmount.toLocaleString()}</span>
             </div>

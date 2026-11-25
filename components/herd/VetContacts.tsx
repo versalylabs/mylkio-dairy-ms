@@ -129,7 +129,7 @@ export function VetContacts({ farmId, serverBacked, county, subscription, summar
   return (
     <section aria-labelledby="call-heading" className="card space-y-6 p-5 sm:p-6">
       <div>
-        <h2 id="call-heading" className="font-display text-2xl font-medium text-charcoal">{t.title}</h2>
+        <h2 id="call-heading" className="font-display text-2xl font-bold text-charcoal">{t.title}</h2>
         <p className="mt-2 text-base text-charcoal-light">{t.intro} {lang === 'en' ? KVB_REGISTERS_NOTE : t.kvbRegistersNote}</p>
         <div className="mt-3 flex flex-wrap gap-2">
           <a href={KVB_REGISTERS_URL} target="_blank" rel="noopener noreferrer" className="btn btn-secondary"><ExternalLink className="h-4 w-4" />{t.kvbRegisters}</a>
@@ -202,7 +202,7 @@ export function VetContacts({ farmId, serverBacked, county, subscription, summar
               <li key={vet.id} className="rounded-2xl border border-ivory-border bg-white p-4">
                 <div className="flex flex-wrap items-center gap-2">
                   <p className="text-base font-semibold text-charcoal">{vet.name}</p>
-                  {vet.emergency && <span className="rounded-full bg-rose-600 px-2.5 py-0.5 text-xs font-bold uppercase tracking-wide text-white">{t.emergency}</span>}
+                  {vet.emergency && <span className="rounded-full bg-rose-600 px-2.5 py-0.5 text-xs font-bold text-white">{t.emergency}</span>}
                 </div>
                 <p className="text-sm text-charcoal-muted">{t.kinds[vet.kind] ?? vet.kind} · {vet.phone}{vet.hours ? ` · ${vet.hours}` : ''}</p>
                 {vet.areas && <p className="mt-1 text-sm text-charcoal-light">{t.covers(vet.areas)}</p>}

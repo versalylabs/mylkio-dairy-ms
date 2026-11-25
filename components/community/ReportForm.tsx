@@ -63,7 +63,7 @@ export function ReportForm({ lang, groupId, farmCounty, onCancel, onSent }: {
         <legend className="field-label">{t.tickSigns} <span className="font-normal text-charcoal-muted">({t.maxSigns})</span></legend>
         {signGroups().map(({ group, signs: list }) => (
           <div key={group}>
-            <p className="text-xs font-semibold uppercase tracking-wider text-charcoal-muted">{group}</p>
+            <p className="text-xs font-semibold text-charcoal-muted">{group}</p>
             <ul className="mt-1 space-y-1">
               {list.map((sign) => {
                 const checked = signs.includes(sign.id);
@@ -126,7 +126,7 @@ export function ReportForm({ lang, groupId, farmCounty, onCancel, onSent }: {
         {guide.notifiable && <p className="text-sm font-semibold text-rose-900">{t.notifiable}</p>}
         {contacts && (
           <div className="space-y-2">
-            <p className="text-xs font-semibold uppercase tracking-wider text-charcoal-muted">{t.reportingContacts}</p>
+            <p className="text-xs font-semibold text-charcoal-muted">{t.reportingContacts}</p>
             <ul className="space-y-2">
               {contacts.reporting.map((c) => (
                 <li key={c.name} className="text-sm text-charcoal">

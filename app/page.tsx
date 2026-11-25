@@ -268,7 +268,7 @@ export default function Home() {
     return (
       <div className="min-h-screen bg-slate-50 flex items-center justify-center">
         <div className="flex flex-col items-center space-y-3">
-          <div className="w-12 h-12 rounded-2xl bg-dairy-700 text-white font-black text-2xl flex items-center justify-center animate-pulse">
+          <div className="w-12 h-12 rounded-full bg-chit text-forest font-bold text-2xl flex items-center justify-center animate-pulse">
             M
           </div>
           <span className="text-sm font-semibold text-slate-500">Loading Mylkio Dairy MS...</span>

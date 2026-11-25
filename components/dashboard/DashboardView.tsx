@@ -227,7 +227,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
         </button>
         )}
         {money && (
-          <button onClick={onOpenRecordPayment} className="min-h-[88px] flex flex-col items-center justify-center gap-2 whitespace-nowrap rounded-2xl border border-gray-200 bg-white px-2 py-4 text-charcoal shadow-soft hover:border-[#C6A76A] tile-hover">
+          <button onClick={onOpenRecordPayment} className="min-h-[88px] flex flex-col items-center justify-center gap-2 whitespace-nowrap rounded-2xl border border-gray-200 bg-white px-2 py-4 text-charcoal shadow-soft hover:border-[#E9C94F] tile-hover">
           <Banknote className="w-6 h-6 text-[#9A7B35]" />
           <span className="text-sm font-bold sm:text-base">{t.quickActions.receivePayment}</span>
         </button>
@@ -259,7 +259,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
         {/* Today's Milk */}
         <div className="bg-white p-4 rounded-2xl border border-gray-200/90 shadow-sm flex flex-col justify-between">
           <div className="flex items-center justify-between">
-            <span className="text-xs font-semibold text-gray-600 uppercase tracking-wider">
+            <span className="text-xs font-semibold text-gray-600">
               {t.dashboard.todayMilk}
             </span>
             <div className="p-2 bg-[#A8BFA5]/20 rounded-xl text-[#345C4A]">
@@ -281,7 +281,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
         {/* Milk Sold */}
         <div className="bg-white p-4 rounded-2xl border border-gray-200/90 shadow-xs flex flex-col justify-between">
           <div className="flex items-center justify-between">
-            <span className="text-xs font-semibold text-gray-600 uppercase tracking-wider">
+            <span className="text-xs font-semibold text-gray-600">
               {t.dashboard.milkSold}
             </span>
             <div className="p-2 bg-[#A8BFA5]/20 rounded-xl text-[#345C4A]">
@@ -310,10 +310,10 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
         {/* Cash Received */}
         <div className="bg-white p-4 rounded-2xl border border-gray-200/90 shadow-xs flex flex-col justify-between">
           <div className="flex items-center justify-between">
-            <span className="text-xs font-semibold text-gray-600 uppercase tracking-wider">
+            <span className="text-xs font-semibold text-gray-600">
               {t.dashboard.cashReceived}
             </span>
-            <div className="p-2 bg-[#FAF5EB] rounded-xl text-[#C6A76A] border border-[#E5D5B5]">
+            <div className="p-2 bg-[#FCF6DC] rounded-xl text-[#8A6A10] border border-[#EED98E]">
               <Banknote className="w-4 h-4" />
             </div>
           </div>
@@ -330,15 +330,15 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
         {/* Outstanding Receivables */}
         <div className="bg-white p-4 rounded-2xl border border-gray-200/90 shadow-sm flex flex-col justify-between">
           <div className="flex items-center justify-between">
-            <span className="text-xs font-semibold text-gray-600 uppercase tracking-wider">
+            <span className="text-xs font-semibold text-gray-600">
               {t.dashboard.outstandingBalances}
             </span>
-            <div className="p-2 bg-[#FAF5EB] rounded-xl text-[#b39252] border border-[#E5D5B5]">
+            <div className="p-2 bg-[#FCF6DC] rounded-xl text-[#8A6A10] border border-[#EED98E]">
               <Clock className="w-4 h-4" />
             </div>
           </div>
           <div className="mt-2">
-            <div className="text-2xl font-black text-[#b39252] tracking-tight whitespace-nowrap">
+            <div className="text-2xl font-black text-[#8A6A10] tracking-tight whitespace-nowrap">
               KSh {owed.owedToFarm.toLocaleString()}
             </div>
             <div className="text-sm font-medium text-gray-600 mt-0.5">
@@ -504,7 +504,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
         {sortedReminders.length > REMINDERS_SHOWN && (
           <button
             onClick={() => setShowAllReminders((v) => !v)}
-            className="min-h-11 w-full rounded-xl border border-gray-200 text-sm font-semibold text-[#345C4A] hover:bg-[#FAF9F5]"
+            className="min-h-11 w-full rounded-xl border border-gray-200 text-sm font-semibold text-[#345C4A] hover:bg-[#F8F8F3]"
           >
             {showAllReminders
               ? (sw ? 'Onyesha chache' : 'Show fewer')
@@ -517,7 +517,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
 
       {money && <>
       {/* Financial Health Snapshot */}
-      <div className="bg-[#26332D] text-white rounded-3xl p-5 shadow-sm space-y-3 border border-[#345C4A]/40">
+      <div className="bg-[#14291F] text-white rounded-3xl p-5 shadow-sm space-y-3 border border-[#345C4A]/40">
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-2">
             <Receipt className="w-4 h-4 text-[#A8BFA5]" />
@@ -537,7 +537,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
         <div className="grid grid-cols-1 gap-3 pt-1 min-[360px]:grid-cols-2 sm:grid-cols-3">
           <div className="p-3 bg-white/10 rounded-2xl">
             <span className="text-sm text-[#cbdbcf] block">{sw ? 'Mauzo yaliyodaiwa' : 'Milk billed'}</span>
-            <span className="text-lg font-black text-[#C6A76A]">KSh {monthSales.billed.toLocaleString()}</span>
+            <span className="text-lg font-black text-[#8A6A10]">KSh {monthSales.billed.toLocaleString()}</span>
           </div>
           <div className="p-3 bg-white/10 rounded-2xl">
             <span className="text-sm text-[#cbdbcf] block">{sw ? 'Gharama' : 'Expenses'}</span>
@@ -585,19 +585,19 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
               {t.dashboard.lactating}
             </div>
           </div>
-          <div className="p-3 bg-[#FAF5EB] rounded-xl border border-[#E5D5B5] flex items-center space-x-3">
-            <span className="text-2xl font-black text-[#C6A76A] whitespace-nowrap">{dryCount}</span>
+          <div className="p-3 bg-[#FCF6DC] rounded-xl border border-[#EED98E] flex items-center space-x-3">
+            <span className="text-2xl font-black text-[#8A6A10] whitespace-nowrap">{dryCount}</span>
             <div className="text-sm font-semibold text-[#26332D]">
               {t.dashboard.dry}
             </div>
           </div>
-          <div className="p-3 bg-[#F2EFE7] rounded-xl border border-[#E8E4D8] flex items-center space-x-3">
+          <div className="p-3 bg-[#EEF0E8] rounded-xl border border-[#DDE2D6] flex items-center space-x-3">
             <span className="text-2xl font-black text-[#26332D] whitespace-nowrap">{pregnantCount}</span>
             <div className="text-sm font-semibold text-[#26332D]">
               {t.dashboard.pregnant}
             </div>
           </div>
-          <div className="p-3 bg-[#FAF9F5] rounded-xl border border-[#E8E4D8] flex items-center space-x-3">
+          <div className="p-3 bg-[#F8F8F3] rounded-xl border border-[#DDE2D6] flex items-center space-x-3">
             <span className="text-2xl font-black text-[#26332D] whitespace-nowrap">{calvesCount}</span>
             <div className="text-sm font-semibold text-[#26332D]">
               {t.dashboard.calves}

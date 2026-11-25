@@ -157,7 +157,7 @@ export const CowModal: React.FC<CowModalProps> = ({
         {/* Header */}
         <div className="flex items-center justify-between p-5 border-b border-gray-100 sticky top-0 bg-white z-10">
           <div>
-            <h2 className="font-display text-xl font-medium text-charcoal">
+            <h2 className="font-display text-xl font-bold text-charcoal">
               {cowToEdit ? t.cowModal.titleEdit : t.cowModal.titleNew}
             </h2>
             <p className="text-xs text-gray-500 mt-0.5">
@@ -183,7 +183,7 @@ export const CowModal: React.FC<CowModalProps> = ({
           {/* Multiple Photo Upload Area */}
           <div>
             <div className="flex items-center justify-between mb-1.5">
-              <label className="block text-xs font-semibold uppercase tracking-wider text-gray-700">
+              <label className="block text-xs font-semibold text-gray-700">
                 {lang === 'sw' ? 'Picha za Ng\'ombe (Kamera au Faili)' : 'Cow Photos (Upload Multiple)'}
               </label>
               <span className="text-xs text-[#879C91]">
@@ -208,8 +208,8 @@ export const CowModal: React.FC<CowModalProps> = ({
                   {photoUrls.map((url, idx) => (
                     <div
                       key={idx}
-                      className={`relative rounded-xl overflow-hidden border-2 h-28 bg-[#FAF9F5] group transition-all ${
-                        idx === 0 ? 'border-[#345C4A] shadow-xs' : 'border-[#E8E4D8]'
+                      className={`relative rounded-xl overflow-hidden border-2 h-28 bg-[#F8F8F3] group transition-all ${
+                        idx === 0 ? 'border-[#345C4A] shadow-xs' : 'border-[#DDE2D6]'
                       }`}
                     >
                       <img
@@ -220,7 +220,7 @@ export const CowModal: React.FC<CowModalProps> = ({
 
                       {/* Primary Badge */}
                       {idx === 0 ? (
-                        <span className="absolute top-1.5 left-1.5 bg-[#345C4A] text-white text-xs uppercase tracking-wider font-bold px-1.5 py-0.5 rounded-md shadow-xs">
+                        <span className="absolute top-1.5 left-1.5 bg-[#345C4A] text-white text-xs font-bold px-1.5 py-0.5 rounded-md shadow-xs">
                           {lang === 'sw' ? 'Kuu' : 'Primary'}
                         </span>
                       ) : (
@@ -270,7 +270,7 @@ export const CowModal: React.FC<CowModalProps> = ({
                 onClick={() => fileInputRef.current?.click()}
                 className="w-full h-32 rounded-2xl border-2 border-dashed border-[#cbdbcf] hover:border-[#345C4A] bg-[#f3f7f4]/60 hover:bg-[#e4ede7]/40 transition-colors flex flex-col items-center justify-center text-[#5D7368] hover:text-[#345C4A] gap-2"
               >
-                <div className="p-2.5 rounded-full bg-white shadow-xs border border-[#E8E4D8]">
+                <div className="p-2.5 rounded-full bg-white shadow-xs border border-[#DDE2D6]">
                   <Camera className="w-5 h-5 text-[#345C4A]" />
                 </div>
                 <div className="text-center">

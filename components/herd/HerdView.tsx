@@ -378,7 +378,7 @@ export const HerdView: React.FC<HerdViewProps> = ({
                         </div>
 
                         {/* Meta Details */}
-                        <div className="mt-3.5 grid grid-cols-2 gap-2 text-xs text-gray-600 bg-[#FAF9F5] p-2.5 rounded-xl border border-gray-100">
+                        <div className="mt-3.5 grid grid-cols-2 gap-2 text-xs text-gray-600 bg-[#F8F8F3] p-2.5 rounded-xl border border-gray-100">
                           <div>
                             <span className="text-gray-400 block text-xs">{t.herd.parity}</span>
                             <span className="font-semibold text-gray-800">{cow.parity} {cow.parity === 1 ? 'calving' : 'calvings'}</span>
@@ -391,7 +391,7 @@ export const HerdView: React.FC<HerdViewProps> = ({
                           </div>
                           {cow.expectedCalvingDate && (
                             <div className="col-span-2 pt-1 border-t border-gray-200/60 flex items-center gap-1.5 text-[#345C4A] font-medium">
-                              <Calendar className="w-3.5 h-3.5 shrink-0 text-[#C6A76A]" />
+                              <Calendar className="w-3.5 h-3.5 shrink-0 text-[#8A6A10]" />
                               <span>{t.herd.expectedCalving}: {cow.expectedCalvingDate}</span>
                             </div>
                           )}
@@ -510,7 +510,7 @@ export const HerdView: React.FC<HerdViewProps> = ({
                         <span className="font-bold text-sm text-gray-900">
                           {h.cowTag} {h.cowName ? `(${h.cowName})` : ''}
                         </span>
-                        <span className="px-2 py-0.5 rounded-md text-xs font-bold uppercase tracking-wider bg-rose-100 text-rose-800 whitespace-nowrap">
+                        <span className="px-2 py-0.5 rounded-md text-xs font-bold bg-rose-100 text-rose-800 whitespace-nowrap">
                           {healthTypeLabel(h.type)}
                         </span>
                         <span className="text-xs text-gray-400 font-medium">
@@ -610,7 +610,7 @@ export const HerdView: React.FC<HerdViewProps> = ({
                       <span className="font-bold text-sm text-gray-900">
                         {b.cowTag} {b.cowName ? `(${b.cowName})` : ''}
                       </span>
-                      <span className="px-2 py-0.5 rounded-md text-xs font-bold uppercase tracking-wider bg-[#FAF5EB] text-[#26332D] border border-[#E5D5B5] whitespace-nowrap">
+                      <span className="px-2 py-0.5 rounded-md text-xs font-bold bg-[#FCF6DC] text-[#26332D] border border-[#EED98E] whitespace-nowrap">
                         {b.type.replace('_', ' ')}
                       </span>
                       <span className="text-xs text-gray-400 font-medium">

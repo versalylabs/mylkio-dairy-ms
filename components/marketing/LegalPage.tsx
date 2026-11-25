@@ -9,8 +9,8 @@ export function LegalPage({ doc, other }: { doc: LegalDocument; other: { href: s
       <header className="border-b border-ivory-border bg-white/80 backdrop-blur">
         <div className="container-page flex items-center justify-between gap-4 py-4">
           <Link href="/" className="flex items-center gap-3 whitespace-nowrap" aria-label="Mylkio home">
-            <span className="flex h-10 w-10 items-center justify-center rounded-full bg-sage font-display text-lg font-medium text-white">M</span>
-            <span className="font-display text-xl font-medium">Mylkio</span>
+            <span className="flex h-10 w-10 items-center justify-center rounded-full bg-sage font-display text-lg font-bold text-white">M</span>
+            <span className="font-display text-xl font-bold">Mylkio</span>
           </Link>
           <Link href="/" className="btn btn-secondary">Back to Mylkio</Link>
         </div>
@@ -25,7 +25,7 @@ export function LegalPage({ doc, other }: { doc: LegalDocument; other: { href: s
         <div className="mt-8 space-y-8">
           {doc.sections.map((section, index) => (
             <section key={section.heading} aria-labelledby={`s${index}`}>
-              <h2 id={`s${index}`} className="font-display text-2xl font-medium">{section.heading}</h2>
+              <h2 id={`s${index}`} className="font-display text-2xl font-bold">{section.heading}</h2>
               {section.paragraphs?.map((text) => <p key={text} className="mt-3 leading-relaxed text-charcoal-light">{text}</p>)}
               {section.bullets && (
                 <ul className="mt-3 list-disc space-y-2 pl-5 leading-relaxed text-charcoal-light marker:text-sage">

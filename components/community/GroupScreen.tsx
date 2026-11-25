@@ -150,7 +150,7 @@ export function GroupScreen({ user, lang, group, canPost, farmCounty, onBack, on
 
       <section aria-labelledby="discussion-heading" className="space-y-3">
         <div className="flex flex-wrap items-center justify-between gap-2">
-          <h2 id="discussion-heading" className="font-display text-xl font-medium text-charcoal">{t.discussion}</h2>
+          <h2 id="discussion-heading" className="font-display text-xl font-bold text-charcoal">{t.discussion}</h2>
           <div className="flex items-center gap-2 text-xs text-charcoal-muted">
             {updatedAt && <span>{t.updated(agoLabel(new Date(updatedAt).toISOString(), now, lang))}</span>}
             <button type="button" className="btn btn-ghost !min-h-10" onClick={() => void load()}><RefreshCw className="h-4 w-4" />{t.refresh}</button>

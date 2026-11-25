@@ -120,11 +120,11 @@ export const BreedingModal: React.FC<BreedingModalProps> = ({
         {/* Header */}
         <div className="flex items-center justify-between p-5 border-b border-gray-100 sticky top-0 bg-white z-10">
           <div className="flex items-center space-x-2.5">
-            <div className="w-10 h-10 rounded-2xl bg-[#FAF5EB] text-[#C6A76A] border border-[#E5D5B5] flex items-center justify-center">
+            <div className="w-10 h-10 rounded-2xl bg-[#FCF6DC] text-[#8A6A10] border border-[#EED98E] flex items-center justify-center">
               <Dna className="w-5 h-5" />
             </div>
             <div>
-              <h2 className="font-display text-xl font-medium text-charcoal">
+              <h2 className="font-display text-xl font-bold text-charcoal">
                 {lang === 'sw' ? 'Rekodi Uzazi na Upandishaji' : 'Log Breeding & Calving'}
               </h2>
               <p className="text-xs text-gray-500">
@@ -252,10 +252,10 @@ export const BreedingModal: React.FC<BreedingModalProps> = ({
           )}
 
           {type === 'insemination' && (
-            <div className="p-3.5 bg-[#FAF5EB] border border-[#E5D5B5] rounded-2xl space-y-2">
+            <div className="p-3.5 bg-[#FCF6DC] border border-[#EED98E] rounded-2xl space-y-2">
               <div className="flex items-center justify-between">
                 <span className="text-xs font-bold text-[#26332D] flex items-center gap-1.5">
-                  <Calendar className="w-4 h-4 text-[#C6A76A]" />
+                  <Calendar className="w-4 h-4 text-[#8A6A10]" />
                   <span>{lang === 'sw' ? 'Makadirio ya Tarehe ya Kuzaa (~Siku 283)' : 'Projected Calving Date (~283 days gestation)'}</span>
                 </span>
               </div>
@@ -263,7 +263,7 @@ export const BreedingModal: React.FC<BreedingModalProps> = ({
                 type="date"
                 value={expectedCalvingDate}
                 onChange={(e) => setExpectedCalvingDate(e.target.value)}
-                className="w-full px-3 py-2 rounded-xl border border-[#E5D5B5] bg-white text-xs font-bold text-[#26332D] focus:ring-2 focus:ring-[#345C4A]"
+                className="w-full px-3 py-2 rounded-xl border border-[#EED98E] bg-white text-xs font-bold text-[#26332D] focus:ring-2 focus:ring-[#345C4A]"
               />
               <p className="text-xs text-[#5D7368]">
                 Calculated automatically based on standard bovine gestation. Editable as vet confirms.
@@ -272,8 +272,8 @@ export const BreedingModal: React.FC<BreedingModalProps> = ({
           )}
 
           {type === 'calving' && (
-            <div className="p-3.5 bg-[#FAF9F5] border border-gray-200 rounded-2xl space-y-3">
-              <label className="block text-xs font-bold uppercase tracking-wider text-[#26332D]">
+            <div className="p-3.5 bg-[#F8F8F3] border border-gray-200 rounded-2xl space-y-3">
+              <label className="block text-xs font-bold text-[#26332D]">
                 {lang === 'sw' ? 'Matokeo ya Kuzaa (Outcome)' : 'Calving Outcome'}
               </label>
               <select
@@ -326,7 +326,7 @@ export const BreedingModal: React.FC<BreedingModalProps> = ({
 
               {calvingLines.length > 0 && (
                 <div className="rounded-xl border border-[#A8BFA5]/60 bg-[#EEF4EC] p-3">
-                  <p className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-[#2B4A3B]"><Info className="w-3.5 h-3.5" />When you save</p>
+                  <p className="flex items-center gap-1.5 text-xs font-bold text-[#2B4A3B]"><Info className="w-3.5 h-3.5" />When you save</p>
                   <ul className="mt-1.5 space-y-1 text-sm text-[#26332D]">
                     {calvingLines.map((line) => <li key={line}>• {line}</li>)}
                   </ul>

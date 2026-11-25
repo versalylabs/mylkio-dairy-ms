@@ -176,7 +176,7 @@ export const RecordMilkModal: React.FC<RecordMilkModalProps> = ({
               <Milk className="w-5 h-5" />
             </div>
             <div>
-              <h2 className="font-display text-xl font-medium text-charcoal">
+              <h2 className="font-display text-xl font-bold text-charcoal">
                 {lang === 'sw' ? 'Rekodi Maziwa' : 'Record Milk Yield'}
               </h2>
               <p className="text-xs text-gray-500">
@@ -324,7 +324,7 @@ export const RecordMilkModal: React.FC<RecordMilkModalProps> = ({
           {/* MODE 1: FARM TOTAL ENTRY */}
           {mode === 'farm_total' && (
             <div className="space-y-3 bg-slate-50 p-4 rounded-2xl border border-slate-200">
-              <label className="block text-xs font-bold uppercase tracking-wider text-slate-700">
+              <label className="block text-xs font-bold text-slate-700">
                 {lang === 'sw' ? 'Jumla ya Lita Zilizokamuliwa' : 'Total Litres Milked'}
               </label>
               <div className="relative">
@@ -365,7 +365,7 @@ export const RecordMilkModal: React.FC<RecordMilkModalProps> = ({
           {mode === 'cow_level' && (
             <div className="space-y-3 bg-slate-50 p-4 rounded-2xl border border-slate-200">
               <div className="flex items-center justify-between">
-                <label className="block text-xs font-bold uppercase tracking-wider text-slate-700">
+                <label className="block text-xs font-bold text-slate-700">
                   {lang === 'sw' ? 'Lita kwa Kila Ng\'ombe' : 'Litres Per Lactating Cow'}
                 </label>
                 <span className="text-xs font-bold text-dairy-700">

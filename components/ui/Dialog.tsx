@@ -58,7 +58,7 @@ export function Dialog({ open, onClose, title, subtitle, icon, wide, children, f
           <div className="flex items-center gap-3 min-w-0">
             {icon && <div className="w-10 h-10 rounded-2xl bg-[#A8BFA5]/20 text-[#345C4A] flex items-center justify-center shrink-0">{icon}</div>}
             <div className="min-w-0">
-              <h2 id={titleId} className="font-display text-xl font-medium text-charcoal">{title}</h2>
+              <h2 id={titleId} className="font-display text-xl font-bold text-charcoal">{title}</h2>
               {subtitle && <p className="text-sm text-gray-600">{subtitle}</p>}
             </div>
           </div>

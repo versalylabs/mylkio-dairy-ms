@@ -173,7 +173,7 @@ export function TeamCard({ farmId, farmName, planId, lang }: { farmId: string; f
             <div role="status" className="space-y-3 rounded-xl border border-sage-300 bg-sage/10 p-4">
               <h3 className="text-sm font-bold text-charcoal">{t.ready}</h3>
               <p className="text-sm text-charcoal-light">{t.readyBody(created.who)}</p>
-              <p className="text-xs font-semibold uppercase tracking-wider text-charcoal-muted">{t.code}</p>
+              <p className="text-xs font-semibold text-charcoal-muted">{t.code}</p>
               <p className="select-all font-display text-3xl tracking-widest text-charcoal">{created.code}</p>
               <p className="select-all break-all rounded-lg bg-white p-2 text-xs text-charcoal-muted">{created.link}</p>
               <div className="flex flex-wrap gap-2">

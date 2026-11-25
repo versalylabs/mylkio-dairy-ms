@@ -56,7 +56,7 @@ export const ExportModal: React.FC<ExportModalProps> = ({
               <Download className="w-5 h-5 text-dairy-600" />
             </div>
             <div>
-              <h2 className="font-display text-xl font-medium text-charcoal">
+              <h2 className="font-display text-xl font-bold text-charcoal">
                 {lang === 'sw' ? 'Pakua Data ya Shamba (CSV & Backup)' : 'Export Farm Data (CSV & Backup)'}
               </h2>
               <p className="text-xs text-gray-500">
@@ -99,7 +99,7 @@ export const ExportModal: React.FC<ExportModalProps> = ({
           </div>
 
           {/* Deliveries CSV */}
-          <div className="p-4 bg-[#FAF9F5] hover:bg-white rounded-2xl border border-gray-200 transition-colors flex items-center justify-between">
+          <div className="p-4 bg-[#F8F8F3] hover:bg-white rounded-2xl border border-gray-200 transition-colors flex items-center justify-between">
             <div className="flex items-center space-x-3">
               <div className="p-2.5 bg-white text-[#345C4A] rounded-xl shadow-2xs border border-gray-200">
                 <Truck className="w-5 h-5" />
@@ -123,7 +123,7 @@ export const ExportModal: React.FC<ExportModalProps> = ({
           </div>
 
           {/* Expenses CSV */}
-          <div className="p-4 bg-[#FAF9F5] hover:bg-white rounded-2xl border border-gray-200 transition-colors flex items-center justify-between">
+          <div className="p-4 bg-[#F8F8F3] hover:bg-white rounded-2xl border border-gray-200 transition-colors flex items-center justify-between">
             <div className="flex items-center space-x-3">
               <div className="p-2.5 bg-white text-[#26332D] rounded-xl shadow-2xs border border-gray-200">
                 <Receipt className="w-5 h-5" />
@@ -147,9 +147,9 @@ export const ExportModal: React.FC<ExportModalProps> = ({
           </div>
 
           {/* Herd CSV */}
-          <div className="p-4 bg-[#FAF9F5] hover:bg-white rounded-2xl border border-gray-200 transition-colors flex items-center justify-between">
+          <div className="p-4 bg-[#F8F8F3] hover:bg-white rounded-2xl border border-gray-200 transition-colors flex items-center justify-between">
             <div className="flex items-center space-x-3">
-              <div className="p-2.5 bg-white text-[#C6A76A] rounded-xl shadow-2xs border border-[#E5D5B5]">
+              <div className="p-2.5 bg-white text-[#8A6A10] rounded-xl shadow-2xs border border-[#EED98E]">
                 <Users className="w-5 h-5" />
               </div>
               <div>

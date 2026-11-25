@@ -381,7 +381,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
       {isOwner && (
       <div className="bg-white rounded-2xl border border-gray-200/90 p-5 shadow-sm space-y-4">
         <div className="flex items-center space-x-3">
-          <div className="p-2.5 bg-[#FAF5EB] text-[#C6A76A] border border-[#E5D5B5] rounded-xl">
+          <div className="p-2.5 bg-[#FCF6DC] text-[#8A6A10] border border-[#EED98E] rounded-xl">
             <Database className="w-5 h-5" />
           </div>
           <div>

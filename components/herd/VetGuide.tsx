@@ -49,7 +49,7 @@ const niceFollowUp = (iso: string) => new Date(`${iso}T00:00:00Z`).toLocaleDateS
 const signLabel = (id: string) => SIGNS.find((sign) => sign.id === id)?.label ?? id;
 
 function Chip({ className, children }: { className: string; children: React.ReactNode }) {
-  return <span className={`rounded-full px-2.5 py-0.5 text-xs font-bold uppercase tracking-wide ${className}`}>{children}</span>;
+  return <span className={`rounded-full px-2.5 py-0.5 text-xs font-bold ${className}`}>{children}</span>;
 }
 
 function List({ items, mark }: { items: string[]; mark: 'tick' | 'cross' | 'dot' }) {
@@ -78,9 +78,9 @@ function FlagCard({ flag }: { flag: RedFlag }) {
       </div>
       <h3 className="mt-3 text-xl font-semibold text-charcoal">{flag.title}</h3>
       <p className="mt-1 text-base text-charcoal-light">{flag.why}</p>
-      <h4 className="mt-4 text-sm font-bold uppercase tracking-wider text-sage">Do now</h4>
+      <h4 className="mt-4 text-sm font-bold text-sage">Do now</h4>
       <List items={flag.doNow} mark="tick" />
-      <h4 className="mt-4 text-sm font-bold uppercase tracking-wider text-rose-800">Do not</h4>
+      <h4 className="mt-4 text-sm font-bold text-rose-800">Do not</h4>
       <List items={flag.doNot} mark="cross" />
     </article>
   );
@@ -97,18 +97,18 @@ function ConditionCard({ match }: { match: ConditionMatch }) {
         {c.humanRisk && <Chip className="bg-rose-800 text-white">Danger to people</Chip>}
         {c.review.status === 'draft' && <Chip className="border border-amber-500 text-amber-900">Draft</Chip>}
       </div>
-      <p className="mt-3 text-sm font-semibold uppercase tracking-wider text-charcoal-muted">Could be</p>
+      <p className="mt-3 text-sm font-semibold text-charcoal-muted">Could be</p>
       <h3 className="text-xl font-semibold text-charcoal">{c.name}</h3>
       <p className="mt-1 text-base text-charcoal-light">{c.summary}</p>
 
       <p className="mt-3 text-sm text-charcoal-muted"><strong className="text-charcoal">Why it fits:</strong> {match.matchedSigns.map(signLabel).join('; ')}.</p>
       {c.lookAlikes && <p className="mt-2 text-sm text-charcoal-muted"><strong className="text-charcoal">Can look like:</strong> {c.lookAlikes}</p>}
 
-      <h4 className="mt-4 text-sm font-bold uppercase tracking-wider text-sage">Do now</h4>
+      <h4 className="mt-4 text-sm font-bold text-sage">Do now</h4>
       <List items={c.doNow} mark="tick" />
-      <h4 className="mt-4 text-sm font-bold uppercase tracking-wider text-rose-800">Do not</h4>
+      <h4 className="mt-4 text-sm font-bold text-rose-800">Do not</h4>
       <List items={c.doNot} mark="cross" />
-      <h4 className="mt-4 text-sm font-bold uppercase tracking-wider text-charcoal-muted">Tell the vet</h4>
+      <h4 className="mt-4 text-sm font-bold text-charcoal-muted">Tell the vet</h4>
       <List items={c.tellTheVet} mark="dot" />
 
       <details className="group mt-4 rounded-xl border border-ivory-border bg-ivory">
@@ -246,7 +246,7 @@ export function VetGuide({ today, subscription, county, farmName, cows = [], far
         <div className="flex items-start gap-3">
           <span className="icon-tile"><Stethoscope className="h-6 w-6" /></span>
           <div>
-            <h2 id="check-heading" className="font-display text-2xl font-medium text-charcoal">Check an animal</h2>
+            <h2 id="check-heading" className="font-display text-2xl font-bold text-charcoal">Check an animal</h2>
             <p className="mt-1 text-base text-charcoal-light">Tell us what you can see. The guide tells you what to do first, when to call a vet, and what the signs could fit. It does not tell you what disease the animal has.</p>
           </div>
         </div>
@@ -310,7 +310,7 @@ export function VetGuide({ today, subscription, county, farmName, cows = [], far
             </div>
 
             {/* Signs */}
-            <p className="mt-6 text-sm font-semibold uppercase tracking-wider text-charcoal-muted">What can you see?</p>
+            <p className="mt-6 text-sm font-semibold text-charcoal-muted">What can you see?</p>
             <div className="mt-2 space-y-2">
               {groups.map(([group, items], index) => {
                 const count = items.filter((sign) => ticked.includes(sign.id)).length;
@@ -362,7 +362,7 @@ export function VetGuide({ today, subscription, county, farmName, cows = [], far
 
               {result.conditions.length > 0 && (
                 <>
-                  <h3 className="pt-2 font-display text-xl font-medium text-charcoal">What the signs could fit</h3>
+                  <h3 className="pt-2 font-display text-xl font-bold text-charcoal">What the signs could fit</h3>
                   {result.conditions.map((match) => <ConditionCard key={match.condition.id} match={match} />)}
                 </>
               )}
@@ -434,7 +434,7 @@ export function VetGuide({ today, subscription, county, farmName, cows = [], far
           <div className="flex items-start gap-3">
             <span className="icon-tile icon-tile-gold"><CalendarDays className="h-6 w-6" /></span>
             <div>
-              <h2 id="season-heading" className="font-display text-2xl font-medium text-charcoal">Watch for this season</h2>
+              <h2 id="season-heading" className="font-display text-2xl font-bold text-charcoal">Watch for this season</h2>
               <p className="mt-1 text-base text-charcoal-light"><strong>{season.name}.</strong> {season.summary}</p>
             </div>
           </div>

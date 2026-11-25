@@ -97,7 +97,7 @@ export const HealthModal: React.FC<HealthModalProps> = ({
               <Stethoscope className="w-5 h-5" />
             </div>
             <div>
-              <h2 className="font-display text-xl font-medium text-charcoal">
+              <h2 className="font-display text-xl font-bold text-charcoal">
                 {lang === 'sw' ? 'Rekodi Afya na Chanjo' : 'Log Health & Medication'}
               </h2>
               <p className="text-xs text-gray-500">

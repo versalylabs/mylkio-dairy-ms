@@ -58,7 +58,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className={`${quicksand.variable} scroll-smooth`}>
-      <body className="antialiased bg-[#FAF9F5] text-[#26332D] selection:bg-[#A8BFA5]/30 selection:text-[#26332D]">
+      <body className="antialiased bg-[#F8F8F3] text-[#26332D] selection:bg-[#A8BFA5]/30 selection:text-[#26332D]">
         <SiteContentProvider>{children}</SiteContentProvider>
       </body>
     </html>

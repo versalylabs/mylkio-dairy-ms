@@ -71,36 +71,31 @@ export const Shell: React.FC<ShellProps> = ({
   const mobileNavItems = navItems.filter((i) => i.key !== 'settings');
 
   return (
-    <div className="min-h-screen md:h-screen md:overflow-hidden bg-[#FAF9F5] flex flex-col md:flex-row text-[#26332D]">
+    <div className="min-h-screen md:h-screen md:overflow-hidden bg-[#F8F8F3] flex flex-col md:flex-row text-[#26332D]">
       {/* Desktop Sidebar - Independently Scrollable */}
-      <aside className="hidden md:flex flex-col w-64 bg-white border-r border-[#E8E4D8] p-4 shrink-0 md:h-screen md:overflow-y-auto custom-scrollbar">
+      <aside className="hidden md:flex flex-col w-64 bg-[#14291F] text-white p-4 shrink-0 md:h-screen md:overflow-y-auto custom-scrollbar">
         {/* Brand */}
         <div className="flex items-center space-x-3 px-3 py-3 mb-6">
-          <div className="w-10 h-10 rounded-2xl bg-[#345C4A] flex items-center justify-center text-white font-black text-xl shadow-md">
+          <div className="w-10 h-10 rounded-full bg-[#F4DC7A] flex items-center justify-center text-[#14291F] font-bold text-xl">
             M
           </div>
           <div>
-            <div className="flex items-center gap-1.5">
-              <span className="font-extrabold text-lg text-[#26332D] tracking-tight">Mylkio</span>
-              <span className="text-xs uppercase font-bold tracking-wider px-1.5 py-0.5 rounded-md bg-[#A8BFA5]/25 text-[#26332D]">
-                Kenya
-              </span>
-            </div>
-            <p className="text-xs text-[#879C91] font-medium">Dairy Farm MS</p>
+            <span className="block font-bold text-xl text-white tracking-tight">Mylkio</span>
+            <p className="text-xs text-white/60 font-semibold">by Versaly</p>
           </div>
         </div>
 
         {/* Super Admin Impersonation Notice */}
         {isSuperAdminViewing && (
-          <div className="mb-3 p-2.5 bg-[#FAF5EB] border border-[#E5D5B5] text-[#26332D] rounded-xl text-xs font-bold flex flex-col gap-1.5 shadow-sm">
-            <div className="flex items-center gap-1.5 text-[#8e7238]">
+          <div className="mb-3 p-2.5 bg-[#FCF6DC] border border-[#EED98E] text-[#26332D] rounded-xl text-xs font-bold flex flex-col gap-1.5 shadow-sm">
+            <div className="flex items-center gap-1.5 text-[#7A5E0E]">
               <Shield className="w-3.5 h-3.5 shrink-0" />
               <span>Admin Preview Mode</span>
             </div>
             {onReturnToAdmin && (
               <button
                 onClick={onReturnToAdmin}
-                className="w-full py-1 bg-[#26332D] text-white rounded-lg text-xs font-black uppercase tracking-wider hover:bg-[#1b2520] transition-colors flex items-center justify-center gap-1"
+                className="w-full py-1 bg-[#14291F] text-white rounded-lg text-xs font-black hover:bg-[#0E1F17] transition-colors flex items-center justify-center gap-1"
               >
                 <ArrowLeft className="w-3 h-3" />
                 <span>Back to Admin Hub</span>
@@ -110,36 +105,36 @@ export const Shell: React.FC<ShellProps> = ({
         )}
 
         {/* Farm Identity & Subscription Badge */}
-        <div className="mb-5 px-3 py-2.5 bg-[#FAF9F5]/70 border border-[#E8E4D8] rounded-xl space-y-2">
+        <div className="mb-5 px-3 py-2.5 bg-white/[0.06] border border-white/10 rounded-xl space-y-2">
           <div>
-            <div className="text-xs font-semibold text-[#879C91] uppercase tracking-wider">
-              {lang === 'sw' ? 'Shamba Lako' : 'Current Farm'}
+            <div className="text-xs font-semibold text-white/55">
+              {lang === 'sw' ? 'Shamba lako' : 'Current farm'}
             </div>
-            <div className="text-sm font-bold text-[#26332D] truncate mt-0.5">
+            <div className="text-sm font-bold text-white truncate mt-0.5">
               {farm.name}
             </div>
-            <div className="text-xs text-[#879C91] truncate">
+            <div className="text-xs text-white/55 truncate">
               {farm.county}
             </div>
           </div>
 
           {user && role !== 'owner' && (
-            <div className="pt-2 border-t border-[#E8E4D8] text-xs">
-              <span className="px-2 py-0.5 rounded-full text-xs font-bold bg-[#A8BFA5]/25 text-[#26332D] border border-[#A8BFA5]/40 whitespace-nowrap">
+            <div className="pt-2 border-t border-white/10 text-xs">
+              <span className="px-2 py-0.5 rounded-full text-xs font-bold bg-white/10 text-white border border-white/15 whitespace-nowrap">
                 {ROLE_LABEL[role][lang === 'sw' ? 'sw' : 'en']}
               </span>
             </div>
           )}
           {user && role === 'owner' && (
-            <div className="pt-2 border-t border-[#E8E4D8] flex items-center justify-between text-xs">
+            <div className="pt-2 border-t border-white/10 flex items-center justify-between text-xs">
               <span className={`px-2 py-0.5 rounded-full text-xs font-bold ${
                 user.subscription.status === 'active'
-                  ? 'bg-[#A8BFA5]/25 text-[#26332D] border border-[#A8BFA5]/40'
-                  : 'bg-[#FAF5EB] text-[#8e7238] border border-[#E5D5B5]'
+                  ? 'bg-white/10 text-white border border-white/15'
+                  : 'bg-[#F4DC7A] text-[#14291F] border border-[#F4DC7A]'
               } whitespace-nowrap`}>
                 {planPillLabel(user.subscription, lang === 'sw' ? 'sw' : 'en')}
               </span>
-              <span className="font-extrabold text-[#26332D]">
+              <span className="font-bold text-white">
                 {formatKshPerMonth(user.subscription.monthlyPriceKsh || 0, true)}
               </span>
             </div>
@@ -157,8 +152,8 @@ export const Shell: React.FC<ShellProps> = ({
                 onClick={() => onTabChange(item.key)}
                 className={`nav-item group w-full flex items-center space-x-3 px-3.5 py-2.5 rounded-xl text-sm font-semibold transition-all duration-300 ease-premium ${
                   isActive
-                    ? 'bg-[#345C4A] text-white shadow-sm'
-                    : 'text-[#5D7368] hover:translate-x-1 hover:text-[#26332D] hover:bg-[#e4ede7]/70'
+                    ? 'bg-[#F4DC7A] text-[#14291F] font-bold'
+                    : 'text-white/70 hover:translate-x-1 hover:text-white hover:bg-white/[0.08]'
                 }`}
               >
                 <Icon className="w-4 h-4 shrink-0" />
@@ -170,31 +165,31 @@ export const Shell: React.FC<ShellProps> = ({
         </nav>
 
         {/* Desktop Sidebar Footer */}
-        <div className="pt-4 border-t border-[#E8E4D8] space-y-3">
+        <div className="pt-4 border-t border-white/10 space-y-3">
           {onOpenExport && (
             <button
               onClick={onOpenExport}
-              className="w-full flex items-center space-x-2 px-3.5 py-2 rounded-xl text-xs font-bold bg-[#A8BFA5]/20 hover:bg-[#A8BFA5]/30 text-[#26332D] transition-colors border border-[#A8BFA5]/40"
+              className="w-full flex items-center space-x-2 px-3.5 py-2 rounded-xl text-xs font-bold bg-white/[0.08] hover:bg-white/15 text-white transition-colors border border-white/10"
             >
-              <Download className="w-3.5 h-3.5 text-[#345C4A]" />
+              <Download className="w-3.5 h-3.5 text-[#F4DC7A]" />
               <span>{lang === 'sw' ? 'Pakua CSV / Backup' : 'Export Data / CSV'}</span>
             </button>
           )}
 
           <button
             onClick={onLanguageToggle}
-            className="w-full flex items-center justify-between px-3.5 py-2 rounded-xl text-xs font-semibold bg-[#FAF9F5] hover:bg-[#F2EFE7] text-[#26332D] transition-colors"
+            className="w-full flex items-center justify-between px-3.5 py-2 rounded-xl text-xs font-semibold bg-white/[0.08] hover:bg-white/15 text-white transition-colors"
           >
             <div className="flex items-center space-x-2">
-              <Globe className="w-3.5 h-3.5 text-[#345C4A]" />
+              <Globe className="w-3.5 h-3.5 text-[#F4DC7A]" />
               <span>{lang === 'en' ? 'English (EN)' : 'Kiswahili (SW)'}</span>
             </div>
-            <span className="text-xs text-[#879C91] uppercase font-bold">Switch</span>
+            <span className="text-xs text-white/55 font-bold">Switch</span>
           </button>
 
           <button
             onClick={onLogout}
-            className="w-full flex items-center space-x-2 px-3.5 py-2 rounded-xl text-xs font-semibold text-red-600 hover:bg-red-50 hover:text-red-700 transition-colors"
+            className="w-full flex items-center space-x-2 px-3.5 py-2 rounded-xl text-xs font-semibold text-rose-300 hover:bg-white/[0.08] hover:text-rose-200 transition-colors"
           >
             <LogOut className="w-3.5 h-3.5" />
             <span>{lang === 'sw' ? 'Ondoka (Sign Out)' : 'Sign Out'}</span>
@@ -206,15 +201,15 @@ export const Shell: React.FC<ShellProps> = ({
       <div className="flex-1 flex flex-col min-w-0 md:h-screen md:overflow-y-auto custom-scrollbar">
         {/* Mobile Super Admin Return Notice */}
         {isSuperAdminViewing && (
-          <div className="md:hidden bg-[#FAF5EB] border-b border-[#E5D5B5] text-[#26332D] px-4 py-2 flex items-center justify-between text-xs font-bold">
-            <div className="flex items-center gap-1.5 text-[#8e7238]">
+          <div className="md:hidden bg-[#FCF6DC] border-b border-[#EED98E] text-[#26332D] px-4 py-2 flex items-center justify-between text-xs font-bold">
+            <div className="flex items-center gap-1.5 text-[#7A5E0E]">
               <Shield className="w-3.5 h-3.5" />
               <span>Admin Preview</span>
             </div>
             {onReturnToAdmin && (
               <button
                 onClick={onReturnToAdmin}
-                className="px-2 py-0.5 bg-[#26332D] text-white rounded text-xs uppercase font-black"
+                className="px-2 py-0.5 bg-[#14291F] text-white rounded text-xs font-black"
               >
                 Back to Admin
               </button>
@@ -223,9 +218,9 @@ export const Shell: React.FC<ShellProps> = ({
         )}
 
         {/* Mobile Top Header */}
-        <header className="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-[#E8E4D8] px-4 py-2 flex items-center justify-between gap-2">
+        <header className="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-[#DDE2D6] px-4 py-2 flex items-center justify-between gap-2">
           <div className="flex min-w-0 items-center space-x-2.5">
-            <div className="w-8 h-8 rounded-xl bg-[#345C4A] flex items-center justify-center text-white font-black text-sm shadow-sm md:hidden">
+            <div className="w-8 h-8 rounded-full bg-[#F4DC7A] flex items-center justify-center text-[#14291F] font-bold text-sm md:hidden">
               M
             </div>
             <div className="min-w-0">
@@ -247,7 +242,7 @@ export const Shell: React.FC<ShellProps> = ({
             {onOpenExport && (
               <button
                 onClick={onOpenExport}
-                className="flex h-11 w-11 items-center justify-center rounded-full border border-[#E8E4D8] bg-[#FAF9F5] hover:bg-[#F2EFE7] text-[#26332D] transition-colors"
+                className="flex h-11 w-11 items-center justify-center rounded-full border border-[#DDE2D6] bg-[#F8F8F3] hover:bg-[#EEF0E8] text-[#26332D] transition-colors"
                 title="Export Data"
                 aria-label={lang === 'sw' ? 'Pakua data' : 'Export data'}
               >
@@ -257,7 +252,7 @@ export const Shell: React.FC<ShellProps> = ({
 
             <button
               onClick={onLanguageToggle}
-              className="flex h-11 items-center gap-1 px-3 rounded-full border border-[#E8E4D8] bg-[#FAF9F5] hover:bg-[#F2EFE7] text-sm font-bold text-[#26332D] transition-colors"
+              className="flex h-11 items-center gap-1 px-3 rounded-full border border-[#DDE2D6] bg-[#F8F8F3] hover:bg-[#EEF0E8] text-sm font-bold text-[#26332D] transition-colors"
               aria-label={lang === 'sw' ? 'Badilisha lugha: Kiswahili au Kiingereza' : 'Change language: English or Kiswahili'}
             >
               <Globe className="w-3.5 h-3.5 text-[#345C4A]" />
@@ -267,7 +262,7 @@ export const Shell: React.FC<ShellProps> = ({
             <button
               onClick={() => onTabChange('settings')}
               aria-label={lang === 'sw' ? 'Mipangilio' : 'Settings'}
-              className={`flex h-11 w-11 items-center justify-center rounded-full border border-[#E8E4D8] text-[#5D7368] md:hidden ${activeTab === 'settings' ? 'bg-[#A8BFA5]/20 text-[#345C4A] border-[#A8BFA5]' : 'bg-[#FAF9F5]'}`}
+              className={`flex h-11 w-11 items-center justify-center rounded-full border border-[#DDE2D6] text-[#5D7368] md:hidden ${activeTab === 'settings' ? 'bg-[#A8BFA5]/20 text-[#345C4A] border-[#A8BFA5]' : 'bg-[#F8F8F3]'}`}
               title="Settings"
             >
               <Settings className="w-4 h-4" />
@@ -281,7 +276,7 @@ export const Shell: React.FC<ShellProps> = ({
         </main>
 
         {/* Mobile Bottom Navigation Bar */}
-        <nav className="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-white border-t border-[#E8E4D8] shadow-lg px-2 py-1.5 flex items-center justify-around">
+        <nav className="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-white border-t border-[#DDE2D6] shadow-lg px-2 py-1.5 flex items-center justify-around">
           {mobileNavItems.map((item) => {
             const Icon = item.icon;
             const isActive = activeTab === item.key;
@@ -291,11 +286,13 @@ export const Shell: React.FC<ShellProps> = ({
                 onClick={() => onTabChange(item.key)}
                 className={`flex min-h-12 min-w-0 flex-auto flex-col items-center justify-center py-1 px-0.5 rounded-xl transition-all ${
                   isActive
-                    ? 'text-[#345C4A] font-bold'
-                    : 'text-[#879C91] hover:text-[#26332D] font-medium'
+                    ? 'text-[#14291F] font-bold'
+                    : 'text-[#5D7368] hover:text-[#26332D] font-semibold'
                 }`}
               >
-                <Icon className={`w-5 h-5 ${isActive ? 'stroke-[2.5px] scale-105' : 'stroke-[1.75px]'}`} />
+                <span className={`flex h-7 w-12 items-center justify-center rounded-full transition-colors ${isActive ? 'bg-[#F4DC7A]' : ''}`}>
+                  <Icon className={`w-5 h-5 ${isActive ? 'stroke-[2.25px]' : 'stroke-[1.75px]'}`} />
+                </span>
                 <span className="mt-0.5 max-w-full truncate text-[11px] leading-tight tracking-tighter min-[360px]:text-xs min-[360px]:tracking-tight">{item.label}</span>
               </button>
             );

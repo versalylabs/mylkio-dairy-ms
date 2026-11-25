@@ -36,29 +36,29 @@ const config: Config = {
           950: "#0e1813",
         },
         ivory: {
-          DEFAULT: "#FAF9F5", // Warm Ivory
+          DEFAULT: "#F8F8F3", // Milk: the page ground, shared with the website
           surface: "#FFFFFF",
-          muted: "#F2EFE7",
-          border: "#E8E4D8",
-          50: "#fdfdfb",
-          100: "#FAF9F5",
-          200: "#F2EFE7",
-          300: "#E8E4D8",
-          400: "#d9d2c2",
-          500: "#c4bba7",
+          muted: "#EEF0E8",
+          border: "#DDE2D6", // The hairline rule
+          50: "#FCFCF9",
+          100: "#F8F8F3",
+          200: "#EEF0E8",
+          300: "#DDE2D6",
+          400: "#C9D0C1",
+          500: "#AEB7A5",
         },
         gold: {
-          DEFAULT: "#C6A76A", // Muted Gold
-          hover: "#b39252",
-          subtle: "#FAF5EB",
-          border: "#E5D5B5",
-          50: "#fbf9f4",
-          100: "#FAF5EB",
-          200: "#ebd8b0",
-          300: "#d8be85",
-          400: "#C6A76A",
-          500: "#b39252",
-          600: "#8e7238",
+          DEFAULT: "#E9C94F", // Slip yellow, the website's accent
+          hover: "#D4B232",
+          subtle: "#FCF6DC",
+          border: "#EED98E",
+          50: "#FEFBEE",
+          100: "#FCF6DC",
+          200: "#F6E7A8",
+          300: "#F4DC7A",
+          400: "#E9C94F",
+          500: "#C9A42C",
+          600: "#8A6A10", // Readable on white, for figures and labels
         },
         charcoal: {
           DEFAULT: "#26332D", // Charcoal

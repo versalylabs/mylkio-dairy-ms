@@ -31,7 +31,7 @@ export function FarmStart({ steps, lang }: {
         {steps.map((step, index) => {
           const copy = t.steps[step.id];
           return (
-            <li key={step.id} className="flex items-start gap-3 rounded-2xl border border-gray-200 bg-[#FAF9F5] p-3">
+            <li key={step.id} className="flex items-start gap-3 rounded-2xl border border-gray-200 bg-[#F8F8F3] p-3">
               <span className={`mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-sm font-bold ${step.done ? 'bg-[#345C4A] text-white' : 'bg-white text-gray-700 ring-1 ring-gray-300'}`}>
                 {step.done ? <Check className="h-4 w-4" aria-hidden="true" /> : index + 1}
               </span>

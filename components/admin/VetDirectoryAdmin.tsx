@@ -70,7 +70,7 @@ export function VetDirectoryAdmin() {
     <section aria-labelledby="vets-heading" className="space-y-3">
       <div className="flex flex-wrap items-end justify-between gap-3">
         <div>
-          <h2 id="vets-heading" className="font-display text-2xl font-medium">Vet directory ({counts.pending ?? 0} waiting)</h2>
+          <h2 id="vets-heading" className="font-display text-2xl font-bold">Vet directory ({counts.pending ?? 0} waiting)</h2>
           <p className="mt-1 max-w-2xl text-sm text-charcoal-light">Ring the number before confirming it, and record the day you rang. Only confirmed entries are shown to farmers.</p>
         </div>
         <div className="flex flex-wrap items-end gap-2">

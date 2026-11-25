@@ -85,7 +85,7 @@ export function CommunityAdmin() {
     <section aria-labelledby="community-heading" className="space-y-3">
       <div className="flex flex-wrap items-end justify-between gap-3">
         <div>
-          <h2 id="community-heading" className="font-display text-2xl font-medium">Community groups ({live.length})</h2>
+          <h2 id="community-heading" className="font-display text-2xl font-bold">Community groups ({live.length})</h2>
           <p className="mt-1 max-w-2xl text-sm text-charcoal-light">
             Create a group for a real SACCO or area, then send its members an invitation link. Only Farm Pro and Custom farms can join. You see group names, counts and which farms joined, never what members write.
           </p>

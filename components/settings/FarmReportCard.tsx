@@ -100,7 +100,7 @@ function FarmReportDialog({ farm, data, lang, onClose }: { farm: Farm; data: Far
         </header>
 
         <section aria-labelledby="report-monthly">
-          <h2 id="report-monthly" className="mb-1 text-sm font-bold uppercase tracking-wide">{t.monthly}</h2>
+          <h2 id="report-monthly" className="mb-1 text-sm font-bold">{t.monthly}</h2>
           <div className="overflow-x-auto">
           <table className="w-full min-w-[19rem] table-fixed border-collapse text-xs">
             <thead>
@@ -141,7 +141,7 @@ function FarmReportDialog({ farm, data, lang, onClose }: { farm: Farm; data: Far
 
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
           <section aria-labelledby="report-herd">
-            <h2 id="report-herd" className="mb-1 text-sm font-bold uppercase tracking-wide">{t.herd}</h2>
+            <h2 id="report-herd" className="mb-1 text-sm font-bold">{t.herd}</h2>
             <ul className="space-y-0.5 text-sm">
               {(Object.keys(t.herdLabels) as (keyof typeof t.herdLabels)[]).map((key) => (
                 <li key={key} className="flex justify-between gap-3"><span>{t.herdLabels[key]}</span><strong className="tabular-nums">{report.herd[key]}</strong></li>
@@ -150,7 +150,7 @@ function FarmReportDialog({ farm, data, lang, onClose }: { farm: Farm; data: Far
             <p className="mt-1 text-xs text-gray-600">{t.herdNote}</p>
           </section>
           <section aria-labelledby="report-buyers">
-            <h2 id="report-buyers" className="mb-1 text-sm font-bold uppercase tracking-wide">{t.buyers} ({report.buyersByType.total})</h2>
+            <h2 id="report-buyers" className="mb-1 text-sm font-bold">{t.buyers} ({report.buyersByType.total})</h2>
             <ul className="space-y-0.5 text-sm">
               {(Object.keys(t.buyerTypes) as (keyof typeof t.buyerTypes)[]).map((key) => (
                 <li key={key} className="flex justify-between gap-3"><span>{t.buyerTypes[key]}</span><strong className="tabular-nums">{report.buyersByType[key]}</strong></li>
